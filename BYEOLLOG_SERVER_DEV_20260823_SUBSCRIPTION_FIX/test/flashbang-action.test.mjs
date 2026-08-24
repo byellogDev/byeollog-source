@@ -8,11 +8,14 @@ const text = path => readFile(new URL(path, root), "utf8");
 test("flashbang migration exposes bounded manager-only save and test RPCs", async () => {
   const migration = await text("supabase/migrations/20260824173931_add_flashbang_action.sql");
   const targetSafetyMigration = await text("supabase/migrations/20260824192432_allow_flashbang_rule_action_target.sql");
+  const timeoutRepairMigration = await text("supabase/migrations/20260824192955_fix_flashbang_timeout_contract.sql");
   assert.match(migration, /create or replace function public\.save_guided_rule_v12/);
   assert.match(migration, /create or replace function public\.dispatch_guided_rule_test_v3/);
   assert.match(migration, /p_flashbang_intensity not in \('soft','standard','strong'\)/);
   assert.match(migration, /p_flashbang_volume_percent not between 0 and 100/);
-  assert.match(migration, /'durationMs',3000/);
+  assert.match(migration, /'durationMs',5000/);
+  assert.match(migration, /timeout_ms=120000/);
+  assert.doesNotMatch(migration, /150000/);
   assert.match(migration, /'flashbang\.overlay'=any\(s\.supported_action_types\)/);
   assert.match(migration, /perform byeollog_automation\.assert_canary_manager_v1\(p_workspace_id\)/);
   assert.match(migration, /grant execute on function public\.save_guided_rule_v12[\s\S]*to authenticated/);
@@ -21,6 +24,12 @@ test("flashbang migration exposes bounded manager-only save and test RPCs", asyn
   assert.match(targetSafetyMigration, /rule_actions_target_safe/);
   assert.match(targetSafetyMigration, /'flashbang\.overlay'/);
   assert.match(targetSafetyMigration, /params\s*\?\s*'overlayAssetKey'/);
+  assert.match(timeoutRepairMigration, /create or replace function byeollog_automation\.save_guided_rule_v12_impl/);
+  assert.match(timeoutRepairMigration, /create or replace function byeollog_automation\.dispatch_guided_rule_test_v3_impl/);
+  assert.match(timeoutRepairMigration, /'durationMs',5000/);
+  assert.match(timeoutRepairMigration, /timeout_ms=120000/);
+  assert.match(timeoutRepairMigration, /v_action\.params,120000,1,5/);
+  assert.doesNotMatch(timeoutRepairMigration, /150000/);
 });
 
 test("all live action runtimes allow flashbang without relaxing unrelated actions", async () => {

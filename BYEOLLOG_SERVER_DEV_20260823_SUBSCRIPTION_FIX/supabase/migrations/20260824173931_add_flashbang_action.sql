@@ -102,15 +102,15 @@ begin
   end;
   v_params:=jsonb_build_object(
     'label','섬광탄!','controlType','flashbang','intensity',p_flashbang_intensity,
-    'overlayImageKey',v_asset_key,'durationMs',3000,
+    'overlayImageKey',v_asset_key,'durationMs',5000,
     'volumePercent',p_flashbang_volume_percent);
   update public.rule_actions as public_action
      set action_type='flashbang.overlay',params=v_params,execution_target='local_agent',
-         agent_device_id=p_agent_device_id,overlay_asset_id=null,overlay_duration_ms=3000
+         agent_device_id=p_agent_device_id,overlay_asset_id=null,overlay_duration_ms=5000
    where public_action.rule_id=v_rule_id and public_action.position=0;
   update byeollog_automation.rule_actions as private_action
      set action_type='flashbang.overlay',params=v_params,execution_target='local_agent',
-         agent_device_id=p_agent_device_id,timeout_ms=150000,max_attempts=3,retry_backoff_seconds=5
+         agent_device_id=p_agent_device_id,timeout_ms=120000,max_attempts=3,retry_backoff_seconds=5
    where private_action.rule_id=v_rule_id and private_action.position=0;
   return query select v_rule_id,v_rule_version,v_created_enabled;
 end;
@@ -179,7 +179,7 @@ begin
     v_device_id:=v_action.agent_device_id;
     if v_action.params->>'intensity' not in ('soft','standard','strong')
        or v_action.params->>'overlayImageKey' not in ('flashbang_soft','flashbang_standard','flashbang_strong')
-       or (v_action.params->>'durationMs')::integer<>3000
+       or (v_action.params->>'durationMs')::integer<>5000
        or (v_action.params->>'volumePercent')::integer not between 0 and 100
     then raise exception 'flashbang test parameters are invalid' using errcode='22023'; end if;
   exception when invalid_text_representation or numeric_value_out_of_range then
@@ -213,7 +213,7 @@ begin
     id,workspace_id,event_id,rule_id,action_id,idempotency_key,execution_target,
     agent_device_id,action_type,action_params,timeout_ms,max_attempts,retry_backoff_seconds)
   values(v_execution_id,p_workspace_id,v_event_id,p_rule_id,v_action.id,v_idempotency_key,
-    'local_agent',v_device_id,'flashbang.overlay',v_action.params,150000,1,5);
+    'local_agent',v_device_id,'flashbang.overlay',v_action.params,120000,1,5);
   return query select v_event_id,v_execution_id,'flashbang.overlay'::text,v_device_id;
 exception when no_data_found or too_many_rows then
   raise exception 'action test rule snapshot is invalid' using errcode='P0002';
