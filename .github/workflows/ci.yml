@@ -1,0 +1,104 @@
+name: source-ci
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  server:
+    name: Server tests and static security gate
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/package-lock.json
+      - name: Check repository boundary and Supabase migration policy
+        run: ./scripts/Test-RepositoryBaseline.ps1
+      - name: Install locked server dependencies
+        working-directory: BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX
+        run: npm ci
+      - name: Run server tests and source-manifest assertions
+        working-directory: BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX
+        run: npm test
+      - name: Execute collection-health migration behavior harness
+        shell: bash
+        working-directory: BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX
+        env:
+          PGPASSWORD: postgres
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d postgres \
+            -f test/collection-health-migration-harness.sql
+
+  agent:
+    name: Windows AgentStore tests and release compile
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Check repository boundary and Supabase migration policy
+        shell: pwsh
+        run: ./scripts/Test-RepositoryBaseline.ps1
+      - name: Restore AgentStore tests
+        shell: pwsh
+        working-directory: BYEOLLOG_AGENT_DEV_v07022
+        run: dotnet restore AgentStoreTests/AgentStoreTests.csproj
+      - name: Run AgentStore tests
+        shell: pwsh
+        working-directory: BYEOLLOG_AGENT_DEV_v07022
+        run: dotnet run --project AgentStoreTests/AgentStoreTests.csproj -c Release --no-restore
+      - name: Run Agent contract tests
+        shell: pwsh
+        working-directory: BYEOLLOG_AGENT_DEV_v07022
+        run: node --test ContractTests/*.test.mjs
+      - name: Restore production Agent project
+        shell: pwsh
+        working-directory: BYEOLLOG_AGENT_DEV_v07022
+        run: dotnet restore HurogiCollector.csproj
+      - name: Compile production Agent release
+        shell: pwsh
+        working-directory: BYEOLLOG_AGENT_DEV_v07022
+        run: >-
+          dotnet publish HurogiCollector.csproj -c Release --no-restore
+          -r win-x64 --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -o ci-artifacts/agent
+      - name: Check the compiled update-preflight path
+        shell: pwsh
+        working-directory: BYEOLLOG_AGENT_DEV_v07022
+        run: |
+          [xml]$project = Get-Content -Raw HurogiCollector.csproj
+          $expectedVersion = @($project.Project.PropertyGroup | ForEach-Object { [string]$_.Version } | Where-Object { $_ })[0]
+          if ($expectedVersion -notmatch '^\d+\.\d+\.\d+\.\d+$') { throw 'A four-part Agent Version is required for update preflight.' }
+          & .\ci-artifacts\agent\byeollog.exe --update-preflight $expectedVersion
+          if ($LASTEXITCODE -ne 0) { throw 'Compiled Agent update preflight failed.' }

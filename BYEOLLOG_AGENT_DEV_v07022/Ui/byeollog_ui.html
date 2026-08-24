@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; font-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>별록 에이전트</title>
+  <style>
+    :root{--bg:#f3f6fb;--shell:#fff;--surface:#fff;--soft:#f7f9fc;--line:#dce3ee;--text:#101b3a;--muted:#69758b;--gold:#f5b63d;--gold2:#ffc857;--green:#13a270;--green-soft:#e9f8f2;--red:#e14c57;--red-soft:#fff0f1;--blue:#4b7bec;--shadow:0 24px 70px #13203f18}
+    [data-theme="dark"]{color-scheme:dark;--bg:#071226;--shell:#0b1931;--surface:#10213e;--soft:#0e1c36;--line:#29405f;--text:#f6f8ff;--muted:#9cabc2;--green-soft:#0c3129;--red-soft:#321d28;--shadow:0 30px 80px #0008}
+    *{box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden}body{margin:0;background:var(--shell);color:var(--text);font-family:Pretendard,"Noto Sans KR","Malgun Gothic","맑은 고딕","Segoe UI",sans-serif}button,input{font:inherit}button:focus-visible,input:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+    .app{width:1120px;height:760px;margin:0;transform-origin:top left;background:var(--shell);border:1px solid var(--line);border-radius:24px;overflow:hidden}
+    .topbar{height:104px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:14px}.brand-box{width:224px;height:94px;padding:4px 0;display:flex;align-items:center;overflow:visible}.brand-box img{width:218px;height:auto;max-height:88px;object-fit:contain;display:block}.brand>div:last-child{display:grid;justify-items:start;gap:5px}.concept{padding:6px 10px;border-radius:999px;background:var(--soft);color:var(--text);font-size:12px;font-weight:900}.product-sub{padding-left:3px;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.11em}.top-actions{display:flex;gap:8px}.square{width:42px;height:42px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--text);cursor:pointer}.square:hover{border-color:var(--gold)}
+    .main-view,.workspace{height:676px}.main-view{display:block;padding:24px;overflow:auto}.main-view.hidden,.workspace.hidden{display:none}.workspace{display:grid;grid-template-columns:210px 1fr}.sidebar{padding:20px 14px;border-right:1px solid var(--line);background:var(--soft)}.side-label{padding:0 10px 8px;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.08em}.nav{width:100%;height:46px;margin:3px 0;border:0;border-radius:12px;background:transparent;color:var(--muted);font-weight:800;text-align:left;padding:0 13px;cursor:pointer}.nav span{display:inline-grid;place-items:center;width:24px;margin-right:7px}.nav:hover{background:var(--surface);color:var(--text)}.nav.active{background:var(--surface);color:var(--text);box-shadow:inset 3px 0 var(--gold)}.side-status{margin-top:24px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);font-size:12px;color:var(--muted)}.side-status strong{display:block;margin-top:5px;color:var(--green);font-size:13px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;background:var(--green)}
+    .content{padding:26px;min-width:0;overflow:auto;scroll-behavior:smooth}.screen{display:none}.screen.active{display:block}.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px}.page-head h1{margin:0;font-size:27px;letter-spacing:-.04em}.page-head p{margin:7px 0 0;color:var(--muted);font-size:14px}.page-head-actions{display:flex;align-items:center;gap:9px}.nav.offline{color:var(--muted)}.nav.offline:after{content:"연결 확인";float:right;margin-top:1px;padding:3px 6px;border-radius:999px;background:var(--red-soft);color:var(--red);font-size:9px}.pill{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--soft);color:var(--muted);font-size:12px;font-weight:800}
+    .main-hero{display:grid;grid-template-columns:1.25fr .75fr;gap:16px}.main-card{padding:18px;border:1px solid var(--line);border-radius:18px;background:var(--soft)}.session-card{display:flex;flex-direction:column}.session-controls{flex:0 0 auto}.eyebrow{margin:0 0 7px;color:var(--muted);font-size:13px;font-weight:800}.session-title{display:flex;align-items:center;gap:10px;margin:0;font-size:24px}.live-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px #13a27022}.session-desc{margin:8px 0 18px;color:var(--muted);font-size:14px}.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.time-input{height:46px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);padding:0 13px}.start{width:100%;height:52px;margin-top:12px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#17203d;font-size:17px;font-weight:900;cursor:pointer}.session-note{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:auto;padding-top:14px}.session-note-item{display:flex;align-items:center;gap:10px;min-height:50px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}.session-note-icon{width:28px;height:28px;display:grid;place-items:center;flex:0 0 auto;border-radius:9px;background:#f5b63d18;color:var(--gold);font-size:13px;font-weight:900}.session-note-copy{min-width:0}.session-note-copy b{display:block;font-size:12px}.session-note-copy span{display:block;margin-top:2px;color:var(--muted);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.health{display:grid;gap:10px}.health-row{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;min-height:56px;padding:9px 11px;border:1px solid var(--line);border-radius:13px;background:var(--surface)}.health-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:var(--green-soft);color:var(--green);font-weight:900}.health-row.warn .health-icon{background:#f5b63d18;color:#e69b10}.health-name{color:var(--muted);font-size:12px}.health-value{font-size:14px;font-weight:900}.health-meta{color:var(--muted);font-size:11px}.main-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}.main-stat{padding:14px 16px;border:1px solid var(--line);border-radius:15px;background:var(--surface)}.main-stat span{color:var(--muted);font-size:12px;font-weight:700}.main-stat strong{display:block;margin-top:5px;font-size:23px}.main-stat:nth-child(2) strong{color:var(--green)}.main-stat:nth-child(3) strong{color:#8158cf}.quick-head{display:flex;justify-content:space-between;align-items:center;margin:16px 2px 9px}.quick-head h2{margin:0;font-size:16px}.quick-head span{color:var(--muted);font-size:12px}.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.quick{min-height:88px;padding:13px;border:1px solid var(--line);border-radius:15px;background:var(--surface);color:var(--text);text-align:left;cursor:pointer}.quick:hover{border-color:var(--gold);background:#f5b63d0c}.quick.danger:hover{border-color:var(--red)}.quick i{font-style:normal;font-size:20px}.quick b{display:block;margin-top:8px;font-size:14px}.quick small{display:block;margin-top:3px;color:var(--muted);font-size:11px}
+    .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}.summary-card{padding:14px 16px;border:1px solid var(--line);border-radius:15px;background:var(--surface)}.summary-card span{color:var(--muted);font-size:12px;font-weight:700}.summary-card strong{display:block;margin-top:5px;font-size:21px}.summary-card:nth-child(2) strong{color:var(--green)}.summary-card:nth-child(3) strong{color:var(--gold)}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:15px 15px 0 0;background:var(--soft)}.toolbar-left,.toolbar-right{display:flex;gap:8px;align-items:center}.search{width:220px;height:38px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text)}.filter,.ghost,.primary,.danger{height:38px;border-radius:10px;padding:0 13px;font-weight:800;cursor:pointer}.filter,.ghost{border:1px solid var(--line);background:var(--surface);color:var(--text)}.filter.active{border-color:var(--gold);background:#f5b63d18}.primary{border:1px solid #eaa72d;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#15203d}.danger{border:1px solid transparent;background:var(--red-soft);color:var(--red)}
+    .table-wrap{border:1px solid var(--line);border-top:0;border-radius:0 0 15px 15px;overflow:hidden;background:var(--surface)}table{width:100%;border-collapse:collapse;table-layout:fixed}th{height:42px;padding:0 12px;background:var(--soft);color:var(--muted);font-size:12px;text-align:left}td{height:53px;padding:0 12px;border-top:1px solid var(--line);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}tbody tr:hover{background:#f5b63d0d}.selected{background:#f5b63d12}.status{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;background:var(--green-soft);color:var(--green);font-size:11px;font-weight:900}.event{font-weight:800}.result{color:var(--muted)}.table-foot{display:flex;justify-content:space-between;padding:12px 3px;color:var(--muted);font-size:12px}
+    .tabs{display:flex;gap:7px;margin-bottom:14px;padding:5px;border:1px solid var(--line);border-radius:14px;background:var(--soft);width:max-content}.tab{height:38px;padding:0 18px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-weight:900;cursor:pointer}.tab.active{background:var(--surface);color:var(--text);box-shadow:0 3px 12px #00000010}.tab.active:after{content:"";display:inline-block;width:6px;height:6px;margin-left:8px;border-radius:50%;background:var(--gold);vertical-align:2px}
+    .rule-panel{display:none}.rule-panel.active{display:block}.composer{padding:17px;border:1px solid var(--line);border-radius:16px;background:var(--surface);margin-bottom:14px}.composer-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}.composer h2{margin:0;font-size:16px}.composer p{margin:4px 0 0;color:var(--muted);font-size:12px}.form-grid{display:grid;grid-template-columns:110px 110px minmax(170px,1fr) 120px;gap:10px;align-items:end}.form-grid.fixed{grid-template-columns:110px minmax(150px,.8fr) minmax(160px,1fr) 90px 120px}.field label{display:block;margin:0 0 6px 2px;color:var(--muted);font-size:11px;font-weight:800}.field input{width:100%;height:40px;padding:0 11px;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--text);outline:none}.field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #f5b63d20}.add{height:40px}
+    .rule-card{border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden}.rule-card-head{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid var(--line)}.rule-card-head h2{margin:0;font-size:16px}.count{margin-left:7px;color:var(--muted);font-size:12px;font-weight:600}.rule-actions{display:flex;gap:5px}.mini{height:31px;padding:0 9px;border:1px solid var(--line);border-radius:8px;background:var(--soft);color:var(--muted);font-size:11px;font-weight:800;cursor:pointer}.mini.delete{color:var(--red);background:var(--red-soft);border-color:transparent}.rules-list{min-height:270px}.rule-row{display:grid;grid-template-columns:92px 92px 1fr 92px;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);font-size:13px}.rule-row.fixed{grid-template-columns:92px 1fr 1fr 70px 92px}.rule-row.head{min-height:38px;padding-top:8px;padding-bottom:8px;background:var(--soft);color:var(--muted);font-size:11px;font-weight:800}.rule-empty{min-height:160px;display:grid;place-items:center;padding:24px;color:var(--muted);font-size:12px;text-align:center}.rule-empty strong{display:block;margin-bottom:5px;color:var(--text);font-size:13px}.amount{font-weight:900}.amount:after{content:"개";margin-left:2px;color:var(--muted);font-size:10px}.rule-name{font-weight:800}.savebar{display:flex;align-items:center;justify-content:space-between;margin-top:14px}.savebar p{margin:0;color:var(--muted);font-size:12px}.savebar div{display:flex;gap:8px}.toast{position:fixed;left:50%;bottom:26px;translate:-50% 20px;opacity:0;padding:11px 16px;border-radius:12px;background:#101827;color:#fff;font-size:13px;pointer-events:none;transition:.2s}.toast.show{opacity:1;translate:-50% 0}
+    .login-view,.main-view,.workspace{height:calc(100% - 104px)}.login-view{display:grid;grid-template-columns:1.05fr .95fr;background:var(--shell)}.login-view.hidden,.main-view.hidden,.workspace.hidden{display:none}.main-view{padding:16px 24px;overflow:hidden;display:grid;grid-template-rows:minmax(0,1fr) 78px 112px 38px;gap:10px}.main-hero{gap:12px;min-height:0}.main-card{height:100%;padding:18px 20px}.main-stats{height:78px;gap:10px;margin:0}.main-stat{display:flex;flex-direction:column;justify-content:center;padding:11px 16px}.quick-actions{height:112px;grid-auto-rows:112px}.quick{display:flex;flex-direction:column;justify-content:center;width:100%;height:112px;min-height:112px;padding:16px;border-width:1px}.quick.danger{width:100%;height:112px;padding:16px}
+    .login-brand-panel{display:flex;flex-direction:column;justify-content:center;padding:52px;background:linear-gradient(145deg,#f5b63d18,transparent 55%),var(--soft);border-right:1px solid var(--line)}.login-mark{margin-bottom:24px}.login-mark img{width:272px;height:auto;display:block}.login-brand-panel h1{margin:0;font-size:34px;letter-spacing:-.045em}.login-brand-panel p{max-width:390px;margin:13px 0 0;color:var(--muted);font-size:15px;line-height:1.7}.login-points{display:grid;gap:12px;margin-top:32px}.login-point{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}.login-point i{width:24px;height:24px;display:grid;place-items:center;border-radius:8px;background:#f5b63d20;color:var(--gold);font-style:normal;font-weight:900}.login-form-panel{display:flex;align-items:center;padding:52px}.login-card{width:100%;max-width:400px;margin:auto}.login-title{margin:0;font-size:28px}.login-desc{margin:8px 0 28px;color:var(--muted);font-size:13px}.login-field{margin-top:14px}.login-field label{display:block;margin:0 0 7px 2px;color:var(--muted);font-size:12px;font-weight:800}.login-input{width:100%;height:50px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--text);outline:none}.login-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #f5b63d20}.login-options{display:flex;align-items:center;justify-content:space-between;margin:15px 2px 21px;color:var(--muted);font-size:12px}.remember{display:flex;align-items:center;gap:7px}.login-status{margin:-10px 2px 12px;color:var(--red);font-size:12px}.login-status.ok{color:var(--green)}.login-submit{width:100%;height:52px;border:1px solid #eaa72d;border-radius:12px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#15203d;font-size:16px;font-weight:900;cursor:pointer}.login-submit:disabled{cursor:wait;opacity:.72}.login-links{display:flex;justify-content:center;gap:18px;margin-top:18px;color:var(--muted);font-size:12px}.login-links button{border:0;background:transparent;color:inherit;cursor:pointer}
+    .main-footer{display:flex;align-items:flex-end;justify-content:space-between;padding:0 4px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}.main-footer span:last-child{display:flex;align-items:center;gap:7px}.main-footer i{width:7px;height:7px;border-radius:50%;background:var(--green)}.main-footer.offline i{background:var(--red)}.status.issue{background:var(--red-soft);color:var(--red)}.empty-row td{text-align:center;color:var(--muted);height:106px}.health-row.clickable{cursor:pointer}.health-row.clickable:hover{border-color:var(--gold)}.health-row.issue{border-color:#e14c5750}.health-row.issue .health-icon{background:var(--red-soft);color:var(--red)}.side-status.offline .dot{background:var(--red)}.side-status.offline strong{color:var(--red)}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar" id="windowDragArea">
+    <div class="brand"><div class="brand-box"><img id="logo" src="byeollog_logo_dark_safe.png" alt="별록"></div><div><span class="concept" id="collectorIdentity">별록 에이전트 · 스트리머님</span><span class="product-sub">BYEOLLOG AGENT</span></div></div>
+    <div class="top-actions"><button class="square" id="theme" title="화이트 모드로 변경" aria-label="화면 색상 변경">☀</button><button class="square" id="minimize" title="최소화" aria-label="창 최소화">—</button><button class="square" id="close" title="닫기" aria-label="창 닫기">×</button></div>
+  </header>
+  <section class="login-view" id="loginView">
+    <div class="login-brand-panel"><div class="login-mark"><img id="loginLogo" src="byeollog_logo_dark_safe.png" alt="별록"></div><h1>편하게 기록하고 관리하세요</h1><p>후원 내역을 놓치지 않고 수집하고, 정해둔 규칙에 따라 자동으로 정리하세요.</p><div class="login-points"><span class="login-point"><i>✓</i>후원 내역 실시간 자동 수집</span><span class="login-point"><i>✓</i>룰렛·확정 규칙 자동 적용</span><span class="login-point"><i>✓</i>별록 대시보드와 안전하게 연결</span></div></div>
+    <div class="login-form-panel"><div class="login-card">
+      <h1 class="login-title">별록에 로그인</h1>
+      <p class="login-desc">후원 기록을 안전하게 수집할 워크스페이스에 연결합니다.</p>
+      <div class="login-field"><label for="loginId">이메일 또는 아이디</label><input class="login-input" id="loginId" autocomplete="username"></div>
+      <div class="login-field"><label for="loginPassword">비밀번호</label><input class="login-input" id="loginPassword" type="password" autocomplete="current-password"></div>
+      <div class="login-options"><label class="remember"><input id="rememberId" type="checkbox"> ID 저장</label><span>승인된 계정만 로그인할 수 있어요</span></div>
+      <p class="login-status" id="loginStatus" hidden></p>
+      <button class="login-submit" id="loginSubmit">로그인</button>
+      <div class="login-links"><button id="forgotPassword">비밀번호 찾기</button><span>·</span><button id="signup">회원가입</button></div>
+    </div></div>
+  </section>
+  <main class="main-view hidden" id="mainView">
+    <section class="main-hero">
+      <div class="main-card session-card"><div class="session-controls"><p class="eyebrow">현재 수집 세션</p><h1 class="session-title"><span class="live-dot"></span><span id="sessionTitle">수집 준비가 완료됐어요</span></h1><p class="session-desc" id="sessionDesc">방송을 시작한 시각을 지정한 뒤 수집을 시작하세요.</p><div class="time-row"><input class="time-input" id="startDate" type="date"><input class="time-input" id="startTime" type="time"></div><button class="start" id="start">▶ 수집 시작</button></div><div class="session-note"><div class="session-note-item"><span class="session-note-icon">◷</span><div class="session-note-copy"><b>선택한 시각부터 수집</b><span>이전 후원은 포함하지 않아요</span></div></div><div class="session-note-item"><span class="session-note-icon">↥</span><div class="session-note-copy"><b>자동 업로드 적용</b><span>수집 즉시 서버로 전송해요</span></div></div></div></div>
+      <div class="main-card health"><div class="health-row warn clickable" id="weflabRow" role="button" tabindex="0" aria-label="위플랩 로그인 열기"><span class="health-icon">W</span><div><div class="health-name">Weflab</div><div class="health-value" id="weflabValue">연결 필요</div></div><span class="health-meta" id="weflabMeta">로그인 열기 ›</span></div><div class="health-row"><span class="health-icon">A</span><div><div class="health-name">자동 업로드</div><div class="health-value" id="uploadValue">정상 동작 중</div></div><span class="health-meta" id="uploadMeta">대기 0건</span></div><div class="health-row" id="serverRow"><span class="health-icon">S</span><div><div class="health-name">별록 서버</div><div class="health-value" id="serverValue">연결됨</div></div><span class="health-meta" id="serverMeta">방금 확인</span></div></div>
+    </section>
+    <section class="main-stats"><div class="main-stat"><span>이번 세션 후원</span><strong id="statDonations">0건</strong></div><div class="main-stat"><span>수집 별풍선</span><strong id="statBalloons">0개</strong></div><div class="main-stat"><span>룰렛 결과</span><strong id="statRoulette">0건</strong></div></section>
+    <section class="quick-actions"><button class="quick" id="dashboard"><i>↗</i><b>대시보드 바로가기</b><small>로그인된 별록 대시보드 열기</small></button><button class="quick" data-open="rules"><i>⚙</i><b>업보 규칙 설정</b><small>후원 결과별 업보 수집 규칙 관리</small></button><button class="quick" data-open="collection"><i>☷</i><b>수집 목록 보기</b><small>수집 및 학습 필요 항목 확인</small></button><button class="quick danger" id="exit"><i>⏻</i><b>프로그램 종료</b><small>수집을 마치고 안전하게 종료</small></button></section>
+    <footer class="main-footer" id="mainFooter"><span>별을 기록하다, 별록.</span><span><i></i><span id="footerStatus">마지막 자동 전송 없음 · 대기 0건</span></span></footer>
+  </main>
+  <div class="workspace hidden" id="workspace">
+    <aside class="sidebar">
+      <div class="side-label">별록 에이전트 메뉴</div>
+      <button class="nav active" data-screen="collection"><span>☷</span>수집 목록</button>
+      <button class="nav" data-screen="rules"><span>⚙</span>업보 규칙 설정</button>
+      <button class="nav" id="automationNav"><span>✦</span>별록 액션</button>
+      <button class="nav" id="goMain"><span>←</span>메인으로</button>
+      <div class="side-status" id="sideStatus"><span class="dot"></span>별록 서버<strong id="sideServerStatus">정상 연결됨</strong></div>
+    </aside>
+    <main class="content">
+      <section class="screen active" id="collection">
+        <div class="page-head"><div><h1>수집 목록</h1><p>서버 전송 전 원본 기록과 수집 결과를 한눈에 확인합니다.</p></div><span class="pill" id="collectionRange">수집 세션 없음</span></div>
+        <div class="summary"><div class="summary-card"><span>전체 수집</span><strong id="collectionTotal">0건</strong></div><div class="summary-card"><span>정상 처리</span><strong id="collectionNormal">0건</strong></div><div class="summary-card"><span>확인 필요</span><strong id="collectionIssues">0건</strong></div></div>
+        <div class="toolbar"><div class="toolbar-left"><button class="filter active" data-filter="all">전체 0</button><button class="filter" data-filter="normal">정상 0</button><button class="filter" data-filter="issue">확인 필요 0</button></div><div class="toolbar-right"><input class="search" id="collectionSearch" placeholder="닉네임 또는 SOOP ID 검색"><button class="ghost" id="refreshCollection">↻ 새로고침</button></div></div>
+        <div class="table-wrap"><table><thead><tr><th style="width:15%">수집 시간</th><th style="width:14%">닉네임</th><th style="width:14%">SOOP ID</th><th style="width:9%">별풍선</th><th style="width:11%">이벤트</th><th style="width:9%">룰렛</th><th style="width:10%">상태</th><th>대표 결과</th></tr></thead><tbody id="collectionRows"></tbody></table></div><div class="table-foot"><span>최근 수집순으로 표시</span><span id="collectionFoot">서버 전송 전 원본 기록 · 총 0건</span></div>
+      </section>
+      <section class="screen" id="rules">
+        <div class="page-head"><div><h1>업보 규칙 설정</h1><p>후원 결과에 따라 업보를 자동으로 수집합니다.</p></div><div class="page-head-actions"><span class="pill" id="rulesTotal">저장된 규칙 0개</span></div></div>
+        <div class="tabs"><button class="tab active" data-rule="roulette">룰렛</button><button class="tab" data-rule="fixed">확정</button></div>
+        <div class="rule-panel active" id="roulette-panel">
+          <div class="composer"><div class="composer-head"><div><h2 id="rouletteComposerTitle">새 룰렛</h2><p>후원 금액에 따른 예상 룰렛 횟수와 이벤트명을 지정합니다.</p></div><span class="pill">룰렛</span></div><div class="form-grid"><div class="field"><label>별풍선</label><input id="rouletteBalloons" type="number" min="1" value="30"></div><div class="field"><label>룰렛 횟수</label><input id="rouletteSpins" type="number" min="1" value="1"></div><div class="field"><label>이벤트명</label><input id="rouletteEvent" placeholder="예: 8월 이벤트"></div><button class="primary add" id="addRoulette">＋ 항목 추가</button></div></div>
+          <div class="rule-card"><div class="rule-card-head"><h2>등록된 룰렛 <span class="count" id="rouletteCount">0개</span></h2><span class="pill">금액 오름차순</span></div><div class="rules-list" id="rouletteList"><div class="rule-row head"><span>별풍선</span><span>룰렛 횟수</span><span>이벤트명</span><span>작업</span></div></div></div>
+        </div>
+        <div class="rule-panel" id="fixed-panel">
+          <div class="composer"><div class="composer-head"><div><h2 id="fixedComposerTitle">새 확정</h2><p>정해진 후원 금액에 확정으로 증정할 업보와 수량을 지정합니다.</p></div><span class="pill">확정</span></div><div class="form-grid fixed"><div class="field"><label>별풍선</label><input id="fixedBalloons" type="number" min="1" value="30"></div><div class="field"><label>이벤트명</label><input id="fixedEvent" placeholder="예: 8월 이벤트"></div><div class="field"><label>업보 종류</label><input id="fixedType" placeholder="예: 단컷"></div><div class="field"><label>수량</label><input id="fixedQuantity" type="number" min="1" value="1"></div><button class="primary add" id="addFixed">＋ 항목 추가</button></div></div>
+          <div class="rule-card"><div class="rule-card-head"><h2>등록된 확정 <span class="count" id="fixedCount">0개</span></h2><span class="pill">금액 오름차순</span></div><div class="rules-list" id="fixedList"><div class="rule-row fixed head"><span>별풍선</span><span>이벤트명</span><span>업보 종류</span><span>수량</span><span>작업</span></div></div></div>
+        </div>
+        <div class="savebar"><p id="rulesSaveHint">변경 내용은 설정 저장 후 다음 수집부터 적용됩니다.</p><div><button class="ghost" id="cancelRules">변경 취소</button><button class="primary" id="saveRules">설정 저장</button></div></div>
+      </section>
+    </main>
+  </div>
+</div>
+<div class="toast" id="toast">시안용 동작입니다.</div>
+<script>
+  const root=document.documentElement;
+  const logo=document.querySelector('#logo');
+  const loginLogo=document.querySelector('#loginLogo');
+  const themeButton=document.querySelector('#theme');
+  const toast=document.querySelector('#toast');
+  const loginView=document.querySelector('#loginView');
+  const mainView=document.querySelector('#mainView');
+  const workspace=document.querySelector('#workspace');
+  const params=new URLSearchParams(location.search);
+  const mode=params.get('mode')||'main';
+  let toastTimer=0;
+  let mainState={collecting:false};
+  let collectionData={items:[],total:0,normal:0,issues:0,range:'수집 세션 없음'};
+  let collectionFilter='all';
+  let rulesData={roulette:[],fixed:[],isLive:false};
+  let rouletteEditKey=null;
+  let fixedEditKey=null;
+
+  function fitAppToViewport(){
+    const app=document.querySelector('.app');
+    const scale=Math.min(innerWidth/1120,innerHeight/760);
+    app.style.transform=`scale(${Math.max(.1,scale)})`;
+  }
+  addEventListener('resize',fitAppToViewport,{passive:true});
+  fitAppToViewport();
+
+  function post(action,payload={}){
+    try{window.chrome?.webview?.postMessage({action,payload})}catch(_){ }
+  }
+  function esc(value){
+    return String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  }
+  function showToast(message){
+    clearTimeout(toastTimer);toast.textContent=message;toast.classList.add('show');
+    toastTimer=setTimeout(()=>toast.classList.remove('show'),1700);
+  }
+  function setTheme(theme,notify=false){
+    const dark=theme!=='light';
+    root.dataset.theme=dark?'dark':'light';
+    const src=dark?'byeollog_logo_dark_safe.png':'byeollog_logo_light_safe.png';
+    logo.src=src;loginLogo.src=src;themeButton.textContent=dark?'☀':'☾';
+    themeButton.title=dark?'화이트 모드로 변경':'다크 모드로 변경';
+    if(notify)post('theme',{theme:root.dataset.theme});
+  }
+  function openScreen(id){
+    mainView.classList.add('hidden');workspace.classList.remove('hidden');
+    document.querySelectorAll('.nav[data-screen]').forEach(x=>{const active=x.dataset.screen===id;x.classList.toggle('active',active);x.setAttribute('aria-current',active?'page':'false')});
+    document.querySelectorAll('.screen').forEach(x=>{const active=x.id===id;x.classList.toggle('active',active);x.setAttribute('aria-hidden',String(!active))});
+    post('screen',{screen:id});
+  }
+  function showMain(){workspace.classList.add('hidden');mainView.classList.remove('hidden')}
+
+  themeButton.onclick=()=>setTheme(root.dataset.theme==='dark'?'light':'dark',true);
+  document.querySelector('#minimize').onclick=()=>post('minimize');
+  document.querySelector('#close').onclick=()=>post('close');
+  document.querySelector('#windowDragArea').addEventListener('pointerdown',event=>{
+    if(event.button===0&&!event.target.closest('button,input,a'))post('windowDrag');
+  });
+
+  document.querySelector('#loginSubmit').onclick=()=>post('login',{
+    id:document.querySelector('#loginId').value,
+    password:document.querySelector('#loginPassword').value,
+    remember:document.querySelector('#rememberId').checked
+  });
+  document.querySelector('#loginPassword').addEventListener('keydown',event=>{if(event.key==='Enter')document.querySelector('#loginSubmit').click()});
+  document.querySelector('#forgotPassword').onclick=()=>post('forgotPassword');
+  document.querySelector('#signup').onclick=()=>post('signup');
+
+  document.querySelectorAll('.nav[data-screen]').forEach(btn=>btn.onclick=()=>openScreen(btn.dataset.screen));
+  document.querySelectorAll('[data-open]').forEach(btn=>btn.onclick=()=>openScreen(btn.dataset.open));
+  document.querySelector('#goMain').onclick=showMain;
+  document.querySelector('#dashboard').onclick=()=>post('dashboard');
+  document.querySelector('#exit').onclick=()=>post('exit');
+  document.querySelector('#weflabRow').onclick=()=>post('openWeflab');
+  document.querySelector('#weflabRow').addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();post('openWeflab')}});
+  const startDateInput=document.querySelector('#startDate');
+  const startTimeInput=document.querySelector('#startTime');
+  const syncStartTime=()=>{
+    if(mainState.collecting)return;
+    post('startTimeChanged',{date:startDateInput.value,time:startTimeInput.value});
+  };
+  [startDateInput,startTimeInput].forEach(input=>{
+    input.addEventListener('input',syncStartTime);
+    input.addEventListener('change',syncStartTime);
+  });
+  document.querySelector('#start').onclick=()=>post('toggleCollection',{
+    date:startDateInput.value,
+    time:startTimeInput.value
+  });
+  document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>{x.classList.remove('active');x.setAttribute('aria-selected','false')});
+    document.querySelectorAll('.rule-panel').forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active');btn.setAttribute('aria-selected','true');document.querySelector('#'+btn.dataset.rule+'-panel').classList.add('active');
+  });
+
+  document.querySelectorAll('.filter').forEach(button=>button.onclick=()=>{
+    collectionFilter=button.dataset.filter;document.querySelectorAll('.filter').forEach(x=>{const active=x===button;x.classList.toggle('active',active);x.setAttribute('aria-pressed',String(active))});renderCollection();
+  });
+  document.querySelector('#collectionSearch').addEventListener('input',renderCollection);
+  document.querySelector('#refreshCollection').onclick=()=>post('refreshCollection');
+
+  document.querySelector('#addRoulette').onclick=()=>post('upsertRoulette',{
+    oldBalloons:rouletteEditKey,
+    balloons:Number(document.querySelector('#rouletteBalloons').value),
+    spins:Number(document.querySelector('#rouletteSpins').value),
+    eventName:document.querySelector('#rouletteEvent').value
+  });
+  document.querySelector('#addFixed').onclick=()=>post('upsertFixed',{
+    oldKey:fixedEditKey,
+    balloons:Number(document.querySelector('#fixedBalloons').value),
+    eventName:document.querySelector('#fixedEvent').value,
+    upboType:document.querySelector('#fixedType').value,
+    quantity:Number(document.querySelector('#fixedQuantity').value)
+  });
+  document.querySelector('#saveRules').onclick=()=>post('saveRules');
+  document.querySelector('#automationNav').onclick=()=>post('openAutomationSettings');
+  document.querySelector('#cancelRules').onclick=()=>post('cancelRules');
+  ['#rouletteBalloons','#rouletteSpins','#rouletteEvent'].forEach(selector=>document.querySelector(selector).addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();document.querySelector('#addRoulette').click()}}));
+  ['#fixedBalloons','#fixedEvent','#fixedType','#fixedQuantity'].forEach(selector=>document.querySelector(selector).addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();document.querySelector('#addFixed').click()}}));
+
+  function setLoginState(state){
+    const id=document.querySelector('#loginId'),password=document.querySelector('#loginPassword'),remember=document.querySelector('#rememberId');
+    if(typeof state.rememberedId==='string'&&state.rememberedId){id.value=state.rememberedId;remember.checked=true;password.focus()}
+    if(state.clearPassword)password.value='';
+    const status=document.querySelector('#loginStatus');
+    status.textContent=state.message||'';status.hidden=!state.message;status.classList.toggle('ok',!state.error);
+    document.querySelector('#loginSubmit').disabled=!!state.busy;
+    document.querySelector('#loginSubmit').textContent=state.phase==='preparing'?'별록 준비 중...':state.phase==='prepareError'?'화면 다시 준비':state.busy?'로그인 중...':'로그인';
+    if(state.focus==='id')id.focus();if(state.focus==='password')password.focus();
+  }
+
+  function setMainState(state){
+    mainState={...mainState,...state};
+    const streamerName=String(mainState.streamerName||'스트리머').trim().replace(/님$/,'')||'스트리머';
+    document.querySelector('#collectorIdentity').textContent=`별록 에이전트 · ${streamerName}님${mainState.releaseLabel?` · ${mainState.releaseLabel}`:''}`;
+    document.querySelector('#sessionTitle').textContent=mainState.sessionTitle||'수집 준비가 완료됐어요';
+    document.querySelector('#sessionDesc').textContent=mainState.sessionDesc||'방송을 시작한 시각을 지정한 뒤 수집을 시작하세요.';
+    const date=startDateInput,time=startTimeInput;
+    const editingStart=document.activeElement===date||document.activeElement===time;
+    if(mainState.collecting||mainState.forceStartTime||!editingStart){
+      if(mainState.startDate)date.value=mainState.startDate;
+      if(mainState.startTime)time.value=mainState.startTime;
+    }
+    date.disabled=time.disabled=!!mainState.collecting;
+    document.querySelector('#start').textContent=mainState.collecting?'■ 수집 중지':'▶ 수집 시작';
+    const recovering=!!mainState.weflabRecovering;
+    const weflab=document.querySelector('#weflabRow');weflab.classList.toggle('warn',!mainState.weflabConnected);
+    document.querySelector('#weflabValue').textContent=mainState.weflabConnected?'연결 완료':recovering?'자동 복구 중':'연결 필요';
+    document.querySelector('#weflabMeta').textContent=mainState.weflabConnected?'연결됨':recovering?'잠시만 기다려주세요':'로그인 열기 ›';
+    document.querySelector('#weflabRow').setAttribute('aria-label',mainState.weflabConnected?'위플랩 연결 화면 열기':recovering?'위플랩 연결 자동 복구 중':'위플랩 로그인 열기');
+    document.querySelector('#uploadValue').textContent=mainState.uploadStatus||'정상 동작 중';
+    document.querySelector('#uploadMeta').textContent=`대기 ${Number(mainState.pending||0).toLocaleString()}건`;
+    const serverConnected=!!mainState.serverConnected;
+    document.querySelector('#serverValue').textContent=serverConnected?'연결됨':'연결 필요';
+    document.querySelector('#serverMeta').textContent=serverConnected?'정상 연결':'로그인 필요';
+    document.querySelector('#serverRow').classList.toggle('issue',!serverConnected);
+    document.querySelector('#sideServerStatus').textContent=serverConnected?'정상 연결됨':'연결 필요';
+    document.querySelector('#sideStatus').classList.toggle('offline',!serverConnected);
+    document.querySelector('#mainFooter').classList.toggle('offline',!serverConnected);
+    const automationConnected=mainState.developmentConnected!==false;
+    document.querySelector('#automationNav').classList.toggle('offline',!automationConnected);
+    document.querySelector('#automationNav').title=automationConnected?'별록 액션 열기':'로컬 설정은 바로 사용할 수 있고 서버 액션은 연결 후 사용할 수 있어요.';
+    document.querySelector('#statDonations').textContent=`${Number(mainState.donations||0).toLocaleString()}건`;
+    document.querySelector('#statBalloons').textContent=`${Number(mainState.balloons||0).toLocaleString()}개`;
+    document.querySelector('#statRoulette').textContent=`${Number(mainState.roulette||0).toLocaleString()}건`;
+    document.querySelector('#footerStatus').textContent=`마지막 자동 전송 ${mainState.lastTransfer||'없음'} · 운영 대기 ${Number(mainState.pending||0).toLocaleString()}건${mainState.developmentMode?` · 뉴별록 대기 ${Number(mainState.developmentPending||0).toLocaleString()}건`:''}`;
+  }
+
+  function setCollection(data){collectionData={...collectionData,...data};renderCollection()}
+  function renderCollection(){
+    const query=document.querySelector('#collectionSearch').value.trim().toLowerCase();
+    const items=(collectionData.items||[]).filter(item=>{
+      const filterOk=collectionFilter==='all'||(collectionFilter==='normal'&&item.normal)||(collectionFilter==='issue'&&!item.normal);
+      const searchOk=!query||String(item.name||'').toLowerCase().includes(query)||String(item.id||'').toLowerCase().includes(query);
+      return filterOk&&searchOk;
+    });
+    document.querySelector('#collectionRange').textContent=collectionData.range||'수집 세션 없음';
+    document.querySelector('#collectionTotal').textContent=`${Number(collectionData.total||0).toLocaleString()}건`;
+    document.querySelector('#collectionNormal').textContent=`${Number(collectionData.normal||0).toLocaleString()}건`;
+    document.querySelector('#collectionIssues').textContent=`${Number(collectionData.issues||0).toLocaleString()}건`;
+    document.querySelector('[data-filter="all"]').textContent=`전체 ${collectionData.total||0}`;
+    document.querySelector('[data-filter="normal"]').textContent=`정상 ${collectionData.normal||0}`;
+    document.querySelector('[data-filter="issue"]').textContent=`확인 필요 ${collectionData.issues||0}`;
+    document.querySelector('#collectionFoot').textContent=`서버 전송 전 원본 기록 · 총 ${Number(collectionData.total||0).toLocaleString()}건`;
+    document.querySelector('#collectionRows').innerHTML=items.length?items.map((item,index)=>`<tr class="${index===0?'selected':''}"><td>${esc(item.time)}</td><td>${esc(item.name)}</td><td>${esc(item.id)}</td><td><b>${Number(item.balloons||0).toLocaleString()}개</b></td><td class="event">${esc(item.event)}</td><td>${esc(item.roulette)}</td><td><span class="status ${item.normal?'':'issue'}">● ${esc(item.status)}</span></td><td class="result">${esc(item.result)}</td></tr>`).join(''):'<tr class="empty-row"><td colspan="8">표시할 수집 기록이 없습니다.</td></tr>';
+  }
+
+  function setRules(data){rulesData={...rulesData,...data};rouletteEditKey=null;fixedEditKey=null;resetRuleForms();renderRules()}
+  function resetRuleForms(){
+    document.querySelector('#rouletteComposerTitle').textContent='새 룰렛';document.querySelector('#addRoulette').textContent='＋ 항목 추가';
+    document.querySelector('#rouletteBalloons').value='30';document.querySelector('#rouletteSpins').value='1';document.querySelector('#rouletteEvent').value='';
+    document.querySelector('#fixedComposerTitle').textContent='새 확정';document.querySelector('#addFixed').textContent='＋ 항목 추가';
+    document.querySelector('#fixedBalloons').value='30';document.querySelector('#fixedEvent').value='';document.querySelector('#fixedType').value='';document.querySelector('#fixedQuantity').value='1';
+  }
+  function renderRules(){
+    const roulette=rulesData.roulette||[],fixed=rulesData.fixed||[];
+    document.querySelector('#rulesTotal').textContent=`저장된 규칙 ${roulette.length+fixed.length}개`;
+    document.querySelector('#rouletteCount').textContent=`${roulette.length}개`;document.querySelector('#fixedCount').textContent=`${fixed.length}개`;
+    document.querySelector('#rulesSaveHint').textContent=rulesData.isLive?'변경 내용은 설정 저장 후 현재 수집부터 적용됩니다.':'변경 내용은 설정 저장 후 다음 수집부터 적용됩니다.';
+    const rouletteList=document.querySelector('#rouletteList');rouletteList.innerHTML='<div class="rule-row head"><span>별풍선</span><span>룰렛 횟수</span><span>이벤트명</span><span>작업</span></div>';
+    if(!roulette.length){const empty=document.createElement('div');empty.className='rule-empty';const copy=document.createElement('div'),title=document.createElement('strong'),text=document.createElement('span');title.textContent='등록된 룰렛 규칙이 없습니다.';text.textContent='위 입력란에서 첫 룰렛 규칙을 추가해 보세요.';copy.append(title,text);empty.append(copy);rouletteList.append(empty)}
+    roulette.forEach((rule,index)=>{
+      const row=document.createElement('div');row.className='rule-row';row.innerHTML=`<span class="amount">${rule.balloons}</span><b>${rule.spins}회</b><span class="rule-name">${esc(rule.eventName)}</span><span class="rule-actions"><button class="mini edit">수정</button><button class="mini delete">삭제</button></span>`;
+      row.querySelector('.edit').onclick=()=>{rouletteEditKey=rule.balloons;document.querySelector('#rouletteBalloons').value=rule.balloons;document.querySelector('#rouletteSpins').value=rule.spins;document.querySelector('#rouletteEvent').value=rule.eventName;document.querySelector('#rouletteComposerTitle').textContent='룰렛 수정';document.querySelector('#addRoulette').textContent='수정 완료';document.querySelector('.content').scrollTo({top:0,behavior:'smooth'});document.querySelector('#rouletteBalloons').focus()};
+      row.querySelector('.delete').onclick=()=>post('deleteRoulette',{balloons:rule.balloons});rouletteList.appendChild(row);
+    });
+    const fixedList=document.querySelector('#fixedList');fixedList.innerHTML='<div class="rule-row fixed head"><span>별풍선</span><span>이벤트명</span><span>업보 종류</span><span>수량</span><span>작업</span></div>';
+    if(!fixed.length){const empty=document.createElement('div');empty.className='rule-empty';const copy=document.createElement('div'),title=document.createElement('strong'),text=document.createElement('span');title.textContent='등록된 확정 규칙이 없습니다.';text.textContent='위 입력란에서 첫 확정 규칙을 추가해 보세요.';copy.append(title,text);empty.append(copy);fixedList.append(empty)}
+    fixed.forEach(rule=>{
+      const key=`${rule.balloons}\u001f${rule.eventName}\u001f${rule.upboType}`;
+      const row=document.createElement('div');row.className='rule-row fixed';row.innerHTML=`<span class="amount">${rule.balloons}</span><span class="rule-name">${esc(rule.eventName)}</span><span>${esc(rule.upboType)}</span><b>${rule.quantity}개</b><span class="rule-actions"><button class="mini edit">수정</button><button class="mini delete">삭제</button></span>`;
+      row.querySelector('.edit').onclick=()=>{fixedEditKey=key;document.querySelector('#fixedBalloons').value=rule.balloons;document.querySelector('#fixedEvent').value=rule.eventName;document.querySelector('#fixedType').value=rule.upboType;document.querySelector('#fixedQuantity').value=rule.quantity;document.querySelector('#fixedComposerTitle').textContent='확정 수정';document.querySelector('#addFixed').textContent='수정 완료';document.querySelector('.content').scrollTo({top:0,behavior:'smooth'});document.querySelector('#fixedBalloons').focus()};
+      row.querySelector('.delete').onclick=()=>post('deleteFixed',{key});fixedList.appendChild(row);
+    });
+  }
+
+  const initialTheme=params.get('theme')==='light'?'light':'dark';setTheme(initialTheme);
+  document.querySelectorAll('.tab').forEach(tab=>tab.setAttribute('aria-selected',String(tab.classList.contains('active'))));
+  document.querySelectorAll('.filter').forEach(button=>button.setAttribute('aria-pressed',String(button.classList.contains('active'))));
+  if(mode==='login'){loginView.classList.remove('hidden');mainView.classList.add('hidden');workspace.classList.add('hidden')}
+  else{loginView.classList.add('hidden');mainView.classList.remove('hidden');workspace.classList.add('hidden');const now=new Date(),pad=n=>String(n).padStart(2,'0');document.querySelector('#startDate').value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;document.querySelector('#startTime').value=`${pad(now.getHours())}:${pad(now.getMinutes())}`}
+
+  window.byeollog={setLoginState,setMainState,setCollection,setRules,showToast,openScreen,showMain,setTheme};
+</script>
+</body>
+</html>

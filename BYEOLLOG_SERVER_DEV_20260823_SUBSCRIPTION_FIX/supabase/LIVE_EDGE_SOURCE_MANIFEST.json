@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-08-23T06:16:24Z",
+  "projectRef": "offslvwaugvjotkywlus",
+  "source": "Supabase get_edge_function read-only export",
+  "functions": [
+    {
+      "slug": "agent-runtime-g3a",
+      "version": 4,
+      "status": "ACTIVE",
+      "verifyJwt": true,
+      "bundleSha256": "f4316eb57ffe5be1658ab3f0341b2a2615edb0e9f2ffe90ce6f4b42447dca528",
+      "entrypoint": "agent-runtime/index.ts",
+      "files": ["agent-runtime/index.ts", "_shared/cors.ts", "_shared/server-runtime.ts", "_shared/agent-device-status.ts"]
+    },
+    {
+      "slug": "event-runtime-g3a",
+      "version": 2,
+      "status": "ACTIVE",
+      "verifyJwt": true,
+      "bundleSha256": "b80108819dee9685198f50bf867477f30fcdfef9ac3c7e808fa24975e0fe873e",
+      "entrypoint": "event-runtime/index.ts",
+      "files": ["event-runtime/index.ts", "_shared/cors.ts", "_shared/server-runtime.ts", "_shared/rule-evaluator.ts", "_shared/execution-worker.ts"]
+    },
+    {
+      "slug": "execution-worker-g3a",
+      "version": 1,
+      "status": "ACTIVE",
+      "verifyJwt": true,
+      "bundleSha256": "e88cd6c8ccf3f5e8f48a2cf386f7f0c61489655b8a3388229b4418383eba5fcd",
+      "entrypoint": "execution-worker/index.ts",
+      "files": ["execution-worker/index.ts", "_shared/cors.ts", "_shared/server-runtime.ts", "_shared/execution-worker.ts"]
+    }
+  ],
+  "files": [
+    {"path":"_shared/agent-device-status.ts","bytes":1740,"sha256":"c6edd9696cad4f740bb2536f039d68c951d3364708d15c97573e90400f97e285"},
+    {"path":"_shared/cors.ts","bytes":279,"sha256":"3163a2310eb148ddb6df00347dd3350827d6be4807727d3a909414ba361e321d"},
+    {"path":"_shared/execution-worker.ts","bytes":9635,"sha256":"834d6f282b56cd40f3b726e21fdc7643d501673d79e6bd7dd95b729cb3d90fe4"},
+    {"path":"_shared/rule-evaluator.ts","bytes":2383,"sha256":"2d45619592c9f684a54e10a30c549cea770c6d27e0c2cbfa9357d1cd53267c10"},
+    {"path":"_shared/server-runtime.ts","bytes":12156,"sha256":"47fda74767b0f692052f1c8f3dd16d2671a038cbdaf03ee9c0d833512afed634"},
+    {"path":"agent-runtime/index.ts","bytes":16857,"sha256":"938c007e2849427243ddd0d674d147c6ec2b572d30cd79d9d49a45c4d4549491"},
+    {"path":"event-runtime/index.ts","bytes":10161,"sha256":"a9751aebf20aa890550d4b32b336c7724bc4118a38e3211d98c9a1139cc6c835"},
+    {"path":"execution-worker/index.ts","bytes":4264,"sha256":"86a698f4d651603c9da6a3c462124fbe5760f53f582909e61fe3d9929e9ea8a7"}
+  ],
+  "notes": [
+    "This is an exact read-only recovery snapshot of the active production bundles.",
+    "Folder names are source entrypoint paths; deployed slugs include the -g3a suffix.",
+    "Do not redeploy from this snapshot without verifying the manifest, function slug, verify_jwt, runtime revision, migrations, and release gate."
+  ]
+}

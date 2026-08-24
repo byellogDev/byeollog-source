@@ -1,0 +1,324 @@
+using System.Collections.Concurrent;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+
+namespace HurogiCollector;
+
+internal sealed record RaffleWinnerSpeechDownload(
+    byte[] Audio,
+    string VoiceKey,
+    string VoiceVersion,
+    string AudioSha256);
+
+internal sealed record RaffleWinnerSpeechCacheEntry(
+    byte[] Audio,
+    string VoiceKey,
+    string VoiceVersion,
+    string AudioSha256,
+    DateTimeOffset CreatedAtUtc);
+
+internal sealed class RaffleWinnerSpeechCache
+{
+    internal const int SchemaVersion = 1;
+    internal const int MaximumAudioBytes = 2 * 1024 * 1024;
+    private const int MaximumManifestBytes = 4096;
+    private const string VoiceKeyDomain = "raffle-winner-voice-v1|";
+    private static readonly UTF8Encoding Utf8NoBom = new(false, true);
+    private static readonly Regex Sha256Pattern = new(
+        "^[0-9a-f]{64}$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    private static readonly Regex VoiceVersionPattern = new(
+        "^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    private readonly string _root;
+    private readonly Action<string>? _log;
+    private readonly ConcurrentDictionary<string, SemaphoreSlim> _keyGates =
+        new(StringComparer.Ordinal);
+
+    public RaffleWinnerSpeechCache(string rootPath, Action<string>? log = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(rootPath);
+        _root = Path.GetFullPath(rootPath);
+        _log = log;
+        EnsureSafeRoot();
+    }
+
+    internal string RootPath => _root;
+
+    internal static string ComputeVoiceKey(string actorName)
+    {
+        var normalized = (actorName ?? "").Trim();
+        if (normalized.Length is < 1 or > 120 || normalized.Any(char.IsControl))
+            throw new ArgumentException("당첨자 이름이 올바르지 않습니다.", nameof(actorName));
+        return Convert.ToHexString(
+            SHA256.HashData(Encoding.UTF8.GetBytes(VoiceKeyDomain + normalized)))
+            .ToLowerInvariant();
+    }
+
+    public bool TryRead(string voiceKey, out RaffleWinnerSpeechCacheEntry? entry)
+    {
+        entry = null;
+        var normalized = NormalizeVoiceKey(voiceKey);
+        var gate = _keyGates.GetOrAdd(normalized, static _ => new SemaphoreSlim(1, 1));
+        gate.Wait();
+        try
+        {
+            EnsureSafeRoot();
+            var audioPath = AudioPath(normalized);
+            var manifestPath = ManifestPath(normalized);
+            if (!File.Exists(audioPath) || !File.Exists(manifestPath))
+                return false;
+            try
+            {
+                RejectReparsePoint(audioPath);
+                RejectReparsePoint(manifestPath);
+                var manifest = ReadManifest(manifestPath, normalized);
+                var info = new FileInfo(audioPath);
+                if (info.Length != manifest.ByteSize
+                    || info.Length is < 44 or > MaximumAudioBytes)
+                    throw new InvalidDataException("캐시 음성 크기가 manifest와 일치하지 않습니다.");
+
+                var audio = ReadBounded(audioPath, MaximumAudioBytes);
+                var actualHash = Convert.ToHexString(SHA256.HashData(audio)).ToLowerInvariant();
+                if (!FixedTimeHexEquals(actualHash, manifest.AudioSha256))
+                    throw new InvalidDataException("캐시 음성 해시가 manifest와 일치하지 않습니다.");
+                ByeollogRaffleAudio.ValidateWinnerAudioForPreflight(audio);
+                entry = new RaffleWinnerSpeechCacheEntry(
+                    audio,
+                    manifest.VoiceKey,
+                    manifest.VoiceVersion,
+                    manifest.AudioSha256,
+                    manifest.CreatedAtUtc);
+                return true;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _log?.Invoke("당첨 음성 캐시 격리 · key=" + normalized[..12]
+                    + " · type=" + ex.GetType().Name);
+                DeleteExactPair(audioPath, manifestPath);
+                return false;
+            }
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task StoreAsync(
+        string expectedVoiceKey,
+        RaffleWinnerSpeechDownload download,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(download);
+        var normalized = NormalizeVoiceKey(expectedVoiceKey);
+        if (!FixedTimeHexEquals(normalized, NormalizeVoiceKey(download.VoiceKey))
+            || !Sha256Pattern.IsMatch(download.AudioSha256)
+            || !VoiceVersionPattern.IsMatch(download.VoiceVersion)
+            || download.Audio.Length is < 44 or > MaximumAudioBytes)
+            throw new InvalidDataException("당첨 음성 캐시 입력의 대상 또는 형식이 올바르지 않습니다.");
+
+        var actualHash = Convert.ToHexString(SHA256.HashData(download.Audio)).ToLowerInvariant();
+        if (!FixedTimeHexEquals(actualHash, download.AudioSha256))
+            throw new InvalidDataException("당첨 음성 캐시 입력의 해시가 올바르지 않습니다.");
+        ByeollogRaffleAudio.ValidateWinnerAudioForPreflight(download.Audio);
+
+        var gate = _keyGates.GetOrAdd(normalized, static _ => new SemaphoreSlim(1, 1));
+        await gate.WaitAsync(cancellationToken);
+        try
+        {
+            EnsureSafeRoot();
+            var audioPath = AudioPath(normalized);
+            var manifestPath = ManifestPath(normalized);
+            var token = Guid.NewGuid().ToString("N");
+            var audioTemp = Path.Combine(_root, "." + normalized + "." + token + ".wav.tmp");
+            var manifestTemp = Path.Combine(_root, "." + normalized + "." + token + ".json.tmp");
+            var createdAtUtc = DateTimeOffset.UtcNow;
+            try
+            {
+                await WriteCreateNewAsync(audioTemp, download.Audio, cancellationToken);
+                var manifestBytes = Utf8NoBom.GetBytes(JsonSerializer.Serialize(new
+                {
+                    schemaVersion = SchemaVersion,
+                    voiceKey = normalized,
+                    voiceVersion = download.VoiceVersion,
+                    audioSha256 = actualHash,
+                    byteSize = download.Audio.Length,
+                    createdAtUtc
+                }));
+                await WriteCreateNewAsync(manifestTemp, manifestBytes, cancellationToken);
+
+                // Audio is committed first and the manifest last. Readers require both
+                // and verify the exact pair, so an interrupted write is never playable.
+                RejectUnsafeExistingTarget(audioPath);
+                RejectUnsafeExistingTarget(manifestPath);
+                File.Move(audioTemp, audioPath, overwrite: true);
+                File.Move(manifestTemp, manifestPath, overwrite: true);
+            }
+            finally
+            {
+                DeleteIfOrdinaryFile(audioTemp);
+                DeleteIfOrdinaryFile(manifestTemp);
+            }
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    private CacheManifest ReadManifest(string path, string expectedVoiceKey)
+    {
+        var bytes = ReadBounded(path, MaximumManifestBytes);
+        using var document = JsonDocument.Parse(bytes, new JsonDocumentOptions
+        {
+            AllowTrailingCommas = false,
+            CommentHandling = JsonCommentHandling.Disallow,
+            MaxDepth = 8
+        });
+        var root = document.RootElement;
+        if (root.ValueKind != JsonValueKind.Object || root.EnumerateObject().Count() != 6
+            || !root.TryGetProperty("schemaVersion", out var schemaVersion)
+            || !schemaVersion.TryGetInt32(out var parsedSchema) || parsedSchema != SchemaVersion
+            || !root.TryGetProperty("voiceKey", out var voiceKeyValue)
+            || voiceKeyValue.ValueKind != JsonValueKind.String
+            || !FixedTimeHexEquals(expectedVoiceKey, NormalizeVoiceKey(voiceKeyValue.GetString() ?? ""))
+            || !root.TryGetProperty("voiceVersion", out var voiceVersionValue)
+            || voiceVersionValue.ValueKind != JsonValueKind.String
+            || !VoiceVersionPattern.IsMatch(voiceVersionValue.GetString() ?? "")
+            || !root.TryGetProperty("audioSha256", out var audioShaValue)
+            || audioShaValue.ValueKind != JsonValueKind.String
+            || !Sha256Pattern.IsMatch(audioShaValue.GetString() ?? "")
+            || !root.TryGetProperty("byteSize", out var byteSizeValue)
+            || !byteSizeValue.TryGetInt32(out var byteSize)
+            || byteSize is < 44 or > MaximumAudioBytes
+            || !root.TryGetProperty("createdAtUtc", out var createdAtValue)
+            || createdAtValue.ValueKind != JsonValueKind.String
+            || !DateTimeOffset.TryParse(
+                createdAtValue.GetString(),
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.AssumeUniversal
+                    | System.Globalization.DateTimeStyles.AdjustToUniversal,
+                out var createdAtUtc)
+            || createdAtUtc.Offset != TimeSpan.Zero
+            || createdAtUtc > DateTimeOffset.UtcNow.AddMinutes(5))
+            throw new InvalidDataException("당첨 음성 캐시 manifest가 올바르지 않습니다.");
+
+        return new CacheManifest(
+            expectedVoiceKey,
+            voiceVersionValue.GetString()!,
+            audioShaValue.GetString()!,
+            byteSize,
+            createdAtUtc);
+    }
+
+    private void EnsureSafeRoot()
+    {
+        Directory.CreateDirectory(_root);
+        var info = new DirectoryInfo(_root);
+        if ((info.Attributes & FileAttributes.ReparsePoint) != 0)
+            throw new InvalidDataException("당첨 음성 캐시 폴더가 안전하지 않습니다.");
+    }
+
+    private string AudioPath(string voiceKey) => Path.Combine(_root, voiceKey + ".wav");
+    private string ManifestPath(string voiceKey) => Path.Combine(_root, voiceKey + ".json");
+
+    private static string NormalizeVoiceKey(string voiceKey)
+    {
+        var normalized = (voiceKey ?? "").Trim().ToLowerInvariant();
+        if (!Sha256Pattern.IsMatch(normalized))
+            throw new InvalidDataException("당첨 음성 키가 올바르지 않습니다.");
+        return normalized;
+    }
+
+    private static bool FixedTimeHexEquals(string left, string right)
+    {
+        if (!Sha256Pattern.IsMatch(left) || !Sha256Pattern.IsMatch(right)) return false;
+        return CryptographicOperations.FixedTimeEquals(
+            Convert.FromHexString(left),
+            Convert.FromHexString(right));
+    }
+
+    private static byte[] ReadBounded(string path, int maximumBytes)
+    {
+        using var stream = new FileStream(
+            path,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read,
+            32 * 1024,
+            FileOptions.SequentialScan);
+        if (stream.Length > maximumBytes)
+            throw new InvalidDataException("캐시 파일 크기가 제한을 초과했습니다.");
+        using var destination = new MemoryStream((int)stream.Length);
+        var buffer = new byte[32 * 1024];
+        while (true)
+        {
+            var read = stream.Read(buffer, 0, buffer.Length);
+            if (read == 0) break;
+            if (destination.Length + read > maximumBytes)
+                throw new InvalidDataException("캐시 파일 크기가 제한을 초과했습니다.");
+            destination.Write(buffer, 0, read);
+        }
+        return destination.ToArray();
+    }
+
+    private static async Task WriteCreateNewAsync(
+        string path,
+        byte[] bytes,
+        CancellationToken cancellationToken)
+    {
+        await using var stream = new FileStream(
+            path,
+            FileMode.CreateNew,
+            FileAccess.Write,
+            FileShare.None,
+            32 * 1024,
+            FileOptions.Asynchronous | FileOptions.WriteThrough);
+        await stream.WriteAsync(bytes, cancellationToken);
+        await stream.FlushAsync(cancellationToken);
+        stream.Flush(flushToDisk: true);
+    }
+
+    private static void RejectReparsePoint(string path)
+    {
+        if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
+            throw new InvalidDataException("캐시 파일이 안전하지 않습니다.");
+    }
+
+    private static void RejectUnsafeExistingTarget(string path)
+    {
+        if (!File.Exists(path)) return;
+        RejectReparsePoint(path);
+    }
+
+    private static void DeleteExactPair(string audioPath, string manifestPath)
+    {
+        DeleteIfOrdinaryFile(audioPath);
+        DeleteIfOrdinaryFile(manifestPath);
+    }
+
+    private static void DeleteIfOrdinaryFile(string path)
+    {
+        try
+        {
+            if (!File.Exists(path)) return;
+            if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0) return;
+            File.Delete(path);
+        }
+        catch
+        {
+            // A corrupt cache is never replayed. Failure to remove it only causes
+            // the next read to reject it again.
+        }
+    }
+
+    private sealed record CacheManifest(
+        string VoiceKey,
+        string VoiceVersion,
+        string AudioSha256,
+        int ByteSize,
+        DateTimeOffset CreatedAtUtc);
+}

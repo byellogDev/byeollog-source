@@ -1,0 +1,17 @@
+별록 에이전트 v0.7.0.27 · 공개판 25
+
+이번 수정
+- 실제 Weflab 룰렛 이벤트가 HTTP 400으로 거절되던 별풍선 단위 계약 오류 수정
+- 별풍선 개수는 amount로 유지하고, ISO 통화가 아닌 starballoon은 payload.amountUnit으로 보존
+- Weflab의 오프셋 없는 시각을 KST(+09:00)로 정규화
+- 오래된 실시간 액션이 업데이트 후 뒤늦게 마이크를 끄지 않도록 2분 지연 실행 방지
+
+호환성
+- 기존 수집 데이터, 계정, 규칙, 장치 설정과 OBS/Windows 마이크 설정을 보존합니다.
+- 기존 v0.7.0.26 설치 위에서 실행할 수 있습니다.
+
+버전
+- Version: 0.7.0.27
+- InformationalVersion: 0.7.0-public.25
+- UI cache: v0.7.0-public.25
+- Tester ZIP: byeollog_agent_v07027_EVENT_RELAY_FIX_WIN_X64.zip
