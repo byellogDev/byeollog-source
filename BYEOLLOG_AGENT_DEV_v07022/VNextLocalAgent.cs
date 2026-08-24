@@ -125,7 +125,7 @@ internal sealed class VNextLocalAgent : IDisposable
             _overlay.TryStart();
             _timedMuteActions = new TimedMuteActionAdapter(collectorStorage, _overlay);
             _raffleWinnerSpeechCache = new RaffleWinnerSpeechCache(
-                Path.Combine(collectorStorage.RootPath, "raffle-winner-speech-cache-v1"),
+                Path.Combine(collectorStorage.RootPath, "raffle-winner-speech-cache-v2"),
                 collectorStorage.Log);
             _raffleOverlayActions = new RaffleOverlayActionAdapter(
                 _overlay,

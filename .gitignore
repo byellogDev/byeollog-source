@@ -15,6 +15,8 @@
 !/BYEOLLOG_AGENT_DEV_v07022/**
 !/BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/
 !/BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/**
+!/BYEOLLOG_TTS_SERVICE/
+!/BYEOLLOG_TTS_SERVICE/**
 
 # The allowlisted source trees may still contain local credentials and generated
 # distribution files. These patterns protect them during ordinary `git add .`.

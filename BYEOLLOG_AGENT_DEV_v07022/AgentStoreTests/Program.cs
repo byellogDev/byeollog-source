@@ -344,6 +344,8 @@ internal static class Program
 
     private static async Task RaffleSpeechCacheTestsAsync(string root)
     {
+        Equal(2, RaffleWinnerSpeechCache.SchemaVersion,
+            "winner speech cache generation is bumped for the CosyVoice model family");
         var cacheRoot = Path.Combine(root, "raffle-speech-cache");
         var logs = new List<string>();
         var cache = new RaffleWinnerSpeechCache(cacheRoot, logs.Add);

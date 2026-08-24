@@ -2,7 +2,7 @@
   "name": "byeollog-web",
   "private": true,
   "version": "0.6.3-g3a.47",
-  "byeollogBuild": "0.6.3.63-g3a-flashbang-exact-donation",
+  "byeollogBuild": "0.6.3.64-g3a-cosyvoice3-winner-cache",
   "type": "module",
   "engines": {
     "node": "22.x"

@@ -1,0 +1,11 @@
+.git
+.env
+.venv
+__pycache__
+.pytest_cache
+.tmp_*
+tests
+*.wav
+*.mp3
+*.onnx
+*.pt
