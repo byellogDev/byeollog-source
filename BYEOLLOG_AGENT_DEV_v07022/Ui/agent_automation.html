@@ -457,6 +457,7 @@
     positionEditorLayer:document.querySelector('#positionEditorLayer'),positionCanvas:document.querySelector('#positionCanvas'),positionEditorImage:document.querySelector('#positionEditorImage'),positionCoordinates:document.querySelector('#positionCoordinates'),overlayScaleRange:document.querySelector('#overlayScaleRange'),overlayScaleValue:document.querySelector('#overlayScaleValue'),decreaseScaleButton:document.querySelector('#decreaseScaleButton'),increaseScaleButton:document.querySelector('#increaseScaleButton'),positionEditorSound:document.querySelector('#positionEditorSound'),overlayVolumeRange:document.querySelector('#overlayVolumeRange'),overlayVolumeValue:document.querySelector('#overlayVolumeValue'),testOverlaySoundButton:document.querySelector('#testOverlaySoundButton'),closePositionEditorButton:document.querySelector('#closePositionEditorButton'),resetPositionButton:document.querySelector('#resetPositionButton'),cancelPositionButton:document.querySelector('#cancelPositionButton'),applyPositionButton:document.querySelector('#applyPositionButton')
   };
   let state={initialized:false,connected:false,streamerName:'',workspaceName:'',releaseLabel:'',role:'',rules:[],devices:[],overlays:[],assetReadiness:[],readiness:{requirements:[],checks:[],overallState:'unavailable',canEvaluate:false,loadedAtUtc:null},activity:{items:[],saturated:false,loadedAtUtc:null},raffle:{round:null,activeDraw:null,history:[],loadedAt:null},currentDeviceId:'',localAgent:{available:false},localConnections:{obs:{enabled:false,port:4455,inputName:'',hasPassword:false},windows:{enabled:false,endpointId:'',endpointName:'',endpoints:[]}},editingRuleId:null,busy:false,busyOwnerId:0,busyMessage:'',lastUpdatedAt:null,canManage:false,activeView:'rules',selectedOverlayImageKey:''};
+  const TESTABLE_ACTION_TYPES=new Set(['obs.mute_for','windows.mic_mute_for','raffle.ticket_grant','flashbang.overlay']);
   let filter='all';
   let deviceFilter='active';
   let pendingRevokeDeviceId='';
@@ -938,7 +939,7 @@
       const foot=document.createElement('div');foot.className='rule-foot';foot.append(createText('span','',rule.updatedAt?`최근 변경 ${formatDate(rule.updatedAt)}`:'실행 기록 보존'));
       const actions=document.createElement('div');actions.className='rule-foot-actions';
       const manage=document.createElement('button');manage.type='button';manage.className='edit-button manage';manage.textContent='추첨 관리';manage.hidden=rule.action.type!=='raffle.ticket_grant';manage.disabled=state.busy;manage.title='모인 추첨권을 확인하고 추첨을 진행합니다.';manage.onclick=()=>switchView('raffle');
-      const canTest=['obs.mute_for','windows.mic_mute_for','raffle.ticket_grant','flashbang.overlay'].includes(rule.action.type);
+      const canTest=TESTABLE_ACTION_TYPES.has(rule.action.type);
       const test=document.createElement('button');test.type='button';test.className='edit-button test';test.textContent='테스트 송출';test.hidden=!canTest;test.disabled=state.busy||!state.canManage||!rule.editable||!deviceReady||!overlayReady;test.title=!deviceReady?'등록 PC 연결과 지원 기능을 먼저 확인하세요.':!overlayReady?'별록 오버레이 화면 준비를 먼저 완료하세요.':rule.action.type==='raffle.ticket_grant'?'추첨권 지급 화면과 추첨 화면을 차례로 송출합니다.':'실제 마이크 제어와 오버레이를 한 번 실행합니다.';test.onclick=()=>openTestRuleConfirm(rule);
       const edit=document.createElement('button');edit.type='button';edit.className='edit-button';edit.textContent='수정';edit.disabled=state.busy||!state.canManage||!rule.editable;edit.onclick=()=>startEdit(rule);
       const remove=document.createElement('button');remove.type='button';remove.className='edit-button danger';remove.textContent='삭제';remove.disabled=state.busy||!state.canManage||!rule.editable;remove.onclick=()=>openDeleteRuleConfirm(rule);
@@ -1032,12 +1033,15 @@
   }
   function closeDeleteRuleConfirm(){pendingDeleteRuleId='';elements.deleteRuleConfirmLayer.hidden=true}
   function openTestRuleConfirm(rule){
-    if(!state.canManage||!rule?.editable||!['obs.mute_for','windows.mic_mute_for','raffle.ticket_grant'].includes(rule.action.type))return;
+    if(!state.canManage||!rule?.editable||!TESTABLE_ACTION_TYPES.has(rule.action.type))return;
     pendingTestRuleId=rule.id;
     const device=state.devices.find(item=>item.id===rule.action.deviceId);
     const asset=state.overlays.find(item=>item.id===rule.action.overlayAssetId||item.key===rule.action.overlayImageKey);
     if(rule.action.type==='raffle.ticket_grant'){
       pendingTestRuleId=rule.id;elements.testRuleConfirmTitle.textContent=`‘${rule.name}’의 두 추첨 화면을 테스트할까요?`;elements.testRuleConfirmCopy.textContent=`${device?.name||'선택한 PC'}에서 추첨권 지급 화면과 추첨 진행 화면을 저장한 위치·크기로 차례로 송출합니다. 실제 추첨권은 지급하거나 소모하지 않습니다. 방송 중이라면 시청자에게 그대로 보일 수 있습니다.`;elements.testRuleConfirmLayer.hidden=false;elements.cancelTestRuleButton.focus();return;
+    }
+    if(rule.action.type==='flashbang.overlay'){
+      pendingTestRuleId=rule.id;elements.testRuleConfirmTitle.textContent=`‘${rule.name}’ 섬광탄을 실제로 테스트할까요?`;elements.testRuleConfirmCopy.textContent=`${device?.name||'선택한 PC'}에서 저장한 섬광 강도와 볼륨으로 5초간 실제 송출합니다. 방송 중이라면 시청자에게 그대로 보이고 들릴 수 있습니다.`;elements.testRuleConfirmLayer.hidden=false;elements.cancelTestRuleButton.focus();return;
     }
     const details=[`${rule.action.durationSeconds}초`,device?.name||'선택한 PC'];
     if(rule.action.overlayEnabled)details.push(asset?.name||'선택한 오버레이');

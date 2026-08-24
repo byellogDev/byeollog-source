@@ -46,6 +46,11 @@ test("flashbang UI exposes three strengths and keeps settings audio preview loca
   assert.match(ui, /▶ 삐- 소리 듣기/);
   assert.match(ui, /post\('previewFlashbang',\{intensity:flashbangIntensity,volumePercent:flashbangVolumePercent\}\)/);
   assert.match(ui, /1920×1080 화면 전체/);
+  assert.match(ui, /const TESTABLE_ACTION_TYPES=new Set\(\[[^\]]*'flashbang\.overlay'[^\]]*\]\)/);
+  assert.match(ui, /const canTest=TESTABLE_ACTION_TYPES\.has\(rule\.action\.type\)/);
+  assert.match(ui, /openTestRuleConfirm\(rule\)\{[\s\S]*?!TESTABLE_ACTION_TYPES\.has\(rule\.action\.type\)/);
+  assert.match(ui, /섬광탄을 실제로 테스트할까요/);
+  assert.match(ui, /저장한 섬광 강도와 볼륨으로 5초간 실제 송출/);
   assert.match(client, /save_guided_rule_v12/);
   assert.match(client, /dispatch_guided_rule_test_v3/);
   assert.match(client, /flashbangIntensity/);
