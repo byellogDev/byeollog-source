@@ -77,6 +77,7 @@ internal sealed class VNextLocalAgent : IDisposable
     private readonly ByeollogOverlayService _overlay;
     private readonly TimedMuteActionAdapter _timedMuteActions;
     private readonly RaffleOverlayActionAdapter _raffleOverlayActions;
+    private readonly FlashbangOverlayActionAdapter _flashbangOverlayActions;
     private readonly RaffleWinnerSpeechCache _raffleWinnerSpeechCache;
     private readonly string _deviceId;
     private string _deviceSecret;
@@ -187,6 +188,28 @@ internal sealed class VNextLocalAgent : IDisposable
                             token) > 0;
                 },
                 collectorStorage.Log);
+            _flashbangOverlayActions = new FlashbangOverlayActionAdapter(
+                _overlay,
+                async token =>
+                {
+                    var settings = collectorStorage.LoadObsSettings();
+                    return settings.Enabled
+                        ? await ObsActionAdapter.RefreshOverlayBrowserSourcesAsync(
+                            settings,
+                            _overlay.OverlayUrl,
+                            token)
+                        : 0;
+                },
+                async token =>
+                {
+                    var settings = collectorStorage.LoadObsSettings();
+                    return settings.Enabled
+                        && await ObsActionAdapter.EnsureOverlayBrowserAudioRoutingAsync(
+                            settings,
+                            _overlay.OverlayUrl,
+                            token) > 0;
+                },
+                collectorStorage.Log);
         }
         catch
         {
@@ -211,6 +234,15 @@ internal sealed class VNextLocalAgent : IDisposable
             kind,
             volumePercent,
             placement,
+            cancellationToken);
+
+    internal Task<VNextAgentOutcome> PreviewFlashbangInObsAsync(
+        string intensity,
+        int volumePercent,
+        CancellationToken cancellationToken) =>
+        _flashbangOverlayActions.PreviewAsync(
+            intensity,
+            volumePercent,
             cancellationToken);
     public bool OverlayAvailable => _overlay.IsRunning;
     public OverlayAssetCacheStatus OverlayAssetStatus => _overlayAssets.Status();
@@ -1042,6 +1074,8 @@ internal sealed class VNextLocalAgent : IDisposable
             return Math.Max(job.TimeoutMs, TimedMuteContract.MaximumAccumulatedDurationMs + 30_000);
         if (job.ActionType == RaffleOverlayActionAdapter.ActionType)
             return RaffleOverlayActionAdapter.EffectiveTimeoutMs(job.ActionParams, job.TimeoutMs);
+        if (job.ActionType == FlashbangOverlayActionAdapter.ActionType)
+            return Math.Max(job.TimeoutMs, 180_000);
         return job.TimeoutMs;
     }
 
@@ -1102,6 +1136,12 @@ internal sealed class VNextLocalAgent : IDisposable
             return await _raffleOverlayActions.ExecuteAsync(
                 job.ExecutionId,
                 job.AttemptNo,
+                actionParameters,
+                cancellationToken,
+                notAfterUtc);
+
+        if (job.ActionType == FlashbangOverlayActionAdapter.ActionType)
+            return await _flashbangOverlayActions.ExecuteAsync(
                 actionParameters,
                 cancellationToken,
                 notAfterUtc);

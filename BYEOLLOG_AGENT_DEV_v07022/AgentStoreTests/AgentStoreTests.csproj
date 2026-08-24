@@ -17,6 +17,7 @@
     <Compile Include="../OverlayAssetCache.cs" Link="OverlayAssetCache.cs" />
     <Compile Include="../ByeollogOverlayService.cs" Link="ByeollogOverlayService.cs" />
     <Compile Include="../RaffleOverlayActionAdapter.cs" Link="RaffleOverlayActionAdapter.cs" />
+    <Compile Include="../FlashbangOverlayActionAdapter.cs" Link="FlashbangOverlayActionAdapter.cs" />
     <Compile Include="../RaffleWinnerSpeechCache.cs" Link="RaffleWinnerSpeechCache.cs" />
     <Compile Include="../WindowsTextToSpeech.cs" Link="WindowsTextToSpeech.cs" />
     <Compile Include="../ByeollogRaffleAudio.cs" Link="ByeollogRaffleAudio.cs" />
@@ -58,6 +59,15 @@
     <EmbeddedResource Include="../Assets/byeollog_raffle_draw.gif"
                       Link="Assets/byeollog_raffle_draw.gif"
                       LogicalName="HurogiCollector.Assets.byeollog_raffle_draw.gif" />
+    <EmbeddedResource Include="../Assets/byeollog_flashbang_soft.gif"
+                      Link="Assets/byeollog_flashbang_soft.gif"
+                      LogicalName="HurogiCollector.Assets.byeollog_flashbang_soft.gif" />
+    <EmbeddedResource Include="../Assets/byeollog_flashbang_standard.gif"
+                      Link="Assets/byeollog_flashbang_standard.gif"
+                      LogicalName="HurogiCollector.Assets.byeollog_flashbang_standard.gif" />
+    <EmbeddedResource Include="../Assets/byeollog_flashbang_strong.gif"
+                      Link="Assets/byeollog_flashbang_strong.gif"
+                      LogicalName="HurogiCollector.Assets.byeollog_flashbang_strong.gif" />
     <EmbeddedResource Include="../Assets/byeollog_raffle_ticket_fixed.wav"
                       Link="Assets/byeollog_raffle_ticket_fixed.wav"
                       LogicalName="HurogiCollector.Assets.byeollog_raffle_ticket_fixed.wav" />

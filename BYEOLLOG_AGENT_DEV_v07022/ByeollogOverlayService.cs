@@ -90,7 +90,7 @@ internal sealed class OverlayPresentationNotObservedException : IOException
 internal sealed class ByeollogOverlayService : IDisposable
 {
     internal const string MicrophoneOffAssetKey = TimedMuteContract.MicrophoneOffOverlayAssetKey;
-    internal const string DocumentRevision = "raffle-audio-v3";
+    internal const string DocumentRevision = "flashbang-audio-v4";
     internal const int DefaultPort = 43_120;
     internal const int BrowserAudioStartTimeoutMs = 5_000;
     internal const int MaximumBrowserAudioPlaybackMs = 25_000;
@@ -120,11 +120,20 @@ internal sealed class ByeollogOverlayService : IDisposable
     #raffle-primary { margin-top: 7px; font-size: clamp(28px,3vw,58px); font-weight: 900; letter-spacing: -.04em; }
     #raffle-secondary { margin-top: 5px; color: #c9daf3; font-size: clamp(16px,1.3vw,25px); font-weight: 700; }
     #raffle-winners { margin-top: 9px; color: #fff2c8; font-size: clamp(18px,1.55vw,30px); font-weight: 800; }
+    #flashbang-stage { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
+    #flashbang-stage.visible.soft { animation: flashbang-soft-recover 3000ms cubic-bezier(.14,.58,.32,1) both; }
+    #flashbang-stage.visible.standard { animation: flashbang-standard-recover 3000ms cubic-bezier(.14,.58,.32,1) both; }
+    #flashbang-stage.visible.strong { animation: flashbang-strong-recover 3000ms cubic-bezier(.14,.58,.32,1) both; }
+    #flashbang-asset { display: block; width: 100%; height: 100%; object-fit: cover; }
+    @keyframes flashbang-soft-recover { 0%,8% { opacity:.68 } 35% { opacity:.50 } 68% { opacity:.20 } 100% { opacity:0 } }
+    @keyframes flashbang-standard-recover { 0%,10% { opacity:.86 } 38% { opacity:.66 } 70% { opacity:.28 } 100% { opacity:0 } }
+    @keyframes flashbang-strong-recover { 0%,13% { opacity:1 } 42% { opacity:.82 } 73% { opacity:.38 } 100% { opacity:0 } }
   </style>
 </head>
 <body>
   <img id="asset" alt="" draggable="false">
-  <div id="raffle-stage" data-document-revision="raffle-audio-v3"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div><div id="raffle-secondary"></div><div id="raffle-winners"></div></section></div>
+  <div id="raffle-stage"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div><div id="raffle-secondary"></div><div id="raffle-winners"></div></section></div>
+  <div id="flashbang-stage" data-document-revision="flashbang-audio-v4"><img id="flashbang-asset" alt="" draggable="false"></div>
   <script>
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
@@ -134,6 +143,8 @@ internal sealed class ByeollogOverlayService : IDisposable
     const rafflePrimary = document.getElementById('raffle-primary');
     const raffleSecondary = document.getElementById('raffle-secondary');
     const raffleWinners = document.getElementById('raffle-winners');
+    const flashbangStage = document.getElementById('flashbang-stage');
+    const flashbangAsset = document.getElementById('flashbang-asset');
     let currentRevision = '';
     let activeAudio = null;
     function stopAudio() {
@@ -141,7 +152,7 @@ internal sealed class ByeollogOverlayService : IDisposable
       try { activeAudio.player.pause(); activeAudio.player.removeAttribute('src'); activeAudio.player.load(); } catch {}
       activeAudio = null;
     }
-    function hide() { asset.classList.remove('visible'); raffleStage.classList.remove('visible'); raffleCopy.classList.remove('visible'); stopAudio(); }
+    function hide() { asset.classList.remove('visible'); raffleStage.classList.remove('visible'); raffleCopy.classList.remove('visible'); flashbangStage.className = ''; stopAudio(); }
     function reportAudio(descriptor, eventName) {
       if (!activeAudio || activeAudio.identity !== descriptor.identity) return;
       const url = '/overlay/audio-events/' + encodeURIComponent(descriptor.token) + '/' + eventName
@@ -180,6 +191,12 @@ internal sealed class ByeollogOverlayService : IDisposable
       descriptor.player.play().catch(() => reportAudio(descriptor, 'failed'));
     }
     function isRaffleAsset(assetKey) { return assetKey === 'raffle_ticket_granted' || assetKey === 'raffle_draw'; }
+    function flashbangIntensity(assetKey) {
+      if (assetKey === 'flashbang_soft') return 'soft';
+      if (assetKey === 'flashbang_standard') return 'standard';
+      if (assetKey === 'flashbang_strong') return 'strong';
+      return '';
+    }
     function placementClass(assetKey) {
       if (assetKey === 'mic_off_center') return 'center-icon';
       if (assetKey === 'mic_off_top_left') return 'top-left-icon';
@@ -234,27 +251,42 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     async function refresh() {
       try {
-        const response = await fetch('/overlay/state?documentRevision=raffle-audio-v3', { cache: 'no-store' });
+        const response = await fetch('/overlay/state?documentRevision=flashbang-audio-v4', { cache: 'no-store' });
         if (!response.ok) throw new Error('state unavailable');
         const state = await response.json();
         if (state.active === true && typeof state.assetToken === 'string') {
           const raffle = isRaffleAsset(state.assetKey);
-          const targetAsset = raffle ? raffleAsset : asset;
+          const flashbang = flashbangIntensity(state.assetKey);
+          const targetAsset = raffle ? raffleAsset : flashbang ? flashbangAsset : asset;
           const nextRevision = state.revision + ':' + state.assetToken + ':' + state.assetVersion + ':' + state.contentSha256 + ':' + state.assetKey + ':' + state.positionX + ':' + state.positionY + ':' + state.scalePercent;
           if (currentRevision !== nextRevision) {
             currentRevision = nextRevision;
-            if (raffle) applyRafflePlacement(state); else applyPlacement(state);
+            if (raffle) applyRafflePlacement(state); else if (!flashbang) applyPlacement(state);
             targetAsset.src = '/overlay/assets/' + encodeURIComponent(state.assetToken)
-              + '?revision=' + encodeURIComponent(state.contentSha256);
+              + '?revision=' + encodeURIComponent(state.contentSha256)
+              + (flashbang ? '&presentationRevision=' + encodeURIComponent(state.revision) : '');
+            if (flashbang) {
+              flashbangStage.className = '';
+              void flashbangStage.offsetWidth;
+              flashbangStage.classList.add('visible', flashbang);
+            }
           }
           if (raffle) {
             asset.classList.remove('visible');
+            flashbangStage.className = '';
             applyPresentation(state);
             raffleStage.classList.add('visible');
+            applyAudio(state);
+          } else if (flashbang) {
+            asset.classList.remove('visible');
+            raffleStage.classList.remove('visible');
+            raffleCopy.classList.remove('visible');
+            flashbangStage.classList.add('visible', flashbang);
             applyAudio(state);
           } else {
             raffleStage.classList.remove('visible');
             raffleCopy.classList.remove('visible');
+            flashbangStage.className = '';
             stopAudio();
             asset.classList.add('visible');
           }
@@ -269,6 +301,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     asset.addEventListener('error', hide);
     raffleAsset.addEventListener('error', hide);
+    flashbangAsset.addEventListener('error', hide);
     refresh();
   </script>
 </body>
@@ -440,7 +473,7 @@ internal sealed class ByeollogOverlayService : IDisposable
         if (durationMs is < 1_000 or > 15_000) throw new ArgumentOutOfRangeException(nameof(durationMs));
         cancellationToken.ThrowIfCancellationRequested();
         if (!_assetCache.TryResolve(assetKey, expected: null, out var resolvedAsset))
-            throw new InvalidOperationException("추첨 오버레이 이미지가 준비되지 않았습니다.");
+            throw new InvalidOperationException("오버레이 이미지가 준비되지 않았습니다.");
         if (!IsRunning && !TryStart())
             throw new InvalidOperationException("별록 오버레이 로컬 주소를 시작할 수 없습니다.");
         var content = _assetCache.Read(resolvedAsset);
@@ -1260,12 +1293,12 @@ internal sealed class ByeollogOverlayService : IDisposable
             || audio.ContentSha256.Length != 64
             || !audio.ContentSha256.All(static character =>
                 character is >= '0' and <= '9' or >= 'a' and <= 'f'))
-            throw new InvalidDataException("OBS 추첨 음성 입력 형식이 올바르지 않습니다.");
+            throw new InvalidDataException("OBS 오버레이 음성 입력 형식이 올바르지 않습니다.");
         var actualHash = SHA256.HashData(audio.Audio);
         if (!CryptographicOperations.FixedTimeEquals(
                 actualHash,
                 Convert.FromHexString(audio.ContentSha256)))
-            throw new InvalidDataException("OBS 추첨 음성 무결성이 올바르지 않습니다.");
+            throw new InvalidDataException("OBS 오버레이 음성 무결성이 올바르지 않습니다.");
         ByeollogRaffleAudio.ValidateWinnerAudioForPreflight(audio.Audio);
     }
 

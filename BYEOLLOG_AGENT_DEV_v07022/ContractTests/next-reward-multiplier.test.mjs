@@ -20,7 +20,7 @@ test("next roulette reward multiplier is a direct numeric, same-donor, one-use a
   assert.match(ui, /연속 증가 결과는 배수를 중첩합니다/);
   assert.match(ui, /연속 증가 결과는 가장 최근 배수로 갱신합니다/);
 
-  assert.match(client, /save_guided_rule_v11/);
+  assert.match(client, /save_guided_rule_v12/);
   assert.match(client, /"roulette\.reward_multiplier_next"/);
   assert.match(client, /RequiredInt\(payload, "rewardMultiplier", 2, 100, "배수 설정"\)/);
   assert.match(client, /OptionalBool\(payload, "allowMultiplierStacking", false\)/);

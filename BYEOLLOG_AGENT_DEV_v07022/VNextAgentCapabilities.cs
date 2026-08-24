@@ -8,7 +8,8 @@ internal static class VNextAgentCapabilities
     [
         "obs.mute_for",
         "windows.mic_mute_for",
-        "raffle.overlay"
+        "raffle.overlay",
+        "flashbang.overlay"
     ];
 
     public static string[] ForWindowsAgent() => [.. WindowsActionTypes];

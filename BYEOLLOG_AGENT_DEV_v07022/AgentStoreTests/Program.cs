@@ -176,6 +176,7 @@ internal static class Program
             AcceptanceEvaluatorTests();
             await OverlayAssetCacheTestsAsync(root);
             RaffleActionTests(root);
+            FlashbangActionTests(root);
             await RaffleSpeechCacheTestsAsync(root);
             await RaffleRuntimeSafetyTestsAsync(root);
             await OverlayDisplayPriorityTestsAsync(root);
@@ -281,6 +282,64 @@ internal static class Program
                 testSequenceTimeoutJob.ActionParams,
                 testSequenceTimeoutJob.TimeoutMs),
             "raffle test sequence timeout includes queued Abong and both presentations");
+    }
+
+    private static void FlashbangActionTests(string root)
+    {
+        var cache = new OverlayAssetCache(Path.Combine(root, "flashbang-overlay"));
+        var cases = new[]
+        {
+            ("soft", OverlayAssetCache.FlashbangSoftAssetKey,
+                OverlayAssetCache.FlashbangSoftContentSha256),
+            ("standard", OverlayAssetCache.FlashbangStandardAssetKey,
+                OverlayAssetCache.FlashbangStandardContentSha256),
+            ("strong", OverlayAssetCache.FlashbangStrongAssetKey,
+                OverlayAssetCache.FlashbangStrongContentSha256)
+        };
+        foreach (var (intensity, key, expectedHash) in cases)
+        {
+            True(cache.TryResolve(key, null, out var asset),
+                $"{intensity} flashbang GIF resolves without network access");
+            Equal("image/gif", asset.MimeType,
+                $"{intensity} flashbang uses an animated GIF descriptor");
+            Equal(1920, asset.WidthPx, $"{intensity} flashbang is authored for 1920 width");
+            Equal(1080, asset.HeightPx, $"{intensity} flashbang is authored for 1080 height");
+            Equal(expectedHash, asset.ContentSha256,
+                $"{intensity} flashbang keeps its immutable SHA-256");
+            True(cache.Read(asset).Bytes.AsSpan(0, 6).SequenceEqual("GIF89a"u8),
+                $"{intensity} flashbang has a GIF89a header");
+
+            using var json = JsonDocument.Parse($$"""{"intensity":"{{intensity}}","overlayImageKey":"{{key}}","durationMs":3000,"volumePercent":75}""");
+            True(FlashbangOverlayActionAdapter.TryRead(
+                    json.RootElement,
+                    out var parsedIntensity,
+                    out var parsedKey,
+                    out var volumePercent,
+                    out _),
+                $"{intensity} flashbang payload passes the strict parser");
+            Equal(intensity, parsedIntensity, "flashbang parser preserves intensity");
+            Equal(key, parsedKey, "flashbang parser binds intensity to its exact packaged GIF");
+            Equal(75, volumePercent, "flashbang parser preserves bounded Browser Source volume");
+        }
+
+        using var mismatched = JsonDocument.Parse(
+            """{"intensity":"soft","overlayImageKey":"flashbang_strong","durationMs":3000,"volumePercent":75}""");
+        False(FlashbangOverlayActionAdapter.TryRead(
+                mismatched.RootElement, out _, out _, out _, out _),
+            "flashbang rejects an intensity-to-asset mismatch");
+        using var wrongDuration = JsonDocument.Parse(
+            """{"intensity":"standard","overlayImageKey":"flashbang_standard","durationMs":5000,"volumePercent":75}""");
+        False(FlashbangOverlayActionAdapter.TryRead(
+                wrongDuration.RootElement, out _, out _, out _, out _),
+            "flashbang rejects a duration outside the fixed three-second recovery");
+        using var excessiveVolume = JsonDocument.Parse(
+            """{"intensity":"strong","overlayImageKey":"flashbang_strong","durationMs":3000,"volumePercent":101}""");
+        False(FlashbangOverlayActionAdapter.TryRead(
+                excessiveVolume.RootElement, out _, out _, out _, out _),
+            "flashbang rejects Browser Source volume above 100 percent");
+        True(VNextAgentCapabilities.ForWindowsAgent().Contains(
+                FlashbangOverlayActionAdapter.ActionType),
+            "agent advertises the flashbang overlay capability");
     }
 
     private static async Task RaffleSpeechCacheTestsAsync(string root)
@@ -868,6 +927,32 @@ internal static class Program
         Equal(0, expiredMuteSideEffects,
             "expired queued Abong never starts its microphone side effect");
 
+        var flashAudioBefore = observedAudioStates.Count;
+        var flashbang = new FlashbangOverlayActionAdapter(
+            readyService,
+            ensureBrowserAudioRouting: _ => Task.FromResult(true));
+        using var flashbangJson = JsonDocument.Parse(
+            """{"intensity":"strong","overlayImageKey":"flashbang_strong","durationMs":3000,"volumePercent":60}""");
+        var flashbangRun = Stopwatch.StartNew();
+        var flashbangOutcome = await flashbang.ExecuteAsync(
+            flashbangJson.RootElement,
+            CancellationToken.None);
+        True(flashbangOutcome.Succeeded,
+            "strong flashbang completes only after a live Browser Source observes its presentation and sound");
+        True(flashbangRun.Elapsed >= TimeSpan.FromMilliseconds(2_850),
+            "flashbang remains a three-second recovery instead of ending with the short beep");
+        var flashStates = observedAudioStates.ToArray().Skip(flashAudioBefore).ToArray();
+        Equal(1, flashStates.Length,
+            "flashbang publishes one exact Browser Source audio payload");
+        Equal(OverlayAssetCache.FlashbangStrongAssetKey, flashStates[0].AssetKey,
+            "strong selection is bound to the strong full-screen GIF at runtime");
+        Equal(60, flashStates[0].AudioVolumePercent,
+            "flashbang Browser Source receives the streamer-selected volume");
+        var flashResult = JsonSerializer.SerializeToElement(flashbangOutcome.Result);
+        True(flashResult.GetProperty("overlayDisplayed").GetBoolean()
+             && flashResult.GetProperty("beepPlayed").GetBoolean(),
+            "flashbang ACK proves both the observed full-screen overlay and ended beep");
+
         pollStop.Cancel();
         try { await polling; } catch (OperationCanceledException) { }
     }
@@ -1204,7 +1289,7 @@ internal static class Program
     private static void AgentCapabilityTests()
     {
         var supported = VNextAgentCapabilities.ForWindowsAgent();
-        Equal(3, supported.Length, "fresh Windows Agent reports only server-routable capabilities");
+        Equal(4, supported.Length, "fresh Windows Agent reports only server-routable capabilities");
         True(supported.Contains("obs.mute_for", StringComparer.Ordinal),
             "OBS timed mute capability is reported before OBS settings are configured");
         False(supported.Contains("local.log", StringComparer.Ordinal),
@@ -1215,6 +1300,8 @@ internal static class Program
             "Windows timed mute is sent after the public runtime supports it");
         True(supported.Contains("raffle.overlay", StringComparer.Ordinal),
             "raffle animation is sent after the public runtime supports it");
+        True(supported.Contains("flashbang.overlay", StringComparer.Ordinal),
+            "flashbang animation and Browser Source sound are publicly routable");
 
         supported[0] = "mutated";
         False(VNextAgentCapabilities.ForWindowsAgent().Contains("mutated", StringComparer.Ordinal),
@@ -2352,6 +2439,8 @@ internal static class Program
                 null,
                 null,
                 null,
+                null,
+                null,
                 null),
             new VNextAutomationRuleRpc(
                 "11111111-1111-4111-8111-111111111111",
@@ -2385,6 +2474,8 @@ internal static class Program
                 null,
                 null,
                 null,
+                null,
+                null,
                 "44444444-4444-4444-8444-444444444444",
                 7),
             new VNextAutomationRuleRpc(
@@ -2403,6 +2494,8 @@ internal static class Program
                 null,
                 5,
                 "22222222-2222-4222-8222-222222222222",
+                null,
+                null,
                 null,
                 null,
                 null,
@@ -2454,6 +2547,8 @@ internal static class Program
                 100,
                 80,
                 null,
+                null,
+                null,
                 null)
         };
         var expectedKeys = new HashSet<string>(StringComparer.Ordinal)
@@ -2469,7 +2564,8 @@ internal static class Program
             "p_raffle_ticket_position_y", "p_raffle_ticket_scale_percent",
             "p_raffle_draw_position_x", "p_raffle_draw_position_y",
             "p_raffle_draw_scale_percent", "p_raffle_ticket_volume_percent",
-            "p_raffle_draw_volume_percent"
+            "p_raffle_draw_volume_percent", "p_flashbang_intensity",
+            "p_flashbang_volume_percent"
         };
 
         foreach (var draft in drafts)

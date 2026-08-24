@@ -482,6 +482,9 @@ internal sealed class VNextAutomationSettingsForm : Form
                 case "previewRaffleTts":
                     await PreviewRaffleTtsAsync(payload);
                     break;
+                case "previewFlashbang":
+                    await PreviewFlashbangAsync(payload);
+                    break;
                 case "startRaffleDraw":
                     await StartRaffleDrawAsync(payload);
                     break;
@@ -1015,6 +1018,33 @@ internal sealed class VNextAutomationSettingsForm : Form
             kind == "draw"
                 ? $"OBS 별록 오버레이에서 당첨 음성을 {volumePercent}%로 재생했어요."
                 : $"OBS 별록 오버레이에서 고정 추첨권 음성을 {volumePercent}%로 재생했어요.",
+            "success");
+    }
+
+    private async Task PreviewFlashbangAsync(JsonElement payload)
+    {
+        var intensity = PayloadText(payload, "intensity", "섬광 강도", 1, 16);
+        if (intensity is not ("soft" or "standard" or "strong"))
+            throw new VNextDevelopmentException(
+                "섬광 강도가 올바르지 않습니다.",
+                code: "invalid_flashbang_preview");
+        var volumePercent = PayloadInt(payload, "volumePercent", 0, 100, "섬광탄 소리 음량");
+        if (_localAgent is null)
+            throw new VNextDevelopmentException(
+                "이 PC의 별록 오버레이가 실행 중이 아닙니다.",
+                code: "flashbang_preview_agent_unavailable");
+        var outcome = await _localAgent.PreviewFlashbangInObsAsync(
+            intensity,
+            volumePercent,
+            _lifetimeToken);
+        if (!outcome.Succeeded)
+            throw new VNextDevelopmentException(
+                outcome.Error ?? "OBS 별록 오버레이에서 섬광탄을 송출하지 못했습니다.",
+                code: "flashbang_preview_failed");
+        await ShowToastAsync(
+            volumePercent == 0
+                ? "OBS 별록 오버레이에서 3초 섬광 화면을 확인했어요."
+                : $"OBS 별록 오버레이에서 3초 섬광과 {volumePercent}% 소리를 확인했어요.",
             "success");
     }
 

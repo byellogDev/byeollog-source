@@ -168,7 +168,7 @@ internal sealed partial class VNextDevelopmentClient
         var token = await GetValidAccessTokenAsync(cancellationToken);
         var result = await SendAutomationRequestAsync(
             HttpMethod.Post,
-            "/rest/v1/rpc/save_guided_rule_v11",
+            "/rest/v1/rpc/save_guided_rule_v12",
             draft,
             token,
             "규칙 저장",
@@ -277,7 +277,7 @@ internal sealed partial class VNextDevelopmentClient
         var token = await GetValidAccessTokenAsync(cancellationToken);
         var result = await SendAutomationRequestAsync(
             HttpMethod.Post,
-            "/rest/v1/rpc/dispatch_guided_rule_test_v2",
+            "/rest/v1/rpc/dispatch_guided_rule_test_v3",
             new
             {
                 p_workspace_id = WorkspaceId,
@@ -671,7 +671,8 @@ internal sealed partial class VNextDevelopmentClient
             "obs.mute_for",
             "windows.mic_mute_for",
             "roulette.reward_multiplier_next",
-            "raffle.ticket_grant");
+            "raffle.ticket_grant",
+            "flashbang.overlay");
         var subtype = OptionalText(payload, "subtype", "세부 구분", 120);
         var result = eventType == "roulette"
             ? BoundedText(payload, "result", "룰렛 결과", 1, 500)
@@ -705,6 +706,8 @@ internal sealed partial class VNextDevelopmentClient
         int? raffleDrawPositionY = null;
         int? raffleDrawScalePercent = null;
         int? raffleDrawVolumePercent = null;
+        string? flashbangIntensity = null;
+        int? flashbangVolumePercent = null;
 
         if (actionType == "roulette.reward_multiplier_next")
         {
@@ -736,6 +739,27 @@ internal sealed partial class VNextDevelopmentClient
             raffleDrawPositionY = RequiredInt(payload, "raffleDrawPositionY", 0, 10_000, "추첨 화면 세로 위치");
             raffleDrawScalePercent = RequiredInt(payload, "raffleDrawScalePercent", 25, 200, "추첨 화면 크기");
             raffleDrawVolumePercent = RequiredInt(payload, "raffleDrawVolumePercent", 0, 100, "당첨 TTS 음량");
+        }
+        else if (actionType == "flashbang.overlay")
+        {
+            if (eventType != "roulette")
+                throw new VNextDevelopmentException(
+                    "섬광탄은 룰렛 결과에만 설정할 수 있습니다.",
+                    code: "invalid_rule_payload");
+            agentDeviceId = RequireGuidString(payload, "agentDeviceId", "등록 PC");
+            flashbangIntensity = RequiredChoice(
+                payload,
+                "flashbangIntensity",
+                "섬광 강도",
+                "soft",
+                "standard",
+                "strong");
+            flashbangVolumePercent = RequiredInt(
+                payload,
+                "flashbangVolumePercent",
+                0,
+                100,
+                "섬광탄 소리 음량");
         }
         else if (actionType == "upbo.apply")
         {
@@ -817,6 +841,8 @@ internal sealed partial class VNextDevelopmentClient
             raffleDrawPositionY,
             raffleDrawScalePercent,
             raffleDrawVolumePercent,
+            flashbangIntensity,
+            flashbangVolumePercent,
             replaceRuleId,
             expectedVersion);
     }

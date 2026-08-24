@@ -58,7 +58,7 @@ test("raffle action exposes ticket policy, independent placements, and a sealed 
   assert.match(ui, /expectedReannounceNumber:request\.reannounceCount\+1/);
   assert.match(ui, /reannounceCount>=10/);
   assert.match(ui, /post\('reannounceRaffleWinner',\{drawId,drawIndex,expectedReannounceNumber\}\)/);
-  assert.match(client, /save_guided_rule_v11/);
+  assert.match(client, /save_guided_rule_v12/);
   assert.match(ui, /id="overlayVolumeRange"[^>]+min="0"[^>]+max="100"/);
   assert.match(ui, /id="testOverlaySoundButton"[^>]*>▶ 테스트 재생/);
   assert.match(ui, /post\('previewRaffleTts',\{kind:positionEditorTarget==='raffle-draw'\?'draw':'ticket',volumePercent:volumeDraft,positionX:Math\.round\(positionDraft\.x\),positionY:Math\.round\(positionDraft\.y\),scalePercent:Math\.round\(scaleDraft\)\}\)/);
@@ -74,7 +74,7 @@ test("raffle action exposes ticket policy, independent placements, and a sealed 
   assert.match(client, /raffleAllowMultiples/);
   assert.match(client, /raffleTicketPositionX/);
   assert.match(client, /raffleDrawPositionX/);
-  assert.match(client, /dispatch_guided_rule_test_v2/);
+  assert.match(client, /dispatch_guided_rule_test_v3/);
   assert.match(client, /get_raffle_state_v2/);
   assert.match(client, /start_raffle_draw_v2/);
   assert.doesNotMatch(client, /\/rest\/v1\/rpc\/draw_raffle_v1/);
@@ -207,7 +207,7 @@ test("raffle artwork and copy share one placement and scale stage", async () => 
   assert.match(overlay, /raffleStage\.style\.left = Number\.isInteger\(state\.positionX\)/);
   assert.match(overlay, /raffleStage\.style\.top = Number\.isInteger\(state\.positionY\)/);
   assert.match(overlay, /raffleStage\.style\.transform = 'translate\(-50%, -50%\) scale\(' \+ scale \+ '\)'/);
-  assert.match(overlay, /const targetAsset = raffle \? raffleAsset : asset/);
+  assert.match(overlay, /const targetAsset = raffle \? raffleAsset : flashbang \? flashbangAsset : asset/);
   assert.doesNotMatch(overlay, /#raffle-copy \{[^}]*bottom:/);
 });
 
@@ -219,8 +219,8 @@ test("raffle action refreshes a stale OBS browser document before its first outp
   assert.match(adapter, /_refreshBrowserSources\(timeout\.Token\)/);
   assert.match(adapter, /requireNewRequest:\s*true/);
   assert.match(adapter, /_currentDocumentObserved/);
-  assert.match(overlay, /DocumentRevision\s*=\s*"raffle-audio-v3"/);
-  assert.match(overlay, /data-document-revision="raffle-audio-v3"/);
+  assert.match(overlay, /DocumentRevision\s*=\s*"flashbang-audio-v4"/);
+  assert.match(overlay, /data-document-revision="flashbang-audio-v4"/);
   assert.match(overlay, /media-src 'self'/);
   assert.match(overlay, /audioContentSha256/);
   assert.match(overlay, /audioPresentationRevision/);

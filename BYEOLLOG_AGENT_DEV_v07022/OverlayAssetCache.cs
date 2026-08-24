@@ -275,6 +275,15 @@ internal sealed class OverlayAssetCache
     internal const string RaffleDrawAssetId = "9a3c7159-dcfe-49fa-b086-dcc6518c3512";
     internal const string RaffleTicketGrantedContentSha256 = "e3a2a5b9c60974b3bed0f8e200dea6035f7dff3439fbafd481efcc505cce6587";
     internal const string RaffleDrawContentSha256 = "4a21dcdb62ac5bae96159dcebb33dd0215a4cedd17218561cac5d04004923d80";
+    internal const string FlashbangSoftAssetKey = "flashbang_soft";
+    internal const string FlashbangStandardAssetKey = "flashbang_standard";
+    internal const string FlashbangStrongAssetKey = "flashbang_strong";
+    internal const string FlashbangSoftAssetId = "dea5ef9d-51a9-4b28-b30a-8ef2146a134f";
+    internal const string FlashbangStandardAssetId = "5a6b8c0d-1a6b-41e8-856b-187b435c1ea9";
+    internal const string FlashbangStrongAssetId = "cbe68b82-fe27-4d2a-9b3f-922fe15b553d";
+    internal const string FlashbangSoftContentSha256 = "13a4d0c9f6c23b6e18d47a9ed0d93cdb26ce505888c6d1d8a1ea621578724880";
+    internal const string FlashbangStandardContentSha256 = "ebf7aaa5463f1d2b6102eb0083d8926cd4e189d13fbd29c2a2096abc707d17d6";
+    internal const string FlashbangStrongContentSha256 = "0f2bee8b3b6b6dbf566e218a871b25e70be3e6ba2582336128492b8331bd0cdc";
     private const string LegacyBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_overlay.svg";
     private const string IconBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_icon.png";
     private const string BadgeBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_badge.png";
@@ -283,6 +292,9 @@ internal sealed class OverlayAssetCache
     private const string ScreenprintBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_screenprint.png";
     private const string RaffleTicketGrantedResourceName = "HurogiCollector.Assets.byeollog_raffle_ticket_granted.gif";
     private const string RaffleDrawResourceName = "HurogiCollector.Assets.byeollog_raffle_draw.gif";
+    private const string FlashbangSoftResourceName = "HurogiCollector.Assets.byeollog_flashbang_soft.gif";
+    private const string FlashbangStandardResourceName = "HurogiCollector.Assets.byeollog_flashbang_standard.gif";
+    private const string FlashbangStrongResourceName = "HurogiCollector.Assets.byeollog_flashbang_strong.gif";
     private const long DefaultCacheLimitBytes = 50L * 1024 * 1024;
     private static readonly BuiltInDefinition[] BuiltInDefinitions =
     [
@@ -295,7 +307,10 @@ internal sealed class OverlayAssetCache
         new(MicrophoneOffSignalPanelAssetId, MicrophoneOffSignalPanelAssetKey, MicrophoneOffSignalPanelAssetKey, "마이크 OFF · 신호 패널", "image/png", MicrophoneOffSignalPanelContentSha256, 538_609, 1_672, 941, false, SignalPanelBuiltInResourceName),
         new(MicrophoneOffScreenprintAssetId, MicrophoneOffScreenprintAssetKey, MicrophoneOffScreenprintAssetKey, "마이크 OFF · 스크린 프린트", "image/png", MicrophoneOffScreenprintContentSha256, 2_378_428, 1_024, 1_536, false, ScreenprintBuiltInResourceName),
         new(RaffleTicketGrantedAssetId, RaffleTicketGrantedAssetKey, RaffleTicketGrantedAssetKey, "추첨권 지급 애니메이션", "image/gif", RaffleTicketGrantedContentSha256, 1_057_830, 640, 640, false, RaffleTicketGrantedResourceName),
-        new(RaffleDrawAssetId, RaffleDrawAssetKey, RaffleDrawAssetKey, "추첨 진행 애니메이션", "image/gif", RaffleDrawContentSha256, 759_930, 640, 640, false, RaffleDrawResourceName)
+        new(RaffleDrawAssetId, RaffleDrawAssetKey, RaffleDrawAssetKey, "추첨 진행 애니메이션", "image/gif", RaffleDrawContentSha256, 759_930, 640, 640, false, RaffleDrawResourceName),
+        new(FlashbangSoftAssetId, FlashbangSoftAssetKey, FlashbangSoftAssetKey, "섬광탄 · 약하게", "image/gif", FlashbangSoftContentSha256, 1_921_621, 1_920, 1_080, false, FlashbangSoftResourceName),
+        new(FlashbangStandardAssetId, FlashbangStandardAssetKey, FlashbangStandardAssetKey, "섬광탄 · 보통", "image/gif", FlashbangStandardContentSha256, 1_209_872, 1_920, 1_080, false, FlashbangStandardResourceName),
+        new(FlashbangStrongAssetId, FlashbangStrongAssetKey, FlashbangStrongAssetKey, "섬광탄 · 강하게", "image/gif", FlashbangStrongContentSha256, 712_706, 1_920, 1_080, false, FlashbangStrongResourceName)
     ];
 
     internal static bool TryMapBuiltInAssetIdToKey(string? assetId, out string assetKey)
@@ -312,6 +327,9 @@ internal sealed class OverlayAssetCache
             MicrophoneOffScreenprintAssetId => MicrophoneOffScreenprintAssetKey,
             RaffleTicketGrantedAssetId => RaffleTicketGrantedAssetKey,
             RaffleDrawAssetId => RaffleDrawAssetKey,
+            FlashbangSoftAssetId => FlashbangSoftAssetKey,
+            FlashbangStandardAssetId => FlashbangStandardAssetKey,
+            FlashbangStrongAssetId => FlashbangStrongAssetKey,
             _ => ""
         };
         return assetKey.Length > 0;

@@ -1,8 +1,8 @@
 {
   "name": "byeollog-web",
   "private": true,
-  "version": "0.6.3-g3a.40",
-  "byeollogBuild": "0.6.3.56-g3a-collection-health-visibility",
+  "version": "0.6.3-g3a.41",
+  "byeollogBuild": "0.6.3.57-g3a-flashbang-action",
   "type": "module",
   "engines": {
     "node": "22.x"

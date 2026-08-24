@@ -72,6 +72,7 @@ const G3A_AGENT_ACTIONS = new Set([
   "obs.mute_for",
   "windows.mic_mute_for",
   "raffle.overlay",
+  "flashbang.overlay",
   "obs.scene_switch",
   "agent.notify"
 ]);

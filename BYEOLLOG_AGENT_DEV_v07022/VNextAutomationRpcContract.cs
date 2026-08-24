@@ -50,5 +50,7 @@ internal sealed record VNextAutomationRuleRpc(
     [property: JsonPropertyName("p_raffle_draw_position_y")] int? p_raffle_draw_position_y,
     [property: JsonPropertyName("p_raffle_draw_scale_percent")] int? p_raffle_draw_scale_percent,
     [property: JsonPropertyName("p_raffle_draw_volume_percent")] int? p_raffle_draw_volume_percent,
+    [property: JsonPropertyName("p_flashbang_intensity")] string? p_flashbang_intensity,
+    [property: JsonPropertyName("p_flashbang_volume_percent")] int? p_flashbang_volume_percent,
     [property: JsonPropertyName("p_replace_rule_id")] string? p_replace_rule_id,
     [property: JsonPropertyName("p_expected_version")] int? p_expected_version);
