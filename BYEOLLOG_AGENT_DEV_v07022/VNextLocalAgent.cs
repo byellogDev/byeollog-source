@@ -225,25 +225,6 @@ internal sealed class VNextLocalAgent : IDisposable
     public string DeviceId => _deviceId;
     public string OverlayUrl => _overlay.OverlayUrl;
 
-    internal Task<RafflePresentationExecutionEvidence> PreviewRaffleAudioInObsAsync(
-        string kind,
-        int volumePercent,
-        TimedMuteOverlayPlacement placement,
-        CancellationToken cancellationToken) =>
-        _raffleOverlayActions.PreviewBrowserAudioAsync(
-            kind,
-            volumePercent,
-            placement,
-            cancellationToken);
-
-    internal Task<VNextAgentOutcome> PreviewFlashbangInObsAsync(
-        string intensity,
-        int volumePercent,
-        CancellationToken cancellationToken) =>
-        _flashbangOverlayActions.PreviewAsync(
-            intensity,
-            volumePercent,
-            cancellationToken);
     public bool OverlayAvailable => _overlay.IsRunning;
     public OverlayAssetCacheStatus OverlayAssetStatus => _overlayAssets.Status();
     public IReadOnlyList<VNextOverlayAssetDescriptor> PackagedOverlayImages() =>

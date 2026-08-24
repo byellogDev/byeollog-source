@@ -8,8 +8,8 @@
     <Nullable>enable</Nullable>
     <AssemblyName>byeollog</AssemblyName>
     <RootNamespace>HurogiCollector</RootNamespace>
-    <Version>0.7.0.73</Version>
-    <InformationalVersion>0.7.0.73</InformationalVersion>
+    <Version>0.7.0.74</Version>
+    <InformationalVersion>0.7.0.74</InformationalVersion>
     <Product>별록 에이전트</Product>
     <AssemblyTitle>별록 에이전트</AssemblyTitle>
     <Description>후원 수집과 별록 액션을 연결하는 별록 에이전트</Description>

@@ -208,7 +208,7 @@
                 <label class="flash-choice"><input type="radio" name="flashbangIntensity" value="standard" checked><span class="flash-card"><img id="flashbangStandardPreview" alt="보통 섬광 예상 화면"><span>보통 · 권장</span></span></label>
                 <label class="flash-choice"><input type="radio" name="flashbangIntensity" value="strong"><span class="flash-card"><img id="flashbangStrongPreview" alt="강한 섬광 예상 화면"><span>강하게 · 화면 완전 점유</span></span></label>
               </div></div>
-              <div class="flash-controls"><div class="field"><label for="flashbangVolume">삐- 소리 음량</label><div class="flash-volume"><span>0</span><input id="flashbangVolume" type="range" min="0" max="100" step="5" value="80"><strong id="flashbangVolumeValue">80%</strong></div></div><button class="button primary" id="previewFlashbangButton" type="button">▶ 섬광·소리 테스트</button></div>
+              <div class="flash-controls"><div class="field"><label for="flashbangVolume">삐- 소리 음량</label><div class="flash-volume"><span>0</span><input id="flashbangVolume" type="range" min="0" max="100" step="5" value="80"><strong id="flashbangVolumeValue">80%</strong></div></div><button class="button primary" id="previewFlashbangButton" type="button">▶ 삐- 소리 듣기</button></div>
               <p class="secret-note">1920×1080 화면 전체를 고정으로 덮고 약 3초 동안 자연스럽게 회복합니다. 음량을 0%로 두면 화면만 송출합니다.</p>
             </div>
           </section>
@@ -1491,7 +1491,7 @@
   elements.increaseScaleButton.onclick=()=>changeScale(5);
   elements.overlayScaleRange.oninput=()=>{scaleDraft=asNumber(elements.overlayScaleRange.value,100);updatePositionEditor()};
   elements.overlayVolumeRange.oninput=()=>{volumeDraft=asNumber(elements.overlayVolumeRange.value,80);updatePositionEditor()};
-  elements.testOverlaySoundButton.onclick=()=>post('previewRaffleTts',{kind:positionEditorTarget==='raffle-draw'?'draw':'ticket',volumePercent:volumeDraft,positionX:Math.round(positionDraft.x),positionY:Math.round(positionDraft.y),scalePercent:Math.round(scaleDraft)});
+  elements.testOverlaySoundButton.onclick=()=>post('previewRaffleTts',{kind:positionEditorTarget==='raffle-draw'?'draw':'ticket',volumePercent:volumeDraft});
   let draggingPositionPointer=null;
   elements.positionEditorImage.onpointerdown=event=>{draggingPositionPointer=event.pointerId;elements.positionEditorImage.setPointerCapture(event.pointerId);event.preventDefault()};
   elements.positionEditorImage.onpointermove=event=>{if(draggingPositionPointer!==event.pointerId)return;const rect=elements.positionCanvas.getBoundingClientRect();if(!rect.width||!rect.height)return;positionDraft=clampPositionToCanvas((event.clientX-rect.left)/rect.width*10000,(event.clientY-rect.top)/rect.height*10000);updatePositionEditor();event.preventDefault()};

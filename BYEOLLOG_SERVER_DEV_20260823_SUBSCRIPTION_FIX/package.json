@@ -1,8 +1,8 @@
 {
   "name": "byeollog-web",
   "private": true,
-  "version": "0.6.3-g3a.42",
-  "byeollogBuild": "0.6.3.58-g3a-agent-idle-health-fix",
+  "version": "0.6.3-g3a.43",
+  "byeollogBuild": "0.6.3.59-g3a-local-settings-audio-preview",
   "type": "module",
   "engines": {
     "node": "22.x"

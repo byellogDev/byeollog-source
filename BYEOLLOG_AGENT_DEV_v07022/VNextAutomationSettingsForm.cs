@@ -997,27 +997,14 @@ internal sealed class VNextAutomationSettingsForm : Form
             await ShowToastAsync("음량이 0%라 TTS가 재생되지 않아요.", "warning");
             return;
         }
-        var placement = new TimedMuteOverlayPlacement(
-            PayloadInt(payload, "positionX", 0, 10_000, "미리듣기 가로 위치"),
-            PayloadInt(payload, "positionY", 0, 10_000, "미리듣기 세로 위치"),
-            PayloadInt(payload, "scalePercent", 25, 200, "미리듣기 화면 크기"));
-        if (_localAgent is null)
-            throw new VNextDevelopmentException(
-                "이 PC의 별록 오버레이가 실행 중이 아닙니다.",
-                code: "raffle_preview_agent_unavailable");
-        var preview = await _localAgent.PreviewRaffleAudioInObsAsync(
-            kind,
-            volumePercent,
-            placement,
-            _lifetimeToken);
-        if (!preview.Audio.Ended)
-            throw new VNextDevelopmentException(
-                "OBS 별록 오버레이에서 음성을 끝까지 재생하지 못했습니다. OBS 브라우저 소스의 오디오 설정을 확인해주세요.",
-                code: "raffle_preview_obs_audio_failed");
+        if (kind == "draw")
+            await ByeollogRaffleAudio.PlayWinnerPreviewAsync(volumePercent, _lifetimeToken);
+        else
+            await ByeollogRaffleAudio.PlayTicketAsync(volumePercent, _lifetimeToken);
         await ShowToastAsync(
             kind == "draw"
-                ? $"OBS 별록 오버레이에서 당첨 음성을 {volumePercent}%로 재생했어요."
-                : $"OBS 별록 오버레이에서 고정 추첨권 음성을 {volumePercent}%로 재생했어요.",
+                ? $"이 PC에서 당첨 음성을 {volumePercent}%로 재생했어요."
+                : $"이 PC에서 추첨권 음성을 {volumePercent}%로 재생했어요.",
             "success");
     }
 
@@ -1029,22 +1016,16 @@ internal sealed class VNextAutomationSettingsForm : Form
                 "섬광 강도가 올바르지 않습니다.",
                 code: "invalid_flashbang_preview");
         var volumePercent = PayloadInt(payload, "volumePercent", 0, 100, "섬광탄 소리 음량");
-        if (_localAgent is null)
-            throw new VNextDevelopmentException(
-                "이 PC의 별록 오버레이가 실행 중이 아닙니다.",
-                code: "flashbang_preview_agent_unavailable");
-        var outcome = await _localAgent.PreviewFlashbangInObsAsync(
-            intensity,
+        if (volumePercent == 0)
+        {
+            await ShowToastAsync("음량이 0%라 섬광탄 소리가 재생되지 않아요.", "warning");
+            return;
+        }
+        await FlashbangOverlayActionAdapter.PlayPreviewBeepAsync(
             volumePercent,
             _lifetimeToken);
-        if (!outcome.Succeeded)
-            throw new VNextDevelopmentException(
-                outcome.Error ?? "OBS 별록 오버레이에서 섬광탄을 송출하지 못했습니다.",
-                code: "flashbang_preview_failed");
         await ShowToastAsync(
-            volumePercent == 0
-                ? "OBS 별록 오버레이에서 3초 섬광 화면을 확인했어요."
-                : $"OBS 별록 오버레이에서 3초 섬광과 {volumePercent}% 소리를 확인했어요.",
+            $"이 PC에서 섬광탄 삐- 소리를 {volumePercent}%로 재생했어요.",
             "success");
     }
 

@@ -102,18 +102,12 @@ internal sealed class FlashbangOverlayActionAdapter
         }
     }
 
-    internal Task<VNextAgentOutcome> PreviewAsync(
-        string intensity,
+    internal static Task PlayPreviewBeepAsync(
         int volumePercent,
         CancellationToken cancellationToken) =>
-        ExecuteAsync(
-            JsonSerializer.SerializeToElement(new
-            {
-                intensity,
-                overlayImageKey = AssetKeyForIntensity(intensity),
-                durationMs = DurationMs,
-                volumePercent
-            }),
+        ByeollogRaffleAudio.PlayWavAsync(
+            BeepAudio,
+            volumePercent,
             cancellationToken);
 
     internal static bool TryRead(

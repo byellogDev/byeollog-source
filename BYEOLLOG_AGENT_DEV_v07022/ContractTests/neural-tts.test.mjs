@@ -90,8 +90,8 @@ test("winner speech is bound to one winner identity, cached safely, and verified
   assert.match(cache, /manifest\.VoiceKey/);
   assert.match(form, /당첨 후보 음성을 안전하게 준비하는 중이에요/);
   assert.match(form, /PrewarmRaffleWinnerSpeechAsync/);
-  assert.match(form, /PreviewRaffleAudioInObsAsync/);
-  assert.doesNotMatch(form, /ByeollogRaffleAudio\.PlayWinnerPreviewAsync/);
+  assert.match(form, /ByeollogRaffleAudio\.PlayWinnerPreviewAsync/);
+  assert.match(form, /ByeollogRaffleAudio\.PlayTicketAsync/);
   assert.match(overlay, /\/overlay\/audio\//);
   assert.match(overlay, /audioPresentationRevision/);
   assert.match(overlay, /MaximumBrowserAudioPlaybackMs\s*=\s*25_000/);

@@ -86,7 +86,7 @@ internal static class ByeollogRaffleAudio
         return bytes;
     }
 
-    private static async Task PlayWavAsync(
+    internal static async Task PlayWavAsync(
         byte[] audio,
         int volumePercent,
         CancellationToken cancellationToken)

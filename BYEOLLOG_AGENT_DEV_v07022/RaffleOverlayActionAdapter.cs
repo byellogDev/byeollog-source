@@ -433,57 +433,6 @@ internal sealed class RaffleOverlayActionAdapter
         return keys;
     }
 
-    internal async Task<RafflePresentationExecutionEvidence> PreviewBrowserAudioAsync(
-        string kind,
-        int volumePercent,
-        TimedMuteOverlayPlacement placement,
-        CancellationToken cancellationToken)
-    {
-        if (kind is not ("ticket" or "draw"))
-            throw new ArgumentOutOfRangeException(nameof(kind));
-        if (volumePercent is < 1 or > 100)
-            throw new ArgumentOutOfRangeException(nameof(volumePercent));
-        await EnsureCurrentOverlayDocumentAsync(cancellationToken);
-
-        var ticket = kind == "ticket";
-        var audioBytes = ticket
-            ? ByeollogRaffleAudio.TicketAudioForPreflight()
-            : ByeollogRaffleAudio.WinnerPreviewAudioForPreflight();
-        var audioHash = ticket
-            ? ByeollogRaffleAudio.TicketSha256
-            : ByeollogRaffleAudio.WinnerPreviewSha256;
-        var bindingKey = ticket
-            ? TicketAudioBindingKey
-            : WinnerPreviewAudioBindingKey;
-        return await ShowWithSpeechAsync(
-            ticket
-                ? OverlayAssetCache.RaffleTicketGrantedAssetKey
-                : OverlayAssetCache.RaffleDrawAssetKey,
-            4_000,
-            ticket
-                ? new RaffleOverlayPresentation(
-                    "ticket_granted",
-                    "추첨권 지급",
-                    "테스트 시청자님, 추첨권을 1장 드렸어요!",
-                    "추첨함에 총 1장/1명",
-                    Array.Empty<string>())
-                : new RaffleOverlayPresentation(
-                    "draw_result",
-                    "추첨 1/1",
-                    "테스트 시청자님 당첨!",
-                    "축하합니다!",
-                    new[] { "테스트 시청자" }),
-            placement,
-            _ => Task.FromResult(new RafflePreparedAudio(
-                audioBytes,
-                audioHash,
-                bindingKey)),
-            bindingKey,
-            volumePercent,
-            cancellationToken,
-            notAfterUtc: null);
-    }
-
     internal async Task EnsureCurrentOverlayDocumentAsync(CancellationToken cancellationToken)
     {
         await _documentRefreshGate.WaitAsync(cancellationToken);

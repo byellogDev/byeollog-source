@@ -29,7 +29,7 @@ test("flashbang packages three immutable full-HD recovery assets", async () => {
   assert.match(cache, /1_920,\s*1_080/);
 });
 
-test("flashbang UI exposes three strengths, Browser Source volume, and preview", async () => {
+test("flashbang UI exposes three strengths and keeps settings audio preview local", async () => {
   const [ui, client, form, trust] = await Promise.all([
     text("Ui/agent_automation.html"),
     text("VNextAutomationClient.cs"),
@@ -43,6 +43,7 @@ test("flashbang UI exposes three strengths, Browser Source volume, and preview",
   assert.match(ui, /보통 · 권장/);
   assert.match(ui, /강하게 · 화면 완전 점유/);
   assert.match(ui, /id="flashbangVolume"[^>]+min="0"[^>]+max="100"/);
+  assert.match(ui, /▶ 삐- 소리 듣기/);
   assert.match(ui, /post\('previewFlashbang',\{intensity:flashbangIntensity,volumePercent:flashbangVolumePercent\}\)/);
   assert.match(ui, /1920×1080 화면 전체/);
   assert.match(client, /save_guided_rule_v12/);
@@ -51,6 +52,8 @@ test("flashbang UI exposes three strengths, Browser Source volume, and preview",
   assert.match(client, /flashbangVolumePercent/);
   assert.match(form, /case "previewFlashbang"/);
   assert.match(form, /PreviewFlashbangAsync/);
+  assert.match(form, /FlashbangOverlayActionAdapter\.PlayPreviewBeepAsync/);
+  assert.doesNotMatch(form, /PreviewFlashbangInObsAsync/);
   assert.match(trust, /"previewFlashbang"/);
 });
 
