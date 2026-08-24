@@ -966,6 +966,7 @@ internal static class Program
         using var http = new HttpClient(new HttpClientHandler { UseProxy = false });
         var stateUrl = $"{service.OverlayUrl}/state?documentRevision={Uri.EscapeDataString(ByeollogOverlayService.DocumentRevision)}";
         var handledAudio = new HashSet<string>(StringComparer.Ordinal);
+        var handledAssets = new HashSet<string>(StringComparer.Ordinal);
         while (true)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -976,6 +977,28 @@ internal static class Program
                 var snapshot = JsonSerializer.Deserialize<ByeollogOverlaySnapshot>(
                     await response.Content.ReadAsByteArrayAsync(cancellationToken),
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (snapshot is not null
+                    && snapshot.Active
+                    && snapshot.AssetToken is not null
+                    && snapshot.ContentSha256 is not null)
+                {
+                    var assetIdentity = snapshot.AssetToken + ":"
+                        + snapshot.ContentSha256 + ":" + snapshot.Revision;
+                    if (handledAssets.Add(assetIdentity))
+                    {
+                        var flashbang = snapshot.AssetKey is
+                            OverlayAssetCache.FlashbangSoftAssetKey or
+                            OverlayAssetCache.FlashbangStandardAssetKey or
+                            OverlayAssetCache.FlashbangStrongAssetKey;
+                        var assetUrl = $"{service.OverlayUrl}/assets/{Uri.EscapeDataString(snapshot.AssetToken)}"
+                            + $"?revision={Uri.EscapeDataString(snapshot.ContentSha256)}"
+                            + (flashbang ? $"&presentationRevision={snapshot.Revision}" : "");
+                        using var assetResponse = await http.GetAsync(assetUrl, cancellationToken);
+                        assetResponse.EnsureSuccessStatusCode();
+                        True((await assetResponse.Content.ReadAsByteArrayAsync(cancellationToken)).Length > 0,
+                            "OBS Browser Source can fetch the exact active image binding");
+                    }
+                }
                 if (snapshot is not null
                     && snapshot.Active
                     && snapshot.AudioToken is not null

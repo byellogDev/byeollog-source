@@ -90,7 +90,7 @@ internal sealed class OverlayPresentationNotObservedException : IOException
 internal sealed class ByeollogOverlayService : IDisposable
 {
     internal const string MicrophoneOffAssetKey = TimedMuteContract.MicrophoneOffOverlayAssetKey;
-    internal const string DocumentRevision = "flashbang-audio-v4";
+    internal const string DocumentRevision = "flashbang-asset-sync-v5";
     internal const int DefaultPort = 43_120;
     internal const int BrowserAudioStartTimeoutMs = 5_000;
     internal const int MaximumBrowserAudioPlaybackMs = 25_000;
@@ -133,7 +133,7 @@ internal sealed class ByeollogOverlayService : IDisposable
 <body>
   <img id="asset" alt="" draggable="false">
   <div id="raffle-stage"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div><div id="raffle-secondary"></div><div id="raffle-winners"></div></section></div>
-  <div id="flashbang-stage" data-document-revision="flashbang-audio-v4"><img id="flashbang-asset" alt="" draggable="false"></div>
+  <div id="flashbang-stage" data-document-revision="flashbang-asset-sync-v5"><img id="flashbang-asset" alt="" draggable="false"></div>
   <script>
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
@@ -146,6 +146,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     const flashbangStage = document.getElementById('flashbang-stage');
     const flashbangAsset = document.getElementById('flashbang-asset');
     let currentRevision = '';
+    let loadedFlashbangRevision = '';
     let activeAudio = null;
     function stopAudio() {
       if (!activeAudio) return;
@@ -251,7 +252,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     async function refresh() {
       try {
-        const response = await fetch('/overlay/state?documentRevision=flashbang-audio-v4', { cache: 'no-store' });
+        const response = await fetch('/overlay/state?documentRevision=flashbang-asset-sync-v5', { cache: 'no-store' });
         if (!response.ok) throw new Error('state unavailable');
         const state = await response.json();
         if (state.active === true && typeof state.assetToken === 'string') {
@@ -262,14 +263,26 @@ internal sealed class ByeollogOverlayService : IDisposable
           if (currentRevision !== nextRevision) {
             currentRevision = nextRevision;
             if (raffle) applyRafflePlacement(state); else if (!flashbang) applyPlacement(state);
+            if (flashbang) {
+              loadedFlashbangRevision = '';
+              flashbangStage.className = '';
+              flashbangAsset.onload = () => {
+                if (currentRevision !== nextRevision) return;
+                loadedFlashbangRevision = nextRevision;
+                flashbangStage.className = '';
+                void flashbangStage.offsetWidth;
+                flashbangStage.classList.add('visible', flashbang);
+                applyAudio(state);
+              };
+              flashbangAsset.onerror = () => {
+                if (currentRevision !== nextRevision) return;
+                loadedFlashbangRevision = '';
+                hide();
+              };
+            }
             targetAsset.src = '/overlay/assets/' + encodeURIComponent(state.assetToken)
               + '?revision=' + encodeURIComponent(state.contentSha256)
               + (flashbang ? '&presentationRevision=' + encodeURIComponent(state.revision) : '');
-            if (flashbang) {
-              flashbangStage.className = '';
-              void flashbangStage.offsetWidth;
-              flashbangStage.classList.add('visible', flashbang);
-            }
           }
           if (raffle) {
             asset.classList.remove('visible');
@@ -281,8 +294,13 @@ internal sealed class ByeollogOverlayService : IDisposable
             asset.classList.remove('visible');
             raffleStage.classList.remove('visible');
             raffleCopy.classList.remove('visible');
-            flashbangStage.classList.add('visible', flashbang);
-            applyAudio(state);
+            if (loadedFlashbangRevision === nextRevision) {
+              flashbangStage.classList.add('visible', flashbang);
+              applyAudio(state);
+            } else {
+              flashbangStage.className = '';
+              stopAudio();
+            }
           } else {
             raffleStage.classList.remove('visible');
             raffleCopy.classList.remove('visible');
@@ -301,7 +319,6 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     asset.addEventListener('error', hide);
     raffleAsset.addEventListener('error', hide);
-    flashbangAsset.addEventListener('error', hide);
     refresh();
   </script>
 </body>
@@ -539,6 +556,7 @@ internal sealed class ByeollogOverlayService : IDisposable
             if (notAfterUtc is not null && DateTimeOffset.UtcNow >= notAfterUtc.Value)
                 throw new VNextActionExpiredException();
             var activeBefore = Interlocked.Read(ref _currentDocumentActiveStateRequests);
+            var assetBefore = Interlocked.Read(ref _assetRequests);
             SetActive(
                 content,
                 placement,
@@ -547,6 +565,10 @@ internal sealed class ByeollogOverlayService : IDisposable
             var evidence = await WaitForActivePresentationAsync(
                 content.Descriptor.AssetKey,
                 activeBefore,
+                TimeSpan.FromSeconds(3),
+                cancellationToken);
+            await WaitForAssetRequestAsync(
+                assetBefore,
                 TimeSpan.FromSeconds(3),
                 cancellationToken);
             UpdateHideAt(DateTimeOffset.UtcNow.AddMilliseconds(durationMs));
@@ -612,6 +634,7 @@ internal sealed class ByeollogOverlayService : IDisposable
                 throw new VNextActionExpiredException();
 
             var activeBefore = Interlocked.Read(ref _currentDocumentActiveStateRequests);
+            var assetBefore = Interlocked.Read(ref _assetRequests);
             var maximumHoldMs = checked(
                 Math.Max(durationMs, BrowserAudioStartTimeoutMs + MaximumBrowserAudioPlaybackMs)
                 + 1_000);
@@ -624,6 +647,10 @@ internal sealed class ByeollogOverlayService : IDisposable
             var evidence = await WaitForActivePresentationAsync(
                 content.Descriptor.AssetKey,
                 activeBefore,
+                TimeSpan.FromSeconds(3),
+                cancellationToken);
+            await WaitForAssetRequestAsync(
+                assetBefore,
                 TimeSpan.FromSeconds(3),
                 cancellationToken);
             UpdateHideAt(DateTimeOffset.UtcNow.AddMilliseconds(maximumHoldMs));
@@ -1190,6 +1217,22 @@ internal sealed class ByeollogOverlayService : IDisposable
         throw new OverlayPresentationNotObservedException();
     }
 
+    private async Task WaitForAssetRequestAsync(
+        long assetRequestsBefore,
+        TimeSpan timeout,
+        CancellationToken cancellationToken)
+    {
+        var deadline = DateTimeOffset.UtcNow + timeout;
+        while (DateTimeOffset.UtcNow < deadline)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (Interlocked.Read(ref _assetRequests) > assetRequestsBefore)
+                return;
+            await Task.Delay(50, cancellationToken);
+        }
+        throw new OverlayPresentationNotObservedException();
+    }
+
     private static async Task WaitBeforeDeadlineAsync(
         Func<CancellationToken, Task> wait,
         CancellationToken cancellationToken,
@@ -1471,10 +1514,15 @@ internal sealed class ByeollogOverlayService : IDisposable
                 if (path.StartsWith(assetPrefix, StringComparison.Ordinal))
                 {
                     var tokenText = path[assetPrefix.Length..];
-                    var revision = ExactAssetRevisionFromTarget(target);
-                    var content = revision is not null
+                    var content = TryExactAssetBindingFromTarget(
+                            target,
+                            out var revision,
+                            out var presentationRevision)
                         && Guid.TryParseExact(tokenText, "D", out var token)
-                        ? ActiveContentForToken(token.ToString("D"), revision)
+                        ? ActiveContentForToken(
+                            token.ToString("D"),
+                            revision,
+                            presentationRevision)
                         : null;
                     if (content is not null)
                     {
@@ -1593,24 +1641,43 @@ internal sealed class ByeollogOverlayService : IDisposable
         await stream.FlushAsync(cancellationToken);
     }
 
-    private static string? ExactAssetRevisionFromTarget(string target)
+    private static bool TryExactAssetBindingFromTarget(
+        string target,
+        out string revision,
+        out long? presentationRevision)
     {
+        revision = "";
+        presentationRevision = null;
         var queryIndex = target.IndexOf('?');
-        if (queryIndex < 0 || queryIndex == target.Length - 1) return null;
-        var query = target[(queryIndex + 1)..];
-        const string prefix = "revision=";
-        if (!query.StartsWith(prefix, StringComparison.Ordinal) || query.Contains('&')) return null;
+        if (queryIndex < 0 || queryIndex == target.Length - 1) return false;
+        var parts = target[(queryIndex + 1)..].Split('&', StringSplitOptions.None);
+        if (parts.Length is < 1 or > 2
+            || !parts[0].StartsWith("revision=", StringComparison.Ordinal)
+            || (parts.Length == 2
+                && !parts[1].StartsWith("presentationRevision=", StringComparison.Ordinal)))
+            return false;
         try
         {
-            var revision = Uri.UnescapeDataString(query[prefix.Length..]);
-            return revision.Length == 64
-                && revision.All(character => character is >= '0' and <= '9' or >= 'a' and <= 'f')
-                    ? revision
-                    : null;
+            revision = Uri.UnescapeDataString(parts[0]["revision=".Length..]);
+            if (revision.Length != 64
+                || !revision.All(character => character is >= '0' and <= '9' or >= 'a' and <= 'f'))
+                return false;
+            if (parts.Length == 1) return true;
+            var presentationText = Uri.UnescapeDataString(
+                parts[1]["presentationRevision=".Length..]);
+            if (!long.TryParse(
+                    presentationText,
+                    System.Globalization.NumberStyles.None,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out var parsedPresentationRevision)
+                || parsedPresentationRevision <= 0)
+                return false;
+            presentationRevision = parsedPresentationRevision;
+            return true;
         }
         catch (UriFormatException)
         {
-            return null;
+            return false;
         }
     }
 
@@ -1669,13 +1736,17 @@ internal sealed class ByeollogOverlayService : IDisposable
         }
     }
 
-    private OverlayAssetContent? ActiveContentForToken(string token, string revision)
+    private OverlayAssetContent? ActiveContentForToken(
+        string token,
+        string revision,
+        long? presentationRevision = null)
     {
         lock (_stateGate)
         {
             return _activeContent is not null
                 && _hideAtUtc is not null
                 && _hideAtUtc > DateTimeOffset.UtcNow
+                && (presentationRevision is null || presentationRevision.Value == _revision)
                 && string.Equals(
                     _activeContent.Descriptor.AssetId,
                     token,

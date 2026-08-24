@@ -74,6 +74,11 @@ test("flashbang overlay is fullscreen, fully recovers over five seconds, and bin
   assert.match(overlay, /flashbang-soft-recover 5000ms/);
   assert.match(overlay, /flashbang-standard-recover 5000ms/);
   assert.match(overlay, /flashbang-strong-recover 5000ms/);
+  assert.match(overlay, /flashbangAsset\.onload\s*=\s*\(\)\s*=>/);
+  assert.match(overlay, /loadedFlashbangRevision === nextRevision/);
+  assert.match(overlay, /WaitForAssetRequestAsync/);
+  assert.match(overlay, /TryExactAssetBindingFromTarget/);
+  assert.match(overlay, /presentationRevision\.Value == _revision/);
   assert.match(adapter, /internal const int DurationMs = 5_000/);
   assert.match(overlay, /@keyframes flashbang-soft-recover \{[^\n]+100% \{ opacity:0 \} \}/);
   assert.match(overlay, /@keyframes flashbang-standard-recover \{[^\n]+100% \{ opacity:0 \} \}/);
