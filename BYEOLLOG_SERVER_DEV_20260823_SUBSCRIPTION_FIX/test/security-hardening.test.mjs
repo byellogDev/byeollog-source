@@ -20,7 +20,7 @@ test('superseded Agent RPCs remain installed but are not client executable',asyn
 
   const client=await source('../../BYEOLLOG_AGENT_DEV_v07022/VNextAutomationClient.cs');
   assert.doesNotMatch(client,/save_guided_rule_v(?:8|9|10)|get_raffle_state_v1/);
-  assert.match(client,/save_guided_rule_v12/);
+  assert.match(client,/save_guided_rule_v13/);
   assert.match(client,/get_raffle_state_v2/);
 });
 

@@ -200,7 +200,7 @@ test("v0.7.0.32 preserves rule deletion, split device views, inline URL copy, dr
   assert.match(automation, /onpointermove/);
   assert.match(automation, /clampPositionToCanvas/);
   assert.match(automation, /overlayPositionX/);
-  assert.match(client, /save_guided_rule_v12/);
+  assert.match(client, /save_guided_rule_v13/);
   assert.match(saveMigration, /save_guided_rule_v7_impl/);
   assert.match(saveMigration, /p_overlay_image_key text/);
   assert.match(saveMigration, /params=public_action\.params \|\| v_params/);

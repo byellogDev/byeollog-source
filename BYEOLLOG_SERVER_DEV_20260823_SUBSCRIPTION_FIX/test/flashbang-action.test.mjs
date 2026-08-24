@@ -9,6 +9,7 @@ test("flashbang migration exposes bounded manager-only save and test RPCs", asyn
   const migration = await text("supabase/migrations/20260824173931_add_flashbang_action.sql");
   const targetSafetyMigration = await text("supabase/migrations/20260824192432_allow_flashbang_rule_action_target.sql");
   const timeoutRepairMigration = await text("supabase/migrations/20260824192955_fix_flashbang_timeout_contract.sql");
+  const exactDonationMigration = await text("supabase/migrations/20260824202652_allow_flashbang_exact_donation.sql");
   assert.match(migration, /create or replace function public\.save_guided_rule_v12/);
   assert.match(migration, /create or replace function public\.dispatch_guided_rule_test_v3/);
   assert.match(migration, /p_flashbang_intensity not in \('soft','standard','strong'\)/);
@@ -30,6 +31,13 @@ test("flashbang migration exposes bounded manager-only save and test RPCs", asyn
   assert.match(timeoutRepairMigration, /timeout_ms=120000/);
   assert.match(timeoutRepairMigration, /v_action\.params,120000,1,5/);
   assert.doesNotMatch(timeoutRepairMigration, /150000/);
+  assert.match(exactDonationMigration, /create or replace function public\.save_guided_rule_v13/);
+  assert.match(exactDonationMigration, /p_event_type not in \('roulette','donation'\)/);
+  assert.match(exactDonationMigration, /p_event_type='donation'[\s\S]*p_result is not null or p_min_amount is null or p_min_amount<1/);
+  assert.match(exactDonationMigration, /p_event_type=>p_event_type/);
+  assert.match(exactDonationMigration, /p_min_amount=>case when p_event_type='donation' then p_min_amount else null end/);
+  assert.match(exactDonationMigration, /grant execute on function public\.save_guided_rule_v13[\s\S]*to authenticated/);
+  assert.doesNotMatch(exactDonationMigration, /grant execute[\s\S]*to (?:public|anon)/);
 });
 
 test("all live action runtimes allow flashbang without relaxing unrelated actions", async () => {

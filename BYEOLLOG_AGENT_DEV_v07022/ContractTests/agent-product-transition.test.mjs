@@ -67,9 +67,9 @@ test("the Agent exposes one unified release label without the historical public-
     source("MainForm.cs"),
     source("Ui/byeollog_ui.html")
   ]);
-  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.77"/);
-  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.77"/);
-  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.77"/);
+  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.78"/);
+  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.78"/);
+  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.78"/);
   assert.match(main, /BuildInfo\.DisplayVersion/);
   assert.doesNotMatch(main, /nDev/);
   assert.match(main, /\$"별록 · \{text\.Replace\("상태: ", ""\)\}"/);
@@ -93,7 +93,7 @@ test("every normally approved streamer can use the public automation surface", a
   assert.match(access, /returnedUserId != authenticatedUserId/);
   assert.doesNotMatch(form, /owner\/admin만/);
   assert.doesNotMatch(automation, /owner\/admin/);
-  assert.match(uiStore, /UiVersion\s*=\s*"v0\.7\.0\.77"/);
+  assert.match(uiStore, /UiVersion\s*=\s*"v0\.7\.0\.78"/);
 });
 
 test("legacy Collector shortcut cleanup removes only the installer-owned target", async () => {
@@ -466,7 +466,7 @@ test("native automation requests stay authenticated, workspace-scoped, version-f
     "/rest/v1/rpc/list_agent_devices_v1",
     "/rest/v1/rpc/rename_agent_device_v1",
     "/rest/v1/rpc/revoke_agent_device_v1",
-    "/rest/v1/rpc/save_guided_rule_v12",
+    "/rest/v1/rpc/save_guided_rule_v13",
     "/rest/v1/rpc/get_raffle_state_v2",
     "/rest/v1/rpc/start_raffle_draw_v2",
     "/rest/v1/rpc/draw_next_raffle_winner_v2",

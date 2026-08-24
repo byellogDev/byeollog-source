@@ -51,7 +51,13 @@ test("flashbang UI exposes three strengths and keeps settings audio preview loca
   assert.match(ui, /openTestRuleConfirm\(rule\)\{[\s\S]*?!TESTABLE_ACTION_TYPES\.has\(rule\.action\.type\)/);
   assert.match(ui, /섬광탄을 실제로 테스트할까요/);
   assert.match(ui, /저장한 섬광 강도와 볼륨으로 5초간 실제 송출/);
-  assert.match(client, /save_guided_rule_v12/);
+  assert.match(ui, /<option value="roulette">룰렛 결과<\/option><option value="donation">고정 후원액<\/option>/);
+  assert.match(ui, /flashbang\?'섬광탄을 실행할 조건'/);
+  assert.match(ui, /룰렛 결과 또는 정확히 일치하는 고정 후원액 중 하나를 선택하세요/);
+  assert.doesNotMatch(ui, /if\(multiplier\|\|flashbang\)elements\.eventType\.value='roulette'/);
+  assert.match(ui, /draft\.actionType==='flashbang\.overlay'\)return `\$\{when\}\$\{amount\}/);
+  assert.match(client, /save_guided_rule_v13/);
+  assert.doesNotMatch(client, /섬광탄은 룰렛 결과에만 설정할 수 있습니다/);
   assert.match(client, /dispatch_guided_rule_test_v3/);
   assert.match(client, /flashbangIntensity/);
   assert.match(client, /flashbangVolumePercent/);

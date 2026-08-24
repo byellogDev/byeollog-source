@@ -1,8 +1,8 @@
 {
   "name": "byeollog-web",
   "private": true,
-  "version": "0.6.3-g3a.46",
-  "byeollogBuild": "0.6.3.62-g3a-flashbang-image-delivery-fix",
+  "version": "0.6.3-g3a.47",
+  "byeollogBuild": "0.6.3.63-g3a-flashbang-exact-donation",
   "type": "module",
   "engines": {
     "node": "22.x"

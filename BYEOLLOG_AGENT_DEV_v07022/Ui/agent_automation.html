@@ -156,7 +156,7 @@
             <div class="section-head"><span class="section-number">1</span><div><h3 id="conditionStepTitle">아봉을 실행할 후원 조건</h3><p id="conditionStepCopy">어떤 후원 결과에 반응할지 정한 뒤 다음 단계로 이동하세요.</p></div></div>
             <div class="grid two" id="conditionGrid">
               <div class="field"><label for="source">입력 경로</label><select class="select" id="source"><option value="weflab">위플랩</option><option value="byeollog">별록 직접 후원</option></select></div>
-              <div class="field" id="eventTypeField"><label for="eventType">이벤트</label><select class="select" id="eventType"><option value="roulette">룰렛 결과</option><option value="donation">후원</option></select></div>
+              <div class="field" id="eventTypeField"><label for="eventType">실행 조건</label><select class="select" id="eventType"><option value="roulette">룰렛 결과</option><option value="donation">고정 후원액</option></select></div>
               <div class="field" id="amountField" hidden><label id="amountLabel" for="minAmount">고정 별풍선</label><input class="input" id="minAmount" type="number" min="1" step="1" placeholder="예: 444"></div>
             </div>
             <div class="grid two" id="resultRow" style="margin-top:9px">
@@ -827,11 +827,11 @@
     const multiplier=currentFeature==='reward-multiplier';
     const raffle=currentFeature==='raffle';
     const flashbang=currentFeature==='flashbang';
-    if(multiplier||flashbang)elements.eventType.value='roulette';else if(raffle)elements.eventType.value='donation';
+    if(multiplier)elements.eventType.value='roulette';else if(raffle)elements.eventType.value='donation';
     const roulette=elements.eventType.value==='roulette';
-    elements.eventTypeField.hidden=multiplier||raffle||flashbang;
-    elements.conditionStepTitle.textContent=multiplier?'보상 증가를 예약할 룰렛 결과':raffle?'추첨권을 지급할 후원':flashbang?'섬광탄을 실행할 룰렛 결과':'아봉을 실행할 후원 조건';
-    elements.conditionStepCopy.textContent=multiplier?'이 결과가 나오면 같은 후원자의 다음 실제 룰렛 보상 1회에 배수를 적용합니다.':raffle?'추첨권 1장을 지급할 기준 후원 금액을 정합니다. 배수 인정 여부는 다음 단계에서 선택합니다.':flashbang?'이 결과가 나오면 전체 방송 화면에 5초 섬광 효과를 송출합니다.':'어떤 후원 결과에 반응할지 정한 뒤 다음 단계로 이동하세요.';
+    elements.eventTypeField.hidden=multiplier||raffle;
+    elements.conditionStepTitle.textContent=multiplier?'보상 증가를 예약할 룰렛 결과':raffle?'추첨권을 지급할 후원':flashbang?'섬광탄을 실행할 조건':'아봉을 실행할 후원 조건';
+    elements.conditionStepCopy.textContent=multiplier?'이 결과가 나오면 같은 후원자의 다음 실제 룰렛 보상 1회에 배수를 적용합니다.':raffle?'추첨권 1장을 지급할 기준 후원 금액을 정합니다. 배수 인정 여부는 다음 단계에서 선택합니다.':flashbang?'룰렛 결과 또는 정확히 일치하는 고정 후원액 중 하나를 선택하세요.':'어떤 후원 결과에 반응할지 정한 뒤 다음 단계로 이동하세요.';
     elements.resultRow.hidden=!roulette;elements.donationNameRow.hidden=roulette;
     elements.amountField.hidden=roulette||raffle;elements.conditionGrid.classList.toggle('two',roulette||raffle);elements.conditionGrid.classList.toggle('three',!roulette&&!raffle);
     elements.amountLabel.textContent='고정 별풍선';
@@ -886,7 +886,7 @@
     const amount=draft.eventType==='donation'&&draft.minAmount?` 별풍선이 정확히 ${draft.minAmount.toLocaleString('ko-KR')}개이면`:'';
     if(draft.actionType==='roulette.reward_multiplier_next')return `${when} 같은 후원자의 다음 실제 룰렛 보상 1회를 ${draft.rewardMultiplier}배로 늘립니다.${draft.allowMultiplierStacking?' 연속 증가 결과는 배수를 중첩합니다.':' 연속 증가 결과는 가장 최근 배수로 갱신합니다.'}`;
     if(draft.actionType==='raffle.ticket_grant')return draft.raffleAllowMultiples?`${SOURCE_LABELS[draft.source]||draft.source} 후원 별풍선 ${draft.raffleTicketUnit.toLocaleString('ko-KR')}개당 추첨권 1장을 지급합니다. 배수 금액은 몫만큼 지급하며 나머지는 버립니다.`:`${SOURCE_LABELS[draft.source]||draft.source} 후원 별풍선이 정확히 ${draft.raffleTicketUnit.toLocaleString('ko-KR')}개일 때만 추첨권 1장을 지급합니다. 배수나 초과 금액은 지급하지 않습니다.`;
-    if(draft.actionType==='flashbang.overlay')return `${when} 1920×1080 화면 전체에 ${draft.flashbangIntensity==='soft'?'약한':draft.flashbangIntensity==='strong'?'강한':'보통'} 섬광을 5초간 송출하고 삐- 소리를 ${draft.flashbangVolumePercent}%로 재생합니다.`;
+    if(draft.actionType==='flashbang.overlay')return `${when}${amount} 1920×1080 화면 전체에 ${draft.flashbangIntensity==='soft'?'약한':draft.flashbangIntensity==='strong'?'강한':'보통'} 섬광을 5초간 송출하고 삐- 소리를 ${draft.flashbangVolumePercent}%로 재생합니다.`;
     const overlay=draft.overlayEnabled?` 오버레이 화면을 함께 출력하며`:'';
     return `${when}${amount}${overlay} ${ACTIONS[draft.actionType].label}를 ${draft.durationSeconds}초 실행합니다.`;
   }

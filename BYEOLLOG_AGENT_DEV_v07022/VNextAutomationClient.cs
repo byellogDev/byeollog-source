@@ -168,7 +168,7 @@ internal sealed partial class VNextDevelopmentClient
         var token = await GetValidAccessTokenAsync(cancellationToken);
         var result = await SendAutomationRequestAsync(
             HttpMethod.Post,
-            "/rest/v1/rpc/save_guided_rule_v12",
+            "/rest/v1/rpc/save_guided_rule_v13",
             draft,
             token,
             "규칙 저장",
@@ -742,10 +742,6 @@ internal sealed partial class VNextDevelopmentClient
         }
         else if (actionType == "flashbang.overlay")
         {
-            if (eventType != "roulette")
-                throw new VNextDevelopmentException(
-                    "섬광탄은 룰렛 결과에만 설정할 수 있습니다.",
-                    code: "invalid_rule_payload");
             agentDeviceId = RequireGuidString(payload, "agentDeviceId", "등록 PC");
             flashbangIntensity = RequiredChoice(
                 payload,
