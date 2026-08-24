@@ -32,9 +32,10 @@ test('agent rollout route reuses the authenticated admin function',async()=>{
 });
 
 test('collection health and late-event decisions are additive and fail closed',async()=>{
-  const [sql,eventRuntime]=await Promise.all([
+  const [sql,eventRuntime,deviceStatus]=await Promise.all([
     source('../supabase/migrations/20260825100000_add_collection_health_and_event_decisions.sql'),
-    source('../supabase/functions/event-runtime/index.ts')
+    source('../supabase/functions/event-runtime/index.ts'),
+    source('../supabase/functions/_shared/agent-device-status.ts')
   ]);
   assert.match(sql,/agent_collection_health/);
   assert.match(sql,/collection_state in \('active','idle','recovering','error'\)/);
@@ -46,6 +47,10 @@ test('collection health and late-event decisions are additive and fail closed',a
   assert.match(eventRuntime,/MAX_LIVE_ACTION_AGE_MS = 2 \* 60 \* 1000/);
   assert.match(eventRuntime,/rpc\/g3a_record_event_decision_v1/);
   assert.match(eventRuntime,/late_event_suppressed/);
+  assert.match(deviceStatus,/body\.sessionStartedAt === undefined\s*\? null/);
+  assert.match(deviceStatus,/body\.lastObservedAt === undefined\s*\? null/);
+  assert.match(deviceStatus,/body\.lastUploadAt === undefined\s*\? null/);
+  assert.match(deviceStatus,/sessionStartedAt === undefined \|\| lastObservedAt === undefined \|\| lastUploadAt === undefined/);
 });
 
 test('stable feed and DB snapshot are strictly allowlisted',async()=>{

@@ -38,13 +38,16 @@ function instant(value: unknown): string | null | undefined {
 export function normalizeCollectionHealth(body: unknown): NormalizedCollectionHealth | null {
   if (!isObject(body)) return null;
   const collectionState = body.collectionState;
-  const sessionStartedAt = instant(body.sessionStartedAt);
-  const lastObservedAt = instant(body.lastObservedAt);
-  const lastUploadAt = instant(body.lastUploadAt);
-  // Absent fields are accepted for pre-health Agents.  They are never written
-  // as a fabricated idle state; the dashboard renders their health unknown.
-  if (collectionState === undefined && sessionStartedAt === undefined
-    && lastObservedAt === undefined && lastUploadAt === undefined) return null;
+  // The Windows Agent intentionally reports nullable timestamps while idle.
+  // Its shared JSON options omit null properties, so an absent timestamp has
+  // the same wire meaning as an explicit null.  Invalid provided values still
+  // return undefined and remain fail-closed.
+  const sessionStartedAt = body.sessionStartedAt === undefined
+    ? null : instant(body.sessionStartedAt);
+  const lastObservedAt = body.lastObservedAt === undefined
+    ? null : instant(body.lastObservedAt);
+  const lastUploadAt = body.lastUploadAt === undefined
+    ? null : instant(body.lastUploadAt);
   if (collectionState !== "active" && collectionState !== "idle"
     && collectionState !== "recovering" && collectionState !== "error"
     || sessionStartedAt === undefined || lastObservedAt === undefined || lastUploadAt === undefined) return null;

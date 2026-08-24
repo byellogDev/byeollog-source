@@ -126,6 +126,11 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
+    private readonly JsonSerializerOptions _agentRequestJsonWithNulls = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.Never
+    };
 
     private string _accessToken = "";
     private string _refreshToken = "";
@@ -642,11 +647,11 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                 sessionStartedAt = collectionHealth.SessionStartedAt,
                 lastObservedAt = collectionHealth.LastObservedAt,
                 lastUploadAt = collectionHealth.LastUploadAt
-            }, cancellationToken);
+            }, cancellationToken, preserveNulls: true);
         }
         catch (VNextDevelopmentException ex) when (
             ex.StatusCode is 400 or 404
-            && ex.Code is ("invalid_operation" or "unknown_error"))
+            && ex.Code is ("invalid_operation" or "invalid_collection_health" or "unknown_error"))
         {
             // New telemetry is optional until the matching Edge release is
             // active.  The dashboard shows unknown rather than synthesizing
@@ -1242,14 +1247,20 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         }, cancellationToken);
     }
 
-    private async Task<string> SendAgentRequestAsync(object payload, CancellationToken cancellationToken)
+    private async Task<string> SendAgentRequestAsync(
+        object payload,
+        CancellationToken cancellationToken,
+        bool preserveNulls = false)
     {
         var accessToken = await GetValidAccessTokenAsync(cancellationToken);
         var requestLease = CaptureSessionRequestLease(accessToken);
         using var request = new HttpRequestMessage(HttpMethod.Post, SupabaseUrl + "/functions/v1/agent-runtime-g3a");
         request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        request.Content = new StringContent(JsonSerializer.Serialize(payload, _json), Encoding.UTF8, "application/json");
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(payload, preserveNulls ? _agentRequestJsonWithNulls : _json),
+            Encoding.UTF8,
+            "application/json");
 
         using var response = await _http.SendAsync(request, cancellationToken);
         var responseText = await response.Content.ReadAsStringAsync(cancellationToken);

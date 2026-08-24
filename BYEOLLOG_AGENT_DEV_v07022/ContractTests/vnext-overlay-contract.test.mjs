@@ -90,7 +90,11 @@ test("Agent reports Weflab collection health separately from its automation hear
   ]);
   assert.match(client, /operation = "collection_health"/);
   assert.match(client, /operation = "device_status"[\s\S]*operation = "collection_health"/);
+  assert.match(client, /_agentRequestJsonWithNulls[\s\S]*JsonIgnoreCondition\.Never/);
+  assert.match(client, /operation = "collection_health"[\s\S]*preserveNulls:\s*true/);
+  assert.match(client, /invalid_collection_health/);
   assert.match(client, /invalid_operation/);
+  assert.match(agent, /vNext Agent 반복 처리 오류/);
   assert.match(agent, /session\?\.Active != true[\s\S]*VNextCollectionHealth\("idle"/);
   assert.match(agent, /LastWeflabObservedAt\.HasValue \? "active" : "recovering"/);
   assert.match(storage, /MarkWeflabObserved/);

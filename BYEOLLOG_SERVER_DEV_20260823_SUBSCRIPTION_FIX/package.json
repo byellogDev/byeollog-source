@@ -1,8 +1,8 @@
 {
   "name": "byeollog-web",
   "private": true,
-  "version": "0.6.3-g3a.41",
-  "byeollogBuild": "0.6.3.57-g3a-flashbang-action",
+  "version": "0.6.3-g3a.42",
+  "byeollogBuild": "0.6.3.58-g3a-agent-idle-health-fix",
   "type": "module",
   "engines": {
     "node": "22.x"

@@ -628,6 +628,11 @@ internal sealed class VNextLocalAgent : IDisposable
             {
                 consecutiveErrors++;
                 var delaySeconds = Math.Min(30, 1 << Math.Min(consecutiveErrors - 1, 5));
+                var requestDetail = ex is VNextDevelopmentException requestError
+                    ? $" · http={requestError.StatusCode} · code={requestError.Code}"
+                    : "";
+                _collectorStorage.Log(
+                    $"vNext Agent 반복 처리 오류 · type={ex.GetType().Name}{requestDetail}");
                 Publish(false, "재연결 대기", SafeMessage(ex));
                 try { await WaitOrWakeAsync(TimeSpan.FromSeconds(delaySeconds), cancellationToken); }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { break; }
