@@ -41,3 +41,19 @@ manifest로 분리하여 예전 MeloTTS 음성을 재사용하지 않습니다.
 
 CosyVoice 소스와 `Fun-CosyVoice3-0.5B-2512` 모델은 Apache-2.0 고정 버전을
 사용합니다. `/licenses/CosyVoice.txt`와 모델의 라이선스 고지를 보존하십시오.
+
+## Windows 재시작 복구
+
+`Install-ByeollogTtsStartup.ps1`은 현재 사용자 로그인 때 Docker Desktop을
+필요한 경우 시작하고, `byeollog-raffle-tts` 컨테이너와 로컬 `/healthz`를
+복구하는 숨김 예약 작업을 등록합니다.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Install-ByeollogTtsStartup.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Get-ByeollogTtsStatus.ps1
+```
+
+이 예약 작업은 로컬 모델만 복구합니다. `trycloudflare.com` Quick Tunnel은
+프로세스를 다시 시작할 때 공개 주소가 바뀌므로 자동시작하지 않습니다.
+고정 Cloudflare Tunnel과 Supabase `BYEOLLOG_TTS_ORIGIN` 전환이 완료되기
+전에는 PC 재부팅 후 외부 당첨자 음성 생성이 자동 복구되지 않습니다.
