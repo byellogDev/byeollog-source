@@ -1,0 +1,10 @@
+별록 에이전트 0.7.0.4 공개판 데이터 경로 교정
+
+- 현재 사용자 데이터 경로: %LOCALAPPDATA%\ByeollogAgent
+- 진단 ZIP 경로: %LOCALAPPDATA%\ByeollogAgent\support-bundles
+- WebView2, 규칙, OBS, 자동화 세션, 로그, 상태 DB를 새 루트로 통일
+- 첫 실행 때 기존 %LOCALAPPDATA%\HurogiCollector 데이터를 SHA-256 검증 복사
+- 기존 폴더는 즉시 삭제하지 않고 롤백용 보존본으로 유지
+- .NET namespace, 실행 파일명, 서버/API 프로토콜 식별자는 호환성을 위해 유지
+
+기존 권한 진단 로그 보강과 0.7.0.3의 공개 사용자 UI 교정도 그대로 포함합니다.

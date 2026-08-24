@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>별록 시작</title>
+  <style>
+    :root{color-scheme:dark;--bg:#071326;--line:#203b60;--text:#f7faff;--muted:#a9bddb;--quiet:#6f8db7;--accent:#f7b936;--green:#24c58b}
+    *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:transparent}
+    body{font-family:"Pretendard Variable","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--text);user-select:none;-webkit-font-smoothing:antialiased}
+    .shell{position:relative;width:100%;height:100%;overflow:hidden;border:1px solid var(--line);border-radius:26px;background:radial-gradient(420px 250px at 100% 0,rgba(45,91,157,.22),transparent 70%),linear-gradient(145deg,#09182e 0%,var(--bg) 65%,#08172c 100%);box-shadow:0 28px 80px rgba(0,0,0,.38)}
+    .shell::before{content:"";position:absolute;width:360px;height:360px;right:-150px;bottom:-210px;border:1px solid rgba(111,141,183,.12);border-radius:50%;box-shadow:0 0 0 58px rgba(111,141,183,.025),0 0 0 116px rgba(111,141,183,.018)}
+    .topbar{position:relative;z-index:4;height:154px;padding:30px 32px 0 52px;display:flex;align-items:flex-start;justify-content:space-between}
+    .drag-zone{position:absolute;inset:0 78px 0 0;cursor:default}
+    .official-logo{position:relative;z-index:2;width:245px;height:116px;object-fit:contain;object-position:left center;pointer-events:none;filter:drop-shadow(0 8px 24px rgba(0,0,0,.16))}
+    .close{position:relative;z-index:5;width:48px;height:48px;border-radius:14px;border:1px solid #29486f;background:rgba(13,32,62,.88);color:#dce8f8;display:grid;place-items:center;padding:0;cursor:pointer;transition:.18s ease}
+    .close:hover{background:#18365f;border-color:#4a6e9d;color:#fff;transform:translateY(-1px)}.close:active{transform:translateY(0)}.close:disabled{opacity:.38;cursor:default;transform:none}.close svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round}
+    main{position:relative;z-index:2;padding:14px 64px 0}.hero{display:grid;grid-template-columns:minmax(0,1fr) 144px;gap:28px;align-items:center;min-height:180px}.hero-copy{min-width:0}
+    .eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:15px;color:var(--accent);font-size:14px;font-weight:800;letter-spacing:.06em}.pulse{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(247,185,54,.35);animation:pulse 1.8s ease-out infinite}@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(247,185,54,0)}100%{box-shadow:0 0 0 0 rgba(247,185,54,0)}}
+    h1{margin:0;font-size:36px;line-height:1.35;letter-spacing:-.045em;font-weight:850;white-space:nowrap;overflow:visible;text-overflow:clip}.detail{margin:10px 0 0;color:var(--muted);font-size:16px;line-height:1.55;white-space:nowrap;overflow:visible;text-overflow:clip}
+    .activity{width:140px;height:140px;margin-left:auto;position:relative;display:grid;place-items:center}.activity::before,.activity::after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(111,151,207,.23)}.activity::before{inset:6px}.activity::after{inset:28px;border-color:rgba(247,185,54,.27)}
+    .activity-ring{position:absolute;inset:6px;border-radius:50%;border:2px solid transparent;border-top-color:var(--accent);border-right-color:rgba(247,185,54,.18);animation:spin 2.4s linear infinite}.activity-core{width:38px;height:38px;border-radius:14px;background:linear-gradient(145deg,#f8c551,#df9720);box-shadow:0 10px 30px rgba(247,185,54,.22),inset 0 1px rgba(255,255,255,.45);display:grid;place-items:center}.activity-core::after{content:"";width:10px;height:10px;border-radius:50%;background:#fff4cf;box-shadow:0 0 0 6px rgba(255,244,207,.14)}@keyframes spin{to{transform:rotate(360deg)}}
+    .progress-card{margin-top:28px;padding:21px 26px 20px;border:1px solid rgba(104,142,194,.18);border-radius:21px;background:linear-gradient(135deg,rgba(14,34,65,.86),rgba(9,26,52,.58));box-shadow:inset 0 1px rgba(255,255,255,.025)}
+    .progress-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:17px}.progress-label{font-size:14px;font-weight:750;color:#c2d2e9}.progress-number{font-size:14px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+    .track{height:7px;border-radius:999px;background:#122744;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}.bar{height:100%;width:12%;border-radius:inherit;background:linear-gradient(90deg,#e6a32a,var(--accent),#ffe19a);box-shadow:0 0 18px rgba(247,185,54,.24);transition:width .7s cubic-bezier(.2,.75,.2,1);position:relative;overflow:hidden}.bar::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 15%,rgba(255,255,255,.42) 48%,transparent 82%);transform:translateX(-100%);animation:shine 1.6s ease-in-out infinite}@keyframes shine{to{transform:translateX(100%)}}
+    .steps{display:flex;align-items:center;justify-content:space-between;margin-top:17px;color:var(--quiet);font-size:13px;font-weight:700}.step{display:flex;align-items:center;gap:8px;transition:.3s ease}.step::before{content:"";width:7px;height:7px;border-radius:50%;background:#29486e;box-shadow:0 0 0 3px rgba(41,72,110,.16)}.step.active{color:#dce8f8}.step.active::before{background:var(--green);box-shadow:0 0 0 3px rgba(36,197,139,.13)}
+    footer{position:absolute;left:64px;right:64px;bottom:26px;display:flex;align-items:center;justify-content:space-between;color:var(--quiet);font-size:13px}.safe{display:flex;align-items:center;gap:9px}.safe svg{width:16px;height:16px;stroke:#7897c1;fill:none;stroke-width:1.8}.version{font-variant-numeric:tabular-nums;letter-spacing:.04em}
+    body.cancelling .pulse{background:#9db3d3;animation:none;box-shadow:none}body.cancelling .activity-ring{animation:none;border-top-color:#8ca3c2}body.cancelling .activity-core{background:#7186a3;box-shadow:none}body.cancelling .bar{background:linear-gradient(90deg,#667f9f,#9db3d3)}body.cancelling .bar::after{display:none}@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <section class="shell" aria-live="polite">
+    <header class="topbar">
+      <div class="drag-zone" id="dragZone" aria-hidden="true"></div>
+      <img class="official-logo" src="__BYEOLLOG_OFFICIAL_LOGO__" alt="별록">
+      <button class="close" id="closeButton" type="button" aria-label="시작 취소"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </header>
+    <main>
+      <div class="hero">
+        <div class="hero-copy"><div class="eyebrow"><span class="pulse"></span><span>별록 시작 준비</span></div><h1 id="stage">별록을 시작하고 있어요</h1><p class="detail" id="detail">로그인 전에 필요한 화면과 설정을 미리 준비합니다.</p></div>
+        <div class="activity" aria-hidden="true"><span class="activity-ring"></span><span class="activity-core"></span></div>
+      </div>
+      <div class="progress-card">
+        <div class="progress-head"><span class="progress-label">시작 준비 상태</span><span class="progress-number" id="progressNumber">12%</span></div>
+        <div class="track" role="progressbar" aria-label="시작 준비 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="12"><div class="bar" id="bar"></div></div>
+        <div class="steps"><span class="step active" data-at="12">설정 확인</span><span class="step" data-at="55">화면 준비</span><span class="step" data-at="82">방송 연결</span><span class="step" data-at="100">준비 완료</span></div>
+      </div>
+    </main>
+    <footer><span class="safe"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.7-2.8 8-7 10-4.2-2-7-5.3-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>로그인과 방송 설정은 그대로 유지됩니다.</span><span class="version" id="version">v0.0.0.0</span></footer>
+  </section>
+  <script>
+    const stage=document.getElementById('stage'),detail=document.getElementById('detail'),bar=document.getElementById('bar'),number=document.getElementById('progressNumber'),track=document.querySelector('[role="progressbar"]'),closeButton=document.getElementById('closeButton'),version=document.getElementById('version'),steps=[...document.querySelectorAll('.step')];
+    const fitSingleLine=(element,preferred,minimum)=>{element.style.fontSize=`${preferred}px`;let size=preferred;const available=Math.max(1,element.clientWidth-6);while(element.scrollWidth>available&&size>minimum){size=Math.max(minimum,size-.5);element.style.fontSize=`${size}px`}};
+    const fitCopy=()=>{fitSingleLine(stage,36,24);fitSingleLine(detail,16,12)};
+    const post=(kind)=>window.chrome?.webview?.postMessage({kind});
+    document.getElementById('dragZone').addEventListener('pointerdown',(event)=>{if(event.button===0)post('drag')});
+    closeButton.addEventListener('click',()=>post('close'));
+    window.chrome?.webview?.addEventListener('message',(event)=>{
+      const message=event.data||{};if(message.kind!=='state')return;
+      const progress=Math.max(0,Math.min(100,Number(message.progress)||0));
+      stage.textContent=String(message.stage||'별록을 시작하고 있어요');detail.textContent=String(message.detail||'');fitCopy();version.textContent=`v${String(message.version||'0.0.0.0')}`;bar.style.width=`${progress}%`;number.textContent=`${progress}%`;track.setAttribute('aria-valuenow',String(progress));steps.forEach((item)=>item.classList.toggle('active',progress>=Number(item.dataset.at)));document.body.classList.toggle('cancelling',Boolean(message.cancelling));closeButton.disabled=Boolean(message.cancelling);
+    });
+    new ResizeObserver(fitCopy).observe(document.querySelector('.hero-copy'));requestAnimationFrame(fitCopy);
+  </script>
+</body>
+</html>

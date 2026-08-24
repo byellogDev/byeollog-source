@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="후원, 룰렛, 업보를 한곳에서 기록하고 관리하는 스트리머용 서비스 별록">
+<title>별록 — 별을 기록하다</title>
+<link rel="icon" href="/assets/byeollog_app_icon.png">
+<style>
+:root{--navy:#0f172a;--navy2:#172238;--yellow:#f4c542;--cream:#fff8dd;--text:#e8edf5;--muted:#9aa8bc}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--navy);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit}.wrap{width:min(1120px,calc(100% - 40px));margin:auto}.nav{height:74px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:11px;text-decoration:none;font-weight:900;font-size:22px}.mark{color:var(--yellow);font-size:30px;line-height:1}.navActions{display:flex;align-items:center;gap:10px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 17px;border:1px solid #334155;border-radius:11px;text-decoration:none;font-size:14px;font-weight:800}.btn:hover{background:#ffffff0a}.btn.primary{background:var(--yellow);border-color:var(--yellow);color:#172033}.hero{min-height:620px;display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:70px;padding:70px 0 100px}.eyebrow{color:var(--yellow);font-weight:800;letter-spacing:.12em;font-size:13px}.hero h1{font-size:clamp(44px,6vw,76px);line-height:1.05;letter-spacing:-.055em;margin:16px 0 22px}.hero h1 span{color:var(--yellow)}.heroText{font-size:18px;line-height:1.75;color:var(--muted);max-width:600px}.heroActions{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap}.heroActions .btn{min-height:50px;padding:0 22px}.preview{border:1px solid #34435a;background:linear-gradient(145deg,#17243a,#10192a);border-radius:24px;padding:22px;box-shadow:0 35px 80px #02061770;transform:rotate(1.5deg)}.previewTop{display:flex;justify-content:space-between;align-items:center;color:#8090a8;font-size:12px;margin-bottom:18px}.dots{display:flex;gap:5px}.dots i{width:7px;height:7px;border-radius:50%;background:#41506a}.previewCard{background:#0d1626;border:1px solid #2b3950;border-radius:16px;padding:18px;margin-top:12px}.previewCard small{color:#7f8da1}.previewCard b{display:block;font-size:22px;margin-top:5px}.progress{height:8px;background:#223049;border-radius:99px;margin-top:16px;overflow:hidden}.progress i{display:block;width:68%;height:100%;background:var(--yellow);border-radius:99px}.chips{display:flex;gap:7px;margin-top:14px}.chips span{font-size:11px;padding:5px 8px;background:#202d43;border-radius:99px;color:#b7c2d2}.section{padding:90px 0;border-top:1px solid #ffffff0b}.sectionTitle{font-size:34px;letter-spacing:-.04em;margin:0 0 10px}.sectionSub{color:var(--muted);margin:0 0 36px}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.feature{background:var(--navy2);border:1px solid #2a3850;border-radius:18px;padding:24px}.featureIcon{color:var(--yellow);font-size:24px}.feature h3{margin:16px 0 8px}.feature p{margin:0;color:var(--muted);font-size:14px;line-height:1.65}.cta{margin:20px auto 90px;background:var(--cream);color:#172033;border-radius:24px;padding:48px;display:flex;align-items:center;justify-content:space-between;gap:24px}.cta h2{font-size:32px;margin:0 0 8px}.cta p{margin:0;color:#596579}.footer{padding:28px 0 44px;color:#718096;font-size:13px;display:flex;justify-content:space-between;border-top:1px solid #ffffff0b}@media(max-width:800px){.wrap{width:min(100% - 28px,1120px)}.nav{height:66px}.hero{grid-template-columns:1fr;min-height:auto;padding:70px 0}.preview{max-width:520px}.features{grid-template-columns:1fr}.cta{align-items:flex-start;flex-direction:column;padding:32px}.navActions .btn:first-child{display:none}.footer{flex-direction:column;gap:7px}.hero h1{font-size:48px}}
+
+.inquiryModal{position:fixed;inset:0;background:#020617b8;display:none;align-items:center;justify-content:center;padding:18px;z-index:80}
+.inquiryModal.open{display:flex}
+.inquiryDialog{width:min(480px,100%);background:#132238;border:1px solid #2a3850;border-radius:20px;padding:26px;box-shadow:0 28px 70px #02061790;color:#e8edf5}
+.inquiryDialog h2{margin:0 0 6px;font-size:22px;letter-spacing:-.03em}
+.inquiryDialog .sub{color:#9aa8bc;font-size:13px;line-height:1.55;margin:0 0 18px}
+.inquiryDialog label{display:block;font-size:13px;font-weight:800;margin:0 0 7px;color:#dbe8f6}
+.inquiryDialog input,.inquiryDialog textarea{width:100%;border:1px solid #334155;border-radius:12px;padding:12px 14px;font:inherit;background:#0b1628;color:#e8edf5;margin-bottom:14px}
+.inquiryDialog textarea{min-height:120px;resize:vertical}
+.inquiryDialog input::placeholder,.inquiryDialog textarea::placeholder{color:#6785a5}
+.inquiryActions{display:flex;gap:10px;margin-top:6px}
+.inquiryActions button{flex:1;min-height:46px;border-radius:12px;font:inherit;font-weight:800;cursor:pointer}
+.inquiryActions .cancel{border:1px solid #334155;background:#102746;color:#dbe8f6}
+.inquiryActions .send{border:0;background:#f4c542;color:#172033}
+.inquiryMsg{min-height:20px;margin-top:10px;font-size:13px;color:#ff8d95}
+.inquiryMsg.ok{color:#50d4a6}
+
+</style>
+<link rel="stylesheet" href="/assets/byeollog-theme.css">
+</head>
+<body class="landing-page">
+<header class="wrap nav"><a class="brand" href="/" aria-label="별록 홈"><img class="brand-logo" src="/assets/byeollog_logo_dark.png" alt="별록 BYEOLLOG"></a><nav class="navActions"><button type="button" class="btn" id="openInquiryBtn">문의하기</button><a class="btn" href="/signup">가입 신청</a><a class="btn primary" href="/login">로그인</a></nav></header>
+<main>
+  <section class="wrap hero">
+    <div><div class="eyebrow">BYEOLLOG FOR STREAMERS</div><h1>별을 기록하다,<br><span>별록.</span></h1><p class="heroText">업보를 놓치지 않도록 수집부터 분류, 관리와 공개까지 하나의 흐름으로 이어집니다.</p><div class="heroActions"><a class="btn primary" href="/login">별록 시작하기</a><a class="btn" href="#features">기능 살펴보기</a></div></div>
+    <div class="preview" aria-label="별록 관리 화면 미리보기"><div class="previewTop"><strong>BYEOLLOG</strong><span class="dots"><i></i><i></i><i></i></span></div><div class="previewCard"><small>오늘 수집된 별풍선</small><b>1,248개</b><div class="progress"><i></i></div></div><div class="previewCard"><small>진행 중인 업보</small><b>27건</b><div class="chips"><span>자동 수집</span><span>워크스페이스 분리</span><span>시청자 공개</span></div></div></div>
+  </section>
+  <section class="section" id="features"><div class="wrap"><h2 class="sectionTitle">방송의 기록을 한곳에서</h2><p class="sectionSub">후원기록부터 룰렛 결과와 남은 업보까지. 룰렛을 통해 나온 업보를 자동으로 모으고, 스트리머와 시청자가 함께 확인할 수 있게 정리합니다.</p><div class="features"><article class="feature"><div class="featureIcon">✦</div><h3>자동 수집과 분류</h3><p>Collector가 후원과 룰렛 기록을 받아 학습된 규칙에 따라 업보와 비업보를 정리합니다.</p></article><article class="feature"><div class="featureIcon">✓</div><h3>업보 진행 관리</h3><p>팬, 이벤트, 업보종류별 남은 수량과 완료 상태를 한 화면에서 관리합니다.</p></article><article class="feature"><div class="featureIcon">◎</div><h3>시청자 현황 공유</h3><p>워크스페이스별 공개 페이지에서 시청자가 자신의 남은 업보를 직접 확인합니다.</p></article></div></div></section>
+  <section class="wrap cta"><div><h2>별록과 함께 기록을 시작하세요.</h2><p>스트리머 가입 신청 후 승인된 계정으로 이용할 수 있습니다.</p></div><a class="btn primary" href="/signup">스트리머 가입 신청</a></section>
+</main>
+<footer class="wrap footer"><span>© 2026 BYEOLLOG</span><span>별을 기록하다, 별록.</span></footer>
+
+<div class="inquiryModal" id="inquiryModal" role="dialog" aria-modal="true" aria-labelledby="inquiryTitle">
+  <div class="inquiryDialog">
+    <h2 id="inquiryTitle">문의하기</h2>
+    <p class="sub">이용·제휴·오류 제보 등 궁금한 점을 남겨 주세요. 확인 후 남겨 주신 디스코드로 답변드립니다.</p>
+    <form id="inquiryForm">
+      <label for="inquiryContact">디스코드 ID</label>
+      <input id="inquiryContact" name="contact" maxlength="120" required placeholder="디스코드 ID">
+      <label for="inquiryMessage">문의 내용</label>
+      <textarea id="inquiryMessage" name="message" maxlength="2000" required placeholder="문의하실 내용을 입력해 주세요."></textarea>
+      <div class="inquiryActions">
+        <button type="button" class="cancel" id="closeInquiryBtn">닫기</button>
+        <button type="submit" class="send" id="sendInquiryBtn">보내기</button>
+      </div>
+      <div class="inquiryMsg" id="inquiryMsg"></div>
+    </form>
+  </div>
+</div>
+<script>
+(function(){
+  const modal=document.getElementById('inquiryModal');
+  const openBtn=document.getElementById('openInquiryBtn');
+  const closeBtn=document.getElementById('closeInquiryBtn');
+  const form=document.getElementById('inquiryForm');
+  const msg=document.getElementById('inquiryMsg');
+  const sendBtn=document.getElementById('sendInquiryBtn');
+  function open(){modal.classList.add('open');msg.textContent='';msg.className='inquiryMsg';document.getElementById('inquiryContact').focus()}
+  function close(){modal.classList.remove('open')}
+  openBtn?.addEventListener('click',open);
+  closeBtn?.addEventListener('click',close);
+  modal?.addEventListener('click',e=>{if(e.target===modal)close()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+  form?.addEventListener('submit',async e=>{
+    e.preventDefault();
+    msg.className='inquiryMsg';msg.textContent='';
+    sendBtn.disabled=true;sendBtn.textContent='보내는 중...';
+    try{
+      const r=await fetch('/api/login?operation=inquiry',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          contact:document.getElementById('inquiryContact').value,
+          message:document.getElementById('inquiryMessage').value
+        })
+      });
+      const j=await r.json().catch(()=>({}));
+      if(!r.ok)throw new Error(j.message||j.detail||('전송 실패 ('+r.status+')'));
+      msg.className='inquiryMsg ok';
+      msg.textContent=j.message||'문의가 접수되었습니다.';
+      form.reset();
+    }catch(err){
+      msg.className='inquiryMsg';
+      msg.textContent=err.message||'전송에 실패했습니다.';
+    }finally{
+      sendBtn.disabled=false;sendBtn.textContent='보내기';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

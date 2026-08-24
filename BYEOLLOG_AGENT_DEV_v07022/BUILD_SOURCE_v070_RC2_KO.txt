@@ -1,0 +1,36 @@
+별록 에이전트 v0.7.0.2 소스 빌드
+OFFSL_SINGLE_LOGIN
+
+Tester ZIP 빌드(Windows 10/11 x64)
+1. 소스를 새 폴더에 완전히 풉니다.
+2. .NET 8 SDK와 Node.js LTS를 설치합니다.
+3. 00_BUILD_V070_RC2_ONE_CLICK.cmd --no-open 을 실행합니다.
+4. 스크립트가 .NET 회귀, Node 계약, win-x64 single-file publish, manifest, ZIP 왕복 검증을 수행합니다.
+
+예상 출력
+- DIST\byeollog_agent_v070_RC2_OFFSL_SINGLE_LOGIN_Tester.zip
+- DIST\byeollog_agent_v070_RC2_OFFSL_SINGLE_LOGIN_Tester.zip.sha256.txt
+
+수동·자동 검증 명령
+- node --test ContractTests\*.test.mjs
+- dotnet run --project AgentStoreTests\AgentStoreTests.csproj -c Release
+- dotnet publish HurogiCollector.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true
+
+Linux 패키징 도구
+- tools/package-tester-linux.mjs는 이미 생성된 Windows publish 폴더에서 v0.7.0.2 Tester ZIP을 만듭니다.
+- tools/package-complete-release-linux.mjs는 빈 출력 폴더에서 source-only 또는 complete kit를 no-replace 방식으로 만듭니다.
+- bin, obj, DIST와 기존 릴리스 산출물은 SOURCE_ONLY에 포함하지 않습니다.
+- SOURCE_FILE_SHA256SUMS.txt는 최종 stage에서 다시 생성합니다.
+
+ClickOnce(별도 Windows 릴리스 경로)
+- 승인 EXE 바이트를 유지할 때 Build-ClickOnceBeta.ps1을 사용합니다.
+- 최종 HTTPS base URL, 40자리 코드 서명 인증서 지문, HTTPS timestamp URL, 승인 EXE SHA-256을 외부 입력으로 전달합니다.
+- PFX·개인 키·암호·토큰을 소스나 산출물에 넣지 않습니다.
+- Verify-ClickOnceBeta.ps1의 로컬 검증 후 파일을 업로드하고 -ProbeHostedFiles 검증을 반복합니다.
+
+불변성과 배포 경계
+- v0.6.3.2와 이전 승인 산출물을 덮어쓰지 않습니다.
+- v0.7.0.2 최종 폴더는 빈 경로에서 한 번만 봉인합니다.
+- 바이트 변경이 필요하면 새 네 부분 버전을 사용합니다.
+- 운영 Supabase/Vercel/Storage/ClickOnce 변경은 이 빌드 명령의 범위가 아니며 별도 승인 전에는 실행하지 않습니다.
+- 실제 실행하지 않은 테스트나 배포를 PASS로 기록하지 않습니다.

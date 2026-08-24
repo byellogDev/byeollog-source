@@ -1,0 +1,33 @@
+별록 에이전트 v0.7.0.24 · 공개판 22
+
+수정 사항
+- 규칙 수정 저장 시 발생하던 PostgreSQL 42702(rule_id 모호성) 오류를 수정했습니다.
+- 운영 함수의 기존 owner, ACL, SECURITY DEFINER, search_path, timeout을 보존했습니다.
+- Agent 작업의 UUID executionId와 64자리 SHA-256 idempotencyKey를 서로 같은 값으로 잘못 요구하던 검사를 수정했습니다.
+- 테스트 송출과 실제 자동화 작업이 claim 뒤 실행되지 않고 lease 만료되던 문제를 해결했습니다.
+
+운영 반영
+- Supabase migration: 20260820052931 fix_save_guided_rule_v7_ambiguous_rule_id
+- Vercel 변경 없음
+- 기존 규칙, 실행 이력, Auth, Storage, 키, RLS, Edge Function 변경 없음
+
+검증
+- Node UI/계약 테스트: 91/91
+- Local Agent/timed mute/overlay 테스트: 279 assertions
+- .NET 8 Release build 및 self-contained single-file publish: 성공
+- 규칙 생성 후 같은 규칙 수정 rollback canary: PASS (version 1 → 2)
+- 기존 실패 액션 이력은 감사 기록으로 보존됩니다.
+
+코드 서명 안내
+- 이번 배포본은 기존 방식과 동일하게 무서명 EXE입니다.
+- Windows SmartScreen, 백신 또는 회사 보안 정책에서 경고·차단될 수 있습니다.
+- 파일은 제공된 SHA-256과 Tester ZIP 내부 manifest로 무결성을 확인하세요.
+- 신뢰된 Authenticode 코드 서명은 후속 작업으로 진행합니다.
+
+버전
+- Version: 0.7.0.24
+- InformationalVersion: 0.7.0-public.22
+- UI cache: v0.7.0-public.22
+- Tester ZIP: byeollog_agent_v07024_CLAIM_CONTRACT_FIX_WIN_X64.zip
+- EXE SHA-256: C4C0317EEC9BA27B325D84C1BC69812591F317535E8FF50314BE5FFA26E16F71
+- Tester ZIP SHA-256: 94C542B4C7836AB2CEB21141D6E9B8D7A730E00984477E915F39B5BD260E179C
