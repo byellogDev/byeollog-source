@@ -61,6 +61,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\Get-ByeollogTtsStatus.ps1
 3. HMAC으로 서명된 새 주소를 고정 Worker에 등록
 4. 고정 Worker 주소를 통한 외부 `/healthz`
 
+운영 고정 주소는
+`https://byeollog-tts-relay.byeollog-tts-relay.workers.dev`입니다. 새 Quick
+Tunnel은 주소 발급 뒤 외부 접근 가능 상태까지 1~2분 걸릴 수 있으므로 복구
+스크립트가 서로 다른 nonce로 최대 180초 동안 안전하게 재시도합니다.
+
 중계 관리 비밀값은 `%LOCALAPPDATA%\ByeollogTts`에 DPAPI CurrentUser로
 암호화해 저장하며 Git이나 Worker 소스에 넣지 않습니다. Worker는
 `https://*.trycloudflare.com` 루트 주소와 실제 정상 `/healthz`만 허용합니다.

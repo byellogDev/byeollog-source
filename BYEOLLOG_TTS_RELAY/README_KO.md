@@ -2,6 +2,8 @@
 
 `workers.dev`의 고정 주소를 현재 PC의 Cloudflare Quick Tunnel에 연결합니다. `byeollog.com`의 DNS나 네임서버를 변경하지 않습니다.
 
+운영 주소: `https://byeollog-tts-relay.byeollog-tts-relay.workers.dev`
+
 ## 보안 경계
 
 - 등록 가능한 원본은 루트 `https://*.trycloudflare.com` 주소뿐입니다.

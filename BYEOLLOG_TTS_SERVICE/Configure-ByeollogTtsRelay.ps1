@@ -3,6 +3,7 @@ param(
     [Parameter(Mandatory = $true)]
     [ValidatePattern('^https://[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev$')]
     [string]$RelayUrl,
+    [ValidatePattern('^[a-z0-9-]+$')]
     [string]$WorkerName = "byeollog-tts-relay",
     [string]$StateRoot = (Join-Path $env:LOCALAPPDATA "ByeollogTts")
 )
@@ -31,19 +32,32 @@ function Protect-CurrentUserText {
 function Set-PrivateFileAcl {
     param([Parameter(Mandatory = $true)][string]$Path)
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $acl = New-Object Security.AccessControl.FileSecurity
-    $acl.SetAccessRuleProtection($true, $false)
-    $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule(
-        $identity.User,
-        [Security.AccessControl.FileSystemRights]::FullControl,
-        [Security.AccessControl.AccessControlType]::Allow
-    )))
-    $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule(
-        (New-Object Security.Principal.SecurityIdentifier('S-1-5-18')),
-        [Security.AccessControl.FileSystemRights]::FullControl,
-        [Security.AccessControl.AccessControlType]::Allow
-    )))
-    Set-Acl -LiteralPath $Path -AclObject $acl
+    $icacls = Join-Path $env:SystemRoot 'System32\icacls.exe'
+    & $icacls $Path /inheritance:r /grant:r "*$($identity.User.Value):(F)" '*S-1-5-18:(F)' | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to restrict relay secret ACL"
+    }
+}
+
+function Set-WorkerSecret {
+    param(
+        [Parameter(Mandatory = $true)][string]$Name,
+        [Parameter(Mandatory = $true)][string]$Worker,
+        [Parameter(Mandatory = $true)][string]$Value
+    )
+    $npx = (Get-Command 'npx.cmd' -ErrorAction Stop).Source
+    $tempPath = Join-Path $StateRoot "relay-secret-upload.$([Guid]::NewGuid().ToString('N')).json"
+    try {
+        $payload = @{ $Name = $Value } | ConvertTo-Json -Compress
+        [IO.File]::WriteAllText($tempPath, $payload, (New-Object Text.UTF8Encoding($false)))
+        Set-PrivateFileAcl -Path $tempPath
+        & $npx '--yes' 'wrangler@4.125.0' 'secret' 'bulk' $tempPath '--name' $Worker
+        if ($LASTEXITCODE -ne 0) { throw 'Cloudflare Worker secret registration failed' }
+    } finally {
+        if (Test-Path -LiteralPath $tempPath -PathType Leaf) {
+            Remove-Item -LiteralPath $tempPath -Force
+        }
+    }
 }
 
 $secretBytes = New-Object byte[] 32
@@ -58,8 +72,7 @@ try {
     Move-Item -LiteralPath $tempSecretPath -Destination $secretPath -Force
     Set-PrivateFileAcl -Path $secretPath
 
-    $secret | npx --yes wrangler@4.125.0 secret put ADMIN_SECRET --name $WorkerName
-    if ($LASTEXITCODE -ne 0) { throw "Cloudflare Worker secret registration failed" }
+    Set-WorkerSecret -Name 'ADMIN_SECRET' -Worker $WorkerName -Value $secret
 
     $config = [ordered]@{
         schemaVersion = 1

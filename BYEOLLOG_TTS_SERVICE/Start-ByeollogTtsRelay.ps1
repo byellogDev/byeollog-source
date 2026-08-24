@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [string]$ConfigPath = (Join-Path $env:LOCALAPPDATA "ByeollogTts\relay-config.json"),
-    [int]$TunnelWaitSeconds = 60
+    [ValidateRange(10, 300)][int]$TunnelWaitSeconds = 60,
+    [ValidateRange(30, 600)][int]$OriginWaitSeconds = 180
 )
 
 $ErrorActionPreference = "Stop"
@@ -76,6 +77,19 @@ function Start-QuickTunnel {
         -PassThru
 }
 
+function Get-TunnelProcessId {
+    param([Parameter(Mandatory = $true)]$Process)
+    if ($Process.PSObject.Properties.Name -contains 'ProcessId') {
+        $value = [int]$Process.ProcessId
+    } elseif ($Process.PSObject.Properties.Name -contains 'Id') {
+        $value = [int]$Process.Id
+    } else {
+        throw 'Quick Tunnel process did not expose an identifier'
+    }
+    if ($value -le 0) { throw 'Quick Tunnel process identifier is invalid' }
+    return $value
+}
+
 function New-SignedHeaders {
     param(
         [Parameter(Mandatory = $true)][string]$Secret,
@@ -121,14 +135,15 @@ if (-not (Test-Path -LiteralPath $secretPath -PathType Leaf)) {
 
 $process = Get-QuickTunnelProcess
 if ($null -eq $process) { $process = Start-QuickTunnel }
+$processId = Get-TunnelProcessId -Process $process
 $deadline = [DateTimeOffset]::UtcNow.AddSeconds($TunnelWaitSeconds)
 $quickUrl = $null
 while ([DateTimeOffset]::UtcNow -lt $deadline -and [string]::IsNullOrWhiteSpace($quickUrl)) {
-    if ($null -eq (Get-Process -Id ([int]$process.ProcessId) -ErrorAction SilentlyContinue)) {
+    if ($null -eq (Get-Process -Id $processId -ErrorAction SilentlyContinue)) {
         throw "Quick Tunnel process stopped before publishing its URL"
     }
     Start-Sleep -Milliseconds 500
-    $quickUrl = Get-QuickTunnelUrl -ProcessId ([int]$process.ProcessId)
+    $quickUrl = Get-QuickTunnelUrl -ProcessId $processId
 }
 if ([string]::IsNullOrWhiteSpace($quickUrl)) {
     throw "Quick Tunnel URL was not available within $TunnelWaitSeconds seconds"
@@ -138,14 +153,30 @@ $secret = Unprotect-CurrentUserText -ProtectedText (Get-Content -Raw -LiteralPat
 try {
     if ($secret.Length -lt 32) { throw 'Relay secret is invalid' }
     $body = @{ origin = $quickUrl } | ConvertTo-Json -Compress
-    $headers = New-SignedHeaders -Secret $secret -Body $body
-    $receipt = Invoke-RestMethod `
-        -Method Post `
-        -Uri "$relayUrl/__byeollog/admin/origin" `
-        -ContentType 'application/json' `
-        -Headers $headers `
-        -Body $body `
-        -TimeoutSec 20
+    $receipt = $null
+    $originDeadline = [DateTimeOffset]::UtcNow.AddSeconds($OriginWaitSeconds)
+    do {
+        $headers = New-SignedHeaders -Secret $secret -Body $body
+        try {
+            $receipt = Invoke-RestMethod `
+                -Method Post `
+                -Uri "$relayUrl/__byeollog/admin/origin" `
+                -ContentType 'application/json' `
+                -Headers $headers `
+                -Body $body `
+                -TimeoutSec 20
+        } catch {
+            $statusCode = 0
+            if ($null -ne $_.Exception.Response) {
+                $statusCode = [int]$_.Exception.Response.StatusCode
+            }
+            if ($statusCode -ne 502) { throw }
+            Start-Sleep -Seconds 2
+        }
+    } while ($null -eq $receipt -and [DateTimeOffset]::UtcNow -lt $originDeadline)
+    if ($null -eq $receipt) {
+        throw "Quick Tunnel did not become externally reachable within $OriginWaitSeconds seconds"
+    }
     if ($receipt.ok -ne $true) { throw 'Relay rejected the Quick Tunnel origin' }
 } finally {
     $secret = $null
@@ -173,7 +204,7 @@ if ($null -eq $relayHealth) { throw 'Relay health check failed after origin upda
     Healthy = $true
     RelayUrl = $relayUrl
     QuickTunnelUrl = $quickUrl
-    QuickTunnelProcessId = [int]$process.ProcessId
+    QuickTunnelProcessId = $processId
     VoiceVersion = [string]$relayHealth.version
     UpdatedAtUtc = [string]$receipt.updatedAt
 }
