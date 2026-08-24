@@ -74,6 +74,9 @@
     <EmbeddedResource Include="../Assets/byeollog_raffle_winner_preview.wav"
                       Link="Assets/byeollog_raffle_winner_preview.wav"
                       LogicalName="HurogiCollector.Assets.byeollog_raffle_winner_preview.wav" />
+    <EmbeddedResource Include="../Assets/byeollog_raffle_winner_fallback.wav"
+                      Link="Assets/byeollog_raffle_winner_fallback.wav"
+                      LogicalName="HurogiCollector.Assets.byeollog_raffle_winner_fallback.wav" />
     <EmbeddedResource Include="Fixtures/update-primary-v07042.json"
                       LogicalName="HurogiCollector.AgentStoreTests.update-primary-v07042.json" />
     <EmbeddedResource Include="Fixtures/update-recovery-v07042.json"

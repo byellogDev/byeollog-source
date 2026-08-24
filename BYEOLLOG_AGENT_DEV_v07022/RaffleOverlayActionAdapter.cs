@@ -251,15 +251,19 @@ internal sealed class RaffleOverlayActionAdapter
             var speech = new RaffleSpeechEvidence(
                 preparedSpeech.Attempted,
                 preparedSpeech.Audio is not null && synchronized.AudioEvidence.Ended,
-                preparedSpeech.FailureType ?? synchronized.AudioEvidence.FailureType);
+                preparedSpeech.FailureType ?? synchronized.AudioEvidence.FailureType,
+                preparedSpeech.Source,
+                preparedSpeech.FallbackReason);
             _log?.Invoke(
-                $"추첨 OBS 음성 결과 · attempted={speech.Attempted} · requested={synchronized.AudioEvidence.Requested} · started={synchronized.AudioEvidence.Started} · ended={synchronized.AudioEvidence.Ended} · failure={speech.FailureType ?? "none"}");
+                $"추첨 OBS 음성 결과 · attempted={speech.Attempted} · requested={synchronized.AudioEvidence.Requested} · started={synchronized.AudioEvidence.Started} · ended={synchronized.AudioEvidence.Ended} · source={speech.Source ?? "none"} · fallback={speech.FallbackReason ?? "none"} · failure={speech.FailureType ?? "none"}");
             return new RafflePresentationExecutionEvidence(
                 synchronized.OverlayEvidence,
                 synchronized.AudioEvidence,
                 speech.Attempted,
                 speech.Played,
-                speech.FailureType);
+                speech.FailureType,
+                speech.Source,
+                speech.FallbackReason);
         }
         finally
         {
@@ -275,7 +279,7 @@ internal sealed class RaffleOverlayActionAdapter
         DateTimeOffset? notAfterUtc)
     {
         if (prepareSpeech is null || volumePercent == 0)
-            return new PreparedRaffleSpeech(false, null, null);
+            return new PreparedRaffleSpeech(false, null, null, null, null);
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         if (notAfterUtc is not null)
         {
@@ -311,7 +315,9 @@ internal sealed class RaffleOverlayActionAdapter
                     prepared.ContentSha256,
                     volumePercent,
                     prepared.BindingKey),
-                null);
+                null,
+                prepared.Source,
+                prepared.FallbackReason);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -326,7 +332,7 @@ internal sealed class RaffleOverlayActionAdapter
         catch (Exception ex)
         {
             _log?.Invoke("추첨 TTS 준비 보류 · type=" + ex.GetType().Name);
-            return new PreparedRaffleSpeech(true, null, ex.GetType().Name);
+            return new PreparedRaffleSpeech(true, null, ex.GetType().Name, null, null);
         }
     }
 
@@ -706,21 +712,29 @@ internal sealed record RaffleOverlayTestSequence(
 internal sealed record RaffleSpeechEvidence(
     bool Attempted,
     bool Played,
-    string? FailureType);
+    string? FailureType,
+    string? Source,
+    string? FallbackReason);
 
 internal sealed record PreparedRaffleSpeech(
     bool Attempted,
     RaffleOverlayAudioContent? Audio,
-    string? FailureType);
+    string? FailureType,
+    string? Source,
+    string? FallbackReason);
 
 internal sealed record RafflePreparedAudio(
     byte[] Audio,
     string ContentSha256,
-    string BindingKey);
+    string BindingKey,
+    string Source = "embedded_fixed",
+    string? FallbackReason = null);
 
 internal sealed record RafflePresentationExecutionEvidence(
     ByeollogOverlayDisplayEvidence Overlay,
     ByeollogOverlayAudioEvidence Audio,
     bool SpeechAttempted,
     bool TtsPlayed,
-    string? TtsFailureType);
+    string? TtsFailureType,
+    string? TtsSource,
+    string? TtsFallbackReason);

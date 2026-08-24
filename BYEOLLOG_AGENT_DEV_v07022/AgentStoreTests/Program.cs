@@ -344,6 +344,16 @@ internal static class Program
 
     private static async Task RaffleSpeechCacheTestsAsync(string root)
     {
+        var embeddedFallback = ByeollogRaffleAudio.WinnerFallbackAudioForPreflight();
+        Equal(ByeollogRaffleAudio.WinnerFallbackByteSize, embeddedFallback.Length,
+            "embedded winner fallback has its pinned byte length");
+        Equal(ByeollogRaffleAudio.WinnerFallbackSha256,
+            Convert.ToHexString(SHA256.HashData(embeddedFallback)).ToLowerInvariant(),
+            "embedded winner fallback has its pinned SHA-256");
+        Equal("당첨을 축하드려요", ByeollogRaffleAudio.WinnerFallbackSpeechText,
+            "embedded winner fallback documents the exact spoken phrase");
+        ByeollogRaffleAudio.ValidateWinnerAudioForPreflight(embeddedFallback);
+
         Equal(2, RaffleWinnerSpeechCache.SchemaVersion,
             "winner speech cache generation is bumped for the CosyVoice model family");
         var cacheRoot = Path.Combine(root, "raffle-speech-cache");
@@ -757,6 +767,40 @@ internal static class Program
             "wrongly bound winner speech is never reported as played");
         Equal(observedBeforeWrongPrepared, observedAudioStates.Count,
             "wrongly bound winner speech is never disclosed to the OBS Browser Source");
+
+        var fallbackAdapter = new RaffleOverlayActionAdapter(
+            readyService,
+            prepareWinnerSpeech: (_, _, _, expectedVoiceKey, _, _) =>
+                Task.FromResult(new RafflePreparedAudio(
+                    ByeollogRaffleAudio.WinnerFallbackAudioForPreflight(),
+                    ByeollogRaffleAudio.WinnerFallbackSha256,
+                    expectedVoiceKey,
+                    "embedded_fallback",
+                    "HttpRequestException")));
+        var observedBeforeFallback = observedAudioStates.Count;
+        var fallbackOutcome = await fallbackAdapter.ExecuteAsync(
+            "36363636-3636-4636-8636-363636363636",
+            1,
+            liveDrawJson.RootElement,
+            CancellationToken.None);
+        True(fallbackOutcome.Succeeded,
+            "offline custom winner speech falls back to the embedded generic announcement");
+        Equal(observedBeforeFallback + 1, observedAudioStates.Count,
+            "embedded fallback is published once through the Browser Source audio path");
+        var fallbackJson = JsonSerializer.SerializeToElement(fallbackOutcome.Result);
+        var fallbackEvidence = fallbackJson.GetProperty("overlayEvidence")[0];
+        True(fallbackJson.GetProperty("ttsPlayed").GetBoolean(),
+            "embedded fallback requires browser-ended evidence before reporting TTS success");
+        Equal("embedded_fallback", fallbackEvidence.GetProperty("TtsSource").GetString(),
+            "fallback use is recorded separately from custom winner speech");
+        Equal("HttpRequestException", fallbackEvidence.GetProperty("TtsFallbackReason").GetString(),
+            "fallback evidence retains only the bounded failure type");
+        Equal(ByeollogRaffleAudio.WinnerFallbackSha256,
+            observedAudioStates.ToArray()[observedBeforeFallback].AudioContentSha256,
+            "generic fallback publishes only the byte-pinned embedded audio");
+        Equal("당첨자님 당첨!",
+            observedAudioStates.ToArray()[observedBeforeFallback].PresentationPrimary,
+            "generic fallback remains attached to the exact winning presentation");
 
         var ttsFailureLogs = new List<string>();
         var ttsFailureAdapter = new RaffleOverlayActionAdapter(

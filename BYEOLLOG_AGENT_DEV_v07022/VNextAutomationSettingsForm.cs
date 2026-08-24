@@ -1255,7 +1255,18 @@ internal sealed class VNextAutomationSettingsForm : Form
         var hasTtsResult = result.TryGetProperty("ttsPlayed", out var ttsValue)
             && ttsValue.ValueKind is JsonValueKind.True or JsonValueKind.False;
         if (hasTtsResult && ttsValue.GetBoolean())
+        {
+            var usedEmbeddedFallback = result.TryGetProperty("overlayEvidence", out var evidence)
+                && evidence.ValueKind == JsonValueKind.Array
+                && evidence.EnumerateArray().Any(item =>
+                    item.ValueKind == JsonValueKind.Object
+                    && item.TryGetProperty("TtsSource", out var source)
+                    && source.ValueKind == JsonValueKind.String
+                    && source.GetString() == "embedded_fallback");
+            if (usedEmbeddedFallback)
+                return ("오버레이와 예비 음성 송출 완료 · 맞춤 음성 연결을 확인해주세요.", "warning");
             return ("오버레이와 TTS 송출 완료", "success");
+        }
         if (!speechAttempted && hasTtsResult)
             return ("오버레이 송출 완료 · TTS 음량 0%로 생략", "success");
         return ("오버레이 출력은 확인됐지만 TTS 재생에 실패했습니다.", "warning");

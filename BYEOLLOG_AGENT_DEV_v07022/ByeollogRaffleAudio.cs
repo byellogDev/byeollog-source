@@ -15,11 +15,20 @@ internal static class ByeollogRaffleAudio
     internal const int WinnerPreviewByteSize = 280_052;
     internal const string WinnerPreviewSha256 =
         "7d19fb4dbf0a89f99ca0de0c279f802a322e25fc23cc6e1468a90a7bc681eb6b";
+    internal const string WinnerFallbackResourceName =
+        "HurogiCollector.Assets.byeollog_raffle_winner_fallback.wav";
+    internal const int WinnerFallbackByteSize = 80_684;
+    internal const string WinnerFallbackSha256 =
+        "ea566cc2bd872fad7d75684a9ce47ec3486c8d8fe50b3002ab470bbd9c536dea";
+    internal const string WinnerFallbackVoiceVersion =
+        "byeollog-embedded-winner-fallback-v1";
+    internal const string WinnerFallbackSpeechText = "당첨을 축하드려요";
     internal const int MaximumWinnerAudioBytes = 2 * 1024 * 1024;
 
     private static readonly SemaphoreSlim PlaybackGate = new(1, 1);
     private static readonly Lazy<byte[]> TicketAudio = new(LoadAndVerifyTicketAudio);
     private static readonly Lazy<byte[]> WinnerPreviewAudio = new(LoadAndVerifyWinnerPreviewAudio);
+    private static readonly Lazy<byte[]> WinnerFallbackAudio = new(LoadAndVerifyWinnerFallbackAudio);
 
     internal static Task PlayTicketAsync(
         int volumePercent,
@@ -48,6 +57,9 @@ internal static class ByeollogRaffleAudio
     internal static byte[] WinnerPreviewAudioForPreflight() =>
         WinnerPreviewAudio.Value.ToArray();
 
+    internal static byte[] WinnerFallbackAudioForPreflight() =>
+        WinnerFallbackAudio.Value.ToArray();
+
     internal static void ValidateWinnerAudioForPreflight(byte[] audio) =>
         ValidateWav(audio, MaximumWinnerAudioBytes);
 
@@ -64,6 +76,13 @@ internal static class ByeollogRaffleAudio
             WinnerPreviewByteSize,
             WinnerPreviewSha256,
             "내장 당첨 미리듣기 음성");
+
+    private static byte[] LoadAndVerifyWinnerFallbackAudio()
+        => LoadAndVerifyEmbeddedAudio(
+            WinnerFallbackResourceName,
+            WinnerFallbackByteSize,
+            WinnerFallbackSha256,
+            "내장 당첨 예비 음성");
 
     private static byte[] LoadAndVerifyEmbeddedAudio(
         string resourceName,

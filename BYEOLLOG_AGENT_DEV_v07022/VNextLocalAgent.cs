@@ -145,38 +145,64 @@ internal sealed class VNextLocalAgent : IDisposable
                     RaffleOverlayActionAdapter.TicketAudioBindingKey)),
                 async (executionId, attemptNo, winnerOrdinal, expectedVoiceKey, volumePercent, token) =>
                 {
-                    byte[] audio;
-                    string audioSha256;
-                    if (_raffleWinnerSpeechCache.TryRead(expectedVoiceKey, out var cached)
-                        && cached is not null)
+                    try
                     {
-                        audio = cached.Audio;
-                        audioSha256 = cached.AudioSha256;
+                        byte[] audio;
+                        string audioSha256;
+                        if (_raffleWinnerSpeechCache.TryRead(expectedVoiceKey, out var cached)
+                            && cached is not null)
+                        {
+                            audio = cached.Audio;
+                            audioSha256 = cached.AudioSha256;
+                            collectorStorage.Log(
+                                "당첨 음성 캐시 사용 · key=" + expectedVoiceKey[..12]
+                                + " · version=" + cached.VoiceVersion);
+                        }
+                        else
+                        {
+                            var download = await _client.DownloadRaffleWinnerSpeechAsync(
+                                _deviceId,
+                                _deviceSecret,
+                                executionId,
+                                attemptNo,
+                                winnerOrdinal,
+                                expectedVoiceKey,
+                                token);
+                            await _raffleWinnerSpeechCache.StoreAsync(
+                                expectedVoiceKey,
+                                download,
+                                token);
+                            audio = download.Audio;
+                            audioSha256 = download.AudioSha256;
+                        }
+                        return new RafflePreparedAudio(
+                            audio,
+                            audioSha256,
+                            expectedVoiceKey,
+                            "custom_winner",
+                            null);
+                    }
+                    catch (OperationCanceledException) when (token.IsCancellationRequested)
+                    {
+                        throw;
+                    }
+                    catch (Exception ex)
+                    {
+                        // The fallback is generic and never names a viewer, so a
+                        // failed/mismatched custom response cannot announce the
+                        // wrong winner. Keep the execution-bound binding key so
+                        // the Browser Source token remains tied to this exact draw.
                         collectorStorage.Log(
-                            "당첨 음성 캐시 사용 · key=" + expectedVoiceKey[..12]
-                            + " · version=" + cached.VoiceVersion);
-                    }
-                    else
-                    {
-                        var download = await _client.DownloadRaffleWinnerSpeechAsync(
-                            _deviceId,
-                            _deviceSecret,
-                            executionId,
-                            attemptNo,
-                            winnerOrdinal,
+                            "당첨 맞춤 음성 대신 내장 예비 음성 사용 · key="
+                            + expectedVoiceKey[..12]
+                            + " · type=" + ex.GetType().Name);
+                        return new RafflePreparedAudio(
+                            ByeollogRaffleAudio.WinnerFallbackAudioForPreflight(),
+                            ByeollogRaffleAudio.WinnerFallbackSha256,
                             expectedVoiceKey,
-                            token);
-                        await _raffleWinnerSpeechCache.StoreAsync(
-                            expectedVoiceKey,
-                            download,
-                            token);
-                        audio = download.Audio;
-                        audioSha256 = download.AudioSha256;
+                            "embedded_fallback",
+                            ex.GetType().Name);
                     }
-                    return new RafflePreparedAudio(
-                        audio,
-                        audioSha256,
-                        expectedVoiceKey);
                 },
                 async token =>
                 {

@@ -42,13 +42,14 @@ test("frequent raffle grants use one pinned local phrase without a local neural 
 });
 
 test("winner speech is bound to one winner identity, cached safely, and verified before playback", async () => {
-  const [client, agent, adapter, form, cache, previewAudio, project, player, overlay] = await Promise.all([
+  const [client, agent, adapter, form, cache, previewAudio, fallbackAudio, project, player, overlay] = await Promise.all([
     text("VNextDevelopmentClient.cs"),
     text("VNextLocalAgent.cs"),
     text("RaffleOverlayActionAdapter.cs"),
     text("VNextAutomationSettingsForm.cs"),
     text("RaffleWinnerSpeechCache.cs"),
     bytes("Assets/byeollog_raffle_winner_preview.wav"),
+    bytes("Assets/byeollog_raffle_winner_fallback.wav"),
     text("HurogiCollector.csproj"),
     text("ByeollogRaffleAudio.cs"),
     text("ByeollogOverlayService.cs")
@@ -72,6 +73,9 @@ test("winner speech is bound to one winner identity, cached safely, and verified
   assert.match(agent, /DownloadRaffleWinnerSpeechAsync\([\s\S]*executionId,[\s\S]*attemptNo,[\s\S]*winnerOrdinal,[\s\S]*expectedVoiceKey/);
   assert.match(agent, /PrewarmRaffleWinnerSpeechAsync/);
   assert.match(agent, /return new RafflePreparedAudio\([\s\S]*audioSha256,[\s\S]*expectedVoiceKey/);
+  assert.match(agent, /WinnerFallbackAudioForPreflight\(\)/);
+  assert.match(agent, /"embedded_fallback"/);
+  assert.match(agent, /catch \(Exception ex\)[\s\S]*당첨 맞춤 음성 대신 내장 예비 음성 사용/);
   assert.doesNotMatch(agent, /ByeollogRaffleAudio\.PlayWinnerAsync/);
   assert.match(adapter, /WinnerSpeechPreparation\([\s\S]*executionId,[\s\S]*attemptNo,[\s\S]*index,[\s\S]*winnerVoiceKeys\[index\]/);
   assert.ok(
@@ -104,6 +108,17 @@ test("winner speech is bound to one winner identity, cached safely, and verified
     "7d19fb4dbf0a89f99ca0de0c279f802a322e25fc23cc6e1468a90a7bc681eb6b"
   );
   assert.match(project, /byeollog_raffle_winner_preview\.wav/);
+  assert.equal(fallbackAudio.subarray(0, 4).toString("ascii"), "RIFF");
+  assert.equal(fallbackAudio.subarray(8, 12).toString("ascii"), "WAVE");
+  assert.equal(fallbackAudio.length, 80684);
+  assert.equal(
+    createHash("sha256").update(fallbackAudio).digest("hex"),
+    "ea566cc2bd872fad7d75684a9ce47ec3486c8d8fe50b3002ab470bbd9c536dea"
+  );
+  assert.match(project, /byeollog_raffle_winner_fallback\.wav/);
+  assert.match(player, /WinnerFallbackSpeechText\s*=\s*"당첨을 축하드려요"/);
+  assert.match(player, /WinnerFallbackByteSize\s*=\s*80_684/);
+  assert.match(player, /WinnerFallbackSha256\s*=\s*\r?\n?\s*"ea566cc2bd872fad7d75684a9ce47ec3486c8d8fe50b3002ab470bbd9c536dea"/);
   assert.match(player, /WinnerPreviewByteSize\s*=\s*280_052/);
   assert.match(player, /WinnerPreviewSha256\s*=\s*\r?\n?\s*"7d19fb4dbf0a89f99ca0de0c279f802a322e25fc23cc6e1468a90a7bc681eb6b"/);
   assert.doesNotMatch(form, /ByeollogTextToSpeech/);

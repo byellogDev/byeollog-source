@@ -1,19 +1,22 @@
-별록 자연음성에 사용되는 구성요소
+별록 음성 기능에 사용되는 구성요소
 
-1. MeloTTS Korean ONNX model
-   Source: https://huggingface.co/gnyong/melotts-kr-onnx
-   Source checkpoint: myshell-ai/MeloTTS-Korean
-   Pinned revision: c11013196ea7efe6ee06b418ec679212770533f7
-   License: MIT
-
-2. Microsoft ONNX Runtime
-   Source: https://github.com/microsoft/onnxruntime
-   License: MIT
-
-3. NAudio
+1. NAudio
    Source: https://github.com/naudio/NAudio
    License: MIT
 
-각 구성요소의 저작권은 해당 저작권자에게 있습니다. 별록은 고정된 모델
-바이트를 SHA-256으로 검증하며, 합성할 문장이나 사용자 정보를 모델
-다운로드 서버로 전송하지 않습니다.
+2. CosyVoice / Fun-CosyVoice3-0.5B-2512
+   Source code: https://github.com/FunAudioLLM/CosyVoice
+   Source commit: 074ca6dc9e80a2f424f1f74b48bdd7d3fea531cc
+   Model: https://huggingface.co/FunAudioLLM/Fun-CosyVoice3-0.5B-2512
+   Model revision: 29e01c4e8d000f4bcd70751be16fa94bf3d85a18
+   License: Apache-2.0
+
+별록 에이전트에는 CosyVoice 실행 모델을 포함하지 않습니다. 에이전트에
+포함된 “당첨을 축하드려요” 예비 WAV는 위 고정 버전으로 미리 생성한
+음성입니다. 맞춤형 당첨 음성은 별도 TTS 서비스에서 생성되며, 해당
+서비스가 중단되면 에이전트는 이름을 포함하지 않는 이 예비 음성만
+재생합니다.
+
+각 구성요소의 저작권은 해당 저작권자에게 있습니다. 내장 음성 자산은
+바이트 크기와 SHA-256을 실행 전 검증하며, 검증에 실패한 파일은
+재생하지 않습니다.
