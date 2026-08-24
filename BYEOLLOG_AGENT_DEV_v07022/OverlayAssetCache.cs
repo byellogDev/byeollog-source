@@ -281,9 +281,9 @@ internal sealed class OverlayAssetCache
     internal const string FlashbangSoftAssetId = "dea5ef9d-51a9-4b28-b30a-8ef2146a134f";
     internal const string FlashbangStandardAssetId = "5a6b8c0d-1a6b-41e8-856b-187b435c1ea9";
     internal const string FlashbangStrongAssetId = "cbe68b82-fe27-4d2a-9b3f-922fe15b553d";
-    internal const string FlashbangSoftContentSha256 = "13a4d0c9f6c23b6e18d47a9ed0d93cdb26ce505888c6d1d8a1ea621578724880";
-    internal const string FlashbangStandardContentSha256 = "ebf7aaa5463f1d2b6102eb0083d8926cd4e189d13fbd29c2a2096abc707d17d6";
-    internal const string FlashbangStrongContentSha256 = "0f2bee8b3b6b6dbf566e218a871b25e70be3e6ba2582336128492b8331bd0cdc";
+    internal const string FlashbangSoftContentSha256 = "68066dc4778d70ef85f9c48639b306353fd3f8bb2959c952157820362b2d3374";
+    internal const string FlashbangStandardContentSha256 = "1933b6cf667ff7b10edf22c056fc757cb38155c27746d92b5d4da3ce24fa3b71";
+    internal const string FlashbangStrongContentSha256 = "e18d5069154cda112af9eba60ec52ea273ee9301252a4cab2e210506fca584b0";
     private const string LegacyBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_overlay.svg";
     private const string IconBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_icon.png";
     private const string BadgeBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_badge.png";

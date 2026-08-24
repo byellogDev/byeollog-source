@@ -1,8 +1,8 @@
 {
   "name": "byeollog-web",
   "private": true,
-  "version": "0.6.3-g3a.43",
-  "byeollogBuild": "0.6.3.59-g3a-local-settings-audio-preview",
+  "version": "0.6.3-g3a.44",
+  "byeollogBuild": "0.6.3.60-g3a-flashbang-5s-recovery",
   "type": "module",
   "engines": {
     "node": "22.x"

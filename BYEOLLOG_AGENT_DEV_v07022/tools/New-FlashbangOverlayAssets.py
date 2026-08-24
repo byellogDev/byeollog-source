@@ -16,8 +16,8 @@ OUTPUTS = {
 # GIF has only one-bit transparency. Trying to encode a smooth alpha fade in the
 # bitmap itself causes visible salt-and-pepper noise at 1920x1080. These clean,
 # opaque frames provide the bloom movement; ByeollogOverlayService applies the
-# smooth 3-second alpha recovery in the Browser Source compositor.
-FRAME_DURATIONS_MS = [90, 110, 150, 210, 290, 390, 510, 610, 640]
+# smooth 5-second alpha recovery in the Browser Source compositor.
+FRAME_DURATIONS_MS = [150, 180, 250, 350, 480, 650, 850, 1020, 1070]
 BLOOM_CURVE = [1.00, 0.98, 0.94, 0.87, 0.77, 0.65, 0.54, 0.46, 0.40]
 
 

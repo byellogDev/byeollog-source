@@ -8,8 +8,8 @@ namespace HurogiCollector;
 internal sealed class FlashbangOverlayActionAdapter
 {
     internal const string ActionType = "flashbang.overlay";
-    internal const int DurationMs = 3_000;
-    internal const string AudioBindingKey = "flashbang-beep-v1";
+    internal const int DurationMs = 5_000;
+    internal const string AudioBindingKey = "flashbang-blast-v2";
 
     private static readonly byte[] BeepAudio = CreateBeepWave();
     private static readonly string BeepSha256 = Convert.ToHexString(
@@ -203,7 +203,7 @@ internal sealed class FlashbangOverlayActionAdapter
     private static byte[] CreateBeepWave()
     {
         const int sampleRate = 48_000;
-        const double durationSeconds = 1.15;
+        const double durationSeconds = 5.0;
         var sampleCount = checked((int)(sampleRate * durationSeconds));
         var pcmBytes = checked(sampleCount * 2);
         var wave = new byte[44 + pcmBytes];
@@ -220,18 +220,42 @@ internal sealed class FlashbangOverlayActionAdapter
         Encoding.ASCII.GetBytes("data").CopyTo(wave, 36);
         BinaryPrimitives.WriteInt32LittleEndian(wave.AsSpan(40, 4), pcmBytes);
 
+        uint noiseState = 0x6A09E667u;
+        double lowNoise = 0.0;
         for (var index = 0; index < sampleCount; index++)
         {
             var time = index / (double)sampleRate;
-            var progress = index / (double)(sampleCount - 1);
-            var attack = Math.Min(1.0, time / 0.012);
-            var release = Math.Min(1.0, (durationSeconds - time) / 0.20);
-            var envelope = attack * release * (0.78 - 0.22 * progress);
-            var frequency = 1_180.0 - 120.0 * progress;
-            var tone = Math.Sin(2.0 * Math.PI * frequency * time)
-                + 0.16 * Math.Sin(2.0 * Math.PI * frequency * 2.01 * time);
+
+            // One restrained broadband impact is followed by a fixed tinnitus
+            // ring. Keep the pitch stationary so it never reads as a siren.
+            noiseState ^= noiseState << 13;
+            noiseState ^= noiseState >> 17;
+            noiseState ^= noiseState << 5;
+            var whiteNoise = ((noiseState & 0x00FFFFFFu) / 8_388_607.5) - 1.0;
+            lowNoise += 0.045 * (whiteNoise - lowNoise);
+
+            var blastEnvelope = Math.Exp(-time / 0.055);
+            var blast = whiteNoise * blastEnvelope
+                + lowNoise * Math.Exp(-time / 0.22) * 0.9
+                + Math.Sin(2.0 * Math.PI * 92.0 * time) * Math.Exp(-time / 0.16) * 0.65;
+
+            var ringAttack = Math.Min(1.0, time / 0.018);
+            var ringDecay = Math.Exp(-time / 2.65);
+            var endFade = Math.Clamp((durationSeconds - time) / 0.55, 0.0, 1.0);
+            var ringEnvelope = ringAttack * ringDecay * endFade;
+            var amplitudeFlutter = 0.94 + 0.06 * Math.Sin(2.0 * Math.PI * 3.2 * time);
+            const double ringFrequency = 3_560.0;
+            var ring = Math.Sin(2.0 * Math.PI * ringFrequency * time)
+                + 0.24 * Math.Sin(2.0 * Math.PI * ringFrequency * 2.0 * time)
+                + 0.09 * Math.Sin(2.0 * Math.PI * ringFrequency * 3.0 * time);
+            var residualHiss = whiteNoise * Math.Exp(-time / 0.72) * endFade;
+
+            var mixed = blast * 0.31
+                + ring * ringEnvelope * amplitudeFlutter * 0.40
+                + residualHiss * 0.06;
+            var tone = Math.Tanh(mixed * 1.18) / Math.Tanh(1.18);
             var sample = (short)Math.Clamp(
-                tone * envelope * short.MaxValue * 0.46,
+                tone * short.MaxValue * 0.82,
                 short.MinValue,
                 short.MaxValue);
             BinaryPrimitives.WriteInt16LittleEndian(

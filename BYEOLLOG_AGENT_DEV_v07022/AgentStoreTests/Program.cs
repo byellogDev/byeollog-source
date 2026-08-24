@@ -309,7 +309,7 @@ internal static class Program
             True(cache.Read(asset).Bytes.AsSpan(0, 6).SequenceEqual("GIF89a"u8),
                 $"{intensity} flashbang has a GIF89a header");
 
-            using var json = JsonDocument.Parse($$"""{"intensity":"{{intensity}}","overlayImageKey":"{{key}}","durationMs":3000,"volumePercent":75}""");
+            using var json = JsonDocument.Parse($$"""{"intensity":"{{intensity}}","overlayImageKey":"{{key}}","durationMs":5000,"volumePercent":75}""");
             True(FlashbangOverlayActionAdapter.TryRead(
                     json.RootElement,
                     out var parsedIntensity,
@@ -323,17 +323,17 @@ internal static class Program
         }
 
         using var mismatched = JsonDocument.Parse(
-            """{"intensity":"soft","overlayImageKey":"flashbang_strong","durationMs":3000,"volumePercent":75}""");
+            """{"intensity":"soft","overlayImageKey":"flashbang_strong","durationMs":5000,"volumePercent":75}""");
         False(FlashbangOverlayActionAdapter.TryRead(
                 mismatched.RootElement, out _, out _, out _, out _),
             "flashbang rejects an intensity-to-asset mismatch");
         using var wrongDuration = JsonDocument.Parse(
-            """{"intensity":"standard","overlayImageKey":"flashbang_standard","durationMs":5000,"volumePercent":75}""");
+            """{"intensity":"standard","overlayImageKey":"flashbang_standard","durationMs":3000,"volumePercent":75}""");
         False(FlashbangOverlayActionAdapter.TryRead(
                 wrongDuration.RootElement, out _, out _, out _, out _),
-            "flashbang rejects a duration outside the fixed three-second recovery");
+            "flashbang rejects a duration outside the fixed five-second recovery");
         using var excessiveVolume = JsonDocument.Parse(
-            """{"intensity":"strong","overlayImageKey":"flashbang_strong","durationMs":3000,"volumePercent":101}""");
+            """{"intensity":"strong","overlayImageKey":"flashbang_strong","durationMs":5000,"volumePercent":101}""");
         False(FlashbangOverlayActionAdapter.TryRead(
                 excessiveVolume.RootElement, out _, out _, out _, out _),
             "flashbang rejects Browser Source volume above 100 percent");
@@ -932,15 +932,15 @@ internal static class Program
             readyService,
             ensureBrowserAudioRouting: _ => Task.FromResult(true));
         using var flashbangJson = JsonDocument.Parse(
-            """{"intensity":"strong","overlayImageKey":"flashbang_strong","durationMs":3000,"volumePercent":60}""");
+            """{"intensity":"strong","overlayImageKey":"flashbang_strong","durationMs":5000,"volumePercent":60}""");
         var flashbangRun = Stopwatch.StartNew();
         var flashbangOutcome = await flashbang.ExecuteAsync(
             flashbangJson.RootElement,
             CancellationToken.None);
         True(flashbangOutcome.Succeeded,
             "strong flashbang completes only after a live Browser Source observes its presentation and sound");
-        True(flashbangRun.Elapsed >= TimeSpan.FromMilliseconds(2_850),
-            "flashbang remains a three-second recovery instead of ending with the short beep");
+        True(flashbangRun.Elapsed >= TimeSpan.FromMilliseconds(4_850),
+            "flashbang remains a five-second recovery instead of ending before its audio and visual fade");
         var flashStates = observedAudioStates.ToArray().Skip(flashAudioBefore).ToArray();
         Equal(1, flashStates.Length,
             "flashbang publishes one exact Browser Source audio payload");

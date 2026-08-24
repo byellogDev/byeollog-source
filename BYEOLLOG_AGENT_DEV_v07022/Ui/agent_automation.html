@@ -209,7 +209,7 @@
                 <label class="flash-choice"><input type="radio" name="flashbangIntensity" value="strong"><span class="flash-card"><img id="flashbangStrongPreview" alt="강한 섬광 예상 화면"><span>강하게 · 화면 완전 점유</span></span></label>
               </div></div>
               <div class="flash-controls"><div class="field"><label for="flashbangVolume">삐- 소리 음량</label><div class="flash-volume"><span>0</span><input id="flashbangVolume" type="range" min="0" max="100" step="5" value="80"><strong id="flashbangVolumeValue">80%</strong></div></div><button class="button primary" id="previewFlashbangButton" type="button">▶ 삐- 소리 듣기</button></div>
-              <p class="secret-note">1920×1080 화면 전체를 고정으로 덮고 약 3초 동안 자연스럽게 회복합니다. 음량을 0%로 두면 화면만 송출합니다.</p>
+              <p class="secret-note">1920×1080 화면 전체를 고정으로 덮고 5초 동안 완전히 회복합니다. 음량을 0%로 두면 화면만 송출합니다.</p>
             </div>
           </section>
 
@@ -830,7 +830,7 @@
     const roulette=elements.eventType.value==='roulette';
     elements.eventTypeField.hidden=multiplier||raffle||flashbang;
     elements.conditionStepTitle.textContent=multiplier?'보상 증가를 예약할 룰렛 결과':raffle?'추첨권을 지급할 후원':flashbang?'섬광탄을 실행할 룰렛 결과':'아봉을 실행할 후원 조건';
-    elements.conditionStepCopy.textContent=multiplier?'이 결과가 나오면 같은 후원자의 다음 실제 룰렛 보상 1회에 배수를 적용합니다.':raffle?'추첨권 1장을 지급할 기준 후원 금액을 정합니다. 배수 인정 여부는 다음 단계에서 선택합니다.':flashbang?'이 결과가 나오면 전체 방송 화면에 3초 섬광 효과를 송출합니다.':'어떤 후원 결과에 반응할지 정한 뒤 다음 단계로 이동하세요.';
+    elements.conditionStepCopy.textContent=multiplier?'이 결과가 나오면 같은 후원자의 다음 실제 룰렛 보상 1회에 배수를 적용합니다.':raffle?'추첨권 1장을 지급할 기준 후원 금액을 정합니다. 배수 인정 여부는 다음 단계에서 선택합니다.':flashbang?'이 결과가 나오면 전체 방송 화면에 5초 섬광 효과를 송출합니다.':'어떤 후원 결과에 반응할지 정한 뒤 다음 단계로 이동하세요.';
     elements.resultRow.hidden=!roulette;elements.donationNameRow.hidden=roulette;
     elements.amountField.hidden=roulette||raffle;elements.conditionGrid.classList.toggle('two',roulette||raffle);elements.conditionGrid.classList.toggle('three',!roulette&&!raffle);
     elements.amountLabel.textContent='고정 별풍선';
@@ -885,7 +885,7 @@
     const amount=draft.eventType==='donation'&&draft.minAmount?` 별풍선이 정확히 ${draft.minAmount.toLocaleString('ko-KR')}개이면`:'';
     if(draft.actionType==='roulette.reward_multiplier_next')return `${when} 같은 후원자의 다음 실제 룰렛 보상 1회를 ${draft.rewardMultiplier}배로 늘립니다.${draft.allowMultiplierStacking?' 연속 증가 결과는 배수를 중첩합니다.':' 연속 증가 결과는 가장 최근 배수로 갱신합니다.'}`;
     if(draft.actionType==='raffle.ticket_grant')return draft.raffleAllowMultiples?`${SOURCE_LABELS[draft.source]||draft.source} 후원 별풍선 ${draft.raffleTicketUnit.toLocaleString('ko-KR')}개당 추첨권 1장을 지급합니다. 배수 금액은 몫만큼 지급하며 나머지는 버립니다.`:`${SOURCE_LABELS[draft.source]||draft.source} 후원 별풍선이 정확히 ${draft.raffleTicketUnit.toLocaleString('ko-KR')}개일 때만 추첨권 1장을 지급합니다. 배수나 초과 금액은 지급하지 않습니다.`;
-    if(draft.actionType==='flashbang.overlay')return `${when} 1920×1080 화면 전체에 ${draft.flashbangIntensity==='soft'?'약한':draft.flashbangIntensity==='strong'?'강한':'보통'} 섬광을 3초간 송출하고 삐- 소리를 ${draft.flashbangVolumePercent}%로 재생합니다.`;
+    if(draft.actionType==='flashbang.overlay')return `${when} 1920×1080 화면 전체에 ${draft.flashbangIntensity==='soft'?'약한':draft.flashbangIntensity==='strong'?'강한':'보통'} 섬광을 5초간 송출하고 삐- 소리를 ${draft.flashbangVolumePercent}%로 재생합니다.`;
     const overlay=draft.overlayEnabled?` 오버레이 화면을 함께 출력하며`:'';
     return `${when}${amount}${overlay} ${ACTIONS[draft.actionType].label}를 ${draft.durationSeconds}초 실행합니다.`;
   }
@@ -909,7 +909,7 @@
     const asset=state.overlays.find(item=>item.key===rule.action.overlayImageKey)||state.overlays.find(item=>item.id===rule.action.overlayAssetId);
     if(rule.action.type==='roulette.reward_multiplier_next')return `${ACTIONS[rule.action.type].label} · ${rule.action.rewardMultiplier}배 · ${rule.action.allowMultiplierStacking?'연속 배수 중첩':'최근 배수로 갱신'}`;
     if(rule.action.type==='raffle.ticket_grant')return `추첨권 지급 · 별풍선 ${asNumber(rule.action.raffleTicketUnit,33).toLocaleString('ko-KR')}개 ${rule.action.raffleAllowMultiples?'기준 · 배수 인정':'정확히 일치'} · 지급 TTS ${asNumber(rule.action.raffleTicketVolumePercent,80)}% · 당첨 TTS ${asNumber(rule.action.raffleDrawVolumePercent,80)}%`;
-    if(rule.action.type==='flashbang.overlay')return `전체 화면 섬광 · ${rule.action.flashbangIntensity==='soft'?'약하게':rule.action.flashbangIntensity==='strong'?'강하게':'보통'} · 3초 회복 · 소리 ${asNumber(rule.action.flashbangVolumePercent,80)}%`;
+    if(rule.action.type==='flashbang.overlay')return `전체 화면 섬광 · ${rule.action.flashbangIntensity==='soft'?'약하게':rule.action.flashbangIntensity==='strong'?'강하게':'보통'} · 5초 완전 회복 · 소리 ${asNumber(rule.action.flashbangVolumePercent,80)}%`;
     return `${ACTIONS[rule.action.type]?.label||rule.action.type} · ${rule.action.durationSeconds}초${asset?` · ${asset.name} 화면`:''}`;
   }
   function formatDate(value){

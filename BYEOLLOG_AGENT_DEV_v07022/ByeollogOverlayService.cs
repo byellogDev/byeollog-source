@@ -121,9 +121,9 @@ internal sealed class ByeollogOverlayService : IDisposable
     #raffle-secondary { margin-top: 5px; color: #c9daf3; font-size: clamp(16px,1.3vw,25px); font-weight: 700; }
     #raffle-winners { margin-top: 9px; color: #fff2c8; font-size: clamp(18px,1.55vw,30px); font-weight: 800; }
     #flashbang-stage { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
-    #flashbang-stage.visible.soft { animation: flashbang-soft-recover 3000ms cubic-bezier(.14,.58,.32,1) both; }
-    #flashbang-stage.visible.standard { animation: flashbang-standard-recover 3000ms cubic-bezier(.14,.58,.32,1) both; }
-    #flashbang-stage.visible.strong { animation: flashbang-strong-recover 3000ms cubic-bezier(.14,.58,.32,1) both; }
+    #flashbang-stage.visible.soft { animation: flashbang-soft-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
+    #flashbang-stage.visible.standard { animation: flashbang-standard-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
+    #flashbang-stage.visible.strong { animation: flashbang-strong-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
     #flashbang-asset { display: block; width: 100%; height: 100%; object-fit: cover; }
     @keyframes flashbang-soft-recover { 0%,8% { opacity:.68 } 35% { opacity:.50 } 68% { opacity:.20 } 100% { opacity:0 } }
     @keyframes flashbang-standard-recover { 0%,10% { opacity:.86 } 38% { opacity:.66 } 70% { opacity:.28 } 100% { opacity:0 } }

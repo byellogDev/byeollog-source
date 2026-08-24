@@ -8,9 +8,9 @@ const bytes = path => readFile(new URL(path, root));
 const text = async path => (await bytes(path)).toString("utf8");
 
 const assets = [
-  ["soft", "byeollog_flashbang_soft.gif", "13a4d0c9f6c23b6e18d47a9ed0d93cdb26ce505888c6d1d8a1ea621578724880"],
-  ["standard", "byeollog_flashbang_standard.gif", "ebf7aaa5463f1d2b6102eb0083d8926cd4e189d13fbd29c2a2096abc707d17d6"],
-  ["strong", "byeollog_flashbang_strong.gif", "0f2bee8b3b6b6dbf566e218a871b25e70be3e6ba2582336128492b8331bd0cdc"]
+  ["soft", "byeollog_flashbang_soft.gif", "68066dc4778d70ef85f9c48639b306353fd3f8bb2959c952157820362b2d3374"],
+  ["standard", "byeollog_flashbang_standard.gif", "1933b6cf667ff7b10edf22c056fc757cb38155c27746d92b5d4da3ce24fa3b71"],
+  ["strong", "byeollog_flashbang_strong.gif", "e18d5069154cda112af9eba60ec52ea273ee9301252a4cab2e210506fca584b0"]
 ];
 
 test("flashbang packages three immutable full-HD recovery assets", async () => {
@@ -57,7 +57,7 @@ test("flashbang UI exposes three strengths and keeps settings audio preview loca
   assert.match(trust, /"previewFlashbang"/);
 });
 
-test("flashbang overlay is fullscreen, recovers for three seconds, and binds Browser Source audio", async () => {
+test("flashbang overlay is fullscreen, fully recovers over five seconds, and binds Browser Source audio", async () => {
   const [overlay, adapter, localAgent, capabilities] = await Promise.all([
     text("ByeollogOverlayService.cs"),
     text("FlashbangOverlayActionAdapter.cs"),
@@ -66,12 +66,17 @@ test("flashbang overlay is fullscreen, recovers for three seconds, and binds Bro
   ]);
   assert.match(overlay, /#flashbang-stage \{ position: absolute; inset: 0; width: 100%; height: 100%/);
   assert.match(overlay, /#flashbang-asset \{ display: block; width: 100%; height: 100%; object-fit: cover/);
-  assert.match(overlay, /flashbang-soft-recover 3000ms/);
-  assert.match(overlay, /flashbang-standard-recover 3000ms/);
-  assert.match(overlay, /flashbang-strong-recover 3000ms/);
-  assert.match(adapter, /internal const int DurationMs = 3_000/);
+  assert.match(overlay, /flashbang-soft-recover 5000ms/);
+  assert.match(overlay, /flashbang-standard-recover 5000ms/);
+  assert.match(overlay, /flashbang-strong-recover 5000ms/);
+  assert.match(adapter, /internal const int DurationMs = 5_000/);
+  assert.match(overlay, /@keyframes flashbang-soft-recover \{[^\n]+100% \{ opacity:0 \} \}/);
+  assert.match(overlay, /@keyframes flashbang-standard-recover \{[^\n]+100% \{ opacity:0 \} \}/);
+  assert.match(overlay, /@keyframes flashbang-strong-recover \{[^\n]+100% \{ opacity:0 \} \}/);
   assert.match(adapter, /ShowObservedAudioTransientAsync/);
-  assert.match(adapter, /AudioBindingKey = "flashbang-beep-v1"/);
+  assert.match(adapter, /AudioBindingKey = "flashbang-blast-v2"/);
+  assert.match(adapter, /ringFrequency = 3_560\.0/);
+  assert.doesNotMatch(adapter, /1_180\.0 - 120\.0 \* progress/);
   assert.match(adapter, /beepPlayed/);
   assert.match(localAgent, /FlashbangOverlayActionAdapter\.ActionType/);
   assert.match(capabilities, /"flashbang\.overlay"/);
