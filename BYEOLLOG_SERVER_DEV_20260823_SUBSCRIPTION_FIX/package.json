@@ -1,8 +1,8 @@
 {
   "name": "byeollog-web",
   "private": true,
-  "version": "0.6.3-g3a.45",
-  "byeollogBuild": "0.6.3.61-g3a-flashbang-test-button-fix",
+  "version": "0.6.3-g3a.46",
+  "byeollogBuild": "0.6.3.62-g3a-flashbang-image-delivery-fix",
   "type": "module",
   "engines": {
     "node": "22.x"
