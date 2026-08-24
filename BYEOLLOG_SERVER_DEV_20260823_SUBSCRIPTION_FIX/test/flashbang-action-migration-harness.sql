@@ -7,6 +7,13 @@ create table public.rules(id uuid primary key,workspace_id uuid not null,name te
 create table public.rule_actions(id uuid primary key,rule_id uuid not null,position integer not null,action_type text not null,params jsonb not null,execution_target text not null,agent_device_id uuid,overlay_asset_id uuid,overlay_duration_ms integer);
 create table byeollog_automation.rules(id uuid primary key,workspace_id uuid not null);
 create table byeollog_automation.rule_actions(id uuid primary key,rule_id uuid not null,position integer not null,execution_target text not null,agent_device_id uuid,action_type text not null,params jsonb not null,timeout_ms integer not null,max_attempts integer not null,retry_backoff_seconds integer not null);
+alter table byeollog_automation.rule_actions
+  add constraint rule_actions_target_safe check (
+    execution_target='server' and action_type='log' and agent_device_id is null
+    or execution_target='local_agent'
+       and action_type in ('obs.mute_for','windows.mic_mute_for','obs.scene_switch','agent.notify')
+       and (not (params?'overlayAssetKey') or action_type='obs.mute_for' and params->>'overlayAssetKey'='mic_off')
+  );
 create table byeollog_automation.agent_devices(workspace_id uuid not null,device_id uuid not null,revoked_at timestamptz,primary key(workspace_id,device_id));
 create table byeollog_automation.agent_device_status(workspace_id uuid not null,device_id uuid not null,reported_at timestamptz not null,supported_action_types text[] not null,primary key(workspace_id,device_id));
 create table byeollog_automation.events(id uuid primary key,workspace_id uuid not null,schema_version text not null,external_event_id text not null,source text not null,platform text not null,event_type text not null,subtype text,actor jsonb,amount numeric,currency text,payload jsonb not null,raw jsonb,correlation_id text,occurred_at timestamptz not null,received_at timestamptz not null,authorized_user_id uuid,plan_token text,evaluated_rule_ids uuid[] not null,matched_rule_ids uuid[] not null);
@@ -28,6 +35,7 @@ create or replace function byeollog_automation.dispatch_guided_rule_test_v2_impl
 returns table(event_id uuid,execution_id uuid,action_type text,agent_device_id uuid) language sql as $$select null::uuid,null::uuid,'legacy'::text,null::uuid$$;
 
 \ir ../supabase/migrations/20260824173931_add_flashbang_action.sql
+\ir ../supabase/migrations/20260824192432_allow_flashbang_rule_action_target.sql
 
 -- Production already has this trigger from raffle delivery hardening. Recreate
 -- that prerequisite in the focused harness so the replacement function is

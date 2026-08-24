@@ -7,6 +7,7 @@ const text = path => readFile(new URL(path, root), "utf8");
 
 test("flashbang migration exposes bounded manager-only save and test RPCs", async () => {
   const migration = await text("supabase/migrations/20260824173931_add_flashbang_action.sql");
+  const targetSafetyMigration = await text("supabase/migrations/20260824192432_allow_flashbang_rule_action_target.sql");
   assert.match(migration, /create or replace function public\.save_guided_rule_v12/);
   assert.match(migration, /create or replace function public\.dispatch_guided_rule_test_v3/);
   assert.match(migration, /p_flashbang_intensity not in \('soft','standard','strong'\)/);
@@ -17,6 +18,9 @@ test("flashbang migration exposes bounded manager-only save and test RPCs", asyn
   assert.match(migration, /grant execute on function public\.save_guided_rule_v12[\s\S]*to authenticated/);
   assert.match(migration, /grant execute on function public\.dispatch_guided_rule_test_v3[\s\S]*to authenticated/);
   assert.doesNotMatch(migration, /grant execute[\s\S]*to (?:public|anon)/);
+  assert.match(targetSafetyMigration, /rule_actions_target_safe/);
+  assert.match(targetSafetyMigration, /'flashbang\.overlay'/);
+  assert.match(targetSafetyMigration, /params\s*\?\s*'overlayAssetKey'/);
 });
 
 test("all live action runtimes allow flashbang without relaxing unrelated actions", async () => {
