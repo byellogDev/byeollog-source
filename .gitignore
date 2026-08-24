@@ -17,6 +17,8 @@
 !/BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/**
 !/BYEOLLOG_TTS_SERVICE/
 !/BYEOLLOG_TTS_SERVICE/**
+!/BYEOLLOG_TTS_RELAY/
+!/BYEOLLOG_TTS_RELAY/**
 
 # The allowlisted source trees may still contain local credentials and generated
 # distribution files. These patterns protect them during ordinary `git add .`.
@@ -45,6 +47,7 @@
 **/publish*/
 **/node_modules/
 **/.vercel/
+**/.wrangler/
 **/supabase/.temp/
 **/__pycache__/
 

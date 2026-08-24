@@ -20,7 +20,7 @@ $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `
     -AllowStartIfOnBatteries `
     -DontStopIfGoingOnBatteries `
-    -ExecutionTimeLimit ([TimeSpan]::FromMinutes(10)) `
+    -ExecutionTimeLimit ([TimeSpan]::FromMinutes(15)) `
     -MultipleInstances IgnoreNew `
     -RestartCount 3 `
     -RestartInterval ([TimeSpan]::FromMinutes(2))
@@ -35,7 +35,7 @@ Register-ScheduledTask `
     -Trigger $trigger `
     -Settings $settings `
     -Principal $principal `
-    -Description "Starts Docker Desktop if needed, restores the Byeollog CosyVoice container, and records a local health result." `
+    -Description "Restores Byeollog CosyVoice, Quick Tunnel, stable Worker relay, and records end-to-end health." `
     -Force | Out-Null
 
 $task = Get-ScheduledTask -TaskName $TaskName

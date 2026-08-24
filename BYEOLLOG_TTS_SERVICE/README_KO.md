@@ -53,7 +53,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\Install-ByeollogTtsStartup
 powershell -NoProfile -ExecutionPolicy Bypass -File .\Get-ByeollogTtsStatus.ps1
 ```
 
-이 예약 작업은 로컬 모델만 복구합니다. `trycloudflare.com` Quick Tunnel은
-프로세스를 다시 시작할 때 공개 주소가 바뀌므로 자동시작하지 않습니다.
-고정 Cloudflare Tunnel과 Supabase `BYEOLLOG_TTS_ORIGIN` 전환이 완료되기
-전에는 PC 재부팅 후 외부 당첨자 음성 생성이 자동 복구되지 않습니다.
+`Configure-ByeollogTtsRelay.ps1`로 고정 `workers.dev` 중계를 한 번 구성하면
+예약 작업이 다음 항목을 순서대로 자동 복구합니다.
+
+1. Docker Desktop과 CosyVoice 컨테이너
+2. 주소가 매번 바뀌는 Cloudflare Quick Tunnel
+3. HMAC으로 서명된 새 주소를 고정 Worker에 등록
+4. 고정 Worker 주소를 통한 외부 `/healthz`
+
+중계 관리 비밀값은 `%LOCALAPPDATA%\ByeollogTts`에 DPAPI CurrentUser로
+암호화해 저장하며 Git이나 Worker 소스에 넣지 않습니다. Worker는
+`https://*.trycloudflare.com` 루트 주소와 실제 정상 `/healthz`만 허용합니다.

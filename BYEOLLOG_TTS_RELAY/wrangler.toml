@@ -1,0 +1,12 @@
+name = "byeollog-tts-relay"
+main = "src/index.js"
+compatibility_date = "2026-08-24"
+workers_dev = true
+preview_urls = false
+
+[observability]
+enabled = true
+
+[[kv_namespaces]]
+binding = "ROUTING"
+id = "d5e19d7904fe45c58c39b838d46c0208"

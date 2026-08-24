@@ -2,7 +2,8 @@
 param(
     [string]$ContainerName = "byeollog-raffle-tts",
     [int]$DockerWaitSeconds = 240,
-    [int]$HealthWaitSeconds = 180
+    [int]$HealthWaitSeconds = 180,
+    [string]$RelayConfigPath = (Join-Path $env:LOCALAPPDATA "ByeollogTts\relay-config.json")
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,7 +27,10 @@ function Write-StartupStatus {
         [bool]$Healthy,
         [string]$Stage,
         [string]$Message,
-        [string]$VoiceVersion = ""
+        [string]$VoiceVersion = "",
+        [bool]$RelayHealthy = $false,
+        [string]$RelayUrl = "",
+        [string]$QuickTunnelUrl = ""
     )
     $payload = [ordered]@{
         schemaVersion = 1
@@ -36,6 +40,9 @@ function Write-StartupStatus {
         message = $Message
         containerName = $ContainerName
         voiceVersion = $VoiceVersion
+        relayHealthy = $RelayHealthy
+        relayUrl = $RelayUrl
+        quickTunnelUrl = $QuickTunnelUrl
     }
     $tempPath = "$statusPath.$([Guid]::NewGuid().ToString('N')).tmp"
     $payload | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $tempPath -Encoding UTF8
@@ -116,7 +123,31 @@ try {
     }
 
     $voiceVersion = [string]$health.version
-    Write-StartupStatus -Healthy $true -Stage "ready" -Message "Local CosyVoice service is ready." -VoiceVersion $voiceVersion
+    $relayHealthy = $false
+    $relayUrl = ""
+    $quickTunnelUrl = ""
+    $message = "Local CosyVoice service is ready."
+    $stage = "ready_local"
+    if (Test-Path -LiteralPath $RelayConfigPath -PathType Leaf) {
+        $relayScript = Join-Path $PSScriptRoot "Start-ByeollogTtsRelay.ps1"
+        if (-not (Test-Path -LiteralPath $relayScript -PathType Leaf)) {
+            throw "Relay startup script is missing: $relayScript"
+        }
+        Write-StartupLog "Starting or refreshing the stable TTS relay."
+        $relay = & $relayScript -ConfigPath $RelayConfigPath
+        if ($null -eq $relay -or $relay.Healthy -ne $true) {
+            throw "Stable TTS relay did not become healthy"
+        }
+        $relayHealthy = $true
+        $relayUrl = [string]$relay.RelayUrl
+        $quickTunnelUrl = [string]$relay.QuickTunnelUrl
+        $message = "Local CosyVoice service and stable relay are ready."
+        $stage = "ready"
+        Write-StartupLog "Stable TTS relay is healthy."
+    }
+
+    Write-StartupStatus -Healthy $true -Stage $stage -Message $message -VoiceVersion $voiceVersion `
+        -RelayHealthy $relayHealthy -RelayUrl $relayUrl -QuickTunnelUrl $quickTunnelUrl
     Write-StartupLog "Local TTS service is healthy ($voiceVersion)."
     exit 0
 } catch {
