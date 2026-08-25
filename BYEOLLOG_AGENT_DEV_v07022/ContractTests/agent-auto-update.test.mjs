@@ -216,3 +216,19 @@ test("v91 release preparation is immutable and identifies the voice readiness UI
   assert.match(notes, /두 톤 준비됨/);
   assert.match(notes, /5초 미리보기/);
 });
+
+test("v92 release preparation is immutable and identifies the voice controls UI build", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07092-AutoUpdate.ps1"),
+    source("RELEASE_v07092_VOICE_CONTROLS_UI_KO.txt")
+  ]);
+
+  assert.match(build, /\$releaseSequence = 7092/);
+  assert.match(build, /byeollog_agent_v07092_VOICE_CONTROLS_UI_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.92'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.92'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /v0\.7\.0\.92/);
+  assert.match(notes, /버튼 배치/);
+  assert.match(notes, /5초 미리보기/);
+});

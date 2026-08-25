@@ -133,10 +133,14 @@ test("streamer UI exposes the exact development label, readiness, and five-secon
   assert.match(ui, /id="voiceFilterName"/);
   assert.match(ui, /id="voiceUpFilterName"/);
   assert.match(ui, /id="ensureVoiceFiltersButton"[^>]*>두 필터 자동 준비<\/button>/);
+  assert.match(ui, /class="voice-filter-actions"/);
+  assert.match(ui, /class="voice-tone-grid"/);
+  assert.match(ui, /class="voice-tone-label">다운톤<\/span>/);
+  assert.match(ui, /class="voice-tone-label">업톤<\/span>/);
   assert.match(ui, /post\('ensureVoiceAnonymizerFilters'/);
   assert.match(ui, /두 톤 준비됨/);
-  assert.match(ui, /id="previewVoiceButton"[^>]*>다운톤 5초<\/button>/);
-  assert.match(ui, /id="previewVoiceUpButton"[^>]*>업톤 5초<\/button>/);
+  assert.match(ui, /id="previewVoiceButton"[^>]*aria-label="다운톤 필터 5초 미리보기"[^>]*>5초 미리보기<\/button>/);
+  assert.match(ui, /id="previewVoiceUpButton"[^>]*aria-label="업톤 필터 5초 미리보기"[^>]*>5초 미리보기<\/button>/);
   assert.match(ui, /id="previewVoiceWizardButton"/);
   assert.match(ui, /value="anonymous_low"/);
   assert.match(ui, /value="anonymous_high"/);
