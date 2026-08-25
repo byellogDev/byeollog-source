@@ -1,0 +1,6 @@
+LIBRARY obs.dll
+EXPORTS
+    obs_data_get_double
+    obs_data_set_default_double
+    obs_get_audio_info
+    obs_register_source_s

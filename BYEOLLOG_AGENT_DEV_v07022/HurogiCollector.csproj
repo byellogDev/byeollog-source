@@ -8,8 +8,8 @@
     <Nullable>enable</Nullable>
     <AssemblyName>byeollog</AssemblyName>
     <RootNamespace>HurogiCollector</RootNamespace>
-    <Version>0.7.0.89</Version>
-    <InformationalVersion>0.7.0.89</InformationalVersion>
+    <Version>0.7.0.90</Version>
+    <InformationalVersion>0.7.0.90</InformationalVersion>
     <Product>별록 에이전트</Product>
     <AssemblyTitle>별록 에이전트</AssemblyTitle>
     <Description>후원 수집과 별록 액션을 연결하는 별록 에이전트</Description>
@@ -69,6 +69,18 @@
     <EmbeddedResource Include="Ui\byeollog_logo_dark_safe.png" LogicalName="HurogiCollector.Ui.byeollog_logo_dark_safe.png" />
     <EmbeddedResource Include="Ui\byeollog_logo_light_safe.png" LogicalName="HurogiCollector.Ui.byeollog_logo_light_safe.png" />
     <EmbeddedResource Include="THIRD_PARTY_NOTICES_TTS.txt" LogicalName="HurogiCollector.THIRD_PARTY_NOTICES_TTS.txt" />
+    <EmbeddedResource Include="Native\byeollog-voice-filter.dll" LogicalName="HurogiCollector.Native.byeollog-voice-filter.dll" />
+    <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\THIRD_PARTY_NOTICES.txt" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.THIRD_PARTY_NOTICES.txt" />
+    <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\COPYING_GPL-2.0.txt" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.COPYING_GPL-2.0.txt" />
+    <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\plugin.cpp" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.Source.plugin.cpp" />
+    <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\obs.def" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.Source.obs.def" />
+    <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\Build-VoiceFilter.ps1" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.Source.Build-VoiceFilter.ps1" />
+    <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\README.md" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.Source.README.md" />
+    <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\vendor\signalsmith-stretch\signalsmith-stretch.h" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.Source.vendor.signalsmith-stretch.signalsmith-stretch.h" />
+    <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\vendor\signalsmith-stretch\LICENSE.txt" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.Source.vendor.signalsmith-stretch.LICENSE.txt" />
+    <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\vendor\signalsmith-linear\stft.h" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.Source.vendor.signalsmith-linear.stft.h" />
+    <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\vendor\signalsmith-linear\fft.h" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.Source.vendor.signalsmith-linear.fft.h" />
+    <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\vendor\signalsmith-linear\LICENSE.txt" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.Source.vendor.signalsmith-linear.LICENSE.txt" />
     <None Update="Assets\hurogi_balloon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -1830,7 +1830,8 @@ internal static class Program
             "renameAgentDevice",
             "revokeAgentDevice",
             "previewOverlayAsset",
-            "testVoiceAnonymizerFilter"
+            "testVoiceAnonymizerFilter",
+            "ensureVoiceAnonymizerFilters"
         })
         {
             True(

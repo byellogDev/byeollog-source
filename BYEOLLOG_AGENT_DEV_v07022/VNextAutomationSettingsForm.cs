@@ -528,6 +528,9 @@ internal sealed class VNextAutomationSettingsForm : Form
                 case "testVoiceAnonymizerFilter":
                     await TestVoiceAnonymizerFilterAsync(payload);
                     break;
+                case "ensureVoiceAnonymizerFilters":
+                    await EnsureVoiceAnonymizerFiltersAsync(payload);
+                    break;
                 case "previewVoiceAnonymizer":
                     await PreviewVoiceAnonymizerAsync(payload);
                     break;
@@ -1500,8 +1503,8 @@ internal sealed class VNextAutomationSettingsForm : Form
                 status.FilterEnabled,
                 status.FilterEnabled ? "ready_enabled" : "ready",
                 status.FilterEnabled
-                    ? $"{label} VST 2.x 필터가 현재 켜져 있습니다. 평소에는 꺼두는 것을 권장합니다."
-                    : $"{label} VST 2.x 필터가 준비되어 있습니다.");
+                    ? $"{label} 별록 필터가 현재 켜져 있습니다. 평소에는 꺼두는 것을 권장합니다."
+                    : $"{label} 별록 필터가 준비되어 있습니다.");
         }
         catch (OperationCanceledException) when (_lifetimeToken.IsCancellationRequested)
         {
@@ -1575,13 +1578,10 @@ internal sealed class VNextAutomationSettingsForm : Form
             try
             {
                 using var timeout = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeToken);
-                timeout.CancelAfter(TimeSpan.FromSeconds(7));
+                timeout.CancelAfter(TimeSpan.FromSeconds(15));
                 await using var obs = await ObsWebSocketClient.ConnectAsync(settings, timeout.Token);
                 var info = await obs.GetVersionAsync(timeout.Token);
-                if (!info.AvailableRequests.Contains("GetSourceFilterList")
-                    || !info.AvailableRequests.Contains("GetSourceFilter")
-                    || !info.AvailableRequests.Contains("SetSourceFilterEnabled"))
-                    throw new InvalidOperationException("연결된 OBS가 필요한 필터 제어 기능을 지원하지 않습니다.");
+                await ObsVoiceAnonymizerProvisioner.EnsureAsync(obs, info, settings, timeout.Token);
                 var filters = await obs.GetSourceFilterListAsync(settings.MicrophoneInputName, timeout.Token);
                 var filter = filters.FirstOrDefault(item =>
                     string.Equals(
@@ -1596,7 +1596,7 @@ internal sealed class VNextAutomationSettingsForm : Form
                         TimedMuteActionAdapter.VoiceAnonymizerFilterKind,
                         StringComparison.Ordinal))
                     throw new InvalidOperationException(
-                        $"'{selectedFilterName}' 필터가 VST 2.x 플러그인 필터가 아닙니다.");
+                        $"'{selectedFilterName}' 필터가 별록 신원보호 필터가 아닙니다.");
                 // A successful filter check pins the exact tested local settings so
                 // the five-second preview and production action cannot target a stale filter.
                 _storage.SaveObsSettings(settings);
@@ -1624,6 +1624,57 @@ internal sealed class VNextAutomationSettingsForm : Form
         });
     }
 
+    private async Task EnsureVoiceAnonymizerFiltersAsync(JsonElement payload)
+    {
+        var savedSettings = ParseObsSettings(payload, keepStoredPasswordWhenBlank: true);
+        if (string.IsNullOrWhiteSpace(savedSettings.MicrophoneInputName))
+            throw new VNextDevelopmentException(
+                "OBS 오디오 믹서에 표시되는 마이크 입력 이름을 입력해주세요.",
+                code: "invalid_obs_input");
+        var settings = savedSettings with { Enabled = true };
+        await RunOperationAsync("다운톤·업톤 신원보호 필터를 자동으로 준비하는 중이에요.", async ownerId =>
+        {
+            try
+            {
+                using var timeout = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeToken);
+                timeout.CancelAfter(TimeSpan.FromSeconds(15));
+                await using var obs = await ObsWebSocketClient.ConnectAsync(settings, timeout.Token);
+                var info = await obs.GetVersionAsync(timeout.Token);
+                var result = await ObsVoiceAnonymizerProvisioner.EnsureAsync(
+                    obs,
+                    info,
+                    settings,
+                    timeout.Token);
+                _storage.SaveObsSettings(settings);
+                _localAgent?.Wake();
+                if (IsOperationCurrent(ownerId))
+                {
+                    await PushLocalConnectionsAsync(ownerId, showToast: false);
+                    if (IsOperationCurrent(ownerId))
+                    {
+                        var message = result.CreatedCount switch
+                        {
+                            0 => "다운톤·업톤 필터가 이미 준비되어 있어요.",
+                            1 => "없던 신원보호 필터 1개를 꺼진 상태로 자동 생성했어요.",
+                            _ => "다운톤·업톤 필터를 모두 꺼진 상태로 자동 생성했어요."
+                        };
+                        await ShowToastAsync(message, "success");
+                    }
+                }
+            }
+            catch (OperationCanceledException) when (_lifetimeToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new VNextDevelopmentException(
+                    VoiceAnonymizerSetupMessage(ex),
+                    code: "voice_anonymizer_provision_failed");
+            }
+        });
+    }
+
     private async Task PreviewVoiceAnonymizerAsync(JsonElement payload)
     {
         RequireCanManage();
@@ -1639,6 +1690,12 @@ internal sealed class VNextAutomationSettingsForm : Form
             {
                 using var timeout = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeToken);
                 timeout.CancelAfter(TimeSpan.FromSeconds(20));
+                var settings = _storage.LoadObsSettings() with { Enabled = true };
+                await using (var obs = await ObsWebSocketClient.ConnectAsync(settings, timeout.Token))
+                {
+                    var info = await obs.GetVersionAsync(timeout.Token);
+                    await ObsVoiceAnonymizerProvisioner.EnsureAsync(obs, info, settings, timeout.Token);
+                }
                 var result = await _localAgent.PreviewVoiceAnonymizerAsync(preset, timeout.Token);
                 if (IsOperationCurrent(ownerId))
                 {

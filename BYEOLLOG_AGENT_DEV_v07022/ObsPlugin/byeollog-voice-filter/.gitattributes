@@ -1,0 +1,2 @@
+# Preserve pinned upstream source bytes, including its original whitespace.
+vendor/** whitespace=-trailing-space

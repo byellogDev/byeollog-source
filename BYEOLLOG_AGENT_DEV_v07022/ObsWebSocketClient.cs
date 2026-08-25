@@ -294,6 +294,75 @@ internal sealed class ObsWebSocketClient : IAsyncDisposable
         return new ObsSourceFilterSummary(filterName, kind, enabled.GetBoolean(), index);
     }
 
+    public async Task<JsonElement> GetSourceFilterSettingsAsync(
+        string sourceName,
+        string filterName,
+        CancellationToken cancellationToken)
+    {
+        ValidateObsName(sourceName, nameof(sourceName));
+        ValidateObsName(filterName, nameof(filterName));
+        var response = await RequestAsync(
+            "GetSourceFilter",
+            new { sourceName, filterName },
+            cancellationToken);
+        if (!response.TryGetProperty("filterSettings", out var settings)
+            || settings.ValueKind != JsonValueKind.Object)
+            throw new InvalidDataException("OBS 필터 설정 응답이 올바르지 않습니다.");
+        return settings.Clone();
+    }
+
+    public async Task<IReadOnlyList<string>> GetSourceFilterKindListAsync(
+        CancellationToken cancellationToken)
+    {
+        var response = await RequestAsync("GetSourceFilterKindList", requestData: null, cancellationToken);
+        if (!response.TryGetProperty("sourceFilterKinds", out var kinds)
+            || kinds.ValueKind != JsonValueKind.Array)
+            throw new InvalidDataException("OBS 필터 종류 목록 응답이 올바르지 않습니다.");
+        var result = new List<string>();
+        foreach (var kind in kinds.EnumerateArray())
+        {
+            if (kind.ValueKind != JsonValueKind.String
+                || string.IsNullOrWhiteSpace(kind.GetString()))
+                throw new InvalidDataException("OBS 필터 종류 목록 응답이 올바르지 않습니다.");
+            result.Add(kind.GetString()!);
+        }
+        return result;
+    }
+
+    public async Task CreateSourceFilterAsync(
+        string sourceName,
+        string filterName,
+        string filterKind,
+        object filterSettings,
+        bool filterEnabled,
+        CancellationToken cancellationToken)
+    {
+        ValidateObsName(sourceName, nameof(sourceName));
+        ValidateObsName(filterName, nameof(filterName));
+        if (string.IsNullOrWhiteSpace(filterKind)
+            || filterKind.Length > 128
+            || filterKind.Any(char.IsControl))
+            throw new ArgumentException("OBS 필터 종류가 올바르지 않습니다.", nameof(filterKind));
+        ArgumentNullException.ThrowIfNull(filterSettings);
+        await RequestAsync(
+            "CreateSourceFilter",
+            new { sourceName, filterName, filterKind, filterSettings, filterEnabled },
+            cancellationToken);
+    }
+
+    public async Task RemoveSourceFilterAsync(
+        string sourceName,
+        string filterName,
+        CancellationToken cancellationToken)
+    {
+        ValidateObsName(sourceName, nameof(sourceName));
+        ValidateObsName(filterName, nameof(filterName));
+        await RequestAsync(
+            "RemoveSourceFilter",
+            new { sourceName, filterName },
+            cancellationToken);
+    }
+
     public async Task SetSourceFilterEnabledAsync(
         string sourceName,
         string filterName,

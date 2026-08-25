@@ -12,6 +12,24 @@ internal static class Program
     [STAThread]
     static void Main(string[] args)
     {
+        if (args.Length == 1 && string.Equals(args[0], "--install-obs-voice-plugin", StringComparison.Ordinal))
+        {
+            Environment.ExitCode = ObsVoiceFilterInstaller.RunElevatedInstallCommand();
+            return;
+        }
+
+        if (args.Length == 1 && string.Equals(args[0], "--provision-obs-voice-plugin", StringComparison.Ordinal))
+        {
+            Environment.ExitCode = ObsVoiceFilterProvisionCommand.RunAsync().GetAwaiter().GetResult();
+            return;
+        }
+
+        if (args.Length == 1 && string.Equals(args[0], "--verify-obs-voice-plugin", StringComparison.Ordinal))
+        {
+            Environment.ExitCode = ObsVoiceFilterProvisionCommand.RunAsync(runPreviews: true).GetAwaiter().GetResult();
+            return;
+        }
+
         if (args.Length == 1 && string.Equals(args[0], "--update-check", StringComparison.Ordinal))
         {
             Environment.ExitCode = AgentUpdateRunner.RunAsync(BuildInfo.Version).GetAwaiter().GetResult();

@@ -220,10 +220,10 @@ internal static partial class CollectorPreflightRunner
                     }
                     voiceState = anyEnabled ? "attention" : "pass";
                     voiceMessage = anyEnabled
-                        ? "신원보호 VST 2.x 필터 준비됨 · 현재 켜짐 (평소에는 꺼두기 권장)"
+                        ? "별록 신원보호 필터 준비됨 · 현재 켜짐 (평소에는 꺼두기 권장)"
                         : scope.RequiresObsVoicePresetPair
-                            ? "다운톤·업톤 VST 2.x 필터 읽기 성공 · 상태 변경 없음"
-                            : "다운톤 VST 2.x 필터·마이크 입력 읽기 성공 · 상태 변경 없음";
+                            ? "다운톤·업톤 별록 필터 읽기 성공 · 상태 변경 없음"
+                            : "다운톤 별록 필터·마이크 입력 읽기 성공 · 상태 변경 없음";
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
@@ -232,7 +232,7 @@ internal static partial class CollectorPreflightRunner
                 catch
                 {
                     voiceState = "blocked";
-                    voiceMessage = "로컬 VST 2.x 필터·마이크 설정 확인 필요";
+                    voiceMessage = "별록 신원보호 필터·마이크 설정 확인 필요";
                 }
             }
         }

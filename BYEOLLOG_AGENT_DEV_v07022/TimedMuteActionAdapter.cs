@@ -13,7 +13,7 @@ internal sealed class TimedMuteActionAdapter
     internal const string ObsTargetAlias = "microphone";
     internal const string WindowsTargetAlias = "selected_capture_device";
     internal const string VoiceAnonymizerTargetType = "obs_source_filter";
-    internal const string VoiceAnonymizerFilterKind = "vst_filter";
+    internal const string VoiceAnonymizerFilterKind = ObsVoiceFilterInstaller.FilterKind;
 
     private readonly CollectorStorage _storage;
     private readonly TimedMuteRecoveryStore _recoveryStore;
@@ -515,7 +515,7 @@ internal sealed class TimedMuteActionAdapter
             _ => throw new InvalidOperationException("지원하지 않는 신원보호 음성 프리셋입니다.")
         };
         if (string.IsNullOrWhiteSpace(filterName))
-            throw new InvalidOperationException("OBS 신원보호 VST 2.x 필터 이름을 먼저 설정해주세요.");
+            throw new InvalidOperationException("OBS 신원보호 필터 이름을 먼저 설정해주세요.");
         return new ObsVoiceAnonymizerTarget(
             settings,
             settings.MicrophoneInputName,
@@ -569,7 +569,7 @@ internal sealed class TimedMuteActionAdapter
         TimedMuteAccumulationLimitException =>
             "연속 신원보호모드 누적 시간이 안전 상한인 15분을 초과합니다.",
         InvalidOperationException =>
-            "OBS 연결·마이크·신원보호 VST 2.x 필터 설정을 별록 에이전트에서 확인해주세요.",
+            "OBS 연결·마이크·별록 신원보호 필터 설정을 에이전트에서 확인해주세요.",
         ArgumentException => "OBS 마이크 또는 신원보호 필터 이름이 올바르지 않습니다.",
         InvalidDataException => "OBS 신원보호 필터 상태 응답이 올바르지 않습니다.",
         _ => "신원보호모드 실행 중 오류가 발생했습니다."
@@ -641,7 +641,7 @@ internal sealed class TimedMuteActionAdapter
             var filter = await obs.GetSourceFilterAsync(SourceName, FilterName, cancellationToken);
             if (!string.Equals(filter.FilterKind, VoiceAnonymizerFilterKind, StringComparison.Ordinal))
                 throw new InvalidOperationException(
-                    $"OBS의 '{FilterName}' 필터가 VST 2.x 플러그인 필터가 아닙니다.");
+                    $"OBS의 '{FilterName}' 필터가 별록 신원보호 필터가 아닙니다.");
             return filter;
         }
 
@@ -658,7 +658,7 @@ internal sealed class TimedMuteActionAdapter
             var filter = await obs.GetSourceFilterAsync(SourceName, FilterName, cancellationToken);
             if (!string.Equals(filter.FilterKind, VoiceAnonymizerFilterKind, StringComparison.Ordinal))
                 throw new InvalidOperationException(
-                    $"OBS의 '{FilterName}' 필터가 VST 2.x 플러그인 필터가 아닙니다.");
+                    $"OBS의 '{FilterName}' 필터가 별록 신원보호 필터가 아닙니다.");
             await obs.SetSourceFilterEnabledAsync(SourceName, FilterName, muted, cancellationToken);
         }
     }
