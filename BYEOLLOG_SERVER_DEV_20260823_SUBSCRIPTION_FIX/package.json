@@ -2,7 +2,7 @@
   "name": "byeollog-web",
   "private": true,
   "version": "0.6.3-g3a.47",
-  "byeollogBuild": "0.6.3.64-g3a-cosyvoice3-winner-cache",
+  "byeollogBuild": "0.6.3.65-g3a-embedded-winner-fallback",
   "type": "module",
   "engines": {
     "node": "22.x"
