@@ -5,6 +5,7 @@
 .vercel
 node_modules
 supabase/.temp
+agent-updates/releases/**/*.zip
 **/__pycache__
 *.log
 *.tmp

@@ -40,8 +40,10 @@ Feed는 RSA-PSS-SHA256 주 업데이트키로 서명했다. 개인키·PFX·복�
 
 ## 다음 버전 규칙
 
-릴리스 ZIP은 버전별 immutable 경로에 추가하고 기존 바이트를 덮어쓰지 않는다. 새 feed를 오프라인 주 키로 서명한 뒤 Preview에서 전체 ZIP을 다운로드해 서명된 크기·SHA-256과 대조한다. Preview를 통과한 동일 배포만 Production으로 promote한다.
+릴리스 ZIP과 provenance는 로컬 `agent-updates/releases/<version>/`에 추가하되, ZIP은 `npm run release:assets -- --version <version>`으로 공개 `byellogDev/byeollog-releases` GitHub Release의 `agent-v<version>` 태그에 업로드한다. 업로더는 기존 자산을 덮어쓰거나 삭제하지 않고 원격 전체 바이트를 다시 읽어 SHA-256을 대조한다. provenance JSON은 수 KB이므로 기존 Vercel 소스에 유지한다. 새 feed를 오프라인 주 키로 서명한 뒤 Preview의 `byeollog.com` 호환 경로가 GitHub Release로 전달되는지 확인하고 전체 ZIP 크기·SHA-256을 대조한다. Preview를 통과한 동일 배포만 Production으로 promote한다.
 
-현재 ZIP은 Vercel 단일 정적 파일 한도 안이지만 약 69.5 MiB다. 이후 100 MiB에 접근하면 Storage/비용에 대한 사용자 별도 승인 후 immutable 대용량 저장소 이전을 검토한다.
+Vercel 애플리케이션 배포에서는 `.vercelignore`로 `agent-updates/releases/**/*.zip`을 제외한다. 공개 ZIP 호환 URL `/agent-updates/releases/<version>/*.zip`은 공개 GitHub Release 자산으로 307 전달되므로 기존 signed feed URL 계약은 바꾸지 않는다. GitHub Release 태그와 버전 ZIP은 절대 덮어쓰지 않는다.
+
+공개 GitHub Release 저장소에는 전체 버전 이력을 보존한다. 새 버전은 먼저 새 태그에 업로드하고 전체 원격 SHA-256을 검증한 뒤 feed를 전환한다. 같은 태그·파일명의 교체는 금지하며 수정이 필요하면 더 높은 새 Agent 버전으로 발행한다.
 
 `.vercel/.env.*`, `node_modules`, 빌드 출력과 개인키는 서버 체크포인트에 포함하지 않는다. `SOURCE_FILE_SHA256SUMS.txt`가 체크포인트 파일의 canonical SHA-256 목록이다.

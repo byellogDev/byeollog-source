@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "provider": "github-releases",
+  "repository": "byellogDev/byeollog-releases",
+  "tagPrefix": "agent-v",
+  "publicRoutePrefix": "/agent-updates/releases/",
+  "allowOverwrite": false,
+  "onlineRetention": "all",
+  "historicalArchive": "local-release-tree"
+}

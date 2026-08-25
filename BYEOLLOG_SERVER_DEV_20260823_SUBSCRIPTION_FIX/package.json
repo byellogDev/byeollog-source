@@ -2,13 +2,14 @@
   "name": "byeollog-web",
   "private": true,
   "version": "0.6.3-g3a.47",
-  "byeollogBuild": "0.6.3.66-g3a-winner-preview-voice-sync",
+  "byeollogBuild": "0.6.3.67-g3a-agent-release-assets",
   "type": "module",
   "engines": {
     "node": "22.x"
   },
   "scripts": {
     "validate:runtime": "node scripts/validate-runtime-config.mjs",
+    "release:assets": "node tools/Publish-AgentReleaseAssets.mjs",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
