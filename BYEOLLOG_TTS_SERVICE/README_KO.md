@@ -46,7 +46,8 @@ CosyVoice 소스와 `Fun-CosyVoice3-0.5B-2512` 모델은 Apache-2.0 고정 버�
 
 `Install-ByeollogTtsStartup.ps1`은 현재 사용자 로그인 때 Docker Desktop을
 필요한 경우 시작하고, `byeollog-raffle-tts` 컨테이너와 로컬 `/healthz`를
-복구하는 숨김 예약 작업을 등록합니다.
+복구하는 숨김 예약 작업을 등록합니다. 예약 작업은 `wscript.exe` 기반의
+무창 실행기를 사용하므로 5분 점검 때 PowerShell/CMD 창이 깜빡이지 않습니다.
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\Install-ByeollogTtsStartup.ps1

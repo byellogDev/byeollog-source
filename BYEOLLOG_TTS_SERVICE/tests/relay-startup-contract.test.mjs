@@ -9,6 +9,7 @@ const start = fs.readFileSync(path.join(root, "Start-ByeollogTtsRelay.ps1"), "ut
 const startLocal = fs.readFileSync(path.join(root, "Start-ByeollogTtsLocal.ps1"), "utf8");
 const configure = fs.readFileSync(path.join(root, "Configure-ByeollogTtsRelay.ps1"), "utf8");
 const install = fs.readFileSync(path.join(root, "Install-ByeollogTtsStartup.ps1"), "utf8");
+const hiddenLauncher = fs.readFileSync(path.join(root, "Start-ByeollogTtsLocalHidden.vbs"), "utf8");
 const status = fs.readFileSync(path.join(root, "Get-ByeollogTtsStatus.ps1"), "utf8");
 
 test("relay startup accepts only Quick Tunnel origins and signs exact bodies", () => {
@@ -41,6 +42,13 @@ test("startup survives a stopped Docker engine and periodically repairs the full
   assert.match(install, /-RepetitionInterval \(\[TimeSpan\]::FromMinutes\(\$RepairIntervalMinutes\)\)/);
   assert.match(install, /-RepetitionDuration \(\[TimeSpan\]::FromDays\(\$RepairDurationDays\)\)/);
   assert.match(install, /-Trigger \$triggers/);
+  assert.match(install, /System32\\wscript\.exe/);
+  assert.match(install, /\/\/B \/\/Nologo/);
+  assert.match(install, /New-ScheduledTaskSettingsSet\s*`\s*\r?\n\s*-Hidden/);
+  assert.doesNotMatch(install, /New-ScheduledTaskAction\s*`[\s\S]*?-Execute \$powerShellPath/);
+  assert.match(hiddenLauncher, /WScript\.Shell/);
+  assert.match(hiddenLauncher, /shell\.Run\(command, 0, True\)/);
+  assert.match(hiddenLauncher, /Start-ByeollogTtsLocal\.ps1/);
 });
 
 test("status keeps relay metadata visible when proxied health is unavailable", () => {

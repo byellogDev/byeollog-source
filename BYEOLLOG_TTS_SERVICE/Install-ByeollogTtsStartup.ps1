@@ -12,11 +12,19 @@ if (-not (Test-Path -LiteralPath $startupScript -PathType Leaf)) {
     throw "Startup script is missing: $startupScript"
 }
 
-$powerShellPath = (Get-Command powershell.exe -ErrorAction Stop).Source
-$quotedScript = '"' + $startupScript.Replace('"', '""') + '"'
+$hiddenLauncher = Join-Path $PSScriptRoot "Start-ByeollogTtsLocalHidden.vbs"
+if (-not (Test-Path -LiteralPath $hiddenLauncher -PathType Leaf)) {
+    throw "Hidden startup launcher is missing: $hiddenLauncher"
+}
+
+$wscriptPath = Join-Path $env:SystemRoot "System32\wscript.exe"
+if (-not (Test-Path -LiteralPath $wscriptPath -PathType Leaf)) {
+    throw "Windows Script Host is missing: $wscriptPath"
+}
+$quotedLauncher = '"' + $hiddenLauncher.Replace('"', '""') + '"'
 $action = New-ScheduledTaskAction `
-    -Execute $powerShellPath `
-    -Argument "-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File $quotedScript"
+    -Execute $wscriptPath `
+    -Argument "//B //Nologo $quotedLauncher"
 $logonTrigger = New-ScheduledTaskTrigger -AtLogOn -User ([Environment]::UserName)
 $repairTrigger = New-ScheduledTaskTrigger `
     -Once `
@@ -25,6 +33,7 @@ $repairTrigger = New-ScheduledTaskTrigger `
     -RepetitionDuration ([TimeSpan]::FromDays($RepairDurationDays))
 $triggers = @($logonTrigger, $repairTrigger)
 $settings = New-ScheduledTaskSettingsSet `
+    -Hidden `
     -StartWhenAvailable `
     -AllowStartIfOnBatteries `
     -DontStopIfGoingOnBatteries `
@@ -51,6 +60,8 @@ $task = Get-ScheduledTask -TaskName $TaskName
     TaskName = $task.TaskName
     State = $task.State
     Script = $startupScript
+    Launcher = $hiddenLauncher
+    Hidden = [bool]$task.Settings.Hidden
     RunLevel = $task.Principal.RunLevel
     RepairIntervalMinutes = $RepairIntervalMinutes
     TriggerCount = @($task.Triggers).Count
