@@ -143,6 +143,13 @@ test("streamer UI exposes the exact development label, readiness, and five-secon
   assert.match(ui, /post\('previewVoiceAnonymizer',\{preset/);
   assert.match(ui, /voiceSettingsDirty/);
   assert.match(ui, /localVoiceFilterReady/);
+  for (const property of ["preset", "label", "filterName", "ready", "filterEnabled", "state", "message"]) {
+    assert.match(
+      form,
+      new RegExp(`JsonPropertyName\\(\\"${property}\\"\\)`),
+      `voice preset UI state must serialize ${property} with the exact camelCase key read by the WebView`
+    );
+  }
   assert.match(form, /RunLocalVoiceAnonymizerPreviewAsync|PreviewVoiceAnonymizerAsync/);
   assert.match(form, /ObsVoiceAnonymizerProvisioner\.EnsureAsync/);
   assert.match(form, /SaveObsSettings\(settings\)/);

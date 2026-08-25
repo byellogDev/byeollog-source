@@ -1,18 +1,19 @@
 using System.Net.WebSockets;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 
 namespace HurogiCollector;
 
 internal sealed record VoiceAnonymizerPresetState(
-    string Preset,
-    string Label,
-    string FilterName,
-    bool Ready,
-    bool? FilterEnabled,
-    string State,
-    string Message);
+    [property: JsonPropertyName("preset")] string Preset,
+    [property: JsonPropertyName("label")] string Label,
+    [property: JsonPropertyName("filterName")] string FilterName,
+    [property: JsonPropertyName("ready")] bool Ready,
+    [property: JsonPropertyName("filterEnabled")] bool? FilterEnabled,
+    [property: JsonPropertyName("state")] string State,
+    [property: JsonPropertyName("message")] string Message);
 
 /// <summary>
 /// 별록 에이전트가 보유한 메모리 세션으로 뉴별록 자동화 규칙을 관리합니다.

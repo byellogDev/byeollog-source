@@ -200,3 +200,19 @@ test("v90 release preparation is immutable and identifies the native voice filte
   assert.match(notes, /ReaJS/);
   assert.match(notes, /다운톤과 업톤/);
 });
+
+test("v91 release preparation is immutable and identifies the voice readiness UI fix", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07091-AutoUpdate.ps1"),
+    source("RELEASE_v07091_VOICE_READINESS_UI_FIX_KO.txt")
+  ]);
+
+  assert.match(build, /\$releaseSequence = 7091/);
+  assert.match(build, /byeollog_agent_v07091_VOICE_READINESS_UI_FIX_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.91'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.91'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /v0\.7\.0\.91/);
+  assert.match(notes, /두 톤 준비됨/);
+  assert.match(notes, /5초 미리보기/);
+});
