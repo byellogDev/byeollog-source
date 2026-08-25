@@ -2,7 +2,7 @@
   "name": "byeollog-web",
   "private": true,
   "version": "0.6.3-g3a.47",
-  "byeollogBuild": "0.6.3.65-g3a-embedded-winner-fallback",
+  "byeollogBuild": "0.6.3.66-g3a-winner-preview-voice-sync",
   "type": "module",
   "engines": {
     "node": "22.x"

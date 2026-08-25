@@ -231,15 +231,12 @@ internal static class Program
         True(fixedTicketAudio.AsSpan(0, 4).SequenceEqual("RIFF"u8)
              && fixedTicketAudio.AsSpan(8, 4).SequenceEqual("WAVE"u8),
             "fixed ticket speech is a valid WAV resource");
-        var winnerPreviewAudio = ByeollogRaffleAudio.WinnerPreviewAudioForPreflight();
-        Equal(ByeollogRaffleAudio.WinnerPreviewByteSize, winnerPreviewAudio.Length,
-            "winner volume preview keeps its sealed byte size");
-        Equal(ByeollogRaffleAudio.WinnerPreviewSha256,
+        var winnerPreviewAudio = ByeollogRaffleAudio.WinnerFallbackAudioForPreflight();
+        Equal(ByeollogRaffleAudio.WinnerFallbackByteSize, winnerPreviewAudio.Length,
+            "winner volume preview reuses the current sealed fallback voice");
+        Equal(ByeollogRaffleAudio.WinnerFallbackSha256,
             Convert.ToHexString(SHA256.HashData(winnerPreviewAudio)).ToLowerInvariant(),
-            "winner volume preview keeps its sealed hash");
-        True(winnerPreviewAudio.AsSpan(0, 4).SequenceEqual("RIFF"u8)
-             && winnerPreviewAudio.AsSpan(8, 4).SequenceEqual("WAVE"u8),
-            "winner volume preview is a valid WAV resource");
+            "winner volume preview cannot drift from the current fallback voice");
 
         using var drawJson = JsonDocument.Parse("""{"kind":"draw_result","overlayImageKey":"raffle_draw","durationMs":4000,"winnerCount":3,"winners":[{"drawIndex":1,"actorName":"하나"},{"drawIndex":2,"actorName":"둘"},{"drawIndex":3,"actorName":"셋"}]}""");
         True(RaffleOverlayActionAdapter.TryRead(drawJson.RootElement, out var drawKey, out _, out var drawPresentation, out _),

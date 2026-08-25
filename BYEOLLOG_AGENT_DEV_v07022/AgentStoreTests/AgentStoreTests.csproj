@@ -71,9 +71,6 @@
     <EmbeddedResource Include="../Assets/byeollog_raffle_ticket_fixed.wav"
                       Link="Assets/byeollog_raffle_ticket_fixed.wav"
                       LogicalName="HurogiCollector.Assets.byeollog_raffle_ticket_fixed.wav" />
-    <EmbeddedResource Include="../Assets/byeollog_raffle_winner_preview.wav"
-                      Link="Assets/byeollog_raffle_winner_preview.wav"
-                      LogicalName="HurogiCollector.Assets.byeollog_raffle_winner_preview.wav" />
     <EmbeddedResource Include="../Assets/byeollog_raffle_winner_fallback.wav"
                       Link="Assets/byeollog_raffle_winner_fallback.wav"
                       LogicalName="HurogiCollector.Assets.byeollog_raffle_winner_fallback.wav" />

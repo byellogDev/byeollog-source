@@ -10,11 +10,6 @@ internal static class ByeollogRaffleAudio
     internal const int TicketByteSize = 139_928;
     internal const string TicketSha256 =
         "e0e1df2d38eacf60beed552fb5635f5e34282ba49b909e7b326ed76cd09f6811";
-    internal const string WinnerPreviewResourceName =
-        "HurogiCollector.Assets.byeollog_raffle_winner_preview.wav";
-    internal const int WinnerPreviewByteSize = 280_052;
-    internal const string WinnerPreviewSha256 =
-        "7d19fb4dbf0a89f99ca0de0c279f802a322e25fc23cc6e1468a90a7bc681eb6b";
     internal const string WinnerFallbackResourceName =
         "HurogiCollector.Assets.byeollog_raffle_winner_fallback.wav";
     internal const int WinnerFallbackByteSize = 80_684;
@@ -27,7 +22,6 @@ internal static class ByeollogRaffleAudio
 
     private static readonly SemaphoreSlim PlaybackGate = new(1, 1);
     private static readonly Lazy<byte[]> TicketAudio = new(LoadAndVerifyTicketAudio);
-    private static readonly Lazy<byte[]> WinnerPreviewAudio = new(LoadAndVerifyWinnerPreviewAudio);
     private static readonly Lazy<byte[]> WinnerFallbackAudio = new(LoadAndVerifyWinnerFallbackAudio);
 
     internal static Task PlayTicketAsync(
@@ -49,13 +43,13 @@ internal static class ByeollogRaffleAudio
     internal static Task PlayWinnerPreviewAsync(
         int volumePercent,
         CancellationToken cancellationToken) =>
-        PlayWavAsync(WinnerPreviewAudio.Value, volumePercent, cancellationToken);
+        // Settings preview must use the same current voice family as the
+        // fail-safe winner announcement.  Do not revive the superseded
+        // standalone preview clip, which drifted from live test broadcasts.
+        PlayWavAsync(WinnerFallbackAudio.Value, volumePercent, cancellationToken);
 
     internal static byte[] TicketAudioForPreflight() =>
         TicketAudio.Value.ToArray();
-
-    internal static byte[] WinnerPreviewAudioForPreflight() =>
-        WinnerPreviewAudio.Value.ToArray();
 
     internal static byte[] WinnerFallbackAudioForPreflight() =>
         WinnerFallbackAudio.Value.ToArray();
@@ -69,13 +63,6 @@ internal static class ByeollogRaffleAudio
             TicketByteSize,
             TicketSha256,
             "내장 추첨권 음성");
-
-    private static byte[] LoadAndVerifyWinnerPreviewAudio()
-        => LoadAndVerifyEmbeddedAudio(
-            WinnerPreviewResourceName,
-            WinnerPreviewByteSize,
-            WinnerPreviewSha256,
-            "내장 당첨 미리듣기 음성");
 
     private static byte[] LoadAndVerifyWinnerFallbackAudio()
         => LoadAndVerifyEmbeddedAudio(
