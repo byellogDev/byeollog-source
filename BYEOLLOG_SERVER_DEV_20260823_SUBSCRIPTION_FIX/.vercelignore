@@ -6,6 +6,8 @@
 node_modules
 supabase/.temp
 agent-updates/releases/**/*.zip
+api/native-roulette.js
+assets/native-roulette-settings.js
 **/__pycache__
 *.log
 *.tmp

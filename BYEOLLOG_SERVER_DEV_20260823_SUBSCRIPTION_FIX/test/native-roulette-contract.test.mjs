@@ -5,6 +5,12 @@ import handler from '../api/native-roulette.js';
 
 const source=path=>readFile(new URL(path,import.meta.url),'utf8');
 
+test('native roulette API and settings asset stay outside Vercel deployments',async()=>{
+  const ignore=await source('../.vercelignore');
+  assert.match(ignore,/^api\/native-roulette\.js$/m);
+  assert.match(ignore,/^assets\/native-roulette-settings\.js$/m);
+});
+
 test('native roulette SQL stays outside the active Supabase migration chain',async()=>{
   const fileName='20260825110000_native_roulette_sdk_skeleton.sql';
   const [active,dormant]=await Promise.all([
