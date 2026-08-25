@@ -19,14 +19,14 @@ test("Collector preserves edited start time and restores or visibly recovers the
   assert.match(main, /await RestoreWeflabSessionAsync\(\)/);
   assert.match(main, /WebView2Data/);
   assert.match(main, /_web\.Visible = false/);
-  assert.match(main, /_web\.Source = new Uri\("https:\/\/weflab\.com\/"\)/);
+  assert.match(main, /_web\.CoreWebView2\.Navigate\("https:\/\/weflab\.com\/"\)/);
   assert.match(main, /if \(_weflabConnected == connected\) return;/);
   assert.match(main, /위플랩 로그인 세션이 만료되어 수집이 일시 중지됐습니다/);
   assert.match(main, /ShowBrowser\(\);/);
   assert.match(main, /_weflabReconnectPending && _collecting/);
   assert.match(main, /await InjectCollectorAsync\(\);/);
   assert.match(main, /CollectorScript\.Build\(_storage\.Session\.StartLocal, intervalMs: 2000\)/);
-  assert.match(main, /Weflab 재로그인 완료 · 수집 스크립트 자동 재연결/);
+  assert.match(main, /Weflab 재로그인 완료 · 실제 후원 API 검증 및 수집 자동 재연결/);
   assert.match(trust, /"startTimeChanged"/);
 });
 

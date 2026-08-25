@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
@@ -36,8 +35,13 @@ test("v0.5.1.8 executable, namespace, legacy state, and wire identities remain c
   assert.match(main, /CollectorVersion\s*=\s*BuildInfo\.Version/);
   assert.doesNotMatch(main, /CollectorVersion\s*=\s*BuildInfo\.InformationalVersion/);
 
-  const scriptHash = createHash("sha256").update(collectorScript).digest("hex");
-  assert.equal(scriptHash, baseline.collectorScriptSha256, "Weflab capture script drifted from v0.5.1.8");
+  // The session recovery implementation may evolve, but the v0.5.1.8 Weflab
+  // request contract and source message envelope must remain compatible.
+  assert.match(collectorScript, /type:'alertlist_load'/);
+  assert.match(collectorScript, /pagetype:'setup'/);
+  assert.match(collectorScript, /pageid:'alertlist'/);
+  assert.match(collectorScript, /filter:\{ start:stamp\(from\), end:stamp\(to\), min:'', type:'all', search:'' \}/);
+  assert.match(collectorScript, /post\(\{kind:'rows', payload:r\}\)/);
 });
 
 test("v0.5.1.8 state filenames and rule directories remain readable in place", async () => {

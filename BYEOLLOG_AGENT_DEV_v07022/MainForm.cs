@@ -125,7 +125,7 @@ public sealed class MainForm : Form
     private bool _weflabLoginNoticeShown;
     private bool _weflabReconnectPending;
     private bool _weflabRecoveryInProgress;
-    private int _weflabLoggedOutSignalCount;
+    private readonly WeflabRecoveryDecisionGate _weflabRecoveryGate = new();
     private TaskCompletionSource<bool>? _weflabRecoverySignal;
     private readonly CancellationTokenSource _weflabRecoveryLifetime = new();
     private int _sessionDonationCount;
@@ -2774,7 +2774,10 @@ public sealed class MainForm : Form
         }
     }
 
-    private Task RestoreWeflabSessionAsync()
+    private Task RestoreWeflabSessionAsync() =>
+        BeginStoredWeflabAuthenticationAsync("앱 시작");
+
+    private Task BeginStoredWeflabAuthenticationAsync(string reason)
     {
         if (!_webReady || _web.CoreWebView2 is null) return Task.CompletedTask;
 
@@ -2783,8 +2786,8 @@ public sealed class MainForm : Form
             // WebView2Data의 쿠키·로컬 저장소를 그대로 재사용합니다. 브라우저는
             // 띄우지 않고 Weflab을 한 번 로드해 기존 로그인 상태만 확인합니다.
             _web.Visible = false;
-            _web.Source = new Uri("https://weflab.com/");
-            _storage.Log("Weflab 저장 로그인 상태 자동 확인 시작");
+            _web.CoreWebView2.Navigate("https://weflab.com/");
+            _storage.Log($"Weflab 저장 로그인 상태 자동 확인 시작 · {reason}");
         }
         catch (Exception ex)
         {
@@ -3036,7 +3039,7 @@ public sealed class MainForm : Form
             var hasJquery = msg.TryGetProperty("hasJquery", out var jq) && jq.ValueKind == JsonValueKind.True;
             var href = msg.TryGetProperty("href", out var h) ? h.GetString() ?? "" : "";
             var origin = WebViewTrustPolicy.SafeOriginForLog(href);
-            BeginInvoke(() => HandleWeflabSessionState(logged, "로그인 상태 확인"));
+            BeginInvoke(() => HandleWeflabLoginCandidate(logged, "로그인 상태 확인"));
             var sig = $"{logged}|{hasLoginData}|{hasJquery}|{origin}";
             if (sig != _lastProbeSignature)
             {
@@ -3047,38 +3050,31 @@ public sealed class MainForm : Form
         }
         if (kind == "probe_error") { _storage.Log("probe script error received"); return; }
         if (kind == "status") { var state = msg.TryGetProperty("state", out var s) ? s.GetString() ?? "" : ""; var text = msg.TryGetProperty("text", out var t) ? t.GetString() ?? "" : ""; BeginInvoke(() => ApplyStatus(state,text)); return; }
-        if (kind == "rows" && msg.TryGetProperty("payload", out var payload)) { var safePayload = payload.Clone(); BeginInvoke(() => { try { ProcessPayload(safePayload); } catch (Exception ex) { _storage.Log("수집 데이터 처리 실패: " + ex); MessageBox.Show("수집 데이터 처리 중 오류가 발생했습니다.\n\n" + ex.Message, "별록 에이전트", MessageBoxButtons.OK, MessageBoxIcon.Error); } }); }
+        if (kind == "rows" && msg.TryGetProperty("payload", out var payload)) { var safePayload = payload.Clone(); BeginInvoke(() => { try { ProcessPayload(safePayload); } catch (Exception ex) { _storage.Log("수집 데이터 처리 실패: " + ex); HandleWeflabApiFailure("후원 응답 처리 실패"); } }); }
     }
 
     private void ApplyStatus(string state, string text)
     {
-        if (state == "on") HandleWeflabSessionState(true, text);
-        else if (state == "nologin") HandleWeflabSessionState(false, text);
+        if (state == "auth_on") HandleWeflabLoginCandidate(true, text);
+        else if (state == "on") HandleWeflabApiSuccess(text);
+        else if (state is "nologin" or "error") HandleWeflabApiFailure(text);
     }
 
-    private async void HandleWeflabSessionState(bool connected, string detail)
+    private async void HandleWeflabLoginCandidate(bool loggedIn, string detail)
     {
         if (IsDisposed) return;
-
-        var wasConnected = _weflabConnected;
-        SetWeflabConnection(connected);
-
-        if (connected)
+        _weflabRecoveryGate.Observe(WeflabHealthSignal.LoginCandidate);
+        if (loggedIn)
         {
-            _weflabLoggedOutSignalCount = 0;
-            _storage.MarkWeflabObserved(DateTimeOffset.UtcNow);
-            _weflabRecoverySignal?.TrySetResult(true);
             var shouldReconnect = _weflabReconnectPending && _collecting && _storage.Session?.Active == true;
-            _weflabReconnectPending = false;
             _weflabLoginNoticeShown = false;
-
+            if (!_collecting) SetWeflabConnection(true);
             if (!shouldReconnect) return;
 
             try
             {
                 await InjectCollectorAsync();
-                _storage.Log("Weflab 재로그인 완료 · 수집 스크립트 자동 재연결");
-                await ShowUiToastAsync("위플랩 로그인이 확인되어 수집을 자동으로 다시 연결했습니다.");
+                _storage.Log("Weflab 로그인 후보 확인 · 실제 후원 API 검증 시작");
             }
             catch (Exception ex)
             {
@@ -3086,6 +3082,31 @@ public sealed class MainForm : Form
             }
             return;
         }
+
+        HandleWeflabApiFailure(detail);
+    }
+
+    private void HandleWeflabApiSuccess(string detail)
+    {
+        _weflabRecoveryGate.Observe(WeflabHealthSignal.ApiSuccess);
+        SetWeflabConnection(true);
+        _storage.MarkWeflabObserved(DateTimeOffset.UtcNow);
+        _weflabRecoverySignal?.TrySetResult(true);
+        var recovered = _weflabReconnectPending;
+        _weflabReconnectPending = false;
+        _weflabLoginNoticeShown = false;
+        if (recovered)
+        {
+            _storage.Log("Weflab 재로그인 완료 · 실제 후원 API 검증 및 수집 자동 재연결");
+            _ = ShowUiToastAsync("위플랩 연결을 복구해 수집을 자동으로 다시 시작했습니다.");
+        }
+    }
+
+    private async void HandleWeflabApiFailure(string detail)
+    {
+        if (IsDisposed || Disposing) return;
+        var wasConnected = _weflabConnected;
+        SetWeflabConnection(false);
 
         // 첫 실행에서 아직 로그인하지 않은 상태는 조용히 표시합니다. 이미 연결돼
         // 있었거나 수집 중인 세션이 끊겼을 때만 실제 만료로 보고 안내합니다.
@@ -3095,11 +3116,11 @@ public sealed class MainForm : Form
         if (!_weflabReconnectPending) return;
         if (_weflabLoginNoticeShown) return;
 
-        // 페이지 이동 중 loginData가 잠깐 사라지는 경우를 실제 만료로 오인하지
-        // 않도록 연속된 두 신호를 확인합니다. 복구가 진행 중일 때 들어오는 추가
+        // 페이지 이동·일시 네트워크 오류를 실제 만료로 오인하지 않도록 실제 후원
+        // API 실패가 연속된 두 신호인지 확인합니다. 로그인 후보 신호는 실패 횟수를
+        // 초기화하지 않습니다. 복구 중 들어오는 추가
         // 신호는 같은 복구 작업에 합치므로 WebView를 여러 번 만들지 않습니다.
-        _weflabLoggedOutSignalCount++;
-        if (_weflabRecoveryInProgress || _weflabLoggedOutSignalCount < 2) return;
+        if (_weflabRecoveryInProgress || !_weflabRecoveryGate.Observe(WeflabHealthSignal.ApiFailure)) return;
 
         var recovered = await TryRecoverWeflabSessionWithoutUserAsync(detail);
         if (recovered || _weflabConnected || IsDisposed || Disposing || !_collecting || _storage.Session?.Active != true)
@@ -3135,7 +3156,7 @@ public sealed class MainForm : Form
             // 갱신 토큰이 유효하면 Weflab이 로그인 상태를 자동으로 되살립니다.
             if (await RunWeflabRecoveryAttemptAsync(
                     attempt: 1,
-                    timeout: TimeSpan.FromSeconds(5),
+                    timeout: TimeSpan.FromSeconds(30),
                     restartCollectorWebView: false))
                 return true;
 
@@ -3147,7 +3168,7 @@ public sealed class MainForm : Form
             // 않으면서 실제 앱 재실행과 같은 새 브라우저 수명을 얻습니다.
             return await RunWeflabRecoveryAttemptAsync(
                 attempt: 2,
-                timeout: TimeSpan.FromSeconds(7),
+                timeout: TimeSpan.FromSeconds(60),
                 restartCollectorWebView: true);
         }
         catch (OperationCanceledException) when (_weflabRecoveryLifetime.IsCancellationRequested)
@@ -3184,6 +3205,7 @@ public sealed class MainForm : Form
             _storage.Log($"Weflab 자동 복구 {attempt}/2 · 수집 WebView2 새 수명으로 재시작");
             _collectorWebInitializationTask = null;
             ResetCollectorWebViewAfterFailedInitialization();
+            await Task.Delay(1000, _weflabRecoveryLifetime.Token);
             _preserveCollectionDuringCollectorWebInitialization = true;
             try
             {
@@ -3199,12 +3221,13 @@ public sealed class MainForm : Form
             _storage.Log($"Weflab 자동 복구 {attempt}/2 · 저장 로그인 상태 다시 불러오기");
         }
 
-        _web.Visible = false;
-        _web.CoreWebView2.Navigate("https://weflab.com/");
+        await BeginStoredWeflabAuthenticationAsync($"자동 복구 {attempt}/2");
 
         var timeoutTask = Task.Delay(timeout, _weflabRecoveryLifetime.Token);
         var completed = await Task.WhenAny(signal.Task, timeoutTask);
-        var recovered = (completed == signal.Task && await signal.Task) || _weflabConnected;
+        // 페이지 로그인 후보나 WebView 로드만으로는 성공 처리하지 않습니다.
+        // alertlist_load가 유효한 배열을 반환한 경우에만 이 신호가 완료됩니다.
+        var recovered = completed == signal.Task && await signal.Task;
         if (recovered)
         {
             _storage.Log($"Weflab 자동 세션 복구 완료 · attempt={attempt}");
@@ -3239,6 +3262,7 @@ public sealed class MainForm : Form
             if (explicitFailure)
             {
                 _storage.Log($"Weflab 응답 실패 result={resultText}");
+                HandleWeflabApiFailure("후원 API가 세션 실패를 반환함");
                 return;
             }
         }
@@ -3248,8 +3272,11 @@ public sealed class MainForm : Form
             _storage.Log(
                 "Weflab 후원 배열을 찾지 못함 · payload_kind=" +
                 payload.ValueKind);
+            HandleWeflabApiFailure("후원 API 응답 형식 확인 실패");
             return;
         }
+
+        HandleWeflabApiSuccess("후원 API 정상 응답");
 
         var start = _storage.Session.StartLocal;
         var added = 0;

@@ -33,7 +33,6 @@ internal static class CollectorScript
           filter:{ start:stamp(from), end:stamp(to), min:'', type:'all', search:'' }
         },
         success:function(r){
-          post({kind:'status', state:'on', text:'위플랩 연결됨'});
           post({kind:'rows', payload:r});
           if(done)done(true);
         },
@@ -46,7 +45,7 @@ internal static class CollectorScript
     function bootstrap(){
       var now = new Date(Date.now()+60000), cursor = new Date(broadcastStart.getTime());
       function next(){
-        if (cursor >= now) { post({kind:'status',state:'on',text:'초기 구간 확인 완료'}); return; }
+        if (cursor >= now) { post({kind:'status',state:'activity',text:'초기 구간 확인 완료'}); return; }
         var end = new Date(Math.min(now.getTime(), cursor.getTime()+30*60000));
         requestRange(cursor,end,function(ok){
           if (ok) cursor = new Date(end.getTime());
@@ -73,7 +72,7 @@ internal static class CollectorScript
       var nowLogged = loggedIn();
       if (nowLogged !== __lastLoginState) {
         __lastLoginState = nowLogged;
-        post(nowLogged ? {kind:'status', state:'on', text:'위플랩 로그인됨'} : {kind:'status', state:'nologin', text:'로그인이 필요함'});
+        post(nowLogged ? {kind:'status', state:'auth_on', text:'위플랩 로그인 후보 확인'} : {kind:'status', state:'nologin', text:'로그인이 필요함'});
       }
     }, 2000);
     window.__hurogi_poll__ = setInterval(tick, {{intervalMs}});

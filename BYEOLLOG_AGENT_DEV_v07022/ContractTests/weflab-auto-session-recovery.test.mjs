@@ -10,12 +10,14 @@ test("Weflab expiry first attempts silent profile recovery and only then asks th
     readFile(new URL("Ui/byeollog_ui.html", root), "utf8"),
   ]);
 
-  assert.match(main, /_weflabLoggedOutSignalCount < 2/);
+  assert.match(main, /_weflabRecoveryGate\.Observe\(WeflabHealthSignal\.ApiFailure\)/);
   assert.match(main, /if \(_weflabLoginNoticeShown\) return/);
   assert.match(main, /TryRecoverWeflabSessionWithoutUserAsync\(detail\)/);
   assert.match(main, /RunWeflabRecoveryAttemptAsync\([\s\S]*?attempt: 1[\s\S]*?restartCollectorWebView: false/);
   assert.match(main, /RunWeflabRecoveryAttemptAsync\([\s\S]*?attempt: 2[\s\S]*?restartCollectorWebView: true/);
   assert.match(main, /_web\.CoreWebView2\.Navigate\("https:\/\/weflab\.com\/"\)/);
+  assert.match(main, /RestoreWeflabSessionAsync\(\) =>[\s\S]*?BeginStoredWeflabAuthenticationAsync\("앱 시작"\)/);
+  assert.match(main, /BeginStoredWeflabAuthenticationAsync\(\$"자동 복구 \{attempt\}\/2"\)/);
 
   const recoveryCall = main.indexOf("TryRecoverWeflabSessionWithoutUserAsync(detail)");
   const loginFallback = main.indexOf("위플랩 로그인 세션이 만료되어 수집이 일시 중지됐습니다", recoveryCall);
@@ -41,11 +43,26 @@ test("hard Weflab recovery recreates only the collector WebView and preserves th
 test("Weflab recovery is single-flight, bounded, and cancelled with the window", async () => {
   const main = await readFile(new URL("MainForm.cs", root), "utf8");
 
-  assert.match(main, /if \(_weflabRecoveryInProgress \|\| _weflabLoggedOutSignalCount < 2\) return/);
-  assert.match(main, /TimeSpan\.FromSeconds\(5\)/);
-  assert.match(main, /TimeSpan\.FromSeconds\(7\)/);
+  assert.match(main, /if \(_weflabRecoveryInProgress \|\| !_weflabRecoveryGate\.Observe\(WeflabHealthSignal\.ApiFailure\)\) return/);
+  assert.match(main, /TimeSpan\.FromSeconds\(30\)/);
+  assert.match(main, /TimeSpan\.FromSeconds\(60\)/);
   assert.match(main, /Task\.WhenAny\(signal\.Task, timeoutTask\)/);
-  assert.match(main, /\|\| _weflabConnected/);
+  assert.match(main, /var recovered = completed == signal\.Task && await signal\.Task/);
   assert.match(main, /_weflabRecoveryLifetime\.Cancel\(\)/);
   assert.match(main, /_weflabRecoveryLifetime\.Dispose\(\)/);
+});
+
+test("Weflab login candidates cannot mask API failure and only a valid donation response recovers", async () => {
+  const [main, collector] = await Promise.all([
+    readFile(new URL("MainForm.cs", root), "utf8"),
+    readFile(new URL("CollectorScript.cs", root), "utf8"),
+  ]);
+
+  assert.match(main, /state == "auth_on"\) HandleWeflabLoginCandidate/);
+  assert.match(main, /state is "nologin" or "error"\) HandleWeflabApiFailure/);
+  assert.match(main, /HandleWeflabApiSuccess\("후원 API 정상 응답"\)/);
+  assert.match(main, /_weflabRecoverySignal\?\.TrySetResult\(true\)/);
+  assert.match(collector, /state:'auth_on'/);
+  assert.match(collector, /state:'error'/);
+  assert.doesNotMatch(collector, /success:function\(r\)\{post\(\{kind:'status',state:'on'/);
 });

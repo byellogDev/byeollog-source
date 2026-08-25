@@ -99,7 +99,8 @@ test("Agent reports Weflab collection health separately from its automation hear
   assert.match(agent, /LastWeflabObservedAt\.HasValue \? "active" : "recovering"/);
   assert.match(storage, /MarkWeflabObserved/);
   assert.match(storage, /MarkSuccessfulUpload/);
-  assert.match(form, /kind == "probe"[\s\S]*HandleWeflabSessionState/);
+  assert.match(form, /kind == "probe"[\s\S]*HandleWeflabLoginCandidate/);
+  assert.match(form, /HandleWeflabApiSuccess\("후원 API 정상 응답"\)/);
   assert.match(form, /MarkWeflabObserved\(DateTimeOffset\.UtcNow\)/);
 });
 

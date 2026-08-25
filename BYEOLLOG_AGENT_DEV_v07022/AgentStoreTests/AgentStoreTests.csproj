@@ -35,6 +35,7 @@
     <Compile Include="../CollectorStateLifecycle.cs" Link="CollectorStateLifecycle.cs" />
     <Compile Include="../RouletteResultParser.cs" Link="RouletteResultParser.cs" />
     <Compile Include="../AgentUpdateCore.cs" Link="AgentUpdateCore.cs" />
+    <Compile Include="../WeflabRecoveryDecisionGate.cs" Link="WeflabRecoveryDecisionGate.cs" />
     <EmbeddedResource Include="../Assets/byeollog_mic_off_overlay.svg"
                       Link="Assets/byeollog_mic_off_overlay.svg"
                       LogicalName="HurogiCollector.Assets.byeollog_mic_off_overlay.svg" />

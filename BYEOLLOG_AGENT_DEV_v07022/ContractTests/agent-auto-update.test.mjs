@@ -151,3 +151,19 @@ test("v87 release preparation is immutable and identifies the voice pitch preset
   assert.match(notes, /업톤과 다운톤/);
   assert.match(notes, /5초/);
 });
+
+test("v88 release preparation is immutable and identifies the Weflab recovery fix", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07088-AutoUpdate.ps1"),
+    source("RELEASE_v07088_WEFLAB_SESSION_RECOVERY_KO.txt")
+  ]);
+
+  assert.match(build, /\$releaseSequence = 7088/);
+  assert.match(build, /byeollog_agent_v07088_WEFLAB_SESSION_RECOVERY_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.88'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.88'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /v0\.7\.0\.88/);
+  assert.match(notes, /저장된 위플랩 로그인 상태/);
+  assert.match(notes, /실제 후원 API/);
+});

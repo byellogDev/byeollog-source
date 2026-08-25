@@ -36,6 +36,7 @@ internal static class Program
             ReplayAcceptanceTests();
             AgentCapabilityTests();
             VoiceAnonymizerContractTests();
+            WeflabRecoveryDecisionTests();
             ActionFreshnessTests();
             True(VNextAgentStore.IsFinalLocalOutcome(
                     new VNextAgentAck("final-success", 1, true, false, null, null)),
@@ -192,6 +193,24 @@ internal static class Program
         {
             try { Directory.Delete(root, recursive: true); } catch { }
         }
+    }
+
+    private static void WeflabRecoveryDecisionTests()
+    {
+        var gate = new WeflabRecoveryDecisionGate();
+        False(gate.Observe(WeflabHealthSignal.ApiFailure),
+            "a single Weflab API failure does not start recovery");
+        Equal(1, gate.ConsecutiveFailures, "the first Weflab API failure is retained");
+        False(gate.Observe(WeflabHealthSignal.LoginCandidate),
+            "a login-page candidate is not treated as API recovery");
+        Equal(1, gate.ConsecutiveFailures,
+            "a login-page candidate cannot mask an outstanding API failure");
+        True(gate.Observe(WeflabHealthSignal.ApiFailure),
+            "two actual Weflab API failures start recovery");
+        Equal(0, gate.ConsecutiveFailures, "a started recovery consumes the failure pair");
+        False(gate.Observe(WeflabHealthSignal.ApiFailure), "a new failure series starts cleanly");
+        False(gate.Observe(WeflabHealthSignal.ApiSuccess), "API success itself never starts recovery");
+        Equal(0, gate.ConsecutiveFailures, "only actual API success clears failure history");
     }
 
     private static void VoiceAnonymizerContractTests()
