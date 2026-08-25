@@ -252,8 +252,9 @@
     document.querySelector('#sideStatus').classList.toggle('offline',!serverConnected);
     document.querySelector('#mainFooter').classList.toggle('offline',!serverConnected);
     const automationConnected=mainState.developmentConnected!==false;
+    const automationRecovery=String(mainState.developmentRecoveryState||'ready');
     document.querySelector('#automationNav').classList.toggle('offline',!automationConnected);
-    document.querySelector('#automationNav').title=automationConnected?'별록 액션 열기':'로컬 설정은 바로 사용할 수 있고 서버 액션은 연결 후 사용할 수 있어요.';
+    document.querySelector('#automationNav').title=automationRecovery==='recovering'?'별록 액션 연결을 자동 복구하고 있어요. 기존 수집은 계속됩니다.':automationRecovery==='retrying'?'별록 액션 재연결을 기다리고 있어요. 기존 수집은 계속됩니다.':automationConnected?'별록 액션 열기':'로컬 설정은 바로 사용할 수 있고 서버 액션은 연결 후 사용할 수 있어요.';
     document.querySelector('#statDonations').textContent=`${Number(mainState.donations||0).toLocaleString()}건`;
     document.querySelector('#statBalloons').textContent=`${Number(mainState.balloons||0).toLocaleString()}개`;
     document.querySelector('#statRoulette').textContent=`${Number(mainState.roulette||0).toLocaleString()}건`;

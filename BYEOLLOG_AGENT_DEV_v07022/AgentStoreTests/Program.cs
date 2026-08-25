@@ -37,6 +37,7 @@ internal static class Program
             AgentCapabilityTests();
             VoiceAnonymizerContractTests();
             WeflabRecoveryDecisionTests();
+            SessionVaultTests(root);
             ActionFreshnessTests();
             True(VNextAgentStore.IsFinalLocalOutcome(
                     new VNextAgentAck("final-success", 1, true, false, null, null)),
@@ -211,6 +212,42 @@ internal static class Program
         False(gate.Observe(WeflabHealthSignal.ApiFailure), "a new failure series starts cleanly");
         False(gate.Observe(WeflabHealthSignal.ApiSuccess), "API success itself never starts recovery");
         Equal(0, gate.ConsecutiveFailures, "only actual API success clears failure history");
+    }
+
+    private static void SessionVaultTests(string root)
+    {
+        var vaultRoot = Path.Combine(root, "session-vault");
+        var vault = new VNextSessionVault(vaultRoot);
+        var refreshToken = "refresh-token-that-must-never-appear-in-plaintext-0123456789";
+        var workspaceId = Guid.NewGuid().ToString("D");
+        var userId = Guid.NewGuid();
+        var remembered = new VNextRememberedSession(
+            refreshToken,
+            workspaceId,
+            userId,
+            "streamer@example.com",
+            DateTimeOffset.UtcNow);
+
+        vault.Save(remembered);
+        var vaultPath = Path.Combine(vaultRoot, "vnext-session", "refresh-token.v1.dpapi");
+        True(File.Exists(vaultPath), "DPAPI refresh-token vault is written");
+        False(
+            Encoding.UTF8.GetString(File.ReadAllBytes(vaultPath)).Contains(refreshToken, StringComparison.Ordinal),
+            "refresh token is never stored as plaintext");
+        True(vault.TryRead(out var restored), "current Windows user can restore the DPAPI vault");
+        Equal(refreshToken, restored.RefreshToken, "restored refresh token matches");
+        Equal(workspaceId, restored.WorkspaceId, "restored workspace remains pinned");
+        Equal(userId, restored.UserId, "restored principal remains pinned");
+
+        vault.MarkDisconnectedAndDelete();
+        False(vault.TryRead(out _), "explicit disconnect tombstone suppresses restore");
+        False(File.Exists(vaultPath), "explicit disconnect removes the refresh-token vault");
+
+        vault.Save(remembered with { SavedAt = DateTimeOffset.UtcNow });
+        True(vault.TryRead(out _), "a later verified login clears the disconnect tombstone");
+        File.WriteAllBytes(vaultPath, [1, 2, 3, 4]);
+        False(vault.TryRead(out _), "corrupt DPAPI bytes fail closed");
+        False(File.Exists(vaultPath), "corrupt refresh-token vault is removed");
     }
 
     private static void VoiceAnonymizerContractTests()

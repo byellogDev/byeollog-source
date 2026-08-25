@@ -32,6 +32,18 @@ internal sealed record VNextDevelopmentSendResult(
     int CompletedSucceededCount,
     IReadOnlyList<string> QueuedExecutionIds);
 
+internal sealed class VNextSessionRecoveryEventArgs : EventArgs
+{
+    public VNextSessionRecoveryEventArgs(string state, string code)
+    {
+        State = state;
+        Code = code;
+    }
+
+    public string State { get; }
+    public string Code { get; }
+}
+
 internal sealed record VNextAgentRegistrationResult(string DeviceId, bool Created);
 
 internal sealed record VNextAgentSecretRotationResult(
@@ -73,8 +85,8 @@ internal sealed class VNextDevelopmentException : Exception
 
 /// <summary>
 /// 운영 별록 계정과 같은 offsl 프로젝트의 자동화 클라이언트입니다.
-/// 일반 로그인에서 검증된 세션만 실행 중 메모리에 채택하며,
-/// 비밀번호와 세션은 디스크에 기록하지 않습니다.
+/// 일반 로그인에서 검증된 세션만 채택합니다. 비밀번호와 access token은
+/// 저장하지 않으며 refresh token은 현재 Windows 사용자 DPAPI로만 보관합니다.
 /// </summary>
 internal sealed partial class VNextDevelopmentClient : IDisposable
 {
@@ -141,9 +153,12 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
     private long _connectionIntentRevision;
     private CancellationTokenSource? _connectionBoundary = new();
     private Task<bool>? _pendingCollectorPairAdoption;
+    private Task<bool>? _pendingRememberedSessionRestore;
+    private bool _forceRefreshRequired;
     private int _disposed;
     private string _workspaceId = "";
     private Guid _authenticatedUserId;
+    private string _sessionRecoveryState = "ready";
 
     public string SignedInEmail { get; private set; } = "";
     public bool IsSignedIn => !string.IsNullOrWhiteSpace(_accessToken) && !string.IsNullOrWhiteSpace(_refreshToken);
@@ -151,7 +166,9 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         ? _workspaceId
         : throw new VNextDevelopmentException("별록 워크스페이스 연결 정보가 없습니다.", 401, "missing_workspace");
     public long SessionEpoch => Interlocked.Read(ref _sessionEpoch);
+    public string SessionRecoveryState => Volatile.Read(ref _sessionRecoveryState);
     public event EventHandler? SessionChanged;
+    public event EventHandler<VNextSessionRecoveryEventArgs>? SessionRecoveryChanged;
 
     public VNextDevelopmentClient()
         : this(AgentDataPaths.PrepareDataRoot().RootPath)
@@ -164,10 +181,13 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         _sessionVault = new VNextSessionVault(sessionRootPath);
     }
 
-    public void DisableRememberedSessionPersistence()
+    public Task<bool> BeginRememberedSessionRestore()
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
-        _sessionVault.SuppressRestoreAndDelete();
+        var restore = RestoreRememberedSessionWithTimeoutAsync();
+        lock (_collectorPairAdoptionGate)
+            _pendingRememberedSessionRestore = restore;
+        return restore;
     }
 
     public Task<bool> BeginCollectorPairSessionAdoption(
@@ -189,13 +209,18 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         if (IsSignedIn) return true;
 
         Task<bool>? pending;
+        Task<bool>? restore;
         lock (_collectorPairAdoptionGate)
+        {
             pending = _pendingCollectorPairAdoption;
-        if (pending is null) return false;
+            restore = _pendingRememberedSessionRestore;
+        }
+        var candidates = new[] { pending, restore }.Where(task => task is not null).Cast<Task<bool>>().ToArray();
+        if (candidates.Length == 0) return false;
 
         try
         {
-            await pending.WaitAsync(timeout, cancellationToken);
+            await Task.WhenAll(candidates).WaitAsync(timeout, cancellationToken);
         }
         catch (TimeoutException)
         {
@@ -210,6 +235,86 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
             return IsSignedIn;
         }
         return IsSignedIn;
+    }
+
+    private async Task<bool> RestoreRememberedSessionWithTimeoutAsync()
+    {
+        using var totalTimeout = CancellationTokenSource.CreateLinkedTokenSource(_shutdown.Token);
+        totalTimeout.CancelAfter(TimeSpan.FromSeconds(8));
+        try
+        {
+            return await TryRestoreRememberedSessionAsync(totalTimeout.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
+        }
+        catch (ObjectDisposedException)
+        {
+            return false;
+        }
+    }
+
+    private async Task<bool> TryRestoreRememberedSessionAsync(CancellationToken cancellationToken)
+    {
+        var connectionIntent = Interlocked.Increment(ref _connectionIntentRevision);
+        if (!_sessionVault.TryRead(out var remembered)) return false;
+
+        try
+        {
+            var body = JsonSerializer.Serialize(new { refresh_token = remembered.RefreshToken });
+            using var request = CreateAuthRequest("refresh_token", body);
+            using var response = await _http.SendAsync(request, cancellationToken);
+            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                if (!IsTransientAuthFailure(response.StatusCode)) _sessionVault.DeleteInvalidVault();
+                return false;
+            }
+
+            var candidate = ParseSession(responseText, remembered.Email);
+            if (!TryReadExpectedAccessTokenClaims(candidate.AccessToken, out var tokenUserId, out _)
+                || tokenUserId != remembered.UserId)
+            {
+                _sessionVault.DeleteInvalidVault();
+                return false;
+            }
+            var authorizedIdentity = await ValidateAuthorizedAutomationIdentityAsync(
+                candidate.AccessToken,
+                remembered.UserId,
+                remembered.WorkspaceId,
+                cancellationToken);
+            if (authorizedIdentity is null || authorizedIdentity.UserId != remembered.UserId)
+                return false;
+
+            if (!string.IsNullOrWhiteSpace(authorizedIdentity.Email))
+                candidate = candidate with { Email = authorizedIdentity.Email };
+            await _sessionGate.WaitAsync(cancellationToken);
+            try
+            {
+                if (Interlocked.Read(ref _connectionIntentRevision) != connectionIntent)
+                    return false;
+                PublishSession(
+                    candidate,
+                    rememberSession: true,
+                    advanceConnectionEpoch: true,
+                    workspaceId: authorizedIdentity.WorkspaceId,
+                    authenticatedUserId: authorizedIdentity.UserId);
+                return true;
+            }
+            finally
+            {
+                _sessionGate.Release();
+            }
+        }
+        catch (HttpRequestException)
+        {
+            return false;
+        }
+        catch (VNextDevelopmentException)
+        {
+            return false;
+        }
     }
 
     private async Task<bool> AdoptCollectorPairSessionWithTimeoutAsync(
@@ -302,7 +407,7 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                     return false;
                 PublishSession(
                     candidate,
-                    rememberSession: false,
+                    rememberSession: true,
                     advanceConnectionEpoch: true,
                     workspaceId: authorizedIdentity.WorkspaceId,
                     authenticatedUserId: authorizedIdentity.UserId);
@@ -329,21 +434,21 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
 
     public async Task<VNextDevelopmentSendResult> SendEventAsync(VNextDevelopmentEvent normalizedEvent, CancellationToken cancellationToken = default)
     {
-        var accessToken = await GetValidAccessTokenAsync(cancellationToken);
-        var requestLease = CaptureSessionRequestLease(accessToken);
         var body = JsonSerializer.Serialize(normalizedEvent, _json);
-
-        using var request = new HttpRequestMessage(HttpMethod.Post, SupabaseUrl + "/functions/v1/event-runtime-g3a");
-        request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        request.Content = new StringContent(body, Encoding.UTF8, "application/json");
-
-        using var response = await _http.SendAsync(request, cancellationToken);
+        using var response = await SendWithSessionRecoveryAsync(
+            accessToken =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, SupabaseUrl + "/functions/v1/event-runtime-g3a");
+                request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+                return request;
+            },
+            HttpCompletionOption.ResponseContentRead,
+            cancellationToken);
         var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-                await InvalidateSessionIfCurrentAsync(requestLease);
             var code = ReadErrorCode(responseText);
             throw new VNextDevelopmentException(
                 $"뉴별록 전송 실패 (HTTP {(int)response.StatusCode}, {code})",
@@ -689,16 +794,20 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
             || !OverlayDownloadPathPattern.IsMatch(asset.DownloadPath))
             throw new VNextDevelopmentException("관리 이미지 다운로드 경로가 올바르지 않습니다.", code: "invalid_overlay_path");
 
-        var accessToken = await GetValidAccessTokenAsync(cancellationToken);
         var encodedPath = string.Join('/', asset.DownloadPath.Split('/').Select(Uri.EscapeDataString));
-        using var request = new HttpRequestMessage(
-            HttpMethod.Get,
-            SupabaseUrl + "/storage/v1/object/authenticated/byeollog-overlay-assets/" + encodedPath);
-        request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(asset.MimeType));
-
-        using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        using var response = await SendWithSessionRecoveryAsync(
+            accessToken =>
+            {
+                var request = new HttpRequestMessage(
+                    HttpMethod.Get,
+                    SupabaseUrl + "/storage/v1/object/authenticated/byeollog-overlay-assets/" + encodedPath);
+                request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(asset.MimeType));
+                return request;
+            },
+            HttpCompletionOption.ResponseHeadersRead,
+            cancellationToken);
         if (!response.IsSuccessStatusCode)
             throw new VNextDevelopmentException(
                 $"Agent 이미지 다운로드 실패 (HTTP {(int)response.StatusCode})",
@@ -894,36 +1003,36 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                 "추첨 후보 음성 요청 식별값이 올바르지 않습니다.",
                 code: "invalid_raffle_speech_request");
 
-        var accessToken = await GetValidAccessTokenAsync(cancellationToken);
-        var requestLease = CaptureSessionRequestLease(accessToken);
-        using var request = new HttpRequestMessage(
-            HttpMethod.Post,
-            SupabaseUrl + "/functions/v1/agent-runtime-g3a");
-        request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        request.Content = new StringContent(
-            JsonSerializer.Serialize(new
+        var body = JsonSerializer.Serialize(new
+        {
+            operation = "raffle_tts_candidates",
+            workspaceId = WorkspaceId,
+            deviceId = parsedDeviceId.ToString("D"),
+            deviceSecret = NormalizeDeviceSecret(deviceSecret, "Agent 장치 키"),
+            drawId = parsedDrawId.ToString("D"),
+            afterActorKey = cursor,
+            limit
+        }, _json);
+        using var response = await SendWithSessionRecoveryAsync(
+            accessToken =>
             {
-                operation = "raffle_tts_candidates",
-                workspaceId = WorkspaceId,
-                deviceId = parsedDeviceId.ToString("D"),
-                deviceSecret = NormalizeDeviceSecret(deviceSecret, "Agent 장치 키"),
-                drawId = parsedDrawId.ToString("D"),
-                afterActorKey = cursor,
-                limit
-            }, _json),
-            Encoding.UTF8,
-            "application/json");
-
-        using var response = await _http.SendAsync(request, cancellationToken);
+                var request = new HttpRequestMessage(
+                    HttpMethod.Post,
+                    SupabaseUrl + "/functions/v1/agent-runtime-g3a");
+                request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+                return request;
+            },
+            HttpCompletionOption.ResponseContentRead,
+            cancellationToken);
         var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             var code = ReadErrorCode(responseText);
-            if (response.StatusCode == HttpStatusCode.Unauthorized
-                || code is "recent_authentication_required" or "device_session_already_used")
-                await InvalidateSessionIfCurrentAsync(requestLease);
+            if (code is "recent_authentication_required" or "device_session_already_used")
+                await InvalidateCurrentSessionPermanentlyAsync(cancellationToken);
             throw RaffleSpeechRequestException(response.StatusCode, code);
         }
 
@@ -1053,31 +1162,28 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                 "당첨 음성 실행 식별값이 올바르지 않습니다.",
                 code: "invalid_raffle_speech_request");
 
-        var accessToken = await GetValidAccessTokenAsync(cancellationToken);
-        var requestLease = CaptureSessionRequestLease(accessToken);
-        using var request = new HttpRequestMessage(
-            HttpMethod.Post,
-            SupabaseUrl + "/functions/v1/agent-runtime-g3a");
-        request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("audio/wav"));
         _ = NormalizeDeviceSecret(deviceSecret, "Agent 장치 키");
-        request.Content = new StringContent(
-            JsonSerializer.Serialize(requestBody, _json),
-            Encoding.UTF8,
-            "application/json");
-
-        using var response = await _http.SendAsync(
-            request,
+        var body = JsonSerializer.Serialize(requestBody, _json);
+        using var response = await SendWithSessionRecoveryAsync(
+            accessToken =>
+            {
+                var request = new HttpRequestMessage(
+                    HttpMethod.Post,
+                    SupabaseUrl + "/functions/v1/agent-runtime-g3a");
+                request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("audio/wav"));
+                request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+                return request;
+            },
             HttpCompletionOption.ResponseHeadersRead,
             cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
             var code = ReadErrorCode(responseText);
-            if (response.StatusCode == HttpStatusCode.Unauthorized
-                || code is "recent_authentication_required" or "device_session_already_used")
-                await InvalidateSessionIfCurrentAsync(requestLease);
+            if (code is "recent_authentication_required" or "device_session_already_used")
+                await InvalidateCurrentSessionPermanentlyAsync(cancellationToken);
             throw RaffleSpeechRequestException(response.StatusCode, code);
         }
 
@@ -1252,24 +1358,24 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         CancellationToken cancellationToken,
         bool preserveNulls = false)
     {
-        var accessToken = await GetValidAccessTokenAsync(cancellationToken);
-        var requestLease = CaptureSessionRequestLease(accessToken);
-        using var request = new HttpRequestMessage(HttpMethod.Post, SupabaseUrl + "/functions/v1/agent-runtime-g3a");
-        request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        request.Content = new StringContent(
-            JsonSerializer.Serialize(payload, preserveNulls ? _agentRequestJsonWithNulls : _json),
-            Encoding.UTF8,
-            "application/json");
-
-        using var response = await _http.SendAsync(request, cancellationToken);
+        var body = JsonSerializer.Serialize(payload, preserveNulls ? _agentRequestJsonWithNulls : _json);
+        using var response = await SendWithSessionRecoveryAsync(
+            accessToken =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, SupabaseUrl + "/functions/v1/agent-runtime-g3a");
+                request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+                return request;
+            },
+            HttpCompletionOption.ResponseContentRead,
+            cancellationToken);
         var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             var code = ReadErrorCode(responseText);
-            if (response.StatusCode == HttpStatusCode.Unauthorized
-                || code is "recent_authentication_required" or "device_session_already_used")
-                await InvalidateSessionIfCurrentAsync(requestLease);
+            if (code is "recent_authentication_required" or "device_session_already_used")
+                await InvalidateCurrentSessionPermanentlyAsync(cancellationToken);
             var message = code switch
             {
                 "recent_authentication_required" =>
@@ -1290,6 +1396,52 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                 code);
         }
         return responseText;
+    }
+
+    private async Task<HttpResponseMessage> SendWithSessionRecoveryAsync(
+        Func<string, HttpRequestMessage> requestFactory,
+        HttpCompletionOption completionOption,
+        CancellationToken cancellationToken,
+        string? initialAccessToken = null)
+    {
+        ArgumentNullException.ThrowIfNull(requestFactory);
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            var accessToken = attempt == 0 && !string.IsNullOrWhiteSpace(initialAccessToken)
+                ? initialAccessToken
+                : await GetValidAccessTokenAsync(cancellationToken);
+            var requestLease = CaptureSessionRequestLease(accessToken);
+            using var request = requestFactory(accessToken);
+            var response = await _http.SendAsync(request, completionOption, cancellationToken);
+            if (response.StatusCode != HttpStatusCode.Unauthorized) return response;
+
+            if (attempt == 0)
+            {
+                response.Dispose();
+                RaiseSessionRecoveryChanged("recovering", "runtime_401");
+                try
+                {
+                    await GetValidAccessTokenAsync(
+                        cancellationToken,
+                        forceRefresh: true,
+                        unauthorizedLease: requestLease);
+                    RaiseSessionRecoveryChanged("recovered", "runtime_401_replayed");
+                    continue;
+                }
+                catch (Exception ex) when (ex is VNextDevelopmentException or HttpRequestException)
+                {
+                    RaiseSessionRecoveryChanged(
+                        IsSignedIn ? "retrying" : "attention",
+                        ex is VNextDevelopmentException development ? development.Code : "network_error");
+                    throw;
+                }
+            }
+
+            await MarkRefreshRequiredIfCurrentAsync(requestLease, cancellationToken);
+            RaiseSessionRecoveryChanged("retrying", "runtime_401_after_refresh");
+            return response;
+        }
+        throw new InvalidOperationException("방송 자동화 세션 재시도 경로가 완료되지 않았습니다.");
     }
 
     private static string RequiredString(JsonElement source, string propertyName)
@@ -1428,7 +1580,10 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         return request;
     }
 
-    private async Task<string> GetValidAccessTokenAsync(CancellationToken cancellationToken)
+    private async Task<string> GetValidAccessTokenAsync(
+        CancellationToken cancellationToken,
+        bool forceRefresh = false,
+        SessionRequestLease? unauthorizedLease = null)
     {
         using var linked = CreateLinkedCancellation(cancellationToken);
         await _sessionGate.WaitAsync(linked.Token);
@@ -1437,7 +1592,12 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
             if (!IsSignedIn)
                 throw new VNextDevelopmentException("뉴별록 계정 연결이 필요합니다.", 401, "missing_session");
 
-            if (_expiresAt > DateTimeOffset.UtcNow.AddMinutes(2))
+            if (unauthorizedLease is not null && !IsRequestLeaseCurrentUnderGate(unauthorizedLease))
+                return _accessToken;
+
+            if (!forceRefresh
+                && !_forceRefreshRequired
+                && _expiresAt > DateTimeOffset.UtcNow.AddMinutes(2))
                 return _accessToken;
 
             var refreshEpoch = SessionEpoch;
@@ -1453,6 +1613,7 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                     401,
                     "missing_automation_identity");
             }
+            _forceRefreshRequired = true;
             var body = JsonSerializer.Serialize(new { refresh_token = _refreshToken });
             using var request = CreateAuthRequest("refresh_token", body);
             using var response = await _http.SendAsync(request, linked.Token);
@@ -1694,6 +1855,7 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         string? workspaceId = null,
         Guid authenticatedUserId = default)
     {
+        Volatile.Write(ref _sessionRecoveryState, "ready");
         if (!TryReadExpectedAccessTokenClaims(candidate.AccessToken, out var tokenUserId, out var tokenExpiresAt))
             throw new VNextDevelopmentException(
                 "offsl 프로젝트에서 발급한 방송 자동화 세션이 아닙니다.",
@@ -1720,13 +1882,24 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                 401,
                 "automation_principal_changed");
         if (rememberSession)
-            throw new VNextDevelopmentException(
-                "방송 자동화 자동 연결은 일반 배포에서 지원하지 않습니다.",
-                code: "remembered_session_disabled");
-
-        // Every accepted session is process-lifetime only. Also suppress and remove
-        // a stale vault left by an older internal build before publishing the token.
-        _sessionVault.SuppressRestoreAndDelete();
+        {
+            try
+            {
+                _sessionVault.Save(new VNextRememberedSession(
+                    candidate.RefreshToken,
+                    advanceConnectionEpoch ? workspaceId! : _workspaceId,
+                    authenticatedUserId,
+                    candidate.Email,
+                    DateTimeOffset.UtcNow));
+            }
+            catch
+            {
+                // DPAPI or local storage failure must never undo a verified login
+                // or interrupt the legacy Collector path. This process can still
+                // refresh in memory and the next ordinary login may save again.
+                rememberSession = false;
+            }
+        }
         CancellationTokenSource? previousBoundary = null;
         if (advanceConnectionEpoch)
         {
@@ -1737,6 +1910,7 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                 _expiresAt = candidate.ExpiresAt;
                 SignedInEmail = candidate.Email;
                 _rememberSession = rememberSession;
+                _forceRefreshRequired = false;
                 _workspaceId = workspaceId!;
                 _authenticatedUserId = authenticatedUserId;
                 Interlocked.Increment(ref _tokenRevision);
@@ -1753,6 +1927,7 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         _expiresAt = candidate.ExpiresAt;
         SignedInEmail = candidate.Email;
         _rememberSession = rememberSession;
+        _forceRefreshRequired = false;
         Interlocked.Increment(ref _tokenRevision);
     }
 
@@ -1843,11 +2018,35 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         return new SessionRequestLease(epoch, revision, matched);
     }
 
-    private async Task InvalidateSessionIfCurrentAsync(SessionRequestLease lease)
+    private bool IsRequestLeaseCurrentUnderGate(SessionRequestLease lease) =>
+        lease.MatchedToken
+        && SessionEpoch == lease.ConnectionEpoch
+        && Interlocked.Read(ref _tokenRevision) == lease.TokenRevision;
+
+    private async Task MarkRefreshRequiredIfCurrentAsync(
+        SessionRequestLease lease,
+        CancellationToken cancellationToken)
     {
-        await _sessionGate.WaitAsync();
+        using var linked = CreateLinkedCancellation(cancellationToken);
+        await _sessionGate.WaitAsync(linked.Token);
         try
         {
+            if (IsRequestLeaseCurrentUnderGate(lease)) _forceRefreshRequired = true;
+        }
+        finally
+        {
+            _sessionGate.Release();
+        }
+    }
+
+    private async Task InvalidateCurrentSessionPermanentlyAsync(CancellationToken cancellationToken)
+    {
+        using var linked = CreateLinkedCancellation(cancellationToken);
+        await _sessionGate.WaitAsync(linked.Token);
+        try
+        {
+            var lease = CaptureSessionRequestLease(_accessToken);
+            _sessionVault.DeleteInvalidVault();
             InvalidateSessionIfCurrentUnderGate(lease);
         }
         finally
@@ -1870,8 +2069,10 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
             _expiresAt = DateTimeOffset.MinValue;
             SignedInEmail = "";
             _rememberSession = false;
+            _forceRefreshRequired = false;
             _workspaceId = "";
             _authenticatedUserId = Guid.Empty;
+            Volatile.Write(ref _sessionRecoveryState, "ready");
             Interlocked.Increment(ref _tokenRevision);
             Interlocked.Increment(ref _sessionEpoch);
             previousBoundary = _connectionBoundary;
@@ -1893,6 +2094,16 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         ThreadPool.QueueUserWorkItem(_ =>
         {
             try { SessionChanged?.Invoke(this, EventArgs.Empty); } catch { }
+        });
+    }
+
+    private void RaiseSessionRecoveryChanged(string state, string code)
+    {
+        Volatile.Write(ref _sessionRecoveryState, state);
+        ThreadPool.QueueUserWorkItem(_ =>
+        {
+            try { SessionRecoveryChanged?.Invoke(this, new VNextSessionRecoveryEventArgs(state, code)); }
+            catch { }
         });
     }
 
@@ -1923,8 +2134,10 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
             _expiresAt = DateTimeOffset.MinValue;
             SignedInEmail = "";
             _rememberSession = false;
+            _forceRefreshRequired = false;
             _workspaceId = "";
             _authenticatedUserId = Guid.Empty;
+            Volatile.Write(ref _sessionRecoveryState, "ready");
         }
         CancelAndDispose(previousBoundary);
         _sessionGate.Dispose();

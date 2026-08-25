@@ -167,3 +167,19 @@ test("v88 release preparation is immutable and identifies the Weflab recovery fi
   assert.match(notes, /저장된 위플랩 로그인 상태/);
   assert.match(notes, /실제 후원 API/);
 });
+
+test("v89 release preparation is immutable and identifies action-session self recovery", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07089-AutoUpdate.ps1"),
+    source("RELEASE_v07089_ACTION_SESSION_SELF_RECOVERY_KO.txt")
+  ]);
+
+  assert.match(build, /\$releaseSequence = 7089/);
+  assert.match(build, /byeollog_agent_v07089_ACTION_SESSION_SELF_RECOVERY_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.89'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.89'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /v0\.7\.0\.89/);
+  assert.match(notes, /한 번만 강제 갱신/);
+  assert.match(notes, /DPAPI/);
+});

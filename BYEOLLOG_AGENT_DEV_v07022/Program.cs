@@ -145,15 +145,16 @@ internal static class Program
                     ManagedInstallLaunchBridge.RepairCurrentShortcuts(storage.Log);
 
                     // 저장된 device_token은 서버 업로드 인증용으로만 유지합니다.
-                    // 별록 액션 세션은 로그인 응답에서 메모리로만 별도 채택합니다.
+                    // 별록 액션은 비밀번호 없이 DPAPI refresh token으로 먼저 복구를
+                    // 시도합니다. 이 작업은 기존 Collector 로그인 준비를 막지 않습니다.
                     vNextDevClient = new VNextDevelopmentClient(storage.RootPath);
                     try
                     {
-                        vNextDevClient.DisableRememberedSessionPersistence();
+                        _ = vNextDevClient.BeginRememberedSessionRestore();
                     }
                     catch (Exception ex)
                     {
-                        storage.Log("이전 방송 자동화 자동연결 정보 정리 보류: " + ex.GetType().Name);
+                        storage.Log("방송 자동화 자동연결 복구 시작 보류: " + ex.GetType().Name);
                     }
 
                     // WebView2가 같은 파일을 동시에 추출하지 않도록 로컬 UI 자산을

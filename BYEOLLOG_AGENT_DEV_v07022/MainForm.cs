@@ -153,6 +153,7 @@ public sealed class MainForm : Form
         _activityMonitor = new VNextActivityMonitor(_vNextDevClient);
         _activityMonitor.NotificationReady += ActivityMonitor_NotificationReady;
         _vNextDevClient.SessionChanged += VNextDevClient_SessionChanged;
+        _vNextDevClient.SessionRecoveryChanged += VNextDevClient_SessionRecoveryChanged;
         _programStartedAtLocal = programStartedAtLocal;
         var interrupted = _storage.Session?.Active == true;
         if (interrupted) _storage.CloseInterruptedSessionOnStartup();
@@ -589,6 +590,30 @@ public sealed class MainForm : Form
         catch (InvalidOperationException) { }
     }
 
+    private void VNextDevClient_SessionRecoveryChanged(object? sender, VNextSessionRecoveryEventArgs e)
+    {
+        var message = e.State switch
+        {
+            "recovering" => "별록 액션 인증 응답 확인 · 저장 세션 자동 갱신 시작",
+            "recovered" => "별록 액션 세션 자동 복구 완료 · 중단된 요청 1회 재전송",
+            "retrying" => "별록 액션 세션 자동 복구 일시 대기 · 기존 수집은 계속 유지",
+            "attention" => "별록 액션 세션 재로그인 필요 · 기존 수집은 계속 유지",
+            _ => "별록 액션 세션 상태 변경"
+        };
+        _storage.Log(message + " · code=" + e.Code);
+        if (IsDisposed || Disposing || !IsHandleCreated) return;
+        try
+        {
+            BeginInvoke(new Action(() =>
+            {
+                UpdateTrayStatus();
+                NotifyMainUi();
+            }));
+        }
+        catch (ObjectDisposedException) { }
+        catch (InvalidOperationException) { }
+    }
+
     private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
     {
         // Windows 종료/로그오프 등 시스템 종료는 막지 않습니다.
@@ -753,7 +778,13 @@ public sealed class MainForm : Form
         var vNextPending = session is null ? 0 : _storage.PendingVNextDevelopmentCount(session.Id);
         if (_vNextDevStatusItem is not null)
         {
-            var connection = _vNextDevClient.IsSignedIn ? "연결됨" : "연결 필요";
+            var connection = _vNextDevClient.SessionRecoveryState switch
+            {
+                "recovering" => "자동 복구 중",
+                "retrying" => "재연결 대기",
+                "attention" => "재로그인 필요",
+                _ => _vNextDevClient.IsSignedIn ? "연결됨" : "연결 필요"
+            };
             _vNextDevStatusItem.Text = $"별록 계정: {connection} · 대기 {vNextPending:N0}건";
         }
 
@@ -2362,6 +2393,7 @@ public sealed class MainForm : Form
             releaseLabel = BuildInfo.DisplayVersion,
             developmentMode = true,
             developmentConnected = _vNextDevClient.IsSignedIn,
+            developmentRecoveryState = _vNextDevClient.SessionRecoveryState,
             developmentPending = vNextDevPending,
             weflabConnected = _weflabConnected,
             weflabRecovering = _weflabRecoveryInProgress,
@@ -7141,6 +7173,7 @@ public sealed class MainForm : Form
             _weflabRecoverySignal?.TrySetCanceled();
             _automationSettingsForm?.RequestHostShutdown();
             _vNextDevClient.SessionChanged -= VNextDevClient_SessionChanged;
+            _vNextDevClient.SessionRecoveryChanged -= VNextDevClient_SessionRecoveryChanged;
             _activityMonitor.NotificationReady -= ActivityMonitor_NotificationReady;
             try { _activityMonitor.StopAsync().GetAwaiter().GetResult(); } catch { }
             _activityMonitor.Dispose();

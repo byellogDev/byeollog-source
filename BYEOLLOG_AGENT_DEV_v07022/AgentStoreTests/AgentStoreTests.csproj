@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +37,7 @@
     <Compile Include="../RouletteResultParser.cs" Link="RouletteResultParser.cs" />
     <Compile Include="../AgentUpdateCore.cs" Link="AgentUpdateCore.cs" />
     <Compile Include="../WeflabRecoveryDecisionGate.cs" Link="WeflabRecoveryDecisionGate.cs" />
+    <Compile Include="../VNextSessionVault.cs" Link="VNextSessionVault.cs" />
     <EmbeddedResource Include="../Assets/byeollog_mic_off_overlay.svg"
                       Link="Assets/byeollog_mic_off_overlay.svg"
                       LogicalName="HurogiCollector.Assets.byeollog_mic_off_overlay.svg" />

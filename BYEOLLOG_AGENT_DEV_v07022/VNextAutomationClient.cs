@@ -533,24 +533,25 @@ internal sealed partial class VNextDevelopmentClient
         string purpose,
         CancellationToken cancellationToken)
     {
-        var requestLease = CaptureSessionRequestLease(accessToken);
-        using var request = new HttpRequestMessage(method, SupabaseUrl + path);
-        request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        if (body is not null)
-            request.Content = new StringContent(
-                VNextAutomationRpcSerializer.Serialize(body),
-                Encoding.UTF8,
-                "application/json");
-
-        using var response = await _http.SendAsync(request, cancellationToken);
+        var serializedBody = body is null ? null : VNextAutomationRpcSerializer.Serialize(body);
+        using var response = await SendWithSessionRecoveryAsync(
+            accessToken =>
+            {
+                var request = new HttpRequestMessage(method, SupabaseUrl + path);
+                request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                if (serializedBody is not null)
+                    request.Content = new StringContent(serializedBody, Encoding.UTF8, "application/json");
+                return request;
+            },
+            HttpCompletionOption.ResponseContentRead,
+            cancellationToken,
+            accessToken);
         var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
         if (responseText.Length > MaximumAutomationResponseChars)
             throw new VNextDevelopmentException($"{purpose} 응답 크기가 제한을 초과했습니다.", code: "automation_response_too_large");
         if (!response.IsSuccessStatusCode)
         {
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-                await InvalidateSessionIfCurrentAsync(requestLease);
             var code = ReadErrorCode(responseText);
             var serverMessage = ReadAutomationErrorMessage(responseText);
             var message = code switch

@@ -75,13 +75,13 @@ test("new automation remains optional and cannot block the v0.5.1.8 collection p
   const automationClientIndex = program.indexOf("new VNextDevelopmentClient(storage.RootPath)");
   const mainIndex = program.indexOf("new MainForm(storage, programStartedAtLocal, vNextDevClient)");
   assert.ok(automationClientIndex >= 0 && mainIndex > automationClientIndex && loginIndex > mainIndex);
-  assert.doesNotMatch(program, /TryRestoreSessionAsync\(/);
-  assert.match(program, /DisableRememberedSessionPersistence\(\)/);
+  assert.match(program, /_ = vNextDevClient\.BeginRememberedSessionRestore\(\)/);
+  assert.doesNotMatch(program, /await vNextDevClient\.BeginRememberedSessionRestore\(\)/);
   assert.match(main, /기존 별록 수집 기능은 계속 사용할 수 있습니다/);
   assert.match(main, /if \(!_vNextDevClient\.IsSignedIn\)[\s\S]{0,240}return;/);
 });
 
-test("one Collector login accepts only an ephemeral same-project automation session", async () => {
+test("one Collector login accepts only a verified same-project automation session", async () => {
   const [login, client, main] = await Promise.all([
     source("CollectorLoginWebForm.cs"),
     source("VNextDevelopmentClient.cs"),
@@ -159,7 +159,7 @@ test("Collector pair tokens are never blind-adopted across Supabase projects", a
     assert.ok(authUser > jwtIssuer, "offsl Auth user and membership checks must follow issuer validation");
     assert.ok(publish > authUser, "only a fully validated candidate may be published");
     assert.ok(workspaceMutation === -1 || workspaceMutation > projectEvidence, "a rejected response cannot partially change workspace state");
-    assert.match(adoption, /PublishSession\(\s*candidate,\s*rememberSession:\s*false/);
+    assert.match(adoption, /PublishSession\(\s*candidate,\s*rememberSession:\s*true/);
   }
 
   assert.doesNotMatch(
@@ -167,7 +167,7 @@ test("Collector pair tokens are never blind-adopted across Supabase projects", a
     /SignInWithPasswordAsync\(/,
     "Collector credentials must never be replayed into a different automation project"
   );
-  assert.doesNotMatch(login, /rememberSession:\s*true|TryRestoreSessionAsync\(/);
+  assert.doesNotMatch(login, /rememberSession:\s*true|TryRestoreRememberedSessionAsync\(/);
   assert.match(client, /SupabaseUrl \+ "\/auth\/v1\/user"/);
   assert.match(client, /\/rest\/v1\/workspace_members\?select=workspace_id,user_id/);
   assert.match(client, /GetArrayLength\(\) != 1/);

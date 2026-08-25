@@ -23,7 +23,7 @@ function assertOrdered(contents, markers, label) {
   }
 }
 
-test("general distribution uses only ephemeral automation sessions and deletes every legacy auto-connect vault", async () => {
+test("general distribution restores only a DPAPI refresh token and never persists credentials or access tokens", async () => {
   const [vault, client, project, program, login] = await Promise.all([
     source("VNextSessionVault.cs"),
     source("VNextDevelopmentClient.cs"),
@@ -33,16 +33,21 @@ test("general distribution uses only ephemeral automation sessions and deletes e
   ]);
 
   assert.match(project, /System\.Security\.Cryptography\.ProtectedData/);
-  assert.doesNotMatch(vault, /ProtectedData|DataProtectionScope|TryRead\(|public void Save\(|CompleteRememberedSignIn/);
+  assert.match(vault, /ProtectedData\.Protect\(/);
+  assert.match(vault, /ProtectedData\.Unprotect\(/);
+  assert.match(vault, /DataProtectionScope\.CurrentUser/);
+  assert.match(vault, /public bool TryRead\(/);
+  assert.match(vault, /public void Save\(/);
+  const rememberedRecord = section(vault, "internal sealed record VNextRememberedSession(", ");\n\n/// <summary>");
+  assert.doesNotMatch(rememberedRecord, /Password|AccessToken/);
 
-  assert.match(program, /vNextDevClient\.DisableRememberedSessionPersistence\(\)/);
-  assert.doesNotMatch(program, /TryRestoreSessionAsync\(/);
-  assert.doesNotMatch(client, /TryRestoreSessionAsync\(/);
+  assert.match(program, /_ = vNextDevClient\.BeginRememberedSessionRestore\(\)/);
+  assert.doesNotMatch(program, /await vNextDevClient\.BeginRememberedSessionRestore\(\)/);
+  assert.match(client, /TryRestoreRememberedSessionAsync\(/);
   assert.doesNotMatch(client, /SignInWithPasswordAsync|CreateAuthRequest\("password"/);
-  assert.match(client, /public void DisableRememberedSessionPersistence\(\)[\s\S]{0,180}_sessionVault\.SuppressRestoreAndDelete\(\)/);
   assert.match(login, /automation_capability\s*=\s*VNextDevelopmentClient\.AutomationCapability/);
   assert.match(login, /BeginCollectorPairSessionAdoption/);
-  assert.doesNotMatch(login, /SignInWithPasswordAsync|TryRestoreSessionAsync/);
+  assert.doesNotMatch(login, /SignInWithPasswordAsync|TryRestoreRememberedSessionAsync/);
 
   const persistedLeafNames = [...vault.matchAll(/Path\.Combine\(_directory,\s*"([^"]+)"\)/g)]
     .map((match) => match[1]).sort();
@@ -55,13 +60,24 @@ test("general distribution uses only ephemeral automation sessions and deletes e
   const publish = section(client, "private void PublishSession(", "private static VNextDevelopmentException BuildAuthException");
   assertOrdered(publish, [
     "if (rememberSession)",
-    "remembered_session_disabled",
-    "_sessionVault.SuppressRestoreAndDelete()",
+    "_sessionVault.Save(new VNextRememberedSession(",
+    "candidate.RefreshToken",
     "_accessToken = candidate.AccessToken",
     "_refreshToken = candidate.RefreshToken",
     "Interlocked.Increment(ref _sessionEpoch)"
-  ], "publish only after persistence has been rejected and stale vaults are removed");
-  assert.doesNotMatch(publish, /_sessionVault\.Save\(|rememberSession:\s*true/);
+  ], "a verified refresh token is saved before the in-memory session is published");
+  assert.match(publish, /catch[\s\S]{0,320}rememberSession = false/);
+
+  const restore = section(client, "private async Task<bool> TryRestoreRememberedSessionAsync(", "public async Task<bool> TryAdoptCollectorPairSessionAsync(");
+  assertOrdered(restore, [
+    "_sessionVault.TryRead(out var remembered)",
+    "CreateAuthRequest(\"refresh_token\"",
+    "TryReadExpectedAccessTokenClaims(candidate.AccessToken",
+    "tokenUserId != remembered.UserId",
+    "ValidateAuthorizedAutomationIdentityAsync(",
+    "remembered.WorkspaceId",
+    "PublishSession("
+  ], "restored tokens are issuer, principal, and workspace checked before publication");
 });
 
 test("explicit disconnect writes the tombstone before best-effort vault deletion and remote logout", async () => {
@@ -70,11 +86,7 @@ test("explicit disconnect writes the tombstone before best-effort vault deletion
     source("VNextDevelopmentClient.cs")
   ]);
 
-  assert.match(
-    section(vault, "public void MarkDisconnectedAndDelete()", "public void SuppressRestoreAndDelete()"),
-    /SuppressRestoreAndDelete\(\)/
-  );
-  const disconnectStorage = section(vault, "public void SuppressRestoreAndDelete()", "public void DeleteInvalidVault()");
+  const disconnectStorage = section(vault, "public void MarkDisconnectedAndDelete()", "public void DeleteInvalidVault()");
   assertOrdered(disconnectStorage, [
     "Directory.CreateDirectory(_directory)",
     "File.WriteAllText(_tombstonePath",
@@ -92,7 +104,7 @@ test("explicit disconnect writes the tombstone before best-effort vault deletion
   ], "local disconnect must be authoritative before the network request");
 });
 
-test("late auth failures can invalidate only the session epoch that issued the request", async () => {
+test("runtime 401 performs one epoch-safe forced refresh and replay without deleting a healthy refresh token", async () => {
   const [client, program] = await Promise.all([
     source("VNextDevelopmentClient.cs"),
     source("Program.cs")
@@ -103,16 +115,6 @@ test("late auth failures can invalidate only the session epoch that issued the r
     /SessionRequestLease\(long ConnectionEpoch, long TokenRevision, bool MatchedToken\)/,
     "an auth request lease must bind both connection epoch and rotating token revision"
   );
-  const asyncInvalidate = section(
-    client,
-    "private async Task InvalidateSessionIfCurrentAsync(",
-    "private void InvalidateSessionIfCurrentUnderGate(");
-  assertOrdered(asyncInvalidate, [
-    "await _sessionGate.WaitAsync()",
-    "InvalidateSessionIfCurrentUnderGate(lease)",
-    "_sessionGate.Release()"
-  ], "auth failure must reacquire the session gate before invalidation");
-
   const invalidate = section(client, "private void InvalidateSessionIfCurrentUnderGate(", "private void RaiseSessionChanged()");
   assertOrdered(invalidate, [
     "if (!lease.MatchedToken",
@@ -126,14 +128,30 @@ test("late auth failures can invalidate only the session epoch that issued the r
     "RaiseSessionChanged()"
   ], "epoch, token revision, and token ownership conditional invalidation");
 
-  assert.doesNotMatch(client, /TryRestoreSessionAsync\(|rememberSession:\s*true/);
-
   const send = section(client, "public async Task<VNextDevelopmentSendResult> SendEventAsync(", "private static VNextDevelopmentSendResult ParseSendResult(");
-  assertOrdered(send, [
+  assert.match(send, /SendWithSessionRecoveryAsync\(/);
+  assert.doesNotMatch(send, /InvalidateSessionIfCurrentAsync|_refreshToken = ""/);
+  const recover = section(client, "private async Task<HttpResponseMessage> SendWithSessionRecoveryAsync(", "private static string RequiredString(");
+  assertOrdered(recover, [
+    "for (var attempt = 0; attempt < 2; attempt++)",
     "var requestLease = CaptureSessionRequestLease(accessToken)",
-    "await _http.SendAsync",
-    "await InvalidateSessionIfCurrentAsync(requestLease)"
-  ], "late send failure invalidation lease");
+    "response.StatusCode != HttpStatusCode.Unauthorized",
+    "response.Dispose()",
+    "forceRefresh: true",
+    "unauthorizedLease: requestLease",
+    "continue;",
+    "MarkRefreshRequiredIfCurrentAsync(requestLease"
+  ], "one 401 refresh and one replay with a non-destructive second-failure marker");
+  assert.doesNotMatch(recover, /InvalidateSessionIfCurrentAsync|InvalidateSessionIfCurrentUnderGate/);
+  const refresh = section(client, "private async Task<string> GetValidAccessTokenAsync(", "private sealed record SessionCandidate(");
+  assertOrdered(refresh, [
+    "unauthorizedLease is not null",
+    "!IsRequestLeaseCurrentUnderGate(unauthorizedLease)",
+    "return _accessToken",
+    "!forceRefresh",
+    "_forceRefreshRequired",
+    "CreateAuthRequest(\"refresh_token\""
+  ], "concurrent 401s share the already-refreshed token instead of rotating twice");
   assert.match(client, /InvalidateSessionIfCurrentUnderGate\(\s*new SessionRequestLease\(refreshEpoch, refreshRevision, true\)\)/);
   assert.match(program, /vNextDevClient\.ShutdownAsync\(\)\.Wait\(TimeSpan\.FromSeconds\(3\)\)/);
   assert.doesNotMatch(program, /vNextDevClient\.(?:SignOutAsync|DisconnectAsync)\(\)/);
