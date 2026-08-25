@@ -207,11 +207,23 @@ internal static partial class CollectorPreflightRunner
                 {
                     using var voiceTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                     voiceTimeout.CancelAfter(TimeSpan.FromSeconds(4));
-                    var voice = await localAgent.ProbeVoiceAnonymizerAsync(voiceTimeout.Token);
-                    voiceState = voice.FilterEnabled ? "attention" : "pass";
-                    voiceMessage = voice.FilterEnabled
-                        ? "VST 2.x 필터 준비됨 · 현재 켜짐 (평소에는 꺼두기 권장)"
-                        : "VST 2.x 필터·마이크 입력 읽기 성공 · 상태 변경 없음";
+                    var downVoice = await localAgent.ProbeVoiceAnonymizerAsync(
+                        ObsVoiceAnonymizerContract.DownPreset,
+                        voiceTimeout.Token);
+                    var anyEnabled = downVoice.FilterEnabled;
+                    if (scope.RequiresObsVoicePresetPair)
+                    {
+                        var upVoice = await localAgent.ProbeVoiceAnonymizerAsync(
+                            ObsVoiceAnonymizerContract.UpPreset,
+                            voiceTimeout.Token);
+                        anyEnabled |= upVoice.FilterEnabled;
+                    }
+                    voiceState = anyEnabled ? "attention" : "pass";
+                    voiceMessage = anyEnabled
+                        ? "신원보호 VST 2.x 필터 준비됨 · 현재 켜짐 (평소에는 꺼두기 권장)"
+                        : scope.RequiresObsVoicePresetPair
+                            ? "다운톤·업톤 VST 2.x 필터 읽기 성공 · 상태 변경 없음"
+                            : "다운톤 VST 2.x 필터·마이크 입력 읽기 성공 · 상태 변경 없음";
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {

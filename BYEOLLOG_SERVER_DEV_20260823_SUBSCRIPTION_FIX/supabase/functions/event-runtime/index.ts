@@ -200,7 +200,7 @@ Deno.serve(async (request: Request) => {
     if (actionRows.some((action) =>
       (action.execution_target === "server" && action.action_type !== "log")
       || (action.execution_target === "local_agent"
-        && !["obs.mute_for", "obs.voice_anonymize_for", "windows.mic_mute_for", "obs.scene_switch", "agent.notify", "flashbang.overlay"].includes(action.action_type))
+        && !["obs.mute_for", "obs.voice_anonymize_for", "obs.voice_anonymize_for_v2", "windows.mic_mute_for", "obs.scene_switch", "agent.notify", "flashbang.overlay"].includes(action.action_type))
       || (action.execution_target !== "server" && action.execution_target !== "local_agent")
     )) {
       throw new Error("Automation plan contains an unsupported G3A action");

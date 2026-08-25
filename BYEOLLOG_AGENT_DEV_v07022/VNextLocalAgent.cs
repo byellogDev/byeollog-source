@@ -506,12 +506,14 @@ internal sealed class VNextLocalAgent : IDisposable
     public ByeollogOverlayTelemetrySnapshot OverlayTelemetry() => _overlay.Telemetry();
 
     public Task<ObsVoiceAnonymizerStatus> ProbeVoiceAnonymizerAsync(
+        string preset,
         CancellationToken cancellationToken = default) =>
-        _timedMuteActions.ProbeVoiceAnonymizerAsync(cancellationToken);
+        _timedMuteActions.ProbeVoiceAnonymizerAsync(preset, cancellationToken);
 
     public Task<TimedMuteRunResult> PreviewVoiceAnonymizerAsync(
+        string preset,
         CancellationToken cancellationToken = default) =>
-        _timedMuteActions.RunLocalVoiceAnonymizerPreviewAsync(cancellationToken);
+        _timedMuteActions.RunLocalVoiceAnonymizerPreviewAsync(preset, cancellationToken);
 
     private async Task RunAsync(CancellationToken cancellationToken)
     {
@@ -1088,7 +1090,8 @@ internal sealed class VNextLocalAgent : IDisposable
     private static bool IsTimedMuteAction(VNextAgentJob job) =>
         job.ActionType is TimedMuteActionAdapter.ObsActionType
             or TimedMuteActionAdapter.WindowsActionType
-            or TimedMuteActionAdapter.VoiceAnonymizerActionType;
+            or TimedMuteActionAdapter.VoiceAnonymizerActionType
+            or TimedMuteActionAdapter.VoiceAnonymizerPresetActionType;
 
     internal static int EffectiveActionTimeoutMs(VNextAgentJob job)
     {
@@ -1154,7 +1157,8 @@ internal sealed class VNextLocalAgent : IDisposable
                     notAfterUtc);
         }
 
-        if (job.ActionType == TimedMuteActionAdapter.VoiceAnonymizerActionType)
+        if (job.ActionType is TimedMuteActionAdapter.VoiceAnonymizerActionType
+            or TimedMuteActionAdapter.VoiceAnonymizerPresetActionType)
         {
             return await _timedMuteActions.ExecuteVoiceAnonymizerAsync(
                 actionParameters,

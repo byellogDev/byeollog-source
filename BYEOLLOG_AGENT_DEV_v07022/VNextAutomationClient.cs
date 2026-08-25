@@ -168,7 +168,7 @@ internal sealed partial class VNextDevelopmentClient
         var token = await GetValidAccessTokenAsync(cancellationToken);
         var result = await SendAutomationRequestAsync(
             HttpMethod.Post,
-            "/rest/v1/rpc/save_guided_rule_v14",
+            "/rest/v1/rpc/save_guided_rule_v15",
             draft,
             token,
             "규칙 저장",
@@ -277,7 +277,7 @@ internal sealed partial class VNextDevelopmentClient
         var token = await GetValidAccessTokenAsync(cancellationToken);
         var result = await SendAutomationRequestAsync(
             HttpMethod.Post,
-            "/rest/v1/rpc/dispatch_guided_rule_test_v4",
+            "/rest/v1/rpc/dispatch_guided_rule_test_v5",
             new
             {
                 p_workspace_id = WorkspaceId,
@@ -670,6 +670,7 @@ internal sealed partial class VNextDevelopmentClient
             "upbo.apply",
             "obs.mute_for",
             "obs.voice_anonymize_for",
+            "obs.voice_anonymize_for_v2",
             "windows.mic_mute_for",
             "roulette.reward_multiplier_next",
             "raffle.ticket_grant",
@@ -759,7 +760,7 @@ internal sealed partial class VNextDevelopmentClient
                 100,
                 "섬광탄 소리 음량");
         }
-        else if (actionType == "obs.voice_anonymize_for")
+        else if (actionType is "obs.voice_anonymize_for" or "obs.voice_anonymize_for_v2")
         {
             durationSeconds = RequiredInt(payload, "durationSeconds", 3, 60, "신원보호모드 실행 시간");
             agentDeviceId = RequireGuidString(payload, "agentDeviceId", "등록 PC");
@@ -767,7 +768,8 @@ internal sealed partial class VNextDevelopmentClient
                 payload,
                 "voicePreset",
                 "신원보호 음성 프리셋",
-                ObsVoiceAnonymizerContract.Preset);
+                ObsVoiceAnonymizerContract.DownPreset,
+                ObsVoiceAnonymizerContract.UpPreset);
         }
         else if (actionType == "upbo.apply")
         {

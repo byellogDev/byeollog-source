@@ -8,6 +8,7 @@ internal static class VNextAgentCapabilities
     [
         "obs.mute_for",
         "obs.voice_anonymize_for",
+        "obs.voice_anonymize_for_v2",
         "windows.mic_mute_for",
         "raffle.overlay",
         "flashbang.overlay"

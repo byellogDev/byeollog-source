@@ -31,16 +31,16 @@ test('recovered production Edge sources match the read-only capture manifest',as
   const auditedCapabilityDeltas=new Set();
   const auditedSourceDeltas=new Map([
     ['_shared/agent-device-status.ts',{
-      bytes:3400,
-      sha256:'105094c6d889ebf548ecfdc705ea58aafec0438412718f2ded257f82d232966b'
+      bytes:3432,
+      sha256:'fd000e3b933a1cb8c5bef5eb722c349216d0e55117c15e69e56a5a2da440b3c7'
     }],
     ['agent-runtime/index.ts',{
-      bytes:29427,
-      sha256:'f41842ad77182cc052693ccc8761686a7acaf2d71cde695ca82409fb890079bb'
+      bytes:29459,
+      sha256:'c5c9502303e5ac39c38173e25c99d39bcc4ed98839eac851a837cca5735e6a61'
     }],
     ['event-runtime/index.ts',{
-      bytes:12989,
-      sha256:'b932af0012cb697649c72fce6614413a6f56f19708d0c31176b837d3cfeedfe0'
+      bytes:13019,
+      sha256:'d2d0c5e4f77262952d649ef7cf699f5804cfbfd0614231c1633d55d7e9530573'
     }]
   ]);
   for(const file of manifest.files){

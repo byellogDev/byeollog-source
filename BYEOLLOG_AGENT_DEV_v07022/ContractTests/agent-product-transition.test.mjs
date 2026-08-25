@@ -466,14 +466,14 @@ test("native automation requests stay authenticated, workspace-scoped, version-f
     "/rest/v1/rpc/list_agent_devices_v1",
     "/rest/v1/rpc/rename_agent_device_v1",
     "/rest/v1/rpc/revoke_agent_device_v1",
-    "/rest/v1/rpc/save_guided_rule_v14",
+    "/rest/v1/rpc/save_guided_rule_v15",
     "/rest/v1/rpc/get_raffle_state_v2",
     "/rest/v1/rpc/start_raffle_draw_v2",
     "/rest/v1/rpc/draw_next_raffle_winner_v2",
     "/rest/v1/rpc/reannounce_raffle_winner_v1",
     "/rest/v1/rpc/set_guided_rule_enabled_v1",
     "/rest/v1/rpc/delete_guided_rule_v1",
-    "/rest/v1/rpc/dispatch_guided_rule_test_v4"
+    "/rest/v1/rpc/dispatch_guided_rule_test_v5"
   ]) {
     assert.match(client, new RegExp(escapeRegExp(endpoint)));
   }

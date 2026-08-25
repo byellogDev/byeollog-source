@@ -202,6 +202,27 @@ internal static class Program
             ObsVoiceAnonymizerContract.TryReadParameters(accepted.RootElement, out var durationMs),
             "voice anonymizer accepts only the pinned server-to-Agent payload");
         Equal(10_000, durationMs, "voice anonymizer preserves the bounded duration");
+        True(
+            ObsVoiceAnonymizerContract.TryReadParameters(
+                accepted.RootElement,
+                out _,
+                out var lowPreset),
+            "voice anonymizer returns the selected preset to the local adapter");
+        Equal(ObsVoiceAnonymizerContract.DownPreset, lowPreset,
+            "legacy low preset remains accepted exactly");
+        using var acceptedHigh = JsonDocument.Parse(exact.Replace(
+            "anonymous_low",
+            "anonymous_high",
+            StringComparison.Ordinal));
+        True(
+            ObsVoiceAnonymizerContract.TryReadParameters(
+                acceptedHigh.RootElement,
+                out var highDurationMs,
+                out var highPreset),
+            "voice anonymizer accepts the packaged high preset");
+        Equal(10_000, highDurationMs, "high voice preset preserves the bounded duration");
+        Equal(ObsVoiceAnonymizerContract.UpPreset, highPreset,
+            "high voice preset is returned exactly");
 
         using var forgedLabel = JsonDocument.Parse(exact.Replace(
             "(신원보호모드/개발중)",
@@ -255,7 +276,12 @@ internal static class Program
             VNextAgentCapabilities.ForWindowsAgent().Contains(
                 "obs.voice_anonymize_for",
                 StringComparer.Ordinal),
-            "Windows Agent advertises the voice anonymizer capability");
+            "Windows Agent advertises the legacy voice anonymizer capability");
+        True(
+            VNextAgentCapabilities.ForWindowsAgent().Contains(
+                "obs.voice_anonymize_for_v2",
+                StringComparer.Ordinal),
+            "Windows Agent advertises the version-isolated pitch preset capability");
     }
 
     private static void RaffleActionTests(string root)
@@ -1557,11 +1583,13 @@ internal static class Program
     private static void AgentCapabilityTests()
     {
         var supported = VNextAgentCapabilities.ForWindowsAgent();
-        Equal(5, supported.Length, "fresh Windows Agent reports only server-routable capabilities");
+        Equal(6, supported.Length, "fresh Windows Agent reports only server-routable capabilities");
         True(supported.Contains("obs.mute_for", StringComparer.Ordinal),
             "OBS timed mute capability is reported before OBS settings are configured");
         True(supported.Contains("obs.voice_anonymize_for", StringComparer.Ordinal),
             "OBS voice anonymizer capability is reported before its local filter is configured");
+        True(supported.Contains("obs.voice_anonymize_for_v2", StringComparer.Ordinal),
+            "OBS pitch preset capability is isolated from legacy voice jobs");
         False(supported.Contains("local.log", StringComparer.Ordinal),
             "local diagnostics are not sent to the public Agent runtime");
         False(supported.Contains("obs.set_input_mute", StringComparer.Ordinal),
@@ -1769,8 +1797,7 @@ internal static class Program
         foreach (var action in new[]
         {
             "syncOverlayAssets",
-            "copyOverlayUrl",
-            "previewVoiceAnonymizer"
+            "copyOverlayUrl"
         })
         {
             True(
@@ -1790,6 +1817,28 @@ internal static class Program
                 $"{action} rejects unused attacker-controlled payload fields");
             Equal("payload_shape", payloadReason, $"{action} unexpected payload fails closed");
         }
+        True(
+            WebViewTrustPolicy.TryParseAutomationMessage(
+                JsonSerializer.Serialize(new
+                {
+                    action = "previewVoiceAnonymizer",
+                    payload = new { preset = "anonymous_high" }
+                }),
+                out _,
+                out var previewVoiceAction,
+                out _),
+            "voice preview accepts a preset-bearing object payload");
+        Equal("previewVoiceAnonymizer", previewVoiceAction,
+            "voice preview action is returned exactly");
+        False(
+            WebViewTrustPolicy.TryParseAutomationMessage(
+                "{\"action\":\"previewVoiceAnonymizer\"}",
+                out _,
+                out _,
+                out var previewVoicePayloadReason),
+            "voice preview requires an explicit preset payload");
+        Equal("payload_required", previewVoicePayloadReason,
+            "missing voice preview payload fails closed");
         False(
             WebViewTrustPolicy.TryParseAutomationMessage(
                 "{\"action\":\"publishOverlayAsset\",\"payload\":{}}",

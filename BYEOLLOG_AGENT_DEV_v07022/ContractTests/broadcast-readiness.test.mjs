@@ -109,6 +109,7 @@ test("OBS is conditional and approved overlays require an exact asset ID plus SH
   assert.match(derive, /ExecutionTarget, "local_agent"/);
   assert.match(derive, /TimedMuteActionAdapter\.ObsActionType/);
   assert.match(derive, /TimedMuteActionAdapter\.VoiceAnonymizerActionType/);
+  assert.match(derive, /TimedMuteActionAdapter\.VoiceAnonymizerPresetActionType/);
   assert.match(derive, /"obs\.set_input_mute"/);
   assert.match(derive, /TimedMuteActionAdapter\.WindowsActionType/);
   assert.match(derive, /current\.Any\(item =>[\s\S]*ObsActionType[\s\S]*obs\.set_input_mute/);
@@ -133,7 +134,9 @@ test("OBS is conditional and approved overlays require an exact asset ID plus SH
   assert.match(obs, /활성 OBS 규칙 없음/);
   assert.match(obs, /"obs_voice_anonymizer"/);
   assert.match(obs, /ProbeVoiceAnonymizerAsync/);
-  assert.match(obs, /voice\.FilterEnabled \? "attention" : "pass"/);
+  assert.match(obs, /var anyEnabled = downVoice\.FilterEnabled/);
+  assert.match(obs, /scope\.RequiresObsVoicePresetPair/);
+  assert.match(obs, /voiceState = anyEnabled \? "attention" : "pass"/);
   assert.match(run, /scope\.HasUnsupportedLocalActions \? "blocked" : "pass"/);
   assert.match(run, /지원하지 않는 로컬 액션/);
   assert.match(run, /BroadcastReadinessPolicy\.ExactAssetsReady\([\s\S]*scope\.RequiredOverlayAssetIds,[\s\S]*approvedAssets,[\s\S]*overlay\.ReadyRevisions/);

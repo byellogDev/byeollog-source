@@ -8,7 +8,8 @@ internal sealed record BroadcastReadinessScope(
     bool RequiresOverlay,
     bool HasForeignDeviceRules,
     bool HasUnsupportedLocalActions,
-    IReadOnlyList<string> RequiredOverlayAssetIds)
+    IReadOnlyList<string> RequiredOverlayAssetIds,
+    bool RequiresObsVoicePresetPair = false)
 {
     public static BroadcastReadinessScope Empty { get; } =
         new(false, false, false, false, false, false, false, Array.Empty<string>());
@@ -61,21 +62,26 @@ internal static class BroadcastReadinessPolicy
             "obs.set_input_mute" or
             TimedMuteActionAdapter.ObsActionType or
             TimedMuteActionAdapter.VoiceAnonymizerActionType or
+            TimedMuteActionAdapter.VoiceAnonymizerPresetActionType or
             TimedMuteActionAdapter.WindowsActionType));
         return new BroadcastReadinessScope(
             current.Length > 0,
             current.Any(item =>
                 string.Equals(item.ActionType, TimedMuteActionAdapter.ObsActionType, StringComparison.Ordinal)
                 || string.Equals(item.ActionType, TimedMuteActionAdapter.VoiceAnonymizerActionType, StringComparison.Ordinal)
+                || string.Equals(item.ActionType, TimedMuteActionAdapter.VoiceAnonymizerPresetActionType, StringComparison.Ordinal)
                 || string.Equals(item.ActionType, "obs.set_input_mute", StringComparison.Ordinal)),
             current.Any(item =>
-                string.Equals(item.ActionType, TimedMuteActionAdapter.VoiceAnonymizerActionType, StringComparison.Ordinal)),
+                string.Equals(item.ActionType, TimedMuteActionAdapter.VoiceAnonymizerActionType, StringComparison.Ordinal)
+                || string.Equals(item.ActionType, TimedMuteActionAdapter.VoiceAnonymizerPresetActionType, StringComparison.Ordinal)),
             current.Any(item =>
                 string.Equals(item.ActionType, TimedMuteActionAdapter.WindowsActionType, StringComparison.Ordinal)),
             assets.Length > 0,
             foreign,
             unsupported,
-            assets);
+            assets,
+            current.Any(item =>
+                string.Equals(item.ActionType, TimedMuteActionAdapter.VoiceAnonymizerPresetActionType, StringComparison.Ordinal)));
     }
 
     public static bool ExactAssetsReady(

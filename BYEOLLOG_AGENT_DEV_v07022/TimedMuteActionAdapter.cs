@@ -9,6 +9,7 @@ internal sealed class TimedMuteActionAdapter
     internal const string ObsActionType = "obs.mute_for";
     internal const string WindowsActionType = "windows.mic_mute_for";
     internal const string VoiceAnonymizerActionType = "obs.voice_anonymize_for";
+    internal const string VoiceAnonymizerPresetActionType = "obs.voice_anonymize_for_v2";
     internal const string ObsTargetAlias = "microphone";
     internal const string WindowsTargetAlias = "selected_capture_device";
     internal const string VoiceAnonymizerTargetType = "obs_source_filter";
@@ -90,15 +91,15 @@ internal sealed class TimedMuteActionAdapter
         Action? onAccepted = null,
         DateTimeOffset? notAfterUtc = null)
     {
-        if (!ObsVoiceAnonymizerContract.TryReadParameters(parameters, out var durationMs))
+        if (!ObsVoiceAnonymizerContract.TryReadParameters(parameters, out var durationMs, out var preset))
             return Failure(false, "신원보호모드 액션 설정이 올바르지 않습니다.");
 
         try
         {
-            var target = CreateVoiceAnonymizerTarget(requireEnabled: true);
+            var target = CreateVoiceAnonymizerTarget(requireEnabled: true, preset);
             if (notAfterUtc is not null && DateTimeOffset.UtcNow >= notAfterUtc.Value)
                 throw new VNextActionExpiredException();
-            _storage.Log($"신원보호모드 실행 시작 · durationMs={durationMs}");
+            _storage.Log($"신원보호모드 실행 시작 · preset={preset} · durationMs={durationMs}");
             var result = await _coordinator.ExecuteAsync(
                 target,
                 durationMs,
@@ -113,6 +114,7 @@ internal sealed class TimedMuteActionAdapter
                 new
                 {
                     target = "microphone_filter",
+                    preset,
                     durationMs = result.DurationMs,
                     initialFilterEnabled = result.InitialMuted,
                     changed = result.Changed,
@@ -169,25 +171,32 @@ internal sealed class TimedMuteActionAdapter
     }
 
     public async Task<TimedMuteRunResult> RunLocalVoiceAnonymizerPreviewAsync(
+        string preset,
         CancellationToken cancellationToken)
     {
+        if (!ObsVoiceAnonymizerContract.IsSupportedPreset(preset))
+            throw new ArgumentException("지원하지 않는 신원보호 음성 프리셋입니다.", nameof(preset));
         await RecoverPendingAsync(cancellationToken);
         return await _voicePreviewCoordinator.ExecuteAsync(
-            CreateVoiceAnonymizerTarget(requireEnabled: true),
+            CreateVoiceAnonymizerTarget(requireEnabled: true, preset),
             5_000,
             cancellationToken);
     }
 
     public async Task<ObsVoiceAnonymizerStatus> ProbeVoiceAnonymizerAsync(
+        string preset,
         CancellationToken cancellationToken)
     {
-        var target = CreateVoiceAnonymizerTarget(requireEnabled: true);
+        if (!ObsVoiceAnonymizerContract.IsSupportedPreset(preset))
+            throw new ArgumentException("지원하지 않는 신원보호 음성 프리셋입니다.", nameof(preset));
+        var target = CreateVoiceAnonymizerTarget(requireEnabled: true, preset);
         await BroadcastMutationGate.Gate.WaitAsync(cancellationToken);
         try
         {
             var filter = await target.ReadFilterAsync(cancellationToken);
             return new ObsVoiceAnonymizerStatus(
                 true,
+                preset,
                 target.SourceName,
                 target.FilterName,
                 filter.FilterKind,
@@ -490,19 +499,27 @@ internal sealed class TimedMuteActionAdapter
         return new WindowsCaptureEndpointTarget(settings.EndpointId);
     }
 
-    private ObsVoiceAnonymizerTarget CreateVoiceAnonymizerTarget(bool requireEnabled)
+    private ObsVoiceAnonymizerTarget CreateVoiceAnonymizerTarget(
+        bool requireEnabled,
+        string preset = ObsVoiceAnonymizerContract.DownPreset)
     {
         var settings = _storage.LoadObsSettings();
         if (requireEnabled && !settings.Enabled)
             throw new InvalidOperationException("별록 에이전트에서 OBS 연결을 먼저 활성화해주세요.");
         if (string.IsNullOrWhiteSpace(settings.MicrophoneInputName))
             throw new InvalidOperationException("별록 에이전트의 OBS 마이크 입력을 먼저 설정해주세요.");
-        if (string.IsNullOrWhiteSpace(settings.VoiceAnonymizerFilterName))
+        var filterName = preset switch
+        {
+            ObsVoiceAnonymizerContract.DownPreset => settings.VoiceAnonymizerFilterName,
+            ObsVoiceAnonymizerContract.UpPreset => settings.VoiceAnonymizerUpFilterName,
+            _ => throw new InvalidOperationException("지원하지 않는 신원보호 음성 프리셋입니다.")
+        };
+        if (string.IsNullOrWhiteSpace(filterName))
             throw new InvalidOperationException("OBS 신원보호 VST 2.x 필터 이름을 먼저 설정해주세요.");
         return new ObsVoiceAnonymizerTarget(
             settings,
             settings.MicrophoneInputName,
-            settings.VoiceAnonymizerFilterName);
+            filterName);
     }
 
     private ObsVoiceAnonymizerTarget CreateVoiceAnonymizerRecoveryTarget(string targetKey)
@@ -649,6 +666,7 @@ internal sealed class TimedMuteActionAdapter
 
 internal sealed record ObsVoiceAnonymizerStatus(
     bool Ready,
+    string Preset,
     string SourceName,
     string FilterName,
     string FilterKind,

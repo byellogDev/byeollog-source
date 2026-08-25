@@ -17,15 +17,18 @@ internal sealed record ObsConnectionSettings(
     int Port,
     string MicrophoneInputName,
     string Password,
-    string VoiceAnonymizerFilterName = "")
+    string VoiceAnonymizerFilterName = "",
+    string VoiceAnonymizerUpFilterName = "")
 {
     public const string DefaultVoiceAnonymizerFilterName = "별록 신원보호모드";
+    public const string DefaultVoiceAnonymizerUpFilterName = "별록 신원보호모드 업톤";
     public static ObsConnectionSettings Default { get; } = new(
         false,
         4455,
         "",
         "",
-        DefaultVoiceAnonymizerFilterName);
+        DefaultVoiceAnonymizerFilterName,
+        DefaultVoiceAnonymizerUpFilterName);
 }
 internal sealed class VNextAgentCredentialFile
 {
@@ -331,12 +334,16 @@ internal sealed class CollectorStorage
             var filterName = SanitizeObsName(saved.VoiceAnonymizerFilterName, 128);
             if (filterName.Length == 0)
                 filterName = ObsConnectionSettings.DefaultVoiceAnonymizerFilterName;
+            var upFilterName = SanitizeObsName(saved.VoiceAnonymizerUpFilterName, 128);
+            if (upFilterName.Length == 0)
+                upFilterName = ObsConnectionSettings.DefaultVoiceAnonymizerUpFilterName;
             return new ObsConnectionSettings(
                 saved.Enabled,
                 port,
                 inputName,
                 UnprotectToken(saved.Password ?? ""),
-                filterName);
+                filterName,
+                upFilterName);
         }
         catch
         {
@@ -350,13 +357,15 @@ internal sealed class CollectorStorage
         var inputName = (settings.MicrophoneInputName ?? "").Trim();
         if (inputName.Length > 128) inputName = inputName[..128];
         var filterName = SanitizeObsName(settings.VoiceAnonymizerFilterName, 128);
+        var upFilterName = SanitizeObsName(settings.VoiceAnonymizerUpFilterName, 128);
         var password = settings.Password ?? "";
         var toStore = new ObsConnectionSettings(
             settings.Enabled,
             port,
             inputName,
             ProtectToken(password),
-            filterName);
+            filterName,
+            upFilterName);
         CollectorStateLifecycle.AtomicWriteText(_obsSettingsPath, JsonSerializer.Serialize(toStore, _json));
     }
 

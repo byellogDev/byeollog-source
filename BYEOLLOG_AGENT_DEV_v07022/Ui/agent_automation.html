@@ -179,6 +179,14 @@
             </div>
 
             <div class="action-config" id="mutePanel">
+              <div id="voicePresetPanel" hidden>
+                <div class="field"><label>목소리 변조 방향</label><div class="action-grid">
+                  <label class="action-choice"><input type="radio" name="voicePreset" value="anonymous_low" checked><span class="action-box"><i>↓</i><span><strong>다운톤</strong><small>낮고 묵직한 익명 제보자 목소리</small></span></span></label>
+                  <label class="action-choice"><input type="radio" name="voicePreset" value="anonymous_high"><span class="action-box"><i>↑</i><span><strong>업톤</strong><small>높고 가벼운 익명 제보자 목소리</small></span></span></label>
+                </div></div>
+                <div class="setup-actions"><button class="manage-button primary" id="previewVoiceWizardButton" type="button">선택한 톤 5초 테스트</button></div>
+                <p class="secret-note" id="voicePresetHelp">마이크 설정에서 선택한 톤의 OBS VST 2.x 필터를 먼저 준비해주세요.</p>
+              </div>
               <div class="time-row"><div class="field duration-input"><label for="durationSeconds">실행 시간</label><input class="input" id="durationSeconds" type="number" min="1" max="240" step="1" value="10" inputmode="numeric"><span class="duration-unit">초</span></div><div class="quick-times" id="quickTimes" aria-label="빠른 시간 선택"><button class="time-chip" type="button" data-seconds="3">3초</button><button class="time-chip" type="button" data-seconds="5">5초</button><button class="time-chip active" type="button" data-seconds="10">10초</button><button class="time-chip" type="button" data-seconds="30">30초</button><button class="time-chip" type="button" data-seconds="60">60초</button></div></div>
               <div class="field" style="margin-top:9px"><label for="deviceId">실행할 등록 PC</label><select class="select" id="deviceId"><option value="">등록 PC를 불러오는 중입니다</option></select><small id="deviceHelp">선택한 기능을 지원하는 PC만 표시합니다.</small></div>
               <div class="overlay-box" id="overlayBox"><label class="check-row"><input id="overlayEnabled" type="checkbox" checked> 마이크가 꺼진 동안 오버레이 화면 함께 출력</label><div class="overlay-fields"><div class="field"><label for="overlayAssetId">오버레이에 출력할 화면</label><select class="select" id="overlayAssetId"><option value="">화면을 불러오는 중입니다</option></select><div class="asset-meta" id="assetMeta">선택한 PC의 화면 준비 상태를 확인합니다.</div></div><figure class="overlay-preview" id="overlayPreview" role="button" tabindex="0" aria-label="선택한 오버레이 예상 화면을 크게 열어 위치 조정"><img id="overlayPreviewImage" alt="선택한 오버레이 예상 출력" draggable="false" hidden><div class="overlay-preview-fallback" id="overlayPreviewFallback">화면을 고르면 예상 출력 이미지를 보여드립니다.</div></figure></div></div>
@@ -271,18 +279,21 @@
           <div class="setup-actions"><button class="manage-button" id="testObsButton" type="button">연결 확인</button><button class="manage-button primary" id="saveObsButton" type="button">OBS 설정 저장</button></div>
           <div class="voice-filter-panel">
             <div class="voice-filter-head"><div><h3>(신원보호모드/개발중)</h3><p>OBS 마이크에 미리 구성한 VST 2.x 필터를 액션 시간 동안만 켰다가 원래 상태로 복구합니다.</p></div><span class="voice-filter-status" id="voiceFilterStatus">확인 필요</span></div>
-            <div class="field" style="margin-top:10px"><label for="voiceFilterName">OBS VST 2.x 필터 이름</label><input class="input" id="voiceFilterName" maxlength="128" value="별록 신원보호모드"></div>
+            <div class="grid two" style="margin-top:10px">
+              <div class="field"><label for="voiceFilterName">다운톤 OBS 필터 이름</label><input class="input" id="voiceFilterName" maxlength="128" value="별록 신원보호모드"></div>
+              <div class="field"><label for="voiceUpFilterName">업톤 OBS 필터 이름</label><input class="input" id="voiceUpFilterName" maxlength="128" value="별록 신원보호모드 업톤"></div>
+            </div>
             <p class="voice-filter-message" id="voiceFilterMessage">OBS에서 필터를 준비한 뒤 상태 확인을 눌러주세요.</p>
             <div class="obs-guide">
               <h3>필터 준비 방법</h3>
               <ol>
                 <li><span>1</span><p>OBS 오디오 믹서에서 위에 입력한 마이크의 <b>[필터]</b>를 엽니다.</p></li>
-                <li><span>2</span><p><b>[VST 2.x 플러그인]</b> 필터를 추가하고 이름을 위 필터 이름과 정확히 같게 지정합니다.</p></li>
-                <li><span>3</span><p>플러그인 화면에서 낮은 음높이·포먼트 설정을 저장한 뒤 필터의 눈 아이콘을 <b>꺼둡니다.</b></p></li>
+                <li><span>2</span><p><b>[VST 2.x 플러그인]</b> 필터를 2개 추가하고 이름을 위 다운톤·업톤 이름과 정확히 같게 지정합니다.</p></li>
+                <li><span>3</span><p>각 플러그인에 낮은 음높이와 높은 음높이를 저장한 뒤 두 필터의 눈 아이콘을 모두 <b>꺼둡니다.</b></p></li>
               </ol>
             </div>
             <p class="secret-note">별록은 플러그인을 설치하거나 음성을 녹음·전송하지 않습니다. OBS에 이미 준비된 필터의 켜짐 상태만 이 PC에서 제어합니다.</p>
-            <div class="setup-actions"><button class="manage-button" id="testVoiceFilterButton" type="button">필터 상태 확인</button><button class="manage-button primary" id="previewVoiceButton" type="button">5초 미리듣기</button></div>
+            <div class="setup-actions"><button class="manage-button" id="testVoiceFilterButton" type="button">다운톤 확인</button><button class="manage-button primary" id="previewVoiceButton" type="button">다운톤 5초</button><button class="manage-button" id="testVoiceUpFilterButton" type="button">업톤 확인</button><button class="manage-button primary" id="previewVoiceUpButton" type="button">업톤 5초</button></div>
           </div>
         </section>
         <section class="setup-card">
@@ -439,6 +450,7 @@
   const ACTIONS={
     'obs.mute_for':{label:'OBS 마이크 잠시 끄기',short:'OBS 마이크',className:'obs'},
     'obs.voice_anonymize_for':{label:'(신원보호모드/개발중)',short:'신원보호모드',className:'obs'},
+    'obs.voice_anonymize_for_v2':{label:'(신원보호모드/개발중)',short:'신원보호모드',className:'obs'},
     'windows.mic_mute_for':{label:'Windows 마이크 잠시 끄기',short:'Windows 마이크',className:'windows'},
     'roulette.reward_multiplier_next':{label:'다음 룰렛 보상 증가',short:'다음 보상 증가',className:'multiplier'},
     'raffle.ticket_grant':{label:'추첨권 지급',short:'추첨',className:'raffle'},
@@ -448,7 +460,7 @@
   const EVENT_LABELS={roulette:'룰렛 결과',donation:'후원'};
   const CONNECTION_LABELS={online:'온라인',idle:'응답 지연',offline:'오프라인',never_reported:'상태 미보고',revoked:'등록 해제'};
   const PLATFORM_LABELS={windows:'Windows',linux:'Linux',macos:'macOS',unknown:'기타'};
-  const CAPABILITY_LABELS={'local.log':'PC 로그','local.dev_delay':'개발 지연','obs.set_input_mute':'OBS 음소거','obs.mute_for':'OBS 시간제 음소거','obs.voice_anonymize_for':'OBS 신원보호 음성','windows.mic_mute_for':'Windows 시간제 음소거','raffle.overlay':'추첨 애니메이션','flashbang.overlay':'섬광탄 화면·소리'};
+  const CAPABILITY_LABELS={'local.log':'PC 로그','local.dev_delay':'개발 지연','obs.set_input_mute':'OBS 음소거','obs.mute_for':'OBS 시간제 음소거','obs.voice_anonymize_for':'OBS 신원보호 음성','obs.voice_anonymize_for_v2':'OBS 업톤·다운톤 신원보호 음성','windows.mic_mute_for':'Windows 시간제 음소거','raffle.overlay':'추첨 애니메이션','flashbang.overlay':'섬광탄 화면·소리'};
   const ACTIVITY_STATUS_LABELS={pending:'대기 중',running:'실행 중',retry_scheduled:'재시도 예약',queued:'대기 중',claimed:'Agent 확인 중',executing:'실행 중',succeeded:'완료',failed:'실패',cancelled:'취소됨',canceled:'취소됨'};
   const DISPOSITION_LABELS={blocked:'차단됨',needs_review:'확인 필요',retrying:'재시도 중'};
   const params=new URLSearchParams(location.search);
@@ -459,9 +471,9 @@
     connectionNotice:document.querySelector('#connectionNotice'),activeSummary:document.querySelector('#activeSummary'),deviceSummary:document.querySelector('#deviceSummary'),overlaySummary:document.querySelector('#overlaySummary'),
     builderPane:document.querySelector('.builder-pane'),automationHome:document.querySelector('#automationHome'),featureCatalogView:document.querySelector('#featureCatalogView'),featureCatalog:document.querySelector('#featureCatalog'),addFeatureButton:document.querySelector('#addFeatureButton'),emptyAddButton:document.querySelector('#emptyAddButton'),featureBackButton:document.querySelector('#featureBackButton'),startAbong:document.querySelector('#startAbong'),startRewardMultiplier:document.querySelector('#startRewardMultiplier'),startRaffle:document.querySelector('#startRaffle'),startFlashbang:document.querySelector('#startFlashbang'),startVoiceAnonymizer:document.querySelector('#startVoiceAnonymizer'),ruleForm:document.querySelector('#ruleForm'),composerIcon:document.querySelector('#composerIcon'),composerTitle:document.querySelector('#composerTitle'),composerCopy:document.querySelector('#composerCopy'),editChip:document.querySelector('#editChip'),wizardSteps:[...document.querySelectorAll('[data-wizard-step]')],wizardProgress:[...document.querySelectorAll('[data-wizard-progress]')],wizardFooterHint:document.querySelector('#wizardFooterHint'),previousButton:document.querySelector('#previousButton'),nextButton:document.querySelector('#nextButton'),
     source:document.querySelector('#source'),eventType:document.querySelector('#eventType'),eventTypeField:document.querySelector('#eventTypeField'),conditionStepTitle:document.querySelector('#conditionStepTitle'),conditionStepCopy:document.querySelector('#conditionStepCopy'),conditionGrid:document.querySelector('#conditionGrid'),amountField:document.querySelector('#amountField'),amountLabel:document.querySelector('#amountLabel'),minAmount:document.querySelector('#minAmount'),resultRow:document.querySelector('#resultRow'),result:document.querySelector('#result'),ruleName:document.querySelector('#ruleName'),donationNameRow:document.querySelector('#donationNameRow'),ruleNameDonation:document.querySelector('#ruleNameDonation'),subtype:document.querySelector('#subtype'),priority:document.querySelector('#priority'),
-    actionGrid:document.querySelector('#actionGrid'),actionStepTitle:document.querySelector('#actionStepTitle'),actionStepCopy:document.querySelector('#actionStepCopy'),mutePanel:document.querySelector('#mutePanel'),multiplierPanel:document.querySelector('#multiplierPanel'),rafflePanel:document.querySelector('#rafflePanel'),flashbangPanel:document.querySelector('#flashbangPanel'),flashbangDeviceId:document.querySelector('#flashbangDeviceId'),flashbangDeviceHelp:document.querySelector('#flashbangDeviceHelp'),flashbangIntensity:[...document.querySelectorAll('input[name="flashbangIntensity"]')],flashbangSoftPreview:document.querySelector('#flashbangSoftPreview'),flashbangStandardPreview:document.querySelector('#flashbangStandardPreview'),flashbangStrongPreview:document.querySelector('#flashbangStrongPreview'),flashbangVolume:document.querySelector('#flashbangVolume'),flashbangVolumeValue:document.querySelector('#flashbangVolumeValue'),previewFlashbangButton:document.querySelector('#previewFlashbangButton'),rewardMultiplier:document.querySelector('#rewardMultiplier'),allowMultiplierStacking:document.querySelector('#allowMultiplierStacking'),raffleTicketUnit:document.querySelector('#raffleTicketUnit'),raffleAllowMultiples:document.querySelector('#raffleAllowMultiples'),rafflePolicyHelp:document.querySelector('#rafflePolicyHelp'),raffleDeviceId:document.querySelector('#raffleDeviceId'),raffleDeviceHelp:document.querySelector('#raffleDeviceHelp'),raffleTicketPreview:document.querySelector('#raffleTicketPreview'),raffleTicketPreviewImage:document.querySelector('#raffleTicketPreviewImage'),raffleDrawPreview:document.querySelector('#raffleDrawPreview'),raffleDrawPreviewImage:document.querySelector('#raffleDrawPreviewImage'),durationSeconds:document.querySelector('#durationSeconds'),quickTimes:document.querySelector('#quickTimes'),deviceId:document.querySelector('#deviceId'),deviceHelp:document.querySelector('#deviceHelp'),overlayBox:document.querySelector('#overlayBox'),overlayEnabled:document.querySelector('#overlayEnabled'),overlayAssetId:document.querySelector('#overlayAssetId'),assetMeta:document.querySelector('#assetMeta'),overlayPreview:document.querySelector('#overlayPreview'),overlayPreviewImage:document.querySelector('#overlayPreviewImage'),overlayPreviewFallback:document.querySelector('#overlayPreviewFallback'),enabled:document.querySelector('#enabled'),previewText:document.querySelector('#previewText'),previewWarning:document.querySelector('#previewWarning'),cancelButton:document.querySelector('#cancelButton'),saveButton:document.querySelector('#saveButton'),
+    actionGrid:document.querySelector('#actionGrid'),actionStepTitle:document.querySelector('#actionStepTitle'),actionStepCopy:document.querySelector('#actionStepCopy'),mutePanel:document.querySelector('#mutePanel'),voicePresetPanel:document.querySelector('#voicePresetPanel'),voicePresets:[...document.querySelectorAll('input[name="voicePreset"]')],voicePresetHelp:document.querySelector('#voicePresetHelp'),previewVoiceWizardButton:document.querySelector('#previewVoiceWizardButton'),multiplierPanel:document.querySelector('#multiplierPanel'),rafflePanel:document.querySelector('#rafflePanel'),flashbangPanel:document.querySelector('#flashbangPanel'),flashbangDeviceId:document.querySelector('#flashbangDeviceId'),flashbangDeviceHelp:document.querySelector('#flashbangDeviceHelp'),flashbangIntensity:[...document.querySelectorAll('input[name="flashbangIntensity"]')],flashbangSoftPreview:document.querySelector('#flashbangSoftPreview'),flashbangStandardPreview:document.querySelector('#flashbangStandardPreview'),flashbangStrongPreview:document.querySelector('#flashbangStrongPreview'),flashbangVolume:document.querySelector('#flashbangVolume'),flashbangVolumeValue:document.querySelector('#flashbangVolumeValue'),previewFlashbangButton:document.querySelector('#previewFlashbangButton'),rewardMultiplier:document.querySelector('#rewardMultiplier'),allowMultiplierStacking:document.querySelector('#allowMultiplierStacking'),raffleTicketUnit:document.querySelector('#raffleTicketUnit'),raffleAllowMultiples:document.querySelector('#raffleAllowMultiples'),rafflePolicyHelp:document.querySelector('#rafflePolicyHelp'),raffleDeviceId:document.querySelector('#raffleDeviceId'),raffleDeviceHelp:document.querySelector('#raffleDeviceHelp'),raffleTicketPreview:document.querySelector('#raffleTicketPreview'),raffleTicketPreviewImage:document.querySelector('#raffleTicketPreviewImage'),raffleDrawPreview:document.querySelector('#raffleDrawPreview'),raffleDrawPreviewImage:document.querySelector('#raffleDrawPreviewImage'),durationSeconds:document.querySelector('#durationSeconds'),quickTimes:document.querySelector('#quickTimes'),deviceId:document.querySelector('#deviceId'),deviceHelp:document.querySelector('#deviceHelp'),overlayBox:document.querySelector('#overlayBox'),overlayEnabled:document.querySelector('#overlayEnabled'),overlayAssetId:document.querySelector('#overlayAssetId'),assetMeta:document.querySelector('#assetMeta'),overlayPreview:document.querySelector('#overlayPreview'),overlayPreviewImage:document.querySelector('#overlayPreviewImage'),overlayPreviewFallback:document.querySelector('#overlayPreviewFallback'),enabled:document.querySelector('#enabled'),previewText:document.querySelector('#previewText'),previewWarning:document.querySelector('#previewWarning'),cancelButton:document.querySelector('#cancelButton'),saveButton:document.querySelector('#saveButton'),
     ruleCount:document.querySelector('#ruleCount'),searchInput:document.querySelector('#searchInput'),refreshButton:document.querySelector('#refreshButton'),ruleList:document.querySelector('#ruleList'),emptyState:document.querySelector('#emptyState'),emptyTitle:document.querySelector('#emptyTitle'),emptyCopy:document.querySelector('#emptyCopy'),updatedAt:document.querySelector('#updatedAt'),footerStatus:document.querySelector('#footerStatus'),busyLayer:document.querySelector('#busyLayer'),busyTitle:document.querySelector('#busyTitle'),toastWrap:document.querySelector('#toastWrap'),toast:document.querySelector('#toast'),toastText:document.querySelector('#toastText'),
-    refreshDevicesButton:document.querySelector('#refreshDevicesButton'),refreshMicrophonesButton:document.querySelector('#refreshMicrophonesButton'),deviceFilters:document.querySelector('#deviceFilters'),deviceGrid:document.querySelector('#deviceGrid'),deviceEmpty:document.querySelector('#deviceEmpty'),deviceTotalMetric:document.querySelector('#deviceTotalMetric'),deviceOnlineMetric:document.querySelector('#deviceOnlineMetric'),deviceAttentionMetric:document.querySelector('#deviceAttentionMetric'),deviceReadyMetric:document.querySelector('#deviceReadyMetric'),obsSetupState:document.querySelector('#obsSetupState'),obsEnabled:document.querySelector('#obsEnabled'),obsPort:document.querySelector('#obsPort'),obsInputName:document.querySelector('#obsInputName'),obsPassword:document.querySelector('#obsPassword'),testObsButton:document.querySelector('#testObsButton'),saveObsButton:document.querySelector('#saveObsButton'),voiceFilterName:document.querySelector('#voiceFilterName'),voiceFilterStatus:document.querySelector('#voiceFilterStatus'),voiceFilterMessage:document.querySelector('#voiceFilterMessage'),testVoiceFilterButton:document.querySelector('#testVoiceFilterButton'),previewVoiceButton:document.querySelector('#previewVoiceButton'),windowsSetupState:document.querySelector('#windowsSetupState'),windowsEnabled:document.querySelector('#windowsEnabled'),windowsEndpoint:document.querySelector('#windowsEndpoint'),reloadWindowsDevicesButton:document.querySelector('#reloadWindowsDevicesButton'),testWindowsButton:document.querySelector('#testWindowsButton'),saveWindowsButton:document.querySelector('#saveWindowsButton'),
+    refreshDevicesButton:document.querySelector('#refreshDevicesButton'),refreshMicrophonesButton:document.querySelector('#refreshMicrophonesButton'),deviceFilters:document.querySelector('#deviceFilters'),deviceGrid:document.querySelector('#deviceGrid'),deviceEmpty:document.querySelector('#deviceEmpty'),deviceTotalMetric:document.querySelector('#deviceTotalMetric'),deviceOnlineMetric:document.querySelector('#deviceOnlineMetric'),deviceAttentionMetric:document.querySelector('#deviceAttentionMetric'),deviceReadyMetric:document.querySelector('#deviceReadyMetric'),obsSetupState:document.querySelector('#obsSetupState'),obsEnabled:document.querySelector('#obsEnabled'),obsPort:document.querySelector('#obsPort'),obsInputName:document.querySelector('#obsInputName'),obsPassword:document.querySelector('#obsPassword'),testObsButton:document.querySelector('#testObsButton'),saveObsButton:document.querySelector('#saveObsButton'),voiceFilterName:document.querySelector('#voiceFilterName'),voiceUpFilterName:document.querySelector('#voiceUpFilterName'),voiceFilterStatus:document.querySelector('#voiceFilterStatus'),voiceFilterMessage:document.querySelector('#voiceFilterMessage'),testVoiceFilterButton:document.querySelector('#testVoiceFilterButton'),previewVoiceButton:document.querySelector('#previewVoiceButton'),testVoiceUpFilterButton:document.querySelector('#testVoiceUpFilterButton'),previewVoiceUpButton:document.querySelector('#previewVoiceUpButton'),windowsSetupState:document.querySelector('#windowsSetupState'),windowsEnabled:document.querySelector('#windowsEnabled'),windowsEndpoint:document.querySelector('#windowsEndpoint'),reloadWindowsDevicesButton:document.querySelector('#reloadWindowsDevicesButton'),testWindowsButton:document.querySelector('#testWindowsButton'),saveWindowsButton:document.querySelector('#saveWindowsButton'),
     copyOverlayUrlButton:document.querySelector('#copyOverlayUrlButton'),syncOverlayButton:document.querySelector('#syncOverlayButton'),assetCount:document.querySelector('#assetCount'),assetList:document.querySelector('#assetList'),localAgentTitle:document.querySelector('#localAgentTitle'),localAgentState:document.querySelector('#localAgentState'),localOverlayUrl:document.querySelector('#localOverlayUrl'),selectedAssetName:document.querySelector('#selectedAssetName'),selectedAssetDetail:document.querySelector('#selectedAssetDetail'),previewAssetButton:document.querySelector('#previewAssetButton'),refreshOverlayButton:document.querySelector('#refreshOverlayButton'),readinessList:document.querySelector('#readinessList'),
     refreshReadinessButton:document.querySelector('#refreshReadinessButton'),readinessAccessNote:document.querySelector('#readinessAccessNote'),readinessTotalMetric:document.querySelector('#readinessTotalMetric'),readinessLocalMetric:document.querySelector('#readinessLocalMetric'),readinessOverlayMetric:document.querySelector('#readinessOverlayMetric'),readinessUpdatedMetric:document.querySelector('#readinessUpdatedMetric'),broadcastReadinessList:document.querySelector('#broadcastReadinessList'),broadcastReadinessEmpty:document.querySelector('#broadcastReadinessEmpty'),broadcastReadinessEmptyTitle:document.querySelector('#broadcastReadinessEmptyTitle'),broadcastReadinessEmptyCopy:document.querySelector('#broadcastReadinessEmptyCopy'),
     refreshActivityButton:document.querySelector('#refreshActivityButton'),activityTotalMetric:document.querySelector('#activityTotalMetric'),activityAttentionMetric:document.querySelector('#activityAttentionMetric'),activityRetryMetric:document.querySelector('#activityRetryMetric'),activityUpdatedMetric:document.querySelector('#activityUpdatedMetric'),activitySaturatedNote:document.querySelector('#activitySaturatedNote'),activityList:document.querySelector('#activityList'),activityEmpty:document.querySelector('#activityEmpty'),
@@ -474,8 +486,8 @@
     raffleReannounceConfirmLayer:document.querySelector('#raffleReannounceConfirmLayer'),raffleReannounceConfirmTitle:document.querySelector('#raffleReannounceConfirmTitle'),raffleReannounceConfirmCopy:document.querySelector('#raffleReannounceConfirmCopy'),cancelRaffleReannounceButton:document.querySelector('#cancelRaffleReannounceButton'),confirmRaffleReannounceButton:document.querySelector('#confirmRaffleReannounceButton'),
     positionEditorLayer:document.querySelector('#positionEditorLayer'),positionCanvas:document.querySelector('#positionCanvas'),positionEditorImage:document.querySelector('#positionEditorImage'),positionCoordinates:document.querySelector('#positionCoordinates'),overlayScaleRange:document.querySelector('#overlayScaleRange'),overlayScaleValue:document.querySelector('#overlayScaleValue'),decreaseScaleButton:document.querySelector('#decreaseScaleButton'),increaseScaleButton:document.querySelector('#increaseScaleButton'),positionEditorSound:document.querySelector('#positionEditorSound'),overlayVolumeRange:document.querySelector('#overlayVolumeRange'),overlayVolumeValue:document.querySelector('#overlayVolumeValue'),testOverlaySoundButton:document.querySelector('#testOverlaySoundButton'),closePositionEditorButton:document.querySelector('#closePositionEditorButton'),resetPositionButton:document.querySelector('#resetPositionButton'),cancelPositionButton:document.querySelector('#cancelPositionButton'),applyPositionButton:document.querySelector('#applyPositionButton')
   };
-  let state={initialized:false,connected:false,streamerName:'',workspaceName:'',releaseLabel:'',role:'',rules:[],devices:[],overlays:[],assetReadiness:[],readiness:{requirements:[],checks:[],overallState:'unavailable',canEvaluate:false,loadedAtUtc:null},activity:{items:[],saturated:false,loadedAtUtc:null},raffle:{round:null,activeDraw:null,history:[],loadedAt:null},currentDeviceId:'',localAgent:{available:false},localConnections:{obs:{enabled:false,port:4455,inputName:'',hasPassword:false,voiceAnonymizer:{filterName:'별록 신원보호모드',ready:false,state:'not_ready',message:'필터 상태를 확인해주세요.'}},windows:{enabled:false,endpointId:'',endpointName:'',endpoints:[]}},editingRuleId:null,busy:false,busyOwnerId:0,busyMessage:'',lastUpdatedAt:null,canManage:false,activeView:'rules',selectedOverlayImageKey:''};
-  const TESTABLE_ACTION_TYPES=new Set(['obs.mute_for','obs.voice_anonymize_for','windows.mic_mute_for','raffle.ticket_grant','flashbang.overlay']);
+  let state={initialized:false,connected:false,streamerName:'',workspaceName:'',releaseLabel:'',role:'',rules:[],devices:[],overlays:[],assetReadiness:[],readiness:{requirements:[],checks:[],overallState:'unavailable',canEvaluate:false,loadedAtUtc:null},activity:{items:[],saturated:false,loadedAtUtc:null},raffle:{round:null,activeDraw:null,history:[],loadedAt:null},currentDeviceId:'',localAgent:{available:false},localConnections:{obs:{enabled:false,port:4455,inputName:'',hasPassword:false,voiceAnonymizer:{filterName:'별록 신원보호모드',ready:false,state:'not_ready',message:'필터 상태를 확인해주세요.',presets:{anonymous_low:{filterName:'별록 신원보호모드',ready:false},anonymous_high:{filterName:'별록 신원보호모드 업톤',ready:false}}}},windows:{enabled:false,endpointId:'',endpointName:'',endpoints:[]}},editingRuleId:null,busy:false,busyOwnerId:0,busyMessage:'',lastUpdatedAt:null,canManage:false,activeView:'rules',selectedOverlayImageKey:''};
+  const TESTABLE_ACTION_TYPES=new Set(['obs.mute_for','obs.voice_anonymize_for','obs.voice_anonymize_for_v2','windows.mic_mute_for','raffle.ticket_grant','flashbang.overlay']);
   let filter='all';
   let deviceFilter='active';
   let pendingRevokeDeviceId='';
@@ -701,7 +713,10 @@
       ruleName:String(item?.ruleName??item?.rule_name??item?.RuleName??'')
     };
   }
-  function actionType(){return currentFeature==='reward-multiplier'?'roulette.reward_multiplier_next':currentFeature==='raffle'?'raffle.ticket_grant':currentFeature==='flashbang'?'flashbang.overlay':currentFeature==='voice-anonymizer'?'obs.voice_anonymize_for':(elements.actionGrid.querySelector('input[name="actionType"]:checked')?.value||'obs.mute_for')}
+  function isVoiceActionType(type){return type==='obs.voice_anonymize_for'||type==='obs.voice_anonymize_for_v2'}
+  function selectedVoicePreset(){return elements.voicePresets.find(input=>input.checked)?.value||'anonymous_low'}
+  function voicePresetLabel(preset){return preset==='anonymous_high'?'업톤':'다운톤'}
+  function actionType(){return currentFeature==='reward-multiplier'?'roulette.reward_multiplier_next':currentFeature==='raffle'?'raffle.ticket_grant':currentFeature==='flashbang'?'flashbang.overlay':currentFeature==='voice-anonymizer'?'obs.voice_anonymize_for_v2':(elements.actionGrid.querySelector('input[name="actionType"]:checked')?.value||'obs.mute_for')}
   function currentRuleName(){return elements.eventType.value==='donation'?elements.ruleNameDonation.value:elements.ruleName.value}
   function setCurrentRuleName(value){elements.ruleName.value=value;elements.ruleNameDonation.value=value}
   function splitOutputTypes(value){return String(value||'').split(/[\n,]/).map(item=>item.trim()).filter(Boolean)}
@@ -728,10 +743,12 @@
     return Boolean(device&&device.connectionState!=='revoked'&&device.supported.includes(required));
   }
   function localVoiceFilterReady(action){
-    if(action.type!=='obs.voice_anonymize_for')return true;
+    if(!isVoiceActionType(action.type))return true;
     const currentDeviceId=String(state.currentDeviceId??state.localAgent?.currentDeviceId??'');
     if(!currentDeviceId||String(action.deviceId)!==currentDeviceId)return true;
-    return state.localConnections?.obs?.voiceAnonymizer?.ready===true&&!voiceSettingsDirty;
+    const preset=action.voicePreset||'anonymous_low';
+    const presetState=state.localConnections?.obs?.voiceAnonymizer?.presets?.[preset];
+    return (presetState?.ready??(preset==='anonymous_low'&&state.localConnections?.obs?.voiceAnonymizer?.ready))===true&&!voiceSettingsDirty;
   }
 
   function renderHeader(){
@@ -834,11 +851,11 @@
     const raffle=currentFeature==='raffle';
     const flashbang=currentFeature==='flashbang';
     const voice=currentFeature==='voice-anonymizer';
-    elements.actionGrid.hidden=multiplier||raffle||flashbang||voice;elements.mutePanel.hidden=multiplier||raffle||flashbang;elements.multiplierPanel.hidden=!multiplier;elements.rafflePanel.hidden=!raffle;elements.flashbangPanel.hidden=!flashbang;elements.overlayBox.hidden=voice;
+    elements.actionGrid.hidden=multiplier||raffle||flashbang||voice;elements.mutePanel.hidden=multiplier||raffle||flashbang;elements.voicePresetPanel.hidden=!voice;elements.multiplierPanel.hidden=!multiplier;elements.rafflePanel.hidden=!raffle;elements.flashbangPanel.hidden=!flashbang;elements.overlayBox.hidden=voice;
     elements.durationSeconds.min=voice?'3':'1';elements.durationSeconds.max=voice?'60':'240';
     elements.actionStepTitle.textContent=multiplier?'보상 증가 방식':raffle?'추첨권 지급 방식':flashbang?'섬광 강도와 소리':voice?'신원보호 음성 설정':'마이크 제어 방식';
     elements.actionStepCopy.textContent=multiplier?'배수를 직접 입력하고 연속 증가 결과의 중첩 여부를 정하세요.':raffle?'고정 금액만 인정할지 배수도 인정할지 정하고 두 화면의 위치를 맞추세요.':flashbang?'방송 화면을 덮을 강도와 삐- 소리 음량을 정하세요.':voice?'OBS 마이크의 로컬 VST 2.x 필터를 켤 시간과 실행 PC를 정하세요.':'방송 환경에 맞는 방법을 고르세요. 필요한 연결 설정은 마이크 설정 탭에서 이어집니다.';
-    if(raffle){renderRafflePolicyHelp();renderRaffleDevices();renderRaffleOverlayPreviews()}else if(flashbang)renderFlashbang();else if(!multiplier){renderDevices();renderOverlays();renderDurationChips()}
+    if(raffle){renderRafflePolicyHelp();renderRaffleDevices();renderRaffleOverlayPreviews()}else if(flashbang)renderFlashbang();else if(!multiplier){renderDevices();renderOverlays();renderDurationChips();if(voice)renderVoicePreset()}
     elements.saveButton.disabled=state.busy||!state.connected||!state.canManage;renderPreview();
   }
   function renderRafflePolicyHelp(){
@@ -851,6 +868,14 @@
     const value=asNumber(elements.durationSeconds.value,10);
     elements.durationSeconds.readOnly=false;
     elements.quickTimes.querySelectorAll('[data-seconds]').forEach(button=>button.classList.toggle('active',Number(button.dataset.seconds)===value));
+  }
+  function renderVoicePreset(){
+    const preset=selectedVoicePreset(),presetState=state.localConnections?.obs?.voiceAnonymizer?.presets?.[preset];
+    const currentDeviceId=String(state.currentDeviceId??state.localAgent?.currentDeviceId??'');
+    const selectedLocal=Boolean(currentDeviceId&&String(elements.deviceId.value)===currentDeviceId);
+    const ready=presetState?.ready===true&&!voiceSettingsDirty;
+    elements.voicePresetHelp.textContent=!selectedLocal?'선택한 등록 PC에서 저장 후 테스트 송출할 수 있습니다.':ready?`${voicePresetLabel(preset)} 필터가 준비되었습니다. 바로 5초 테스트할 수 있습니다.`:`마이크 설정에서 ${voicePresetLabel(preset)} OBS 필터를 확인해주세요.`;
+    elements.previewVoiceWizardButton.disabled=state.busy||!state.canManage||!selectedLocal||!ready;
   }
   function renderEvent(){
     const multiplier=currentFeature==='reward-multiplier';
@@ -872,7 +897,7 @@
   }
   function draftFromForm(){
     const type=actionType();
-    const raffleAction=type==='raffle.ticket_grant',flashbangAction=type==='flashbang.overlay',voiceAction=type==='obs.voice_anonymize_for',raffleTicketUnit=asNumber(elements.raffleTicketUnit.value,33),raffleAllowMultiples=elements.raffleAllowMultiples.checked;
+    const raffleAction=type==='raffle.ticket_grant',flashbangAction=type==='flashbang.overlay',voiceAction=isVoiceActionType(type),voicePreset=selectedVoicePreset(),raffleTicketUnit=asNumber(elements.raffleTicketUnit.value,33),raffleAllowMultiples=elements.raffleAllowMultiples.checked;
     const ruleName=trimmed(currentRuleName()),result=trimmed(elements.result.value),source=elements.source.value,eventType=raffleAction?'donation':elements.eventType.value,minAmount=raffleAction?raffleTicketUnit:(eventType==='donation'?(trimmed(elements.minAmount.value)===''?null:asNumber(elements.minAmount.value)):null),priority=asNumber(elements.priority.value,100),durationSeconds=asNumber(elements.durationSeconds.value,10);
     if(!ruleName)throw new Error('규칙 이름을 입력하세요.');
     if(eventType==='roulette'&&!result)throw new Error('룰렛 결과 이름을 입력하세요.');
@@ -888,6 +913,7 @@
     if(flashbangAction&&!['soft','standard','strong'].includes(flashbangIntensity))throw new Error('섬광 강도를 선택하세요.');
     if(flashbangAction&&(!Number.isInteger(flashbangVolumePercent)||flashbangVolumePercent<0||flashbangVolumePercent>100))throw new Error('섬광탄 소리 음량은 0%부터 100% 사이로 설정하세요.');
     if(voiceAction&&(!Number.isInteger(durationSeconds)||durationSeconds<3||durationSeconds>60))throw new Error('신원보호모드 실행 시간은 3초부터 60초까지 입력하세요.');
+    if(voiceAction&&!['anonymous_low','anonymous_high'].includes(voicePreset))throw new Error('다운톤 또는 업톤을 선택하세요.');
     if(!voiceAction&&!multiplierAction&&!raffleAction&&!flashbangAction&&(!Number.isInteger(durationSeconds)||durationSeconds<1||durationSeconds>240))throw new Error('실행 시간은 1초부터 240초까지 입력하세요.');
     const selectedDeviceId=raffleAction?trimmed(elements.raffleDeviceId.value):flashbangAction?trimmed(elements.flashbangDeviceId.value):trimmed(elements.deviceId.value);
     if(!multiplierAction&&!selectedDeviceId)throw new Error('실행할 등록 PC를 선택하세요.');
@@ -907,10 +933,10 @@
       raffleTicketVolumePercent:raffleAction?raffleTicketVolumePercent:null,
       raffleDrawPositionX:raffleAction?raffleDrawPosition.x:null,raffleDrawPositionY:raffleAction?raffleDrawPosition.y:null,raffleDrawScalePercent:raffleAction?raffleDrawScalePercent:null,raffleDrawVolumePercent:raffleAction?raffleDrawVolumePercent:null,
       flashbangIntensity:flashbangAction?flashbangIntensity:null,flashbangVolumePercent:flashbangAction?flashbangVolumePercent:null,
-      voicePreset:voiceAction?'anonymous_low':null,
+      voicePreset:voiceAction?voicePreset:null,
       replaceRuleId:editingRule?.id??null,expectedVersion:editingRule?.version??null,
       condition:{source,eventType,result:eventType==='roulette'?result:'',minAmount,subtype:trimmed(elements.subtype.value)},
-      action:{type,eventName:'',outputTypes:[],quantity:null,durationSeconds:multiplierAction||raffleAction||flashbangAction?null:durationSeconds,deviceId:multiplierAction?'':selectedDeviceId,overlayEnabled:!voiceAction&&!multiplierAction&&!raffleAction&&!flashbangAction?overlayEnabled:false,overlayImageKey:!voiceAction&&!multiplierAction&&!raffleAction&&!flashbangAction&&overlayEnabled?elements.overlayAssetId.value:'',overlayPositionX:!voiceAction&&!multiplierAction&&!raffleAction&&!flashbangAction&&overlayEnabled?overlayPosition.x:null,overlayPositionY:!voiceAction&&!multiplierAction&&!raffleAction&&!flashbangAction&&overlayEnabled?overlayPosition.y:null,overlayScalePercent:!voiceAction&&!multiplierAction&&!raffleAction&&!flashbangAction&&overlayEnabled?overlayScalePercent:null,rewardMultiplier:multiplierAction?rewardMultiplier:null,allowMultiplierStacking:multiplierAction?elements.allowMultiplierStacking.checked:null,raffleTicketUnit:raffleAction?raffleTicketUnit:null,raffleAllowMultiples:raffleAction?raffleAllowMultiples:null,raffleTicketPositionX:raffleAction?raffleTicketPosition.x:null,raffleTicketPositionY:raffleAction?raffleTicketPosition.y:null,raffleTicketScalePercent:raffleAction?raffleTicketScalePercent:null,raffleTicketVolumePercent:raffleAction?raffleTicketVolumePercent:null,raffleDrawPositionX:raffleAction?raffleDrawPosition.x:null,raffleDrawPositionY:raffleAction?raffleDrawPosition.y:null,raffleDrawScalePercent:raffleAction?raffleDrawScalePercent:null,raffleDrawVolumePercent:raffleAction?raffleDrawVolumePercent:null,flashbangIntensity:flashbangAction?flashbangIntensity:null,flashbangVolumePercent:flashbangAction?flashbangVolumePercent:null,voicePreset:voiceAction?'anonymous_low':null}
+      action:{type,eventName:'',outputTypes:[],quantity:null,durationSeconds:multiplierAction||raffleAction||flashbangAction?null:durationSeconds,deviceId:multiplierAction?'':selectedDeviceId,overlayEnabled:!voiceAction&&!multiplierAction&&!raffleAction&&!flashbangAction?overlayEnabled:false,overlayImageKey:!voiceAction&&!multiplierAction&&!raffleAction&&!flashbangAction&&overlayEnabled?elements.overlayAssetId.value:'',overlayPositionX:!voiceAction&&!multiplierAction&&!raffleAction&&!flashbangAction&&overlayEnabled?overlayPosition.x:null,overlayPositionY:!voiceAction&&!multiplierAction&&!raffleAction&&!flashbangAction&&overlayEnabled?overlayPosition.y:null,overlayScalePercent:!voiceAction&&!multiplierAction&&!raffleAction&&!flashbangAction&&overlayEnabled?overlayScalePercent:null,rewardMultiplier:multiplierAction?rewardMultiplier:null,allowMultiplierStacking:multiplierAction?elements.allowMultiplierStacking.checked:null,raffleTicketUnit:raffleAction?raffleTicketUnit:null,raffleAllowMultiples:raffleAction?raffleAllowMultiples:null,raffleTicketPositionX:raffleAction?raffleTicketPosition.x:null,raffleTicketPositionY:raffleAction?raffleTicketPosition.y:null,raffleTicketScalePercent:raffleAction?raffleTicketScalePercent:null,raffleTicketVolumePercent:raffleAction?raffleTicketVolumePercent:null,raffleDrawPositionX:raffleAction?raffleDrawPosition.x:null,raffleDrawPositionY:raffleAction?raffleDrawPosition.y:null,raffleDrawScalePercent:raffleAction?raffleDrawScalePercent:null,raffleDrawVolumePercent:raffleAction?raffleDrawVolumePercent:null,flashbangIntensity:flashbangAction?flashbangIntensity:null,flashbangVolumePercent:flashbangAction?flashbangVolumePercent:null,voicePreset:voiceAction?voicePreset:null}
     };
   }
   function previewSentence(draft){
@@ -919,7 +945,7 @@
     if(draft.actionType==='roulette.reward_multiplier_next')return `${when} 같은 후원자의 다음 실제 룰렛 보상 1회를 ${draft.rewardMultiplier}배로 늘립니다.${draft.allowMultiplierStacking?' 연속 증가 결과는 배수를 중첩합니다.':' 연속 증가 결과는 가장 최근 배수로 갱신합니다.'}`;
     if(draft.actionType==='raffle.ticket_grant')return draft.raffleAllowMultiples?`${SOURCE_LABELS[draft.source]||draft.source} 후원 별풍선 ${draft.raffleTicketUnit.toLocaleString('ko-KR')}개당 추첨권 1장을 지급합니다. 배수 금액은 몫만큼 지급하며 나머지는 버립니다.`:`${SOURCE_LABELS[draft.source]||draft.source} 후원 별풍선이 정확히 ${draft.raffleTicketUnit.toLocaleString('ko-KR')}개일 때만 추첨권 1장을 지급합니다. 배수나 초과 금액은 지급하지 않습니다.`;
     if(draft.actionType==='flashbang.overlay')return `${when}${amount} 1920×1080 화면 전체에 ${draft.flashbangIntensity==='soft'?'약한':draft.flashbangIntensity==='strong'?'강한':'보통'} 섬광을 5초간 송출하고 삐- 소리를 ${draft.flashbangVolumePercent}%로 재생합니다.`;
-    if(draft.actionType==='obs.voice_anonymize_for')return `${when}${amount} OBS 마이크의 신원보호 VST 2.x 필터를 ${draft.durationSeconds}초 동안 켠 뒤 원래 상태로 복구합니다.`;
+    if(isVoiceActionType(draft.actionType))return `${when}${amount} OBS 마이크의 ${voicePresetLabel(draft.voicePreset)} 신원보호 VST 2.x 필터를 ${draft.durationSeconds}초 동안 켠 뒤 원래 상태로 복구합니다.`;
     const overlay=draft.overlayEnabled?` 오버레이 화면을 함께 출력하며`:'';
     return `${when}${amount}${overlay} ${ACTIONS[draft.actionType].label}를 ${draft.durationSeconds}초 실행합니다.`;
   }
@@ -944,7 +970,7 @@
     if(rule.action.type==='roulette.reward_multiplier_next')return `${ACTIONS[rule.action.type].label} · ${rule.action.rewardMultiplier}배 · ${rule.action.allowMultiplierStacking?'연속 배수 중첩':'최근 배수로 갱신'}`;
     if(rule.action.type==='raffle.ticket_grant')return `추첨권 지급 · 별풍선 ${asNumber(rule.action.raffleTicketUnit,33).toLocaleString('ko-KR')}개 ${rule.action.raffleAllowMultiples?'기준 · 배수 인정':'정확히 일치'} · 지급 TTS ${asNumber(rule.action.raffleTicketVolumePercent,80)}% · 당첨 TTS ${asNumber(rule.action.raffleDrawVolumePercent,80)}%`;
     if(rule.action.type==='flashbang.overlay')return `전체 화면 섬광 · ${rule.action.flashbangIntensity==='soft'?'약하게':rule.action.flashbangIntensity==='strong'?'강하게':'보통'} · 5초 완전 회복 · 소리 ${asNumber(rule.action.flashbangVolumePercent,80)}%`;
-    if(rule.action.type==='obs.voice_anonymize_for')return `(신원보호모드/개발중) · ${rule.action.durationSeconds}초 · OBS VST 2.x 필터 자동 복구`;
+    if(isVoiceActionType(rule.action.type))return `(신원보호모드/개발중) · ${voicePresetLabel(rule.action.voicePreset)} · ${rule.action.durationSeconds}초 · OBS VST 2.x 필터 자동 복구`;
     return `${ACTIONS[rule.action.type]?.label||rule.action.type} · ${rule.action.durationSeconds}초${asset?` · ${asset.name} 화면`:''}`;
   }
   function formatDate(value){
@@ -974,7 +1000,7 @@
       const actions=document.createElement('div');actions.className='rule-foot-actions';
       const manage=document.createElement('button');manage.type='button';manage.className='edit-button manage';manage.textContent='추첨 관리';manage.hidden=rule.action.type!=='raffle.ticket_grant';manage.disabled=state.busy;manage.title='모인 추첨권을 확인하고 추첨을 진행합니다.';manage.onclick=()=>switchView('raffle');
       const canTest=TESTABLE_ACTION_TYPES.has(rule.action.type);
-      const test=document.createElement('button');test.type='button';test.className='edit-button test';test.textContent='테스트 송출';test.hidden=!canTest;test.disabled=state.busy||!state.canManage||!rule.editable||!deviceReady||!overlayReady;test.title=!deviceReady?'등록 PC 연결과 지원 기능을 먼저 확인하세요.':!overlayReady?'별록 오버레이 화면 준비를 먼저 완료하세요.':rule.action.type==='raffle.ticket_grant'?'추첨권 지급 화면과 추첨 화면을 차례로 송출합니다.':rule.action.type==='obs.voice_anonymize_for'?'OBS 신원보호 필터를 실제로 켰다가 복구합니다.':'실제 마이크 제어와 오버레이를 한 번 실행합니다.';test.onclick=()=>openTestRuleConfirm(rule);
+      const test=document.createElement('button');test.type='button';test.className='edit-button test';test.textContent='테스트 송출';test.hidden=!canTest;test.disabled=state.busy||!state.canManage||!rule.editable||!deviceReady||!overlayReady;test.title=!deviceReady?'등록 PC 연결과 지원 기능을 먼저 확인하세요.':!overlayReady?'별록 오버레이 화면 준비를 먼저 완료하세요.':rule.action.type==='raffle.ticket_grant'?'추첨권 지급 화면과 추첨 화면을 차례로 송출합니다.':isVoiceActionType(rule.action.type)?`OBS ${voicePresetLabel(rule.action.voicePreset)} 신원보호 필터를 실제로 켰다가 복구합니다.`:'실제 마이크 제어와 오버레이를 한 번 실행합니다.';test.onclick=()=>openTestRuleConfirm(rule);
       const edit=document.createElement('button');edit.type='button';edit.className='edit-button';edit.textContent='수정';edit.disabled=state.busy||!state.canManage||!rule.editable;edit.onclick=()=>startEdit(rule);
       const remove=document.createElement('button');remove.type='button';remove.className='edit-button danger';remove.textContent='삭제';remove.disabled=state.busy||!state.canManage||!rule.editable;remove.onclick=()=>openDeleteRuleConfirm(rule);
       actions.append(manage,test,edit,remove);foot.append(actions);article.append(foot);elements.ruleList.append(article);
@@ -1039,20 +1065,25 @@
   function renderLocalConnections(){
     const local=state.localConnections&&typeof state.localConnections==='object'?state.localConnections:{};
     const obs=local.obs&&typeof local.obs==='object'?local.obs:{enabled:false,port:4455,inputName:'',hasPassword:false};
-    const voice=obs.voiceAnonymizer&&typeof obs.voiceAnonymizer==='object'?obs.voiceAnonymizer:{filterName:'별록 신원보호모드',ready:false,state:'not_ready',message:'OBS에서 신원보호 필터를 준비해주세요.'};
+    const voice=obs.voiceAnonymizer&&typeof obs.voiceAnonymizer==='object'?obs.voiceAnonymizer:{filterName:'별록 신원보호모드',ready:false,state:'not_ready',message:'OBS에서 신원보호 필터를 준비해주세요.',presets:{}};
+    const down=voice.presets?.anonymous_low||voice;
+    const up=voice.presets?.anonymous_high||{filterName:'별록 신원보호모드 업톤',ready:false,state:'not_ready',message:'OBS에서 업톤 필터를 준비해주세요.'};
     const windows=local.windows&&typeof local.windows==='object'?local.windows:{enabled:false,endpointId:'',endpointName:'',endpoints:[]};
     if(document.activeElement!==elements.obsPort)elements.obsPort.value=String(obs.port||4455);
     if(document.activeElement!==elements.obsInputName)elements.obsInputName.value=obs.inputName||'';
     elements.obsEnabled.checked=obs.enabled===true;
     elements.obsPassword.placeholder=obs.hasPassword?'저장된 비밀번호 유지':'OBS WebSocket 비밀번호';
-    if(document.activeElement!==elements.voiceFilterName)elements.voiceFilterName.value=voice.filterName||'별록 신원보호모드';
+    if(document.activeElement!==elements.voiceFilterName)elements.voiceFilterName.value=down.filterName||'별록 신원보호모드';
+    if(document.activeElement!==elements.voiceUpFilterName)elements.voiceUpFilterName.value=up.filterName||'별록 신원보호모드 업톤';
     elements.obsSetupState.textContent=obs.enabled&&obs.inputName?'설정됨':'설정 필요';
     elements.obsSetupState.classList.toggle('ready',obs.enabled&&Boolean(obs.inputName));
-    const voiceReady=voice.ready===true&&!voiceSettingsDirty;
-    elements.voiceFilterStatus.textContent=voiceSettingsDirty?'변경됨':voiceReady?(voice.filterEnabled===true?'준비됨 · 켜짐':'준비됨'):'확인 필요';
+    const downReady=down.ready===true&&!voiceSettingsDirty,upReady=up.ready===true&&!voiceSettingsDirty,voiceReady=downReady&&upReady;
+    elements.voiceFilterStatus.textContent=voiceSettingsDirty?'변경됨':voiceReady?'두 톤 준비됨':downReady?'다운톤 준비됨':upReady?'업톤 준비됨':'확인 필요';
     elements.voiceFilterStatus.classList.toggle('ready',voiceReady);
-    elements.voiceFilterMessage.textContent=voiceSettingsDirty?'변경한 OBS 설정을 필터 상태 확인으로 검증·저장해주세요.':voice.message||'OBS에서 신원보호 VST 2.x 필터를 준비해주세요.';
-    elements.previewVoiceButton.disabled=state.busy||!state.canManage||!voiceReady;
+    elements.voiceFilterMessage.textContent=voiceSettingsDirty?'변경한 OBS 설정을 각 필터 확인으로 검증·저장해주세요.':`다운톤: ${down.message||'확인 필요'} · 업톤: ${up.message||'확인 필요'}`;
+    elements.previewVoiceButton.disabled=state.busy||!state.canManage||!downReady;
+    elements.previewVoiceUpButton.disabled=state.busy||!state.canManage||!upReady;
+    if(currentFeature==='voice-anonymizer')renderVoicePreset();
     const previous=elements.windowsEndpoint.value||windows.endpointId||'';
     const endpoints=safeArray(windows.endpoints);
     elements.windowsEndpoint.replaceChildren();
@@ -1084,8 +1115,8 @@
     if(rule.action.type==='flashbang.overlay'){
       pendingTestRuleId=rule.id;elements.testRuleConfirmTitle.textContent=`‘${rule.name}’ 섬광탄을 실제로 테스트할까요?`;elements.testRuleConfirmCopy.textContent=`${device?.name||'선택한 PC'}에서 저장한 섬광 강도와 볼륨으로 5초간 실제 송출합니다. 방송 중이라면 시청자에게 그대로 보이고 들릴 수 있습니다.`;elements.testRuleConfirmLayer.hidden=false;elements.cancelTestRuleButton.focus();return;
     }
-    if(rule.action.type==='obs.voice_anonymize_for'){
-      pendingTestRuleId=rule.id;elements.testRuleConfirmTitle.textContent=`‘${rule.name}’ 신원보호 목소리를 실제로 테스트할까요?`;elements.testRuleConfirmCopy.textContent=`${device?.name||'선택한 PC'}의 OBS 마이크 VST 2.x 필터를 ${rule.action.durationSeconds}초간 실제로 켰다가 원래 상태로 복구합니다. 방송 중이라면 시청자에게 변조된 목소리가 그대로 들립니다.`;elements.testRuleConfirmLayer.hidden=false;elements.cancelTestRuleButton.focus();return;
+    if(isVoiceActionType(rule.action.type)){
+      pendingTestRuleId=rule.id;elements.testRuleConfirmTitle.textContent=`‘${rule.name}’ ${voicePresetLabel(rule.action.voicePreset)} 목소리를 실제로 테스트할까요?`;elements.testRuleConfirmCopy.textContent=`${device?.name||'선택한 PC'}의 OBS 마이크 ${voicePresetLabel(rule.action.voicePreset)} VST 2.x 필터를 ${rule.action.durationSeconds}초간 실제로 켰다가 원래 상태로 복구합니다. 방송 중이라면 시청자에게 변조된 목소리가 그대로 들립니다.`;elements.testRuleConfirmLayer.hidden=false;elements.cancelTestRuleButton.focus();return;
     }
     const details=[`${rule.action.durationSeconds}초`,device?.name||'선택한 PC'];
     if(rule.action.overlayEnabled)details.push(asset?.name||'선택한 오버레이');
@@ -1326,6 +1357,7 @@
       const durationSeconds=asNumber(elements.durationSeconds.value,10);
       if(!Number.isInteger(durationSeconds)||durationSeconds<3||durationSeconds>60)throw new Error('신원보호모드 실행 시간은 3초부터 60초까지 입력하세요.');
       if(!trimmed(elements.deviceId.value))throw new Error('신원보호모드를 실행할 등록 PC를 선택하세요.');
+      if(!['anonymous_low','anonymous_high'].includes(selectedVoicePreset()))throw new Error('다운톤 또는 업톤을 선택하세요.');
       return;
     }
     const durationSeconds=asNumber(elements.durationSeconds.value,10),overlayEnabled=elements.overlayEnabled.checked;
@@ -1338,7 +1370,7 @@
     elements.wizardSteps.forEach(section=>section.hidden=Number(section.dataset.wizardStep)!==wizardStep);
     elements.wizardProgress.forEach(item=>{const number=Number(item.dataset.wizardProgress);item.classList.toggle('active',number===wizardStep);item.classList.toggle('done',number<wizardStep)});
     elements.previousButton.hidden=wizardStep===1;elements.nextButton.hidden=wizardStep===3;elements.saveButton.hidden=wizardStep!==3;
-    elements.wizardFooterHint.textContent=wizardStep===1?'1단계 · 후원 조건을 입력하세요.':wizardStep===2?(currentFeature==='reward-multiplier'?'2단계 · 배수와 중첩 적용 여부를 정하세요.':currentFeature==='raffle'?'2단계 · 고정/배수 정책과 두 화면의 위치·크기를 정하세요.':currentFeature==='flashbang'?'2단계 · 섬광 강도와 소리 음량을 정하세요.':currentFeature==='voice-anonymizer'?'2단계 · 변조 시간과 실행 PC를 선택하세요.':'2단계 · 마이크 제어 방식과 표시 화면을 선택하세요.'):'3단계 · 실행 내용을 확인하고 저장하세요.';
+    elements.wizardFooterHint.textContent=wizardStep===1?'1단계 · 후원 조건을 입력하세요.':wizardStep===2?(currentFeature==='reward-multiplier'?'2단계 · 배수와 중첩 적용 여부를 정하세요.':currentFeature==='raffle'?'2단계 · 고정/배수 정책과 두 화면의 위치·크기를 정하세요.':currentFeature==='flashbang'?'2단계 · 섬광 강도와 소리 음량을 정하세요.':currentFeature==='voice-anonymizer'?'2단계 · 업톤/다운톤, 변조 시간과 실행 PC를 선택하세요.':'2단계 · 마이크 제어 방식과 표시 화면을 선택하세요.'):'3단계 · 실행 내용을 확인하고 저장하세요.';
     renderPreview();elements.builderPane.scrollTo({top:0,behavior:'smooth'});
   }
   function openAbongWizard(){
@@ -1360,14 +1392,14 @@
     currentFeature='flashbang';state.editingRuleId=null;flashbangIntensity='standard';flashbangVolumePercent=80;elements.builderPane.classList.add('wizard-open');elements.automationHome.hidden=true;elements.featureCatalogView.hidden=true;elements.ruleForm.hidden=false;elements.ruleForm.reset();elements.priority.value='100';elements.eventType.value='roulette';elements.result.value='섬광탄';elements.ruleName.value='섬광탄!';elements.enabled.checked=true;elements.flashbangVolume.value='80';const standard=elements.flashbangIntensity.find(input=>input.value==='standard');if(standard)standard.checked=true;setCurrentRuleName('섬광탄!');elements.composerIcon.textContent='閃';elements.composerTitle.textContent='섬광탄! 설정';elements.composerCopy.textContent='전체 화면을 덮을 섬광 강도와 삐- 소리 음량을 설정합니다.';elements.editChip.hidden=true;elements.saveButton.textContent='섬광탄 액션 저장';renderEvent();renderAction();goWizardStep(1);
   }
   function openVoiceAnonymizerWizard(){
-    currentFeature='voice-anonymizer';state.editingRuleId=null;elements.builderPane.classList.add('wizard-open');elements.automationHome.hidden=true;elements.featureCatalogView.hidden=true;elements.ruleForm.hidden=false;elements.ruleForm.reset();elements.priority.value='100';elements.eventType.value='roulette';elements.result.value='(신원보호모드/개발중)';elements.durationSeconds.value='10';elements.overlayEnabled.checked=false;elements.enabled.checked=true;setCurrentRuleName('(신원보호모드/개발중)');elements.composerIcon.textContent='V';elements.composerTitle.textContent='(신원보호모드/개발중) 설정';elements.composerCopy.textContent='OBS에 준비한 VST 2.x 필터를 정해진 시간 동안 안전하게 켰다가 복구합니다.';elements.editChip.hidden=true;elements.saveButton.textContent='(신원보호모드/개발중) 저장';renderEvent();renderAction();goWizardStep(1);
+    currentFeature='voice-anonymizer';state.editingRuleId=null;elements.builderPane.classList.add('wizard-open');elements.automationHome.hidden=true;elements.featureCatalogView.hidden=true;elements.ruleForm.hidden=false;elements.ruleForm.reset();elements.priority.value='100';elements.eventType.value='roulette';elements.result.value='(신원보호모드/개발중)';elements.durationSeconds.value='10';elements.overlayEnabled.checked=false;elements.enabled.checked=true;const down=elements.voicePresets.find(input=>input.value==='anonymous_low');if(down)down.checked=true;setCurrentRuleName('(신원보호모드/개발중)');elements.composerIcon.textContent='V';elements.composerTitle.textContent='(신원보호모드/개발중) 설정';elements.composerCopy.textContent='업톤 또는 다운톤 OBS 필터를 정해진 시간 동안 안전하게 켰다가 복구합니다.';elements.editChip.hidden=true;elements.saveButton.textContent='(신원보호모드/개발중) 저장';renderEvent();renderAction();goWizardStep(1);
   }
   function startEdit(rule){
     if(!state.canManage)return;
     elements.builderPane.classList.add('wizard-open');elements.automationHome.hidden=true;elements.featureCatalogView.hidden=true;elements.ruleForm.hidden=false;
     state.editingRuleId=rule.id;post('editAutomationRule',{ruleId:rule.id,id:rule.id});
     const condition=rule.condition,action=rule.action;
-    currentFeature=action.type==='roulette.reward_multiplier_next'?'reward-multiplier':action.type==='raffle.ticket_grant'?'raffle':action.type==='flashbang.overlay'?'flashbang':action.type==='obs.voice_anonymize_for'?'voice-anonymizer':'abong';
+    currentFeature=action.type==='roulette.reward_multiplier_next'?'reward-multiplier':action.type==='raffle.ticket_grant'?'raffle':action.type==='flashbang.overlay'?'flashbang':isVoiceActionType(action.type)?'voice-anonymizer':'abong';
     elements.source.value=condition.source||'weflab';elements.eventType.value=condition.eventType||'roulette';elements.minAmount.value=condition.eventType==='donation'?(condition.minAmount??''):'';elements.result.value=condition.result||'';setCurrentRuleName(rule.name);elements.subtype.value=condition.subtype||'';elements.priority.value=String(rule.priority);elements.enabled.checked=rule.enabled;
     const radio=elements.actionGrid.querySelector(`input[value="${CSS.escape(action.type)}"]`);if(radio)radio.checked=true;
     elements.durationSeconds.value=String(action.durationSeconds||10);
@@ -1376,6 +1408,7 @@
     raffleTicketVolumePercent=Number.isInteger(action.raffleTicketVolumePercent)&&action.raffleTicketVolumePercent>=0&&action.raffleTicketVolumePercent<=100?action.raffleTicketVolumePercent:80;
     raffleDrawPosition=validOverlayPosition(action.raffleDrawPositionX,action.raffleDrawPositionY)?{x:action.raffleDrawPositionX,y:action.raffleDrawPositionY}:{x:5000,y:5000};raffleDrawScalePercent=Number.isInteger(action.raffleDrawScalePercent)&&action.raffleDrawScalePercent>=25&&action.raffleDrawScalePercent<=200?action.raffleDrawScalePercent:100;raffleDrawVolumePercent=Number.isInteger(action.raffleDrawVolumePercent)&&action.raffleDrawVolumePercent>=0&&action.raffleDrawVolumePercent<=100?action.raffleDrawVolumePercent:80;
     flashbangIntensity=['soft','standard','strong'].includes(action.flashbangIntensity)?action.flashbangIntensity:'standard';flashbangVolumePercent=Number.isInteger(action.flashbangVolumePercent)&&action.flashbangVolumePercent>=0&&action.flashbangVolumePercent<=100?action.flashbangVolumePercent:80;elements.flashbangVolume.value=String(flashbangVolumePercent);const flashRadio=elements.flashbangIntensity.find(input=>input.value===flashbangIntensity);if(flashRadio)flashRadio.checked=true;
+    const voiceRadio=elements.voicePresets.find(input=>input.value===(action.voicePreset==='anonymous_high'?'anonymous_high':'anonymous_low'));if(voiceRadio)voiceRadio.checked=true;
     renderEvent();renderAction();
     if(action.deviceId&&[...elements.deviceId.options].some(option=>option.value===action.deviceId))elements.deviceId.value=action.deviceId;
     if(action.deviceId&&[...elements.raffleDeviceId.options].some(option=>option.value===action.deviceId))elements.raffleDeviceId.value=action.deviceId;
@@ -1385,7 +1418,7 @@
     elements.composerIcon.textContent='✎';elements.composerTitle.textContent=currentFeature==='reward-multiplier'?'다음 룰렛 보상 증가 수정':currentFeature==='raffle'?'추첨 설정 수정':currentFeature==='flashbang'?'섬광탄! 설정 수정':currentFeature==='voice-anonymizer'?'(신원보호모드/개발중) 수정':'아봉 설정 수정';elements.composerCopy.textContent='기존 설정을 단계별로 확인하고 새 버전으로 저장합니다.';elements.editChip.hidden=false;elements.saveButton.textContent='새 버전으로 저장';renderRules();goWizardStep(1);
   }
   function resetForm(notify=false){
-    const previous=state.editingRuleId;state.editingRuleId=null;currentFeature='abong';overlayPosition={x:5000,y:5000};overlayScalePercent=100;raffleTicketPosition={x:5000,y:5000};raffleTicketScalePercent=100;raffleTicketVolumePercent=80;raffleDrawPosition={x:5000,y:5000};raffleDrawScalePercent=100;raffleDrawVolumePercent=80;flashbangIntensity='standard';flashbangVolumePercent=80;elements.ruleForm.reset();elements.priority.value='100';elements.durationSeconds.value='10';elements.rewardMultiplier.value='2';elements.raffleTicketUnit.value='33';elements.raffleAllowMultiples.checked=false;elements.allowMultiplierStacking.checked=false;elements.flashbangVolume.value='80';elements.overlayEnabled.checked=true;setCurrentRuleName('');
+    const previous=state.editingRuleId;state.editingRuleId=null;currentFeature='abong';overlayPosition={x:5000,y:5000};overlayScalePercent=100;raffleTicketPosition={x:5000,y:5000};raffleTicketScalePercent=100;raffleTicketVolumePercent=80;raffleDrawPosition={x:5000,y:5000};raffleDrawScalePercent=100;raffleDrawVolumePercent=80;flashbangIntensity='standard';flashbangVolumePercent=80;elements.ruleForm.reset();elements.priority.value='100';elements.durationSeconds.value='10';elements.rewardMultiplier.value='2';elements.raffleTicketUnit.value='33';elements.raffleAllowMultiples.checked=false;elements.allowMultiplierStacking.checked=false;elements.flashbangVolume.value='80';elements.overlayEnabled.checked=true;const down=elements.voicePresets.find(input=>input.value==='anonymous_low');if(down)down.checked=true;setCurrentRuleName('');
     const obsRadio=elements.actionGrid.querySelector('input[value="obs.mute_for"]');if(obsRadio)obsRadio.checked=true;
     elements.composerIcon.textContent='아';elements.composerTitle.textContent='아봉 설정';elements.composerCopy.textContent='안내에 따라 방송 마이크 자동화를 연결합니다.';elements.editChip.hidden=true;elements.saveButton.textContent='아봉 자동화 저장';renderEvent();renderAction();showAutomationHome();if(notify)post('cancelAutomationEdit',{ruleId:previous,id:previous});
   }
@@ -1409,7 +1442,7 @@
     elements.refreshDevicesButton.disabled=state.busy||!state.connected;
     elements.refreshMicrophonesButton.disabled=state.busy;
     elements.refreshOverlayButton.disabled=state.busy||!state.connected;
-    [elements.testObsButton,elements.saveObsButton,elements.testVoiceFilterButton,elements.previewVoiceButton,elements.reloadWindowsDevicesButton,elements.testWindowsButton,elements.saveWindowsButton].forEach(button=>button.disabled=state.busy);
+    [elements.testObsButton,elements.saveObsButton,elements.testVoiceFilterButton,elements.previewVoiceButton,elements.testVoiceUpFilterButton,elements.previewVoiceUpButton,elements.previewVoiceWizardButton,elements.reloadWindowsDevicesButton,elements.testWindowsButton,elements.saveWindowsButton].forEach(button=>button.disabled=state.busy);
     renderRules();renderManagement();
   }
   function showToast(message,tone='success'){
@@ -1485,13 +1518,16 @@
   elements.refreshDevicesButton.onclick=()=>post('refreshAutomation');
   elements.refreshMicrophonesButton.onclick=()=>post('refreshLocalConnections');
   elements.reloadWindowsDevicesButton.onclick=()=>post('refreshLocalConnections');
-  function obsSettingsPayload(){return {enabled:elements.obsEnabled.checked,port:asNumber(elements.obsPort.value,4455),inputName:trimmed(elements.obsInputName.value),password:elements.obsPassword.value,voiceAnonymizerFilterName:trimmed(elements.voiceFilterName.value)}}
-  function markVoiceSettingsDirty(){voiceSettingsDirty=true;awaitingVoiceSettingsValidation=false;elements.voiceFilterStatus.textContent='변경됨';elements.voiceFilterStatus.classList.remove('ready');elements.voiceFilterMessage.textContent='변경한 OBS 설정을 필터 상태 확인으로 검증·저장해주세요.';elements.previewVoiceButton.disabled=true;renderRules()}
-  [elements.obsEnabled,elements.obsPort,elements.obsInputName,elements.obsPassword,elements.voiceFilterName].forEach(control=>{control.addEventListener(control===elements.obsEnabled?'change':'input',markVoiceSettingsDirty)});
+  function obsSettingsPayload(){return {enabled:elements.obsEnabled.checked,port:asNumber(elements.obsPort.value,4455),inputName:trimmed(elements.obsInputName.value),password:elements.obsPassword.value,voiceAnonymizerFilterName:trimmed(elements.voiceFilterName.value),voiceAnonymizerUpFilterName:trimmed(elements.voiceUpFilterName.value)}}
+  function markVoiceSettingsDirty(){voiceSettingsDirty=true;awaitingVoiceSettingsValidation=false;elements.voiceFilterStatus.textContent='변경됨';elements.voiceFilterStatus.classList.remove('ready');elements.voiceFilterMessage.textContent='변경한 OBS 설정을 각 필터 확인으로 검증·저장해주세요.';elements.previewVoiceButton.disabled=true;elements.previewVoiceUpButton.disabled=true;elements.previewVoiceWizardButton.disabled=true;renderRules()}
+  [elements.obsEnabled,elements.obsPort,elements.obsInputName,elements.obsPassword,elements.voiceFilterName,elements.voiceUpFilterName].forEach(control=>{control.addEventListener(control===elements.obsEnabled?'change':'input',markVoiceSettingsDirty)});
   elements.saveObsButton.onclick=()=>{awaitingVoiceSettingsValidation=true;post('saveObsSettings',obsSettingsPayload())};
   elements.testObsButton.onclick=()=>post('testObsSettings',{...obsSettingsPayload(),enabled:true});
-  elements.testVoiceFilterButton.onclick=()=>{awaitingVoiceSettingsValidation=true;post('testVoiceAnonymizerFilter',obsSettingsPayload())};
-  elements.previewVoiceButton.onclick=()=>post('previewVoiceAnonymizer');
+  elements.testVoiceFilterButton.onclick=()=>{awaitingVoiceSettingsValidation=true;post('testVoiceAnonymizerFilter',{...obsSettingsPayload(),preset:'anonymous_low'})};
+  elements.previewVoiceButton.onclick=()=>post('previewVoiceAnonymizer',{preset:'anonymous_low'});
+  elements.testVoiceUpFilterButton.onclick=()=>{awaitingVoiceSettingsValidation=true;post('testVoiceAnonymizerFilter',{...obsSettingsPayload(),preset:'anonymous_high'})};
+  elements.previewVoiceUpButton.onclick=()=>post('previewVoiceAnonymizer',{preset:'anonymous_high'});
+  elements.previewVoiceWizardButton.onclick=()=>post('previewVoiceAnonymizer',{preset:selectedVoicePreset()});
   elements.saveWindowsButton.onclick=()=>post('saveWindowsMicSettings',{enabled:elements.windowsEnabled.checked,endpointId:elements.windowsEndpoint.value});
   elements.testWindowsButton.onclick=()=>post('testWindowsMicSettings',{endpointId:elements.windowsEndpoint.value});
   elements.refreshOverlayButton.onclick=()=>post('refreshAutomation');
@@ -1528,7 +1564,7 @@
   elements.actionGrid.onchange=renderAction;
   elements.overlayEnabled.onchange=()=>{renderOverlays();renderDurationChips();renderPreview()};
   elements.overlayAssetId.onchange=()=>{overlayPosition=defaultOverlayPosition();overlayScalePercent=100;renderOverlays();renderDurationChips();renderPreview()};
-  elements.deviceId.onchange=()=>{renderOverlays();renderPreview()};
+  elements.deviceId.onchange=()=>{renderOverlays();if(currentFeature==='voice-anonymizer')renderVoicePreset();renderPreview()};
   elements.durationSeconds.oninput=()=>{renderDurationChips();renderPreview()};
   elements.rewardMultiplier.oninput=renderPreview;
   elements.raffleTicketUnit.oninput=()=>{renderRafflePolicyHelp();renderPreview()};
@@ -1536,6 +1572,7 @@
   elements.raffleDeviceId.onchange=renderPreview;
   elements.flashbangDeviceId.onchange=renderPreview;
   elements.flashbangIntensity.forEach(input=>input.onchange=()=>{flashbangIntensity=input.value;renderFlashbang();renderPreview()});
+  elements.voicePresets.forEach(input=>input.onchange=()=>{renderVoicePreset();renderPreview()});
   elements.flashbangVolume.oninput=()=>{flashbangVolumePercent=asNumber(elements.flashbangVolume.value,80);elements.flashbangVolumeValue.textContent=`${flashbangVolumePercent}%`;renderPreview()};
   elements.previewFlashbangButton.onclick=()=>post('previewFlashbang',{intensity:flashbangIntensity,volumePercent:flashbangVolumePercent});
   elements.allowMultiplierStacking.onchange=renderPreview;
@@ -1577,7 +1614,7 @@
   });
   addEventListener('keydown',event=>{if(event.key!=='Escape')return;if(!elements.positionEditorLayer.hidden){event.preventDefault();closePositionEditor(false)}else if(!elements.raffleReannounceConfirmLayer.hidden){event.preventDefault();closeRaffleReannounceConfirm()}else if(!elements.raffleNextConfirmLayer.hidden){event.preventDefault();closeRaffleNextConfirm()}else if(!elements.raffleDrawConfirmLayer.hidden){event.preventDefault();closeRaffleDrawConfirm()}else if(!elements.testRuleConfirmLayer.hidden){event.preventDefault();closeTestRuleConfirm()}else if(!elements.deleteRuleConfirmLayer.hidden){event.preventDefault();closeDeleteRuleConfirm()}else if(!elements.revokeConfirmLayer.hidden){event.preventDefault();closeRevokeConfirm()}});
   resetForm(false);renderHeader();setBusy({busy:false,ownerId:0});switchView('rules');
-  post('automationReady',{version:12,capabilities:['abong','obs.mute_for','obs.voice_anonymize_for','voice-anonymizer-vst2','voice-anonymizer-preview','windows.mic_mute_for','flashbang','flashbang.overlay','flashbang-intensity','flashbang-browser-audio','raffle','raffle.overlay','raffle-draw','raffle-manual-draw','raffle-winner-reannounce','raffle-tts','raffle-tts-volume','inline-device-setup','overlay','overlay-position-drag','overlay-scale','rule-delete','rule-test-dispatch','timed-mute-accumulation','device-management','overlay-management','broadcast-readiness','automation-activity','window-controls']});
+  post('automationReady',{version:13,capabilities:['abong','obs.mute_for','obs.voice_anonymize_for','obs.voice_anonymize_for_v2','voice-anonymizer-vst2','voice-anonymizer-preview','voice-anonymizer-pitch-presets','windows.mic_mute_for','flashbang','flashbang.overlay','flashbang-intensity','flashbang-browser-audio','raffle','raffle.overlay','raffle-draw','raffle-manual-draw','raffle-winner-reannounce','raffle-tts','raffle-tts-volume','inline-device-setup','overlay','overlay-position-drag','overlay-scale','rule-delete','rule-test-dispatch','timed-mute-accumulation','device-management','overlay-management','broadcast-readiness','automation-activity','window-controls']});
 </script>
 </body>
 </html>

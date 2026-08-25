@@ -5,6 +5,15 @@ using Microsoft.Web.WebView2.WinForms;
 
 namespace HurogiCollector;
 
+internal sealed record VoiceAnonymizerPresetState(
+    string Preset,
+    string Label,
+    string FilterName,
+    bool Ready,
+    bool? FilterEnabled,
+    string State,
+    string Message);
+
 /// <summary>
 /// 별록 에이전트가 보유한 메모리 세션으로 뉴별록 자동화 규칙을 관리합니다.
 /// access/refresh token은 WebView에 전달하지 않으며 모든 원격 요청은 C# 경계에서 수행합니다.
@@ -520,7 +529,7 @@ internal sealed class VNextAutomationSettingsForm : Form
                     await TestVoiceAnonymizerFilterAsync(payload);
                     break;
                 case "previewVoiceAnonymizer":
-                    await PreviewVoiceAnonymizerAsync();
+                    await PreviewVoiceAnonymizerAsync(payload);
                     break;
                 case "saveWindowsMicSettings":
                     await SaveWindowsMicSettingsAsync(payload);
@@ -1402,52 +1411,29 @@ internal sealed class VNextAutomationSettingsForm : Form
     {
         var obs = _storage.LoadObsSettings();
         var windows = _storage.LoadWindowsCaptureSettings();
-        object voiceAnonymizer = new
+        var downVoice = await CreateVoiceAnonymizerPresetStateAsync(
+            obs,
+            ObsVoiceAnonymizerContract.DownPreset,
+            "다운톤",
+            obs.VoiceAnonymizerFilterName);
+        var upVoice = await CreateVoiceAnonymizerPresetStateAsync(
+            obs,
+            ObsVoiceAnonymizerContract.UpPreset,
+            "업톤",
+            obs.VoiceAnonymizerUpFilterName);
+        var voiceAnonymizer = new
         {
-            filterName = obs.VoiceAnonymizerFilterName,
-            ready = false,
-            filterEnabled = (bool?)null,
-            state = obs.Enabled ? "checking" : "obs_disabled",
-            message = obs.Enabled ? "OBS 필터 상태를 확인하는 중입니다." : "OBS 연결을 먼저 사용으로 설정해주세요."
+            filterName = downVoice.FilterName,
+            ready = downVoice.Ready,
+            filterEnabled = downVoice.FilterEnabled,
+            state = downVoice.State,
+            message = downVoice.Message,
+            presets = new
+            {
+                anonymous_low = downVoice,
+                anonymous_high = upVoice
+            }
         };
-        if (obs.Enabled
-            && !string.IsNullOrWhiteSpace(obs.MicrophoneInputName)
-            && !string.IsNullOrWhiteSpace(obs.VoiceAnonymizerFilterName)
-            && _localAgent is not null)
-        {
-            try
-            {
-                using var voiceTimeout = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeToken);
-                voiceTimeout.CancelAfter(TimeSpan.FromSeconds(4));
-                var status = await _localAgent.ProbeVoiceAnonymizerAsync(voiceTimeout.Token);
-                voiceAnonymizer = new
-                {
-                    filterName = status.FilterName,
-                    ready = status.Ready,
-                    filterEnabled = (bool?)status.FilterEnabled,
-                    state = status.FilterEnabled ? "ready_enabled" : "ready",
-                    message = status.FilterEnabled
-                        ? "VST 2.x 필터가 준비되어 있으며 현재 켜져 있습니다. 평소에는 꺼두는 것을 권장합니다."
-                        : "VST 2.x 필터가 준비되어 있습니다."
-                };
-            }
-            catch (OperationCanceledException) when (_lifetimeToken.IsCancellationRequested)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _storage.Log("Voice anonymizer readiness probe failed: " + ex.GetType().Name);
-                voiceAnonymizer = new
-                {
-                    filterName = obs.VoiceAnonymizerFilterName,
-                    ready = false,
-                    filterEnabled = (bool?)null,
-                    state = "not_ready",
-                    message = VoiceAnonymizerSetupMessage(ex)
-                };
-            }
-        }
         IReadOnlyList<WindowsCaptureEndpoint> endpoints;
         try
         {
@@ -1486,6 +1472,46 @@ internal sealed class VNextAutomationSettingsForm : Form
                 })
             }
         };
+    }
+
+    private async Task<VoiceAnonymizerPresetState> CreateVoiceAnonymizerPresetStateAsync(
+        ObsConnectionSettings obs,
+        string preset,
+        string label,
+        string filterName)
+    {
+        if (!obs.Enabled)
+            return new(preset, label, filterName, false, null, "obs_disabled", "OBS 연결을 먼저 사용으로 설정해주세요.");
+        if (string.IsNullOrWhiteSpace(obs.MicrophoneInputName) || string.IsNullOrWhiteSpace(filterName))
+            return new(preset, label, filterName, false, null, "not_ready", $"{label} 필터 이름과 OBS 마이크를 설정해주세요.");
+        if (_localAgent is null)
+            return new(preset, label, filterName, false, null, "not_ready", "이 PC 자동화 실행기를 확인할 수 없습니다.");
+
+        try
+        {
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeToken);
+            timeout.CancelAfter(TimeSpan.FromSeconds(4));
+            var status = await _localAgent.ProbeVoiceAnonymizerAsync(preset, timeout.Token);
+            return new(
+                preset,
+                label,
+                status.FilterName,
+                status.Ready,
+                status.FilterEnabled,
+                status.FilterEnabled ? "ready_enabled" : "ready",
+                status.FilterEnabled
+                    ? $"{label} VST 2.x 필터가 현재 켜져 있습니다. 평소에는 꺼두는 것을 권장합니다."
+                    : $"{label} VST 2.x 필터가 준비되어 있습니다.");
+        }
+        catch (OperationCanceledException) when (_lifetimeToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _storage.Log($"Voice anonymizer readiness probe failed: preset={preset} type={ex.GetType().Name}");
+            return new(preset, label, filterName, false, null, "not_ready", VoiceAnonymizerSetupMessage(ex));
+        }
     }
 
     private async Task PushLocalConnectionsAsync(long ownerId, bool showToast)
@@ -1534,6 +1560,11 @@ internal sealed class VNextAutomationSettingsForm : Form
     private async Task TestVoiceAnonymizerFilterAsync(JsonElement payload)
     {
         var savedSettings = ParseObsSettings(payload, keepStoredPasswordWhenBlank: true);
+        var preset = PayloadVoicePreset(payload);
+        var presetLabel = preset == ObsVoiceAnonymizerContract.UpPreset ? "업톤" : "다운톤";
+        var selectedFilterName = preset == ObsVoiceAnonymizerContract.UpPreset
+            ? savedSettings.VoiceAnonymizerUpFilterName
+            : savedSettings.VoiceAnonymizerFilterName;
         if (string.IsNullOrWhiteSpace(savedSettings.MicrophoneInputName))
             throw new VNextDevelopmentException(
                 "OBS 오디오 믹서에 표시되는 마이크 입력 이름을 입력해주세요.",
@@ -1555,17 +1586,17 @@ internal sealed class VNextAutomationSettingsForm : Form
                 var filter = filters.FirstOrDefault(item =>
                     string.Equals(
                         item.FilterName,
-                        settings.VoiceAnonymizerFilterName,
+                        selectedFilterName,
                         StringComparison.Ordinal));
                 if (filter is null)
                     throw new InvalidOperationException(
-                        $"OBS 마이크에 '{settings.VoiceAnonymizerFilterName}' 필터가 없습니다.");
+                        $"OBS 마이크에 '{selectedFilterName}' 필터가 없습니다.");
                 if (!string.Equals(
                         filter.FilterKind,
                         TimedMuteActionAdapter.VoiceAnonymizerFilterKind,
                         StringComparison.Ordinal))
                     throw new InvalidOperationException(
-                        $"'{settings.VoiceAnonymizerFilterName}' 필터가 VST 2.x 플러그인 필터가 아닙니다.");
+                        $"'{selectedFilterName}' 필터가 VST 2.x 플러그인 필터가 아닙니다.");
                 // A successful filter check pins the exact tested local settings so
                 // the five-second preview and production action cannot target a stale filter.
                 _storage.SaveObsSettings(settings);
@@ -1575,8 +1606,8 @@ internal sealed class VNextAutomationSettingsForm : Form
                     await PushLocalConnectionsAsync(ownerId, showToast: false);
                     await ShowToastAsync(
                         filter.FilterEnabled
-                            ? "신원보호 필터 확인·저장 완료 · 현재 켜짐 (평소에는 꺼두세요)"
-                            : "신원보호 필터 확인·저장 완료 · 현재 꺼짐",
+                            ? $"{presetLabel} 필터 확인·저장 완료 · 현재 켜짐 (평소에는 꺼두세요)"
+                            : $"{presetLabel} 필터 확인·저장 완료 · 현재 꺼짐",
                         filter.FilterEnabled ? "warning" : "success");
                 }
             }
@@ -1593,20 +1624,22 @@ internal sealed class VNextAutomationSettingsForm : Form
         });
     }
 
-    private async Task PreviewVoiceAnonymizerAsync()
+    private async Task PreviewVoiceAnonymizerAsync(JsonElement payload)
     {
         RequireCanManage();
+        var preset = PayloadVoicePreset(payload);
+        var presetLabel = preset == ObsVoiceAnonymizerContract.UpPreset ? "업톤" : "다운톤";
         if (_localAgent is null)
             throw new VNextDevelopmentException(
                 "이 PC 자동화 실행기를 시작할 수 없습니다.",
                 code: "local_agent_unavailable");
-        await RunOperationAsync("신원보호 목소리를 5초 동안 미리 듣는 중이에요.", async ownerId =>
+        await RunOperationAsync($"{presetLabel} 신원보호 목소리를 5초 동안 미리 듣는 중이에요.", async ownerId =>
         {
             try
             {
                 using var timeout = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeToken);
                 timeout.CancelAfter(TimeSpan.FromSeconds(20));
-                var result = await _localAgent.PreviewVoiceAnonymizerAsync(timeout.Token);
+                var result = await _localAgent.PreviewVoiceAnonymizerAsync(preset, timeout.Token);
                 if (IsOperationCurrent(ownerId))
                 {
                     await PushLocalConnectionsAsync(ownerId, showToast: false);
@@ -1614,8 +1647,8 @@ internal sealed class VNextAutomationSettingsForm : Form
                     {
                         await ShowToastAsync(
                             result.InitialMuted
-                                ? "5초 미리보기를 마쳤어요. 필터가 이미 켜져 있어 상태를 그대로 유지했어요."
-                                : "5초 신원보호 목소리 미리보기를 마쳤어요. 필터를 원래대로 껐어요.",
+                                ? $"{presetLabel} 5초 미리보기를 마쳤어요. 필터가 이미 켜져 있어 상태를 그대로 유지했어요."
+                                : $"{presetLabel} 5초 신원보호 목소리 미리보기를 마쳤어요. 필터를 원래대로 껐어요.",
                             result.InitialMuted ? "warning" : "success");
                     }
                 }
@@ -1670,6 +1703,7 @@ internal sealed class VNextAutomationSettingsForm : Form
         var port = PayloadInt(payload, "port", 1, 65535, "OBS 포트");
         var inputName = PayloadOptionalText(payload, "inputName", 128);
         var filterName = PayloadOptionalText(payload, "voiceAnonymizerFilterName", 128);
+        var upFilterName = PayloadOptionalText(payload, "voiceAnonymizerUpFilterName", 128);
         var password = PayloadOptionalText(payload, "password", 256, trim: false);
         if (enabled && string.IsNullOrWhiteSpace(inputName))
             throw new VNextDevelopmentException("OBS 오디오 믹서에 표시되는 마이크 입력 이름을 입력해주세요.", code: "invalid_obs_input");
@@ -1679,7 +1713,19 @@ internal sealed class VNextAutomationSettingsForm : Form
             filterName = _storage.LoadObsSettings().VoiceAnonymizerFilterName;
         if (filterName.Length == 0)
             filterName = ObsConnectionSettings.DefaultVoiceAnonymizerFilterName;
-        return new ObsConnectionSettings(enabled, port, inputName.Trim(), password, filterName);
+        if (upFilterName.Length == 0)
+            upFilterName = _storage.LoadObsSettings().VoiceAnonymizerUpFilterName;
+        if (upFilterName.Length == 0)
+            upFilterName = ObsConnectionSettings.DefaultVoiceAnonymizerUpFilterName;
+        return new ObsConnectionSettings(enabled, port, inputName.Trim(), password, filterName, upFilterName);
+    }
+
+    private static string PayloadVoicePreset(JsonElement payload)
+    {
+        var preset = PayloadOptionalText(payload, "preset", 32);
+        if (!ObsVoiceAnonymizerContract.IsSupportedPreset(preset))
+            throw new VNextDevelopmentException("다운톤 또는 업톤을 선택해주세요.", code: "invalid_voice_preset");
+        return preset;
     }
 
     private static string VoiceAnonymizerSetupMessage(Exception ex) => ex switch

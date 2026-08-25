@@ -71,6 +71,7 @@ const MAX_RAFFLE_TTS_BYTES = 2 * 1024 * 1024;
 const G3A_AGENT_ACTIONS = new Set([
   "obs.mute_for",
   "obs.voice_anonymize_for",
+  "obs.voice_anonymize_for_v2",
   "windows.mic_mute_for",
   "raffle.overlay",
   "flashbang.overlay",

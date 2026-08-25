@@ -112,7 +112,7 @@ test("Abong control uses direct seconds, image preview, and overlays for both mi
   assert.match(automation, /class="duration-unit">초</);
   assert.match(automation, /오버레이에 출력할 화면/);
   assert.match(automation, /id="overlayPreviewImage"/);
-  assert.match(automation, /if\(!multiplier\)\{renderDevices\(\);renderOverlays\(\);renderDurationChips\(\)\}/);
+  assert.match(automation, /if\(!multiplier\)\{renderDevices\(\);renderOverlays\(\);renderDurationChips\(\);if\(voice\)renderVoicePreset\(\)\}/);
   assert.match(automation, /const overlayEnabled=elements\.overlayEnabled\.checked/);
   assert.doesNotMatch(automation, /durationSeconds\.readOnly=Boolean/);
   assert.doesNotMatch(client, /actionType != "obs\.mute_for"/);
@@ -200,7 +200,7 @@ test("v0.7.0.32 preserves rule deletion, split device views, inline URL copy, dr
   assert.match(automation, /onpointermove/);
   assert.match(automation, /clampPositionToCanvas/);
   assert.match(automation, /overlayPositionX/);
-  assert.match(client, /save_guided_rule_v14/);
+  assert.match(client, /save_guided_rule_v15/);
   assert.match(saveMigration, /save_guided_rule_v7_impl/);
   assert.match(saveMigration, /p_overlay_image_key text/);
   assert.match(saveMigration, /params=public_action\.params \|\| v_params/);
@@ -251,7 +251,7 @@ test("Byeollog Action provides confirmed real test dispatch and continuous Abong
   assert.match(automation, /post\('testAutomationRule'/);
   assert.match(form, /case "testAutomationRule"/);
   assert.match(form, /DispatchAutomationRuleTestAsync/);
-  assert.match(automationClient, /\/rest\/v1\/rpc\/dispatch_guided_rule_test_v4/);
+  assert.match(automationClient, /\/rest\/v1\/rpc\/dispatch_guided_rule_test_v5/);
   assert.match(agentClient, /Sha256Pattern\.IsMatch\(idempotencyKey\)/);
   assert.match(agentClient, /Guid\.TryParseExact\(executionId, "D"/);
   assert.match(agentClient, /Guid\.TryParseExact\(eventId, "D"/);

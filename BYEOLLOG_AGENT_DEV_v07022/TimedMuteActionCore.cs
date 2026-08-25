@@ -166,12 +166,21 @@ internal static class ObsVoiceAnonymizerContract
     public const string ActionLabel = "(신원보호모드/개발중)";
     public const string ControlType = "voice_anonymize";
     public const string Target = "microphone";
-    public const string Preset = "anonymous_low";
+    public const string DownPreset = "anonymous_low";
+    public const string UpPreset = "anonymous_high";
+    public const string Preset = DownPreset;
     private const char TargetKeySeparator = '\u001f';
 
-    public static bool TryReadParameters(JsonElement value, out int durationMs)
+    public static bool TryReadParameters(JsonElement value, out int durationMs) =>
+        TryReadParameters(value, out durationMs, out _);
+
+    public static bool TryReadParameters(
+        JsonElement value,
+        out int durationMs,
+        out string preset)
     {
         durationMs = 0;
+        preset = "";
         if (value.ValueKind != JsonValueKind.Object) return false;
 
         var count = 0;
@@ -190,10 +199,15 @@ internal static class ObsVoiceAnonymizerContract
         }
         if (count != 7) return false;
 
+        if (!value.TryGetProperty("preset", out var presetElement)
+            || presetElement.ValueKind != JsonValueKind.String)
+            return false;
+        preset = presetElement.GetString() ?? "";
+
         return ExactString(value, "label", ActionLabel)
             && ExactString(value, "controlType", ControlType)
             && ExactString(value, "target", Target)
-            && ExactString(value, "preset", Preset)
+            && IsSupportedPreset(preset)
             && ExactTrue(value, "requiresObsMicInput")
             && ExactTrue(value, "requiresObsFilter")
             && value.TryGetProperty("durationMs", out var duration)
@@ -201,6 +215,9 @@ internal static class ObsVoiceAnonymizerContract
             && duration.TryGetInt32(out durationMs)
             && durationMs is >= MinimumDurationMs and <= MaximumDurationMs;
     }
+
+    public static bool IsSupportedPreset(string? preset) =>
+        preset is DownPreset or UpPreset;
 
     private static bool ExactString(JsonElement value, string name, string expected) =>
         value.TryGetProperty(name, out var property)

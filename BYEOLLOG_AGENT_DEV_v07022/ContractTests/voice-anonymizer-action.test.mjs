@@ -13,13 +13,17 @@ test("voice anonymizer is an end-to-end Windows Agent capability", async () => {
   ]);
 
   assert.match(capabilities, /"obs\.voice_anonymize_for"/);
+  assert.match(capabilities, /"obs\.voice_anonymize_for_v2"/);
   assert.match(localAgent, /TimedMuteActionAdapter\.VoiceAnonymizerActionType/);
   assert.match(localAgent, /ExecuteVoiceAnonymizerAsync/);
-  assert.match(client, /save_guided_rule_v14/);
-  assert.match(client, /dispatch_guided_rule_test_v4/);
+  assert.match(client, /save_guided_rule_v15/);
+  assert.match(client, /dispatch_guided_rule_test_v5/);
   assert.match(client, /"obs\.voice_anonymize_for"/);
-  assert.match(client, /"voicePreset"[\s\S]+ObsVoiceAnonymizerContract\.Preset/);
+  assert.match(client, /"obs\.voice_anonymize_for_v2"/);
+  assert.match(client, /ObsVoiceAnonymizerContract\.DownPreset/);
+  assert.match(client, /ObsVoiceAnonymizerContract\.UpPreset/);
   assert.match(readiness, /TimedMuteActionAdapter\.VoiceAnonymizerActionType/);
+  assert.match(readiness, /TimedMuteActionAdapter\.VoiceAnonymizerPresetActionType/);
 });
 
 test("remote payload cannot select an arbitrary local OBS filter", async () => {
@@ -30,11 +34,13 @@ test("remote payload cannot select an arbitrary local OBS filter", async () => {
 
   assert.match(core, /ActionLabel\s*=\s*"\(신원보호모드\/개발중\)"/);
   assert.match(core, /ControlType\s*=\s*"voice_anonymize"/);
-  assert.match(core, /Preset\s*=\s*"anonymous_low"/);
+  assert.match(core, /DownPreset\s*=\s*"anonymous_low"/);
+  assert.match(core, /UpPreset\s*=\s*"anonymous_high"/);
   assert.match(core, /count\s*!=\s*7/);
   assert.doesNotMatch(core, /obsFilterName/);
   assert.match(adapter, /LoadObsSettings\(\)/);
   assert.match(adapter, /settings\.VoiceAnonymizerFilterName/);
+  assert.match(adapter, /settings\.VoiceAnonymizerUpFilterName/);
   assert.match(adapter, /VoiceAnonymizerFilterKind\s*=\s*"vst_filter"/);
   assert.doesNotMatch(adapter, /sourceName\s*=\s*target\.SourceName/);
   assert.doesNotMatch(adapter, /filterName\s*=\s*target\.FilterName/);
@@ -69,13 +75,20 @@ test("streamer UI exposes the exact development label, readiness, and five-secon
   assert.match(ui, /<strong>\(신원보호모드\/개발중\)<\/strong>/);
   assert.match(ui, /id="voiceFilterStatus"/);
   assert.match(ui, /id="voiceFilterName"/);
-  assert.match(ui, /id="previewVoiceButton"[^>]*>5초 미리듣기<\/button>/);
-  assert.match(ui, /post\('previewVoiceAnonymizer'\)/);
+  assert.match(ui, /id="voiceUpFilterName"/);
+  assert.match(ui, /두 톤 준비됨/);
+  assert.match(ui, /id="previewVoiceButton"[^>]*>다운톤 5초<\/button>/);
+  assert.match(ui, /id="previewVoiceUpButton"[^>]*>업톤 5초<\/button>/);
+  assert.match(ui, /id="previewVoiceWizardButton"/);
+  assert.match(ui, /value="anonymous_low"/);
+  assert.match(ui, /value="anonymous_high"/);
+  assert.match(ui, /post\('previewVoiceAnonymizer',\{preset/);
   assert.match(ui, /voiceSettingsDirty/);
   assert.match(ui, /localVoiceFilterReady/);
   assert.match(form, /RunLocalVoiceAnonymizerPreviewAsync|PreviewVoiceAnonymizerAsync/);
   assert.match(form, /SaveObsSettings\(settings\)/);
   assert.match(storage, /DefaultVoiceAnonymizerFilterName\s*=\s*"별록 신원보호모드"/);
+  assert.match(storage, /DefaultVoiceAnonymizerUpFilterName\s*=\s*"별록 신원보호모드 업톤"/);
   assert.match(preflight, /"obs_voice_anonymizer"/);
   assert.match(preflight, /ProbeVoiceAnonymizerAsync/);
 });
