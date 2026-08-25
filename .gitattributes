@@ -20,6 +20,7 @@
 *.html text eol=lf
 *.css text eol=lf
 *.md text eol=lf
+PROJECT_HANDOFF_20260825_NEXT_CHAT/*.txt text eol=lf
 
 # Media and release artifacts are byte-preserved when explicitly tracked.
 *.png binary
