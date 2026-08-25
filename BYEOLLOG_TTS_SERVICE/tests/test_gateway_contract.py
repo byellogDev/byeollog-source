@@ -38,6 +38,14 @@ class WinnerGatewayContractTests(unittest.TestCase):
         self.assertIn('raise RuntimeError("voice cache identity mismatch")', source)
         self.assertIn('self._cache[cache_key] = (text_digest, wav)', source)
 
+    def test_native_roulette_uses_a_separate_exact_text_identity(self) -> None:
+        source = (ROOT / "app" / "main.py").read_text(encoding="utf-8")
+        text_source = (ROOT / "app" / "text.py").read_text(encoding="utf-8")
+        self.assertIn('@app.post("/v1/roulette-result"', source)
+        self.assertIn("roulette_result_voice_key(phrase)", source)
+        self.assertIn('ROULETTE_RESULT_KEY_DOMAIN = "native-roulette-result-v1|"', text_source)
+        self.assertIn('extra="forbid"', source)
+
 
 if __name__ == "__main__":
     unittest.main()

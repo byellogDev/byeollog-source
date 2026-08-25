@@ -16,6 +16,8 @@ const CAPABILITIES = {
   'data:delete': 'owner',
   'collector:process': 'editor',
   'roulette:void': 'editor',
+  'roulette:read': 'viewer',
+  'roulette:configure': 'editor',
   'backup:list': 'editor',
   'backup:create': 'owner',
   'backup:restore': 'owner',

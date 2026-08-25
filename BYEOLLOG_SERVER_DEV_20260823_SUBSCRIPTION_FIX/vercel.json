@@ -51,6 +51,10 @@
       "destination": "/api/admin?view=agent-rollout"
     },
     {
+      "source": "/roulette-settings",
+      "destination": "/api/native-roulette?view=settings"
+    },
+    {
       "source": "/u/:workspace",
       "destination": "/bangsel_public_workspace_isolation"
     }

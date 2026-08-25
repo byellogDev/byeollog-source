@@ -11,10 +11,23 @@ LATIN_NAMES = (
 )
 DIGIT_NAMES = ("영", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구")
 CONTROL = re.compile(r"[\x00-\x1f\x7f]")
+ROULETTE_RESULT_KEY_DOMAIN = "native-roulette-result-v1|"
 
 
 def voice_key(actor_name: str) -> str:
     return hashlib.sha256(f"raffle-winner-voice-v1|{actor_name}".encode("utf-8")).hexdigest()
+
+
+def roulette_result_voice_key(text: str) -> str:
+    phrase = roulette_result_phrase(text)
+    return hashlib.sha256(f"{ROULETTE_RESULT_KEY_DOMAIN}{phrase}".encode("utf-8")).hexdigest()
+
+
+def roulette_result_phrase(text: str) -> str:
+    phrase = unicodedata.normalize("NFC", text or "").strip()
+    if not 1 <= len(phrase) <= 160 or CONTROL.search(phrase):
+        raise ValueError("invalid roulette result phrase")
+    return phrase
 
 
 def readable_nickname(actor_name: str) -> str:
