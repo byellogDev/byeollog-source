@@ -232,3 +232,19 @@ test("v92 release preparation is immutable and identifies the voice controls UI 
   assert.match(notes, /버튼 배치/);
   assert.match(notes, /5초 미리보기/);
 });
+
+test("v93 release preparation is immutable and identifies the public voice-filter copy build", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07093-AutoUpdate.ps1"),
+    source("RELEASE_v07093_VOICE_FILTER_COPY_KO.txt")
+  ]);
+
+  assert.match(build, /\$releaseSequence = 7093/);
+  assert.match(build, /byeollog_agent_v07093_VOICE_FILTER_COPY_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.93'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.93'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /v0\.7\.0\.93/);
+  assert.match(notes, /신원보호 필터/);
+  assert.match(notes, /필터 자동 준비/);
+});

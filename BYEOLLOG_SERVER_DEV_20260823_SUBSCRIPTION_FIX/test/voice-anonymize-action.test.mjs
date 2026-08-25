@@ -34,7 +34,7 @@ test("every G3A runtime boundary admits only the packaged voice action name", as
   for (const source of [status, agent, event]) {
     assert.match(source, /"obs\.voice_anonymize_for"/);
   }
-  assert.match(dashboard, /'obs\.voice_anonymize_for':'\(신원보호모드\/개발중\)'/);
+  assert.match(dashboard, /'obs\.voice_anonymize_for':'신원보호 필터'/);
   assert.match(event, /MAX_LIVE_ACTION_AGE_MS/);
   assert.match(event, /isLedgerOnlyReplay/);
 });

@@ -6,7 +6,7 @@
 node_modules
 supabase/.temp
 agent-updates/releases/**/*.zip
-!agent-updates/releases/0.7.0.92/byeollog_agent_v07092_VOICE_CONTROLS_UI_WIN_X64.zip
+!agent-updates/releases/0.7.0.93/byeollog_agent_v07093_VOICE_FILTER_COPY_WIN_X64.zip
 api/native-roulette.js
 assets/native-roulette-settings.js
 **/__pycache__

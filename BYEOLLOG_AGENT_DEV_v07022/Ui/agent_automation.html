@@ -143,7 +143,7 @@
           <button class="feature-card" id="startRewardMultiplier" type="button"><span class="feature-icon">×</span><span><strong>다음 룰렛 보상 증가</strong><small>같은 후원자의 다음 룰렛 보상 1회를 입력한 배수만큼 늘립니다.</small><em>이 기능 설정하기 →</em></span></button>
           <button class="feature-card" id="startRaffle" type="button"><span class="feature-icon">券</span><span><strong>추첨</strong><small>정해진 후원 금액에 추첨권 1장을 지급하고, 배수 금액도 인정할지 선택합니다.</small><em>이 기능 설정하기 →</em></span></button>
           <button class="feature-card" id="startFlashbang" type="button"><span class="feature-icon">閃</span><span><strong>섬광탄!</strong><small>룰렛 결과에 맞춰 방송 화면을 섬광으로 덮고 삐- 소리를 함께 재생합니다.</small><em>이 기능 설정하기 →</em></span></button>
-          <button class="feature-card" id="startVoiceAnonymizer" type="button"><span class="feature-icon">V</span><span><strong>(신원보호모드/개발중)</strong><small>별록 전용 OBS 필터를 잠시 켜 뉴스 익명 제보자처럼 목소리를 바꿉니다.</small><em>개발 중 기능 설정하기 →</em></span></button>
+          <button class="feature-card" id="startVoiceAnonymizer" type="button"><span class="feature-icon">V</span><span><strong>신원보호 필터</strong><small>별록 전용 OBS 필터를 잠시 켜 뉴스 익명 제보자처럼 목소리를 바꿉니다.</small><em>기능 설정하기 →</em></span></button>
         </section>
       </section>
 
@@ -278,23 +278,23 @@
           </div>
           <div class="setup-actions"><button class="manage-button" id="testObsButton" type="button">연결 확인</button><button class="manage-button primary" id="saveObsButton" type="button">OBS 설정 저장</button></div>
           <div class="voice-filter-panel">
-            <div class="voice-filter-head"><div><h3>(신원보호모드/개발중)</h3><p>별록 전용 다운톤·업톤 필터를 준비하고 액션 시간 동안만 켰다가 원래 상태로 복구합니다.</p></div><span class="voice-filter-status" id="voiceFilterStatus">확인 필요</span></div>
+            <div class="voice-filter-head"><div><h3>신원보호 필터</h3><p>별록 전용 다운톤·업톤 필터를 준비하고 액션 시간 동안만 켰다가 원래 상태로 복구합니다.</p></div><span class="voice-filter-status" id="voiceFilterStatus">확인 필요</span></div>
             <div class="grid two" style="margin-top:10px">
               <div class="field"><label for="voiceFilterName">다운톤 OBS 필터 이름</label><input class="input" id="voiceFilterName" maxlength="128" value="별록 신원보호모드"></div>
               <div class="field"><label for="voiceUpFilterName">업톤 OBS 필터 이름</label><input class="input" id="voiceUpFilterName" maxlength="128" value="별록 신원보호모드 업톤"></div>
             </div>
-            <p class="voice-filter-message" id="voiceFilterMessage">OBS 연결을 저장한 뒤 두 필터 자동 준비를 눌러주세요.</p>
+            <p class="voice-filter-message" id="voiceFilterMessage">OBS 연결을 저장한 뒤 필터 자동 준비를 눌러주세요.</p>
             <div class="obs-guide">
               <h3>자동 준비 방법</h3>
               <ol>
                 <li><span>1</span><p>OBS 마이크 이름과 WebSocket 연결을 저장합니다.</p></li>
-                <li><span>2</span><p><b>[두 필터 자동 준비]</b>를 누르면 별록 전용 플러그인을 설치하고 다운톤·업톤 필터를 꺼진 상태로 생성합니다.</p></li>
+                <li><span>2</span><p><b>[필터 자동 준비]</b>를 누르면 별록 전용 플러그인을 설치하고 다운톤·업톤 필터를 꺼진 상태로 생성합니다.</p></li>
                 <li><span>3</span><p>두 개의 5초 미리보기로 음높이와 자동 원상복구를 확인합니다.</p></li>
               </ol>
             </div>
             <p class="secret-note">처음 한 번 OBS 재시작이 필요할 수 있습니다. 음성은 PC 안에서만 처리되며 녹음·전송하지 않습니다. 기존 ReaJS 필터는 검증 후 안전하게 이전합니다.</p>
             <div class="voice-filter-actions">
-              <button class="manage-button primary voice-prepare-button" id="ensureVoiceFiltersButton" type="button">두 필터 자동 준비</button>
+              <button class="manage-button primary voice-prepare-button" id="ensureVoiceFiltersButton" type="button">필터 자동 준비</button>
               <div class="voice-tone-grid">
                 <div class="voice-tone-actions"><span class="voice-tone-label">다운톤</span><div class="voice-tone-buttons"><button class="manage-button" id="testVoiceFilterButton" type="button" aria-label="다운톤 필터 상태 확인">상태 확인</button><button class="manage-button voice-preview-button" id="previewVoiceButton" type="button" aria-label="다운톤 필터 5초 미리보기">5초 미리보기</button></div></div>
                 <div class="voice-tone-actions"><span class="voice-tone-label">업톤</span><div class="voice-tone-buttons"><button class="manage-button" id="testVoiceUpFilterButton" type="button" aria-label="업톤 필터 상태 확인">상태 확인</button><button class="manage-button voice-preview-button" id="previewVoiceUpButton" type="button" aria-label="업톤 필터 5초 미리보기">5초 미리보기</button></div></div>
@@ -455,13 +455,16 @@
 <script>
   const ACTIONS={
     'obs.mute_for':{label:'OBS 마이크 잠시 끄기',short:'OBS 마이크',className:'obs'},
-    'obs.voice_anonymize_for':{label:'(신원보호모드/개발중)',short:'신원보호모드',className:'obs'},
-    'obs.voice_anonymize_for_v2':{label:'(신원보호모드/개발중)',short:'신원보호모드',className:'obs'},
+    'obs.voice_anonymize_for':{label:'신원보호 필터',short:'신원보호 필터',className:'obs'},
+    'obs.voice_anonymize_for_v2':{label:'신원보호 필터',short:'신원보호 필터',className:'obs'},
     'windows.mic_mute_for':{label:'Windows 마이크 잠시 끄기',short:'Windows 마이크',className:'windows'},
     'roulette.reward_multiplier_next':{label:'다음 룰렛 보상 증가',short:'다음 보상 증가',className:'multiplier'},
     'raffle.ticket_grant':{label:'추첨권 지급',short:'추첨',className:'raffle'},
     'flashbang.overlay':{label:'섬광탄!',short:'섬광탄',className:'flashbang'}
   };
+  const LEGACY_VOICE_DISPLAY_NAME='(신원보호모드/개발중)';
+  const VOICE_DISPLAY_NAME='신원보호 필터';
+  const voiceDisplayText=value=>String(value??'').replaceAll(LEGACY_VOICE_DISPLAY_NAME,VOICE_DISPLAY_NAME);
   const SOURCE_LABELS={weflab:'위플랩',byeollog:'별록 직접 후원'};
   const EVENT_LABELS={roulette:'룰렛 결과',donation:'후원'};
   const CONNECTION_LABELS={online:'온라인',idle:'응답 지연',offline:'오프라인',never_reported:'상태 미보고',revoked:'등록 해제'};
@@ -965,18 +968,18 @@
   function triggerSummary(rule){
     if(rule.triggerSummary)return rule.triggerSummary;
     const parts=[SOURCE_LABELS[rule.condition.source]||rule.condition.source||'모든 입력',EVENT_LABELS[rule.condition.eventType]||rule.condition.eventType||'모든 이벤트'];
-    if(rule.condition.result)parts.push(`결과 ‘${rule.condition.result}’`);
+    if(rule.condition.result)parts.push(`결과 ‘${voiceDisplayText(rule.condition.result)}’`);
     if(rule.condition.eventType==='donation'&&rule.condition.minAmount)parts.push(rule.action.type==='raffle.ticket_grant'?(rule.action.raffleAllowMultiples?`별풍선 ${asNumber(rule.action.raffleTicketUnit||rule.condition.minAmount).toLocaleString('ko-KR')}개당 1장 · 배수 인정`:`별풍선 ${asNumber(rule.action.raffleTicketUnit||rule.condition.minAmount).toLocaleString('ko-KR')}개만 1장`):`별풍선 ${asNumber(rule.condition.minAmount).toLocaleString('ko-KR')}개 정확히 일치`);
     if(rule.condition.subtype)parts.push(`세부 ${rule.condition.subtype}`);
     return parts.join(' · ');
   }
   function actionSummary(rule){
-    if(rule.actionSummary)return rule.actionSummary;
+    if(rule.actionSummary)return voiceDisplayText(rule.actionSummary);
     const asset=state.overlays.find(item=>item.key===rule.action.overlayImageKey)||state.overlays.find(item=>item.id===rule.action.overlayAssetId);
     if(rule.action.type==='roulette.reward_multiplier_next')return `${ACTIONS[rule.action.type].label} · ${rule.action.rewardMultiplier}배 · ${rule.action.allowMultiplierStacking?'연속 배수 중첩':'최근 배수로 갱신'}`;
     if(rule.action.type==='raffle.ticket_grant')return `추첨권 지급 · 별풍선 ${asNumber(rule.action.raffleTicketUnit,33).toLocaleString('ko-KR')}개 ${rule.action.raffleAllowMultiples?'기준 · 배수 인정':'정확히 일치'} · 지급 TTS ${asNumber(rule.action.raffleTicketVolumePercent,80)}% · 당첨 TTS ${asNumber(rule.action.raffleDrawVolumePercent,80)}%`;
     if(rule.action.type==='flashbang.overlay')return `전체 화면 섬광 · ${rule.action.flashbangIntensity==='soft'?'약하게':rule.action.flashbangIntensity==='strong'?'강하게':'보통'} · 5초 완전 회복 · 소리 ${asNumber(rule.action.flashbangVolumePercent,80)}%`;
-    if(isVoiceActionType(rule.action.type))return `(신원보호모드/개발중) · ${voicePresetLabel(rule.action.voicePreset)} · ${rule.action.durationSeconds}초 · 별록 OBS 필터 자동 복구`;
+    if(isVoiceActionType(rule.action.type))return `신원보호 필터 · ${voicePresetLabel(rule.action.voicePreset)} · ${rule.action.durationSeconds}초 · 별록 OBS 필터 자동 복구`;
     return `${ACTIONS[rule.action.type]?.label||rule.action.type} · ${rule.action.durationSeconds}초${asset?` · ${asset.name} 화면`:''}`;
   }
   function formatDate(value){
@@ -986,12 +989,12 @@
   function createText(tag,className,text){const node=document.createElement(tag);if(className)node.className=className;node.textContent=text;return node}
   function renderRules(){
     const query=elements.searchInput.value.trim().toLowerCase();
-    const visible=state.rules.filter(rule=>(filter==='all'||(filter==='enabled'&&rule.enabled)||(filter==='disabled'&&!rule.enabled))&&(!query||`${rule.name} ${triggerSummary(rule)} ${actionSummary(rule)}`.toLowerCase().includes(query)));
+    const visible=state.rules.filter(rule=>(filter==='all'||(filter==='enabled'&&rule.enabled)||(filter==='disabled'&&!rule.enabled))&&(!query||`${voiceDisplayText(rule.name)} ${triggerSummary(rule)} ${actionSummary(rule)}`.toLowerCase().includes(query)));
     elements.ruleCount.textContent=`${state.rules.length}개`;elements.ruleList.replaceChildren();elements.ruleList.hidden=visible.length===0;elements.emptyState.hidden=visible.length>0;
     if(!visible.length){const noRules=state.rules.length===0;elements.emptyAddButton.hidden=!noRules;elements.emptyTitle.textContent=noRules?'아직 설정된 별록 액션이 없어요':'조건에 맞는 액션이 없어요';elements.emptyCopy.textContent=noRules?'위의 + 아이콘이나 액션 추가 버튼을 눌러 첫 별록 액션을 만들어 보세요.':'검색어나 목록 필터를 바꾸면 다른 액션을 확인할 수 있습니다.'}
     visible.forEach(rule=>{
       const article=document.createElement('article');article.className=`rule-card${rule.enabled?'':' disabled'}${rule.id===state.editingRuleId?' editing':''}`;
-      const top=document.createElement('div');top.className='rule-top';const heading=document.createElement('div');heading.className='rule-heading';const titleRow=document.createElement('div');titleRow.className='rule-title-row';titleRow.append(createText('h3','rule-title',rule.name),createText('span','version',`버전 ${rule.version}`));heading.append(titleRow);
+      const top=document.createElement('div');top.className='rule-top';const heading=document.createElement('div');heading.className='rule-heading';const titleRow=document.createElement('div');titleRow.className='rule-title-row';titleRow.append(createText('h3','rule-title',voiceDisplayText(rule.name)),createText('span','version',`버전 ${rule.version}`));heading.append(titleRow);
       const type=document.createElement('span');type.className=`rule-type ${ACTIONS[rule.action.type]?.className||''}`;type.append(document.createElement('i'),document.createTextNode(ACTIONS[rule.action.type]?.short||'알 수 없는 동작'));heading.append(type);top.append(heading);
       const deviceReady=Boolean(rule.deviceReady??deviceSupports(rule.action))&&localVoiceFilterReady(rule.action);const imageKey=rule.action.overlayImageKey||state.overlays.find(item=>item.id===rule.action.overlayAssetId)?.key||'';const overlayReady=rule.overlayReady??(!rule.action.overlayEnabled||readyForOverlay(rule.action.deviceId,imageKey));
       const toggle=document.createElement('button');toggle.type='button';toggle.className=`switch${rule.enabled?' on':''}`;toggle.title=rule.enabled?'눌러서 규칙 끄기':'눌러서 규칙 켜기';toggle.setAttribute('aria-label',toggle.title);toggle.setAttribute('aria-pressed',String(rule.enabled));toggle.disabled=state.busy||!state.canManage||(rule.enabled===false&&(!deviceReady||!overlayReady));toggle.onclick=()=>post('toggleAutomationRule',{ruleId:rule.id,id:rule.id,expectedVersion:rule.version,enabled:!rule.enabled});top.append(toggle);article.append(top);
@@ -1398,7 +1401,7 @@
     currentFeature='flashbang';state.editingRuleId=null;flashbangIntensity='standard';flashbangVolumePercent=80;elements.builderPane.classList.add('wizard-open');elements.automationHome.hidden=true;elements.featureCatalogView.hidden=true;elements.ruleForm.hidden=false;elements.ruleForm.reset();elements.priority.value='100';elements.eventType.value='roulette';elements.result.value='섬광탄';elements.ruleName.value='섬광탄!';elements.enabled.checked=true;elements.flashbangVolume.value='80';const standard=elements.flashbangIntensity.find(input=>input.value==='standard');if(standard)standard.checked=true;setCurrentRuleName('섬광탄!');elements.composerIcon.textContent='閃';elements.composerTitle.textContent='섬광탄! 설정';elements.composerCopy.textContent='전체 화면을 덮을 섬광 강도와 삐- 소리 음량을 설정합니다.';elements.editChip.hidden=true;elements.saveButton.textContent='섬광탄 액션 저장';renderEvent();renderAction();goWizardStep(1);
   }
   function openVoiceAnonymizerWizard(){
-    currentFeature='voice-anonymizer';state.editingRuleId=null;elements.builderPane.classList.add('wizard-open');elements.automationHome.hidden=true;elements.featureCatalogView.hidden=true;elements.ruleForm.hidden=false;elements.ruleForm.reset();elements.priority.value='100';elements.eventType.value='roulette';elements.result.value='(신원보호모드/개발중)';elements.durationSeconds.value='10';elements.overlayEnabled.checked=false;elements.enabled.checked=true;const down=elements.voicePresets.find(input=>input.value==='anonymous_low');if(down)down.checked=true;setCurrentRuleName('(신원보호모드/개발중)');elements.composerIcon.textContent='V';elements.composerTitle.textContent='(신원보호모드/개발중) 설정';elements.composerCopy.textContent='업톤 또는 다운톤 OBS 필터를 정해진 시간 동안 안전하게 켰다가 복구합니다.';elements.editChip.hidden=true;elements.saveButton.textContent='(신원보호모드/개발중) 저장';renderEvent();renderAction();goWizardStep(1);
+    currentFeature='voice-anonymizer';state.editingRuleId=null;elements.builderPane.classList.add('wizard-open');elements.automationHome.hidden=true;elements.featureCatalogView.hidden=true;elements.ruleForm.hidden=false;elements.ruleForm.reset();elements.priority.value='100';elements.eventType.value='roulette';elements.result.value=VOICE_DISPLAY_NAME;elements.durationSeconds.value='10';elements.overlayEnabled.checked=false;elements.enabled.checked=true;const down=elements.voicePresets.find(input=>input.value==='anonymous_low');if(down)down.checked=true;setCurrentRuleName(VOICE_DISPLAY_NAME);elements.composerIcon.textContent='V';elements.composerTitle.textContent='신원보호 필터 설정';elements.composerCopy.textContent='업톤 또는 다운톤 OBS 필터를 정해진 시간 동안 안전하게 켰다가 복구합니다.';elements.editChip.hidden=true;elements.saveButton.textContent='신원보호 필터 저장';renderEvent();renderAction();goWizardStep(1);
   }
   function startEdit(rule){
     if(!state.canManage)return;
@@ -1406,7 +1409,7 @@
     state.editingRuleId=rule.id;post('editAutomationRule',{ruleId:rule.id,id:rule.id});
     const condition=rule.condition,action=rule.action;
     currentFeature=action.type==='roulette.reward_multiplier_next'?'reward-multiplier':action.type==='raffle.ticket_grant'?'raffle':action.type==='flashbang.overlay'?'flashbang':isVoiceActionType(action.type)?'voice-anonymizer':'abong';
-    elements.source.value=condition.source||'weflab';elements.eventType.value=condition.eventType||'roulette';elements.minAmount.value=condition.eventType==='donation'?(condition.minAmount??''):'';elements.result.value=condition.result||'';setCurrentRuleName(rule.name);elements.subtype.value=condition.subtype||'';elements.priority.value=String(rule.priority);elements.enabled.checked=rule.enabled;
+    elements.source.value=condition.source||'weflab';elements.eventType.value=condition.eventType||'roulette';elements.minAmount.value=condition.eventType==='donation'?(condition.minAmount??''):'';elements.result.value=voiceDisplayText(condition.result||'');setCurrentRuleName(voiceDisplayText(rule.name));elements.subtype.value=condition.subtype||'';elements.priority.value=String(rule.priority);elements.enabled.checked=rule.enabled;
     const radio=elements.actionGrid.querySelector(`input[value="${CSS.escape(action.type)}"]`);if(radio)radio.checked=true;
     elements.durationSeconds.value=String(action.durationSeconds||10);
     elements.rewardMultiplier.value=String(action.rewardMultiplier||2);elements.allowMultiplierStacking.checked=Boolean(action.allowMultiplierStacking);elements.raffleTicketUnit.value=String(action.raffleTicketUnit||condition.minAmount||33);elements.raffleAllowMultiples.checked=Boolean(action.raffleAllowMultiples);
@@ -1421,7 +1424,7 @@
     if(action.deviceId&&[...elements.flashbangDeviceId.options].some(option=>option.value===action.deviceId))elements.flashbangDeviceId.value=action.deviceId;
     {const imageKey=action.overlayImageKey||state.overlays.find(item=>item.id===action.overlayAssetId)?.key||'';if(imageKey&&[...elements.overlayAssetId.options].some(option=>option.value===imageKey))elements.overlayAssetId.value=imageKey}
     elements.overlayEnabled.checked=Boolean(action.overlayEnabled);const asset=selectedOverlay();overlayPosition=validOverlayPosition(action.overlayPositionX,action.overlayPositionY)?{x:action.overlayPositionX,y:action.overlayPositionY}:defaultOverlayPosition();overlayScalePercent=Number.isInteger(action.overlayScalePercent)&&action.overlayScalePercent>=25&&action.overlayScalePercent<=200?action.overlayScalePercent:100;renderOverlays();renderDurationChips();
-    elements.composerIcon.textContent='✎';elements.composerTitle.textContent=currentFeature==='reward-multiplier'?'다음 룰렛 보상 증가 수정':currentFeature==='raffle'?'추첨 설정 수정':currentFeature==='flashbang'?'섬광탄! 설정 수정':currentFeature==='voice-anonymizer'?'(신원보호모드/개발중) 수정':'아봉 설정 수정';elements.composerCopy.textContent='기존 설정을 단계별로 확인하고 새 버전으로 저장합니다.';elements.editChip.hidden=false;elements.saveButton.textContent='새 버전으로 저장';renderRules();goWizardStep(1);
+    elements.composerIcon.textContent='✎';elements.composerTitle.textContent=currentFeature==='reward-multiplier'?'다음 룰렛 보상 증가 수정':currentFeature==='raffle'?'추첨 설정 수정':currentFeature==='flashbang'?'섬광탄! 설정 수정':currentFeature==='voice-anonymizer'?'신원보호 필터 수정':'아봉 설정 수정';elements.composerCopy.textContent='기존 설정을 단계별로 확인하고 새 버전으로 저장합니다.';elements.editChip.hidden=false;elements.saveButton.textContent='새 버전으로 저장';renderRules();goWizardStep(1);
   }
   function resetForm(notify=false){
     const previous=state.editingRuleId;state.editingRuleId=null;currentFeature='abong';overlayPosition={x:5000,y:5000};overlayScalePercent=100;raffleTicketPosition={x:5000,y:5000};raffleTicketScalePercent=100;raffleTicketVolumePercent=80;raffleDrawPosition={x:5000,y:5000};raffleDrawScalePercent=100;raffleDrawVolumePercent=80;flashbangIntensity='standard';flashbangVolumePercent=80;elements.ruleForm.reset();elements.priority.value='100';elements.durationSeconds.value='10';elements.rewardMultiplier.value='2';elements.raffleTicketUnit.value='33';elements.raffleAllowMultiples.checked=false;elements.allowMultiplierStacking.checked=false;elements.flashbangVolume.value='80';elements.overlayEnabled.checked=true;const down=elements.voicePresets.find(input=>input.value==='anonymous_low');if(down)down.checked=true;setCurrentRuleName('');

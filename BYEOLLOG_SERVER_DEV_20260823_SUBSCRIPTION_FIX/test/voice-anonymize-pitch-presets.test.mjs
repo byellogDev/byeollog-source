@@ -34,6 +34,6 @@ test("every G3A boundary admits both legacy voice rules and preset-aware rules",
     assert.match(source, /"obs\.voice_anonymize_for"/);
     assert.match(source, /"obs\.voice_anonymize_for_v2"/);
   }
-  assert.match(dashboard, /'obs\.voice_anonymize_for':'\(신원보호모드\/개발중\)'/);
-  assert.match(dashboard, /'obs\.voice_anonymize_for_v2':'\(신원보호모드\/개발중\) 업톤·다운톤'/);
+  assert.match(dashboard, /'obs\.voice_anonymize_for':'신원보호 필터'/);
+  assert.match(dashboard, /'obs\.voice_anonymize_for_v2':'신원보호 필터 · 업톤·다운톤'/);
 });

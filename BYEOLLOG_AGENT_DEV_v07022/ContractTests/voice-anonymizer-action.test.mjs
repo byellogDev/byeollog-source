@@ -120,7 +120,7 @@ test("voice filters use the pinned native plugin, migrate legacy ReaJS safely, a
   assert.equal(createHash("sha256").update(pluginBytes).digest("hex"), expectedHash);
 });
 
-test("streamer UI exposes the exact development label, readiness, and five-second preview", async () => {
+test("streamer UI exposes the public voice-filter label, readiness, and five-second preview", async () => {
   const [ui, form, storage, preflight] = await Promise.all([
     source("Ui/agent_automation.html"),
     source("VNextAutomationSettingsForm.cs"),
@@ -128,11 +128,15 @@ test("streamer UI exposes the exact development label, readiness, and five-secon
     source("CollectorPreflight.cs")
   ]);
 
-  assert.match(ui, /<strong>\(신원보호모드\/개발중\)<\/strong>/);
+  assert.match(ui, /<strong>신원보호 필터<\/strong>/);
+  assert.match(ui, /<h3>신원보호 필터<\/h3>/);
+  assert.doesNotMatch(ui, /<(?:strong|h3|em)>[^<]*개발중[^<]*<\/(?:strong|h3|em)>/);
+  assert.doesNotMatch(ui, /개발 중 기능 설정하기/);
   assert.match(ui, /id="voiceFilterStatus"/);
   assert.match(ui, /id="voiceFilterName"/);
   assert.match(ui, /id="voiceUpFilterName"/);
-  assert.match(ui, /id="ensureVoiceFiltersButton"[^>]*>두 필터 자동 준비<\/button>/);
+  assert.match(ui, /id="ensureVoiceFiltersButton"[^>]*>필터 자동 준비<\/button>/);
+  assert.doesNotMatch(ui, /두 필터 자동 준비/);
   assert.match(ui, /class="voice-filter-actions"/);
   assert.match(ui, /class="voice-tone-grid"/);
   assert.match(ui, /class="voice-tone-label">다운톤<\/span>/);
