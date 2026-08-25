@@ -135,3 +135,19 @@ test("v86 release preparation is immutable and identifies the OBS filter respons
   assert.match(notes, /GetSourceFilter/);
   assert.match(notes, /OBS 32\.2\.1/);
 });
+
+test("v87 release preparation is immutable and identifies the voice pitch presets build", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07087-AutoUpdate.ps1"),
+    source("RELEASE_v07087_VOICE_PITCH_PRESETS_KO.txt")
+  ]);
+
+  assert.match(build, /\$releaseSequence = 7087/);
+  assert.match(build, /byeollog_agent_v07087_VOICE_PITCH_PRESETS_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.87'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.87'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /v0\.7\.0\.87/);
+  assert.match(notes, /업톤과 다운톤/);
+  assert.match(notes, /5초/);
+});
