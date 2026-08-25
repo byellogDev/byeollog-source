@@ -1,3 +1,4 @@
+using System.Net.WebSockets;
 using System.Text.Json;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
@@ -514,6 +515,12 @@ internal sealed class VNextAutomationSettingsForm : Form
                     break;
                 case "testObsSettings":
                     await TestObsSettingsAsync(payload);
+                    break;
+                case "testVoiceAnonymizerFilter":
+                    await TestVoiceAnonymizerFilterAsync(payload);
+                    break;
+                case "previewVoiceAnonymizer":
+                    await PreviewVoiceAnonymizerAsync();
                     break;
                 case "saveWindowsMicSettings":
                     await SaveWindowsMicSettingsAsync(payload);
@@ -1395,6 +1402,52 @@ internal sealed class VNextAutomationSettingsForm : Form
     {
         var obs = _storage.LoadObsSettings();
         var windows = _storage.LoadWindowsCaptureSettings();
+        object voiceAnonymizer = new
+        {
+            filterName = obs.VoiceAnonymizerFilterName,
+            ready = false,
+            filterEnabled = (bool?)null,
+            state = obs.Enabled ? "checking" : "obs_disabled",
+            message = obs.Enabled ? "OBS 필터 상태를 확인하는 중입니다." : "OBS 연결을 먼저 사용으로 설정해주세요."
+        };
+        if (obs.Enabled
+            && !string.IsNullOrWhiteSpace(obs.MicrophoneInputName)
+            && !string.IsNullOrWhiteSpace(obs.VoiceAnonymizerFilterName)
+            && _localAgent is not null)
+        {
+            try
+            {
+                using var voiceTimeout = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeToken);
+                voiceTimeout.CancelAfter(TimeSpan.FromSeconds(4));
+                var status = await _localAgent.ProbeVoiceAnonymizerAsync(voiceTimeout.Token);
+                voiceAnonymizer = new
+                {
+                    filterName = status.FilterName,
+                    ready = status.Ready,
+                    filterEnabled = (bool?)status.FilterEnabled,
+                    state = status.FilterEnabled ? "ready_enabled" : "ready",
+                    message = status.FilterEnabled
+                        ? "VST 2.x 필터가 준비되어 있으며 현재 켜져 있습니다. 평소에는 꺼두는 것을 권장합니다."
+                        : "VST 2.x 필터가 준비되어 있습니다."
+                };
+            }
+            catch (OperationCanceledException) when (_lifetimeToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _storage.Log("Voice anonymizer readiness probe failed: " + ex.GetType().Name);
+                voiceAnonymizer = new
+                {
+                    filterName = obs.VoiceAnonymizerFilterName,
+                    ready = false,
+                    filterEnabled = (bool?)null,
+                    state = "not_ready",
+                    message = VoiceAnonymizerSetupMessage(ex)
+                };
+            }
+        }
         IReadOnlyList<WindowsCaptureEndpoint> endpoints;
         try
         {
@@ -1417,7 +1470,8 @@ internal sealed class VNextAutomationSettingsForm : Form
                 enabled = obs.Enabled,
                 port = obs.Port,
                 inputName = obs.MicrophoneInputName,
-                hasPassword = !string.IsNullOrEmpty(obs.Password)
+                hasPassword = !string.IsNullOrEmpty(obs.Password),
+                voiceAnonymizer
             },
             windows = new
             {
@@ -1477,6 +1531,108 @@ internal sealed class VNextAutomationSettingsForm : Form
         });
     }
 
+    private async Task TestVoiceAnonymizerFilterAsync(JsonElement payload)
+    {
+        var savedSettings = ParseObsSettings(payload, keepStoredPasswordWhenBlank: true);
+        if (string.IsNullOrWhiteSpace(savedSettings.MicrophoneInputName))
+            throw new VNextDevelopmentException(
+                "OBS 오디오 믹서에 표시되는 마이크 입력 이름을 입력해주세요.",
+                code: "invalid_obs_input");
+        var settings = savedSettings with { Enabled = true };
+        await RunOperationAsync("OBS 신원보호 필터를 확인하는 중이에요.", async ownerId =>
+        {
+            try
+            {
+                using var timeout = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeToken);
+                timeout.CancelAfter(TimeSpan.FromSeconds(7));
+                await using var obs = await ObsWebSocketClient.ConnectAsync(settings, timeout.Token);
+                var info = await obs.GetVersionAsync(timeout.Token);
+                if (!info.AvailableRequests.Contains("GetSourceFilterList")
+                    || !info.AvailableRequests.Contains("GetSourceFilter")
+                    || !info.AvailableRequests.Contains("SetSourceFilterEnabled"))
+                    throw new InvalidOperationException("연결된 OBS가 필요한 필터 제어 기능을 지원하지 않습니다.");
+                var filters = await obs.GetSourceFilterListAsync(settings.MicrophoneInputName, timeout.Token);
+                var filter = filters.FirstOrDefault(item =>
+                    string.Equals(
+                        item.FilterName,
+                        settings.VoiceAnonymizerFilterName,
+                        StringComparison.Ordinal));
+                if (filter is null)
+                    throw new InvalidOperationException(
+                        $"OBS 마이크에 '{settings.VoiceAnonymizerFilterName}' 필터가 없습니다.");
+                if (!string.Equals(
+                        filter.FilterKind,
+                        TimedMuteActionAdapter.VoiceAnonymizerFilterKind,
+                        StringComparison.Ordinal))
+                    throw new InvalidOperationException(
+                        $"'{settings.VoiceAnonymizerFilterName}' 필터가 VST 2.x 플러그인 필터가 아닙니다.");
+                // A successful filter check pins the exact tested local settings so
+                // the five-second preview and production action cannot target a stale filter.
+                _storage.SaveObsSettings(settings);
+                _localAgent?.Wake();
+                if (IsOperationCurrent(ownerId))
+                {
+                    await PushLocalConnectionsAsync(ownerId, showToast: false);
+                    await ShowToastAsync(
+                        filter.FilterEnabled
+                            ? "신원보호 필터 확인·저장 완료 · 현재 켜짐 (평소에는 꺼두세요)"
+                            : "신원보호 필터 확인·저장 완료 · 현재 꺼짐",
+                        filter.FilterEnabled ? "warning" : "success");
+                }
+            }
+            catch (OperationCanceledException) when (_lifetimeToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new VNextDevelopmentException(
+                    VoiceAnonymizerSetupMessage(ex),
+                    code: "voice_anonymizer_not_ready");
+            }
+        });
+    }
+
+    private async Task PreviewVoiceAnonymizerAsync()
+    {
+        RequireCanManage();
+        if (_localAgent is null)
+            throw new VNextDevelopmentException(
+                "이 PC 자동화 실행기를 시작할 수 없습니다.",
+                code: "local_agent_unavailable");
+        await RunOperationAsync("신원보호 목소리를 5초 동안 미리 듣는 중이에요.", async ownerId =>
+        {
+            try
+            {
+                using var timeout = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeToken);
+                timeout.CancelAfter(TimeSpan.FromSeconds(20));
+                var result = await _localAgent.PreviewVoiceAnonymizerAsync(timeout.Token);
+                if (IsOperationCurrent(ownerId))
+                {
+                    await PushLocalConnectionsAsync(ownerId, showToast: false);
+                    if (IsOperationCurrent(ownerId))
+                    {
+                        await ShowToastAsync(
+                            result.InitialMuted
+                                ? "5초 미리보기를 마쳤어요. 필터가 이미 켜져 있어 상태를 그대로 유지했어요."
+                                : "5초 신원보호 목소리 미리보기를 마쳤어요. 필터를 원래대로 껐어요.",
+                            result.InitialMuted ? "warning" : "success");
+                    }
+                }
+            }
+            catch (OperationCanceledException) when (_lifetimeToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new VNextDevelopmentException(
+                    VoiceAnonymizerSetupMessage(ex),
+                    code: "voice_anonymizer_preview_failed");
+            }
+        });
+    }
+
     private async Task SaveWindowsMicSettingsAsync(JsonElement payload)
     {
         var enabled = PayloadBoolean(payload, "enabled", "Windows 마이크 사용 여부");
@@ -1513,13 +1669,32 @@ internal sealed class VNextAutomationSettingsForm : Form
         var enabled = PayloadBoolean(payload, "enabled", "OBS 연결 사용 여부");
         var port = PayloadInt(payload, "port", 1, 65535, "OBS 포트");
         var inputName = PayloadOptionalText(payload, "inputName", 128);
+        var filterName = PayloadOptionalText(payload, "voiceAnonymizerFilterName", 128);
         var password = PayloadOptionalText(payload, "password", 256, trim: false);
         if (enabled && string.IsNullOrWhiteSpace(inputName))
             throw new VNextDevelopmentException("OBS 오디오 믹서에 표시되는 마이크 입력 이름을 입력해주세요.", code: "invalid_obs_input");
         if (keepStoredPasswordWhenBlank && password.Length == 0)
             password = _storage.LoadObsSettings().Password;
-        return new ObsConnectionSettings(enabled, port, inputName.Trim(), password);
+        if (filterName.Length == 0)
+            filterName = _storage.LoadObsSettings().VoiceAnonymizerFilterName;
+        if (filterName.Length == 0)
+            filterName = ObsConnectionSettings.DefaultVoiceAnonymizerFilterName;
+        return new ObsConnectionSettings(enabled, port, inputName.Trim(), password, filterName);
     }
+
+    private static string VoiceAnonymizerSetupMessage(Exception ex) => ex switch
+    {
+        ObsAuthenticationException => "OBS WebSocket 인증에 실패했습니다. 비밀번호를 확인해주세요.",
+        ObsProtocolException => "OBS WebSocket 5.x 연결을 확인해주세요.",
+        ObsRequestException => "설정한 OBS 마이크 입력 또는 신원보호 필터를 찾지 못했습니다.",
+        WebSocketException or IOException or HttpRequestException or TimeoutException =>
+            "OBS에 연결할 수 없습니다. OBS 실행 및 WebSocket 설정을 확인해주세요.",
+        OperationCanceledException => "OBS 신원보호 필터 확인 시간이 초과되었습니다.",
+        InvalidOperationException invalid => invalid.Message,
+        TimedMuteRestoreFailedException =>
+            "필터 원상복구를 확인하지 못했습니다. OBS에서 신원보호 필터를 직접 꺼주세요.",
+        _ => "OBS 신원보호 필터를 확인하지 못했습니다. 마이크와 필터 설정을 확인해주세요."
+    };
 
     private async Task<object> CreateLocalAgentStateAsync()
     {

@@ -87,6 +87,9 @@ async function ingestSoopDonation(req,res){
 
 export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store, private');
+  if(process.env.NATIVE_ROULETTE_ENABLED!=='true'){
+    return res.status(404).json({message:'Not found'});
+  }
   const operation=String(req.query?.operation||'').trim();
   if(req.query?.view==='settings'){
     const session=await requireCapabilityLive(req,res,'roulette:read');

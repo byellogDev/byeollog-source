@@ -159,6 +159,93 @@ internal static class TimedMuteContract
     }
 }
 
+internal static class ObsVoiceAnonymizerContract
+{
+    public const int MinimumDurationMs = 3_000;
+    public const int MaximumDurationMs = 60_000;
+    public const string ActionLabel = "(신원보호모드/개발중)";
+    public const string ControlType = "voice_anonymize";
+    public const string Target = "microphone";
+    public const string Preset = "anonymous_low";
+    private const char TargetKeySeparator = '\u001f';
+
+    public static bool TryReadParameters(JsonElement value, out int durationMs)
+    {
+        durationMs = 0;
+        if (value.ValueKind != JsonValueKind.Object) return false;
+
+        var count = 0;
+        foreach (var property in value.EnumerateObject())
+        {
+            count++;
+            if (property.Name is not (
+                "label" or
+                "controlType" or
+                "target" or
+                "durationMs" or
+                "preset" or
+                "requiresObsMicInput" or
+                "requiresObsFilter"))
+                return false;
+        }
+        if (count != 7) return false;
+
+        return ExactString(value, "label", ActionLabel)
+            && ExactString(value, "controlType", ControlType)
+            && ExactString(value, "target", Target)
+            && ExactString(value, "preset", Preset)
+            && ExactTrue(value, "requiresObsMicInput")
+            && ExactTrue(value, "requiresObsFilter")
+            && value.TryGetProperty("durationMs", out var duration)
+            && duration.ValueKind == JsonValueKind.Number
+            && duration.TryGetInt32(out durationMs)
+            && durationMs is >= MinimumDurationMs and <= MaximumDurationMs;
+    }
+
+    private static bool ExactString(JsonElement value, string name, string expected) =>
+        value.TryGetProperty(name, out var property)
+        && property.ValueKind == JsonValueKind.String
+        && string.Equals(property.GetString(), expected, StringComparison.Ordinal);
+
+    private static bool ExactTrue(JsonElement value, string name) =>
+        value.TryGetProperty(name, out var property)
+        && property.ValueKind == JsonValueKind.True;
+
+    public static string EncodeTargetKey(string sourceName, string filterName)
+    {
+        ValidateName(sourceName, nameof(sourceName));
+        ValidateName(filterName, nameof(filterName));
+        return sourceName + TargetKeySeparator + filterName;
+    }
+
+    public static bool TryDecodeTargetKey(
+        string targetKey,
+        out string sourceName,
+        out string filterName)
+    {
+        sourceName = "";
+        filterName = "";
+        if (string.IsNullOrEmpty(targetKey)) return false;
+        var separator = targetKey.IndexOf(TargetKeySeparator);
+        if (separator <= 0
+            || separator != targetKey.LastIndexOf(TargetKeySeparator)
+            || separator == targetKey.Length - 1)
+            return false;
+        sourceName = targetKey[..separator];
+        filterName = targetKey[(separator + 1)..];
+        return IsValidName(sourceName) && IsValidName(filterName);
+    }
+
+    public static bool IsValidName(string value) =>
+        value.Length is >= 1 and <= 128 && !value.Any(char.IsControl);
+
+    private static void ValidateName(string value, string parameterName)
+    {
+        if (!IsValidName(value))
+            throw new ArgumentException("OBS 소스 또는 필터 이름이 올바르지 않습니다.", parameterName);
+    }
+}
+
 internal sealed record TimedMuteRecoveryRecord(
     int SchemaVersion,
     string OperationId,
@@ -241,23 +328,29 @@ internal sealed class TimedMuteCoordinator
     private readonly ITimedMuteRecoveryStore _recoveryStore;
     private readonly SemaphoreSlim _mutationGate;
     private readonly Func<TimeSpan, CancellationToken, Task> _delay;
+    private readonly Func<DateTimeOffset> _utcNow;
     private readonly object _sessionGate = new();
     private ActiveSession? _activeSession;
 
     private sealed class ActiveSession
     {
-        public ActiveSession(ITimedMuteTarget target, int durationMs)
+        public ActiveSession(
+            ITimedMuteTarget target,
+            int durationMs,
+            DateTimeOffset? notAfterUtc)
         {
             TargetType = target.TargetType;
             TargetKey = target.TargetKey;
             PendingDurationMs = durationMs;
             TotalDurationMs = durationMs;
+            NotAfterUtc = notAfterUtc;
         }
 
         public string TargetType { get; }
         public string TargetKey { get; }
         public int PendingDurationMs { get; set; }
         public int TotalDurationMs { get; set; }
+        public DateTimeOffset? NotAfterUtc { get; set; }
         public bool Accepting { get; set; } = true;
         public bool Active { get; set; }
         public List<Action> ActivatedCallbacks { get; } = new();
@@ -274,11 +367,13 @@ internal sealed class TimedMuteCoordinator
     public TimedMuteCoordinator(
         ITimedMuteRecoveryStore recoveryStore,
         SemaphoreSlim mutationGate,
-        Func<TimeSpan, CancellationToken, Task>? delay = null)
+        Func<TimeSpan, CancellationToken, Task>? delay = null,
+        Func<DateTimeOffset>? utcNow = null)
     {
         _recoveryStore = recoveryStore;
         _mutationGate = mutationGate;
         _delay = delay ?? Task.Delay;
+        _utcNow = utcNow ?? (() => DateTimeOffset.UtcNow);
     }
 
     public async Task<TimedMuteRunResult> ExecuteAsync(
@@ -286,10 +381,13 @@ internal sealed class TimedMuteCoordinator
         int durationMs,
         CancellationToken cancellationToken,
         Action? onAccepted = null,
-        Action? onActivated = null)
+        Action? onActivated = null,
+        DateTimeOffset? notAfterUtc = null)
     {
         if (durationMs is < TimedMuteContract.MinimumDurationMs or > TimedMuteContract.MaximumDurationMs)
             throw new ArgumentOutOfRangeException(nameof(durationMs));
+        if (notAfterUtc is not null && _utcNow() >= notAfterUtc.Value)
+            throw new VNextActionExpiredException();
 
         ActiveSession session;
         var leader = false;
@@ -301,7 +399,7 @@ internal sealed class TimedMuteCoordinator
             {
                 if (_activeSession is null)
                 {
-                    session = new ActiveSession(target, durationMs);
+                    session = new ActiveSession(target, durationMs, notAfterUtc);
                     if (onActivated is not null)
                         session.ActivatedCallbacks.Add(onActivated);
                     _activeSession = session;
@@ -312,6 +410,8 @@ internal sealed class TimedMuteCoordinator
                 if (_activeSession.Accepting && _activeSession.Matches(target))
                 {
                     session = _activeSession;
+                    if (!session.Active)
+                        TightenActivationDeadlineLocked(session, notAfterUtc);
                     AddDurationLocked(session, durationMs);
                     if (onActivated is not null)
                     {
@@ -359,7 +459,7 @@ internal sealed class TimedMuteCoordinator
         var updated = previous with
         {
             RestoreDueAtUtc = previous.RestoreDueAtUtc.AddMilliseconds(durationMs),
-            UpdatedAtUtc = DateTimeOffset.UtcNow
+            UpdatedAtUtc = _utcNow()
         };
         try
         {
@@ -375,7 +475,18 @@ internal sealed class TimedMuteCoordinator
         }
     }
 
-    private async Task RunLeaderAsync(ActiveSession session, ITimedMuteTarget target)
+    private static void TightenActivationDeadlineLocked(
+        ActiveSession session,
+        DateTimeOffset? notAfterUtc)
+    {
+        if (notAfterUtc is null) return;
+        if (session.NotAfterUtc is null || notAfterUtc.Value < session.NotAfterUtc.Value)
+            session.NotAfterUtc = notAfterUtc;
+    }
+
+    private async Task RunLeaderAsync(
+        ActiveSession session,
+        ITimedMuteTarget target)
     {
         var acquired = false;
         TimedMuteRunResult? result = null;
@@ -411,9 +522,12 @@ internal sealed class TimedMuteCoordinator
         ActiveSession session,
         ITimedMuteTarget target)
     {
+        EnsureFreshForActivation(session);
+
         var initialMuted = await target.GetMutedAsync(session.Stop.Token);
+        EnsureFreshForActivation(session);
         var operationId = Guid.NewGuid().ToString("N");
-        var now = DateTimeOffset.UtcNow;
+        var now = _utcNow();
         lock (_sessionGate)
         {
             session.RecoveryRecord = new TimedMuteRecoveryRecord(
@@ -446,7 +560,7 @@ internal sealed class TimedMuteCoordinator
 
             lock (_sessionGate)
             {
-                var activeAt = DateTimeOffset.UtcNow;
+                var activeAt = _utcNow();
                 session.RecoveryRecord = session.RecoveryRecord! with
                 {
                     Phase = "active",
@@ -517,6 +631,14 @@ internal sealed class TimedMuteCoordinator
             Changed: !initialMuted,
             MutedVerified: mutedVerified,
             RestoredVerified: true);
+    }
+
+    private void EnsureFreshForActivation(ActiveSession session)
+    {
+        DateTimeOffset? notAfterUtc;
+        lock (_sessionGate) notAfterUtc = session.NotAfterUtc;
+        if (notAfterUtc is not null && _utcNow() >= notAfterUtc.Value)
+            throw new VNextActionExpiredException();
     }
 
     public async Task<TimedMuteRecoveryResult> RecoverAsync(

@@ -16,6 +16,12 @@ internal sealed record ObsInputSummary(
     string InputKind,
     string UnversionedInputKind);
 
+internal sealed record ObsSourceFilterSummary(
+    string FilterName,
+    string FilterKind,
+    bool FilterEnabled,
+    int FilterIndex);
+
 internal sealed class ObsAuthenticationException : Exception
 {
     public ObsAuthenticationException(string message) : base(message) { }
@@ -220,6 +226,89 @@ internal sealed class ObsWebSocketClient : IAsyncDisposable
             "SetInputMute",
             new { inputName, inputMuted = muted },
             cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ObsSourceFilterSummary>> GetSourceFilterListAsync(
+        string sourceName,
+        CancellationToken cancellationToken)
+    {
+        ValidateObsName(sourceName, nameof(sourceName));
+        var response = await RequestAsync(
+            "GetSourceFilterList",
+            new { sourceName },
+            cancellationToken);
+        if (!response.TryGetProperty("filters", out var filters)
+            || filters.ValueKind != JsonValueKind.Array)
+            throw new InvalidDataException("OBS 필터 목록 응답이 올바르지 않습니다.");
+
+        var result = new List<ObsSourceFilterSummary>();
+        foreach (var filter in filters.EnumerateArray())
+        {
+            if (filter.ValueKind != JsonValueKind.Object) continue;
+            var filterName = OptionalString(filter, "filterName");
+            var filterKind = OptionalString(filter, "filterKind");
+            if (filterName.Length == 0 || filterKind.Length == 0) continue;
+            if (!filter.TryGetProperty("filterEnabled", out var enabled)
+                || enabled.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                continue;
+            var index = filter.TryGetProperty("filterIndex", out var indexValue)
+                && indexValue.TryGetInt32(out var parsedIndex)
+                ? parsedIndex
+                : -1;
+            result.Add(new ObsSourceFilterSummary(
+                filterName,
+                filterKind,
+                enabled.GetBoolean(),
+                index));
+        }
+        return result;
+    }
+
+    public async Task<ObsSourceFilterSummary> GetSourceFilterAsync(
+        string sourceName,
+        string filterName,
+        CancellationToken cancellationToken)
+    {
+        ValidateObsName(sourceName, nameof(sourceName));
+        ValidateObsName(filterName, nameof(filterName));
+        var response = await RequestAsync(
+            "GetSourceFilter",
+            new { sourceName, filterName },
+            cancellationToken);
+        var returnedName = OptionalString(response, "filterName");
+        var kind = OptionalString(response, "filterKind");
+        if (!string.Equals(returnedName, filterName, StringComparison.Ordinal)
+            || kind.Length == 0
+            || !response.TryGetProperty("filterEnabled", out var enabled)
+            || enabled.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+            throw new InvalidDataException("OBS 필터 상태 응답이 올바르지 않습니다.");
+        var index = response.TryGetProperty("filterIndex", out var indexValue)
+            && indexValue.TryGetInt32(out var parsedIndex)
+            ? parsedIndex
+            : -1;
+        return new ObsSourceFilterSummary(returnedName, kind, enabled.GetBoolean(), index);
+    }
+
+    public async Task SetSourceFilterEnabledAsync(
+        string sourceName,
+        string filterName,
+        bool filterEnabled,
+        CancellationToken cancellationToken)
+    {
+        ValidateObsName(sourceName, nameof(sourceName));
+        ValidateObsName(filterName, nameof(filterName));
+        await RequestAsync(
+            "SetSourceFilterEnabled",
+            new { sourceName, filterName, filterEnabled },
+            cancellationToken);
+    }
+
+    private static void ValidateObsName(string value, string parameterName)
+    {
+        if (string.IsNullOrWhiteSpace(value)
+            || value.Length > 128
+            || value.Any(char.IsControl))
+            throw new ArgumentException("OBS 소스 또는 필터 이름이 올바르지 않습니다.", parameterName);
     }
 
     private async Task<JsonElement> RequestAsync(

@@ -1,4 +1,4 @@
--- Native Byeollog roulette skeleton.
+-- Dormant native Byeollog roulette skeleton.
 --
 -- This migration is intentionally dormant. It creates immutable draft,
 -- cache-preparation, SOOP donation receipt, deterministic spin, and dispatch

@@ -2,7 +2,7 @@
 
 ## 현재 상태
 
-이 소스는 SOOP Chat SDK 승인 전에 데이터·캐시·UI 계약을 먼저 고정한 비활성 뼈대다. 운영 DB, Vercel, Edge Function, TTS Docker, 배포 에이전트에는 적용하지 않았다. 이 마이그레이션에는 활성화 RPC가 의도적으로 없으므로, 실수로 SDK 후원 요청이 들어와도 룰렛은 실행되지 않는다.
+이 소스는 SOOP Chat SDK 승인 전에 데이터·캐시·UI 계약을 먼저 고정한 비활성 뼈대다. 운영 DB, Vercel, Edge Function, TTS Docker, 배포 에이전트에는 적용하지 않았다. SQL은 일반 `supabase db push` 대상이 아닌 `supabase/dormant-migrations/20260825110000_native_roulette_sdk_skeleton.sql`에 보존한다. 승인 후에는 이 파일을 직접 실행하지 않고 당시 운영 migration 순서에 맞는 새 timestamp의 검토된 migration으로 복원한다. 이 SQL에는 활성화 RPC가 의도적으로 없으므로, 별도 승인 구현 전에는 룰렛을 실행할 수 없다.
 
 ## 확정 데이터 흐름
 

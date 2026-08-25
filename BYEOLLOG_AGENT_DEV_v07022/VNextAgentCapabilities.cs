@@ -7,6 +7,7 @@ internal static class VNextAgentCapabilities
     private static readonly string[] WindowsActionTypes =
     [
         "obs.mute_for",
+        "obs.voice_anonymize_for",
         "windows.mic_mute_for",
         "raffle.overlay",
         "flashbang.overlay"

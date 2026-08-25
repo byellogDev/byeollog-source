@@ -29,6 +29,7 @@ const expectedKeys = [
   "agent_runtime",
   "agent_database",
   "obs_websocket",
+  "obs_voice_anonymizer",
   "windows_microphone",
   "overlay_loopback",
   "approved_assets",
@@ -36,7 +37,7 @@ const expectedKeys = [
   "timed_mute_recovery"
 ];
 
-test("broadcast readiness exposes exactly ten stable keys across one runtime branch", async () => {
+test("broadcast readiness exposes exactly eleven stable keys across one runtime branch", async () => {
   const [policy, preflight] = await Promise.all([
     source("BroadcastReadiness.cs"),
     source("CollectorPreflight.cs")
@@ -44,7 +45,7 @@ test("broadcast readiness exposes exactly ten stable keys across one runtime bra
   const keyBlock = section(policy, "FixedCheckKeys = new[]", "};");
   const keys = [...keyBlock.matchAll(/"([a-z][a-z0-9_]*)"/g)].map((match) => match[1]);
   assert.deepEqual(keys, expectedKeys);
-  assert.equal(new Set(keys).size, 10, "readiness keys must be unique");
+  assert.equal(new Set(keys).size, 11, "readiness keys must be unique");
 
   const run = section(preflight, "public static async Task<CollectorPreflightReport> RunAsync(", "private sealed record WindowsMicrophoneProbe");
   const emitted = [...run.matchAll(/checks\.Add\(Check\(\s*"([a-z][a-z0-9_]*)"/g)]
@@ -107,6 +108,7 @@ test("OBS is conditional and approved overlays require an exact asset ID plus SH
   const derive = section(policy, "public static BroadcastReadinessScope FromRequirements(", "public static bool ExactAssetsReady(");
   assert.match(derive, /ExecutionTarget, "local_agent"/);
   assert.match(derive, /TimedMuteActionAdapter\.ObsActionType/);
+  assert.match(derive, /TimedMuteActionAdapter\.VoiceAnonymizerActionType/);
   assert.match(derive, /"obs\.set_input_mute"/);
   assert.match(derive, /TimedMuteActionAdapter\.WindowsActionType/);
   assert.match(derive, /current\.Any\(item =>[\s\S]*ObsActionType[\s\S]*obs\.set_input_mute/);
@@ -129,6 +131,9 @@ test("OBS is conditional and approved overlays require an exact asset ID plus SH
   assert.match(obs, /!scopeLoaded \|\| scope\.RequiresObs/);
   assert.match(obs, /: "pass"/);
   assert.match(obs, /활성 OBS 규칙 없음/);
+  assert.match(obs, /"obs_voice_anonymizer"/);
+  assert.match(obs, /ProbeVoiceAnonymizerAsync/);
+  assert.match(obs, /voice\.FilterEnabled \? "attention" : "pass"/);
   assert.match(run, /scope\.HasUnsupportedLocalActions \? "blocked" : "pass"/);
   assert.match(run, /지원하지 않는 로컬 액션/);
   assert.match(run, /BroadcastReadinessPolicy\.ExactAssetsReady\([\s\S]*scope\.RequiredOverlayAssetIds,[\s\S]*approvedAssets,[\s\S]*overlay\.ReadyRevisions/);

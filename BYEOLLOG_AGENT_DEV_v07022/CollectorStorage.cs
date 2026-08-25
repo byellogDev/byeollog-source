@@ -12,9 +12,20 @@ internal sealed record CollectorSession(string Id, DateTime StartLocal, DateTime
 internal sealed record CollectorConfig(string ServerUrl, string CollectorToken);
 internal sealed record RouletteEventRule(long Balloons, int ExpectedSpins, string EventName);
 internal sealed record FixedRewardRule(long Balloons, string EventName, string UpboType, int Quantity);
-internal sealed record ObsConnectionSettings(bool Enabled, int Port, string MicrophoneInputName, string Password)
+internal sealed record ObsConnectionSettings(
+    bool Enabled,
+    int Port,
+    string MicrophoneInputName,
+    string Password,
+    string VoiceAnonymizerFilterName = "")
 {
-    public static ObsConnectionSettings Default { get; } = new(false, 4455, "", "");
+    public const string DefaultVoiceAnonymizerFilterName = "별록 신원보호모드";
+    public static ObsConnectionSettings Default { get; } = new(
+        false,
+        4455,
+        "",
+        "",
+        DefaultVoiceAnonymizerFilterName);
 }
 internal sealed class VNextAgentCredentialFile
 {
@@ -317,7 +328,15 @@ internal sealed class CollectorStorage
             var port = saved.Port is >= 1 and <= 65535 ? saved.Port : 4455;
             var inputName = (saved.MicrophoneInputName ?? "").Trim();
             if (inputName.Length > 128) inputName = inputName[..128];
-            return new ObsConnectionSettings(saved.Enabled, port, inputName, UnprotectToken(saved.Password ?? ""));
+            var filterName = SanitizeObsName(saved.VoiceAnonymizerFilterName, 128);
+            if (filterName.Length == 0)
+                filterName = ObsConnectionSettings.DefaultVoiceAnonymizerFilterName;
+            return new ObsConnectionSettings(
+                saved.Enabled,
+                port,
+                inputName,
+                UnprotectToken(saved.Password ?? ""),
+                filterName);
         }
         catch
         {
@@ -330,13 +349,22 @@ internal sealed class CollectorStorage
         var port = settings.Port is >= 1 and <= 65535 ? settings.Port : 4455;
         var inputName = (settings.MicrophoneInputName ?? "").Trim();
         if (inputName.Length > 128) inputName = inputName[..128];
+        var filterName = SanitizeObsName(settings.VoiceAnonymizerFilterName, 128);
         var password = settings.Password ?? "";
         var toStore = new ObsConnectionSettings(
             settings.Enabled,
             port,
             inputName,
-            ProtectToken(password));
+            ProtectToken(password),
+            filterName);
         CollectorStateLifecycle.AtomicWriteText(_obsSettingsPath, JsonSerializer.Serialize(toStore, _json));
+    }
+
+    private static string SanitizeObsName(string? value, int maximumLength)
+    {
+        var result = (value ?? "").Trim();
+        if (result.Length > maximumLength) result = result[..maximumLength];
+        return result.Any(char.IsControl) ? "" : result;
     }
 
     public WindowsCaptureSettings LoadWindowsCaptureSettings()

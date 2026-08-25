@@ -505,6 +505,14 @@ internal sealed class VNextLocalAgent : IDisposable
 
     public ByeollogOverlayTelemetrySnapshot OverlayTelemetry() => _overlay.Telemetry();
 
+    public Task<ObsVoiceAnonymizerStatus> ProbeVoiceAnonymizerAsync(
+        CancellationToken cancellationToken = default) =>
+        _timedMuteActions.ProbeVoiceAnonymizerAsync(cancellationToken);
+
+    public Task<TimedMuteRunResult> PreviewVoiceAnonymizerAsync(
+        CancellationToken cancellationToken = default) =>
+        _timedMuteActions.RunLocalVoiceAnonymizerPreviewAsync(cancellationToken);
+
     private async Task RunAsync(CancellationToken cancellationToken)
     {
         var consecutiveErrors = 0;
@@ -1078,7 +1086,9 @@ internal sealed class VNextLocalAgent : IDisposable
     }
 
     private static bool IsTimedMuteAction(VNextAgentJob job) =>
-        job.ActionType is TimedMuteActionAdapter.ObsActionType or TimedMuteActionAdapter.WindowsActionType;
+        job.ActionType is TimedMuteActionAdapter.ObsActionType
+            or TimedMuteActionAdapter.WindowsActionType
+            or TimedMuteActionAdapter.VoiceAnonymizerActionType;
 
     internal static int EffectiveActionTimeoutMs(VNextAgentJob job)
     {
@@ -1142,6 +1152,15 @@ internal sealed class VNextLocalAgent : IDisposable
                     cancellationToken,
                     releaseSlotAfterTimedMuteAccepted,
                     notAfterUtc);
+        }
+
+        if (job.ActionType == TimedMuteActionAdapter.VoiceAnonymizerActionType)
+        {
+            return await _timedMuteActions.ExecuteVoiceAnonymizerAsync(
+                actionParameters,
+                cancellationToken,
+                releaseSlotAfterTimedMuteAccepted,
+                notAfterUtc);
         }
 
         if (job.ActionType == RaffleOverlayActionAdapter.ActionType)

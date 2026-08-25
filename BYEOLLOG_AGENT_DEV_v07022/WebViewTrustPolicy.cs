@@ -64,6 +64,8 @@ internal static class WebViewTrustPolicy
         "copyOverlayUrl",
         "saveObsSettings",
         "testObsSettings",
+        "testVoiceAnonymizerFilter",
+        "previewVoiceAnonymizer",
         "saveWindowsMicSettings",
         "testWindowsMicSettings",
         "editAutomationRule",
@@ -87,6 +89,7 @@ internal static class WebViewTrustPolicy
         "previewOverlayAsset",
         "saveObsSettings",
         "testObsSettings",
+        "testVoiceAnonymizerFilter",
         "saveWindowsMicSettings",
         "testWindowsMicSettings",
         "editAutomationRule",
@@ -103,7 +106,8 @@ internal static class WebViewTrustPolicy
         "refreshRaffle",
         "syncOverlayAssets",
         "copyOverlayUrl",
-        "refreshLocalConnections"
+        "refreshLocalConnections",
+        "previewVoiceAnonymizer"
     };
 
     private static readonly HashSet<string> UiActionsRequiringPayload = new(StringComparer.Ordinal)

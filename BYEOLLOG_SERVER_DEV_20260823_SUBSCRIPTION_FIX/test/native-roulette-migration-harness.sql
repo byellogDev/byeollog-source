@@ -34,7 +34,7 @@ create or replace function byeollog_automation.assert_agent_device_locked_v1(
   uuid,uuid,text)
 returns void language sql set search_path='' as $$select$$;
 
-\ir ../supabase/migrations/20260825110000_native_roulette_sdk_skeleton.sql
+\ir ../supabase/dormant-migrations/20260825110000_native_roulette_sdk_skeleton.sql
 
 insert into public.byeollog_workspaces(id,display_name,slug,status)
 values('10000000-0000-4000-8000-000000000001','테스트','test','active');

@@ -1,12 +1,22 @@
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {readFile,readdir} from 'node:fs/promises';
 import test from 'node:test';
 import handler from '../api/native-roulette.js';
 
 const source=path=>readFile(new URL(path,import.meta.url),'utf8');
 
-test('migration is additive, private, service-role only, and intentionally has no activation RPC',async()=>{
-  const sql=await source('../supabase/migrations/20260825110000_native_roulette_sdk_skeleton.sql');
+test('native roulette SQL stays outside the active Supabase migration chain',async()=>{
+  const fileName='20260825110000_native_roulette_sdk_skeleton.sql';
+  const [active,dormant]=await Promise.all([
+    readdir(new URL('../supabase/migrations/',import.meta.url)),
+    readdir(new URL('../supabase/dormant-migrations/',import.meta.url))
+  ]);
+  assert.equal(active.includes(fileName),false);
+  assert.equal(dormant.includes(fileName),true);
+});
+
+test('dormant migration is additive, private, service-role only, and intentionally has no activation RPC',async()=>{
+  const sql=await source('../supabase/dormant-migrations/20260825110000_native_roulette_sdk_skeleton.sql');
   assert.match(sql,/create table byeollog_automation\.native_roulette_profiles/);
   assert.match(sql,/create table byeollog_automation\.native_roulette_cache_requirements/);
   assert.match(sql,/create table byeollog_automation\.native_roulette_dispatch_outbox/);
@@ -21,7 +31,7 @@ test('migration is additive, private, service-role only, and intentionally has n
 });
 
 test('migration excludes direct-upbo results from TTS requirements and presentation',async()=>{
-  const sql=await source('../supabase/migrations/20260825110000_native_roulette_sdk_skeleton.sql');
+  const sql=await source('../supabase/dormant-migrations/20260825110000_native_roulette_sdk_skeleton.sql');
   assert.match(sql,/if not \(v_item->>'directUpbo'\)::boolean then[\s\S]*'result_tts'/);
   assert.match(sql,/'kind','direct_upbo','skipAutomation',true,[\s\S]*'skipPresentation',true/);
   assert.match(sql,/'kind','automation_event','skipAutomation',false,[\s\S]*'presentation'/);
@@ -30,6 +40,7 @@ test('migration excludes direct-upbo results from TTS requirements and presentat
 
 test('server ingestion remains fail-closed until the SDK flag and internal secret are present',async()=>{
   const api=await source('../api/native-roulette.js');
+  assert.match(api,/process\.env\.NATIVE_ROULETTE_ENABLED!=='true'/);
   assert.match(api,/process\.env\.SOOP_CHAT_SDK_ENABLED!=='true'/);
   assert.match(api,/SOOP_CHAT_SDK_SECRET/);
   assert.match(api,/safeEqual\(expected,supplied\)/);
@@ -37,8 +48,37 @@ test('server ingestion remains fail-closed until the SDK flag and internal secre
   assert.match(api,/requireCapabilityLive\(req,res,req\.method==='POST'\?'roulette:configure':'roulette:read'\)/);
 });
 
+test('native roulette page and API remain indistinguishable from missing routes by default',async()=>{
+  const previous=process.env.NATIVE_ROULETTE_ENABLED;
+  delete process.env.NATIVE_ROULETTE_ENABLED;
+  const requests=[
+    {method:'GET',query:{view:'settings'},headers:{}},
+    {method:'GET',query:{operation:'assets'},headers:{}},
+    {method:'GET',query:{operation:'settings'},headers:{}},
+    {method:'POST',query:{operation:'soop-donation'},headers:{},body:{}}
+  ];
+  try{
+    for(const request of requests){
+      const response={
+        headers:{},statusCode:0,payload:null,
+        setHeader(name,value){this.headers[name]=value},
+        status(code){this.statusCode=code;return this},
+        json(payload){this.payload=payload;return this}
+      };
+      await handler(request,response);
+      assert.equal(response.statusCode,404);
+      assert.deepEqual(response.payload,{message:'Not found'});
+    }
+  }finally{
+    if(previous===undefined)delete process.env.NATIVE_ROULETTE_ENABLED;
+    else process.env.NATIVE_ROULETTE_ENABLED=previous;
+  }
+});
+
 test('disabled SDK request returns before any database or session dependency is needed',async()=>{
+  const previousRoulette=process.env.NATIVE_ROULETTE_ENABLED;
   const previous=process.env.SOOP_CHAT_SDK_ENABLED;
+  process.env.NATIVE_ROULETTE_ENABLED='true';
   delete process.env.SOOP_CHAT_SDK_ENABLED;
   const response={
     headers:{},statusCode:0,payload:null,
@@ -50,6 +90,8 @@ test('disabled SDK request returns before any database or session dependency is 
     await handler({method:'POST',query:{operation:'soop-donation'},headers:{},body:{}},response);
     assert.equal(response.statusCode,503);assert.equal(response.payload.code,'soop_chat_sdk_disabled');
   }finally{
+    if(previousRoulette===undefined)delete process.env.NATIVE_ROULETTE_ENABLED;
+    else process.env.NATIVE_ROULETTE_ENABLED=previousRoulette;
     if(previous===undefined)delete process.env.SOOP_CHAT_SDK_ENABLED;
     else process.env.SOOP_CHAT_SDK_ENABLED=previous;
   }

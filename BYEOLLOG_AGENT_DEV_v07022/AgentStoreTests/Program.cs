@@ -35,6 +35,7 @@ internal static class Program
         {
             ReplayAcceptanceTests();
             AgentCapabilityTests();
+            VoiceAnonymizerContractTests();
             ActionFreshnessTests();
             True(VNextAgentStore.IsFinalLocalOutcome(
                     new VNextAgentAck("final-success", 1, true, false, null, null)),
@@ -190,6 +191,70 @@ internal static class Program
         {
             try { Directory.Delete(root, recursive: true); } catch { }
         }
+    }
+
+    private static void VoiceAnonymizerContractTests()
+    {
+        const string exact = """{"label":"(신원보호모드/개발중)","controlType":"voice_anonymize","target":"microphone","durationMs":10000,"preset":"anonymous_low","requiresObsMicInput":true,"requiresObsFilter":true}""";
+        using var accepted = JsonDocument.Parse(exact);
+        True(
+            ObsVoiceAnonymizerContract.TryReadParameters(accepted.RootElement, out var durationMs),
+            "voice anonymizer accepts only the pinned server-to-Agent payload");
+        Equal(10_000, durationMs, "voice anonymizer preserves the bounded duration");
+
+        using var forgedLabel = JsonDocument.Parse(exact.Replace(
+            "(신원보호모드/개발중)",
+            "신원보호모드",
+            StringComparison.Ordinal));
+        False(
+            ObsVoiceAnonymizerContract.TryReadParameters(forgedLabel.RootElement, out _),
+            "voice anonymizer rejects a relabeled remote action");
+        using var forgedPreset = JsonDocument.Parse(exact.Replace(
+            "anonymous_low",
+            "remote_plugin",
+            StringComparison.Ordinal));
+        False(
+            ObsVoiceAnonymizerContract.TryReadParameters(forgedPreset.RootElement, out _),
+            "voice anonymizer rejects an unapproved remote preset");
+        using var extraRemoteFilter = JsonDocument.Parse(
+            exact[..^1] + ",\"obsFilterName\":\"remote target\"}");
+        False(
+            ObsVoiceAnonymizerContract.TryReadParameters(extraRemoteFilter.RootElement, out _),
+            "voice anonymizer rejects remote OBS filter selection");
+        using var tooShort = JsonDocument.Parse(exact.Replace(
+            "\"durationMs\":10000",
+            "\"durationMs\":2999",
+            StringComparison.Ordinal));
+        False(
+            ObsVoiceAnonymizerContract.TryReadParameters(tooShort.RootElement, out _),
+            "voice anonymizer enforces the three-second minimum");
+        using var tooLong = JsonDocument.Parse(exact.Replace(
+            "\"durationMs\":10000",
+            "\"durationMs\":60001",
+            StringComparison.Ordinal));
+        False(
+            ObsVoiceAnonymizerContract.TryReadParameters(tooLong.RootElement, out _),
+            "voice anonymizer enforces the sixty-second maximum");
+
+        var targetKey = ObsVoiceAnonymizerContract.EncodeTargetKey(
+            "마이크/Aux",
+            "별록 신원보호모드");
+        True(
+            ObsVoiceAnonymizerContract.TryDecodeTargetKey(
+                targetKey,
+                out var sourceName,
+                out var filterName),
+            "voice anonymizer recovery target round-trips through the local journal key");
+        Equal("마이크/Aux", sourceName, "voice recovery preserves the exact local source name");
+        Equal("별록 신원보호모드", filterName, "voice recovery preserves the exact local filter name");
+        False(
+            ObsVoiceAnonymizerContract.TryDecodeTargetKey("마이크\u001f필터\u001f위조", out _, out _),
+            "voice recovery rejects an ambiguous target key");
+        True(
+            VNextAgentCapabilities.ForWindowsAgent().Contains(
+                "obs.voice_anonymize_for",
+                StringComparer.Ordinal),
+            "Windows Agent advertises the voice anonymizer capability");
     }
 
     private static void RaffleActionTests(string root)
@@ -1357,9 +1422,11 @@ internal static class Program
     private static void AgentCapabilityTests()
     {
         var supported = VNextAgentCapabilities.ForWindowsAgent();
-        Equal(4, supported.Length, "fresh Windows Agent reports only server-routable capabilities");
+        Equal(5, supported.Length, "fresh Windows Agent reports only server-routable capabilities");
         True(supported.Contains("obs.mute_for", StringComparer.Ordinal),
             "OBS timed mute capability is reported before OBS settings are configured");
+        True(supported.Contains("obs.voice_anonymize_for", StringComparer.Ordinal),
+            "OBS voice anonymizer capability is reported before its local filter is configured");
         False(supported.Contains("local.log", StringComparer.Ordinal),
             "local diagnostics are not sent to the public Agent runtime");
         False(supported.Contains("obs.set_input_mute", StringComparer.Ordinal),
@@ -1543,7 +1610,8 @@ internal static class Program
         {
             "renameAgentDevice",
             "revokeAgentDevice",
-            "previewOverlayAsset"
+            "previewOverlayAsset",
+            "testVoiceAnonymizerFilter"
         })
         {
             True(
@@ -1563,7 +1631,12 @@ internal static class Program
                 $"{action} automation action requires a payload");
             Equal("payload_required", payloadReason, $"{action} missing payload fails closed");
         }
-        foreach (var action in new[] { "syncOverlayAssets", "copyOverlayUrl" })
+        foreach (var action in new[]
+        {
+            "syncOverlayAssets",
+            "copyOverlayUrl",
+            "previewVoiceAnonymizer"
+        })
         {
             True(
                 WebViewTrustPolicy.TryParseAutomationMessage(
@@ -2329,6 +2402,70 @@ internal static class Program
         False(successTarget.Muted, "successful timed mute restores unmuted state");
         Equal<TimedMuteRecoveryRecord?>(null, successStore.Record, "successful timed mute clears recovery journal");
 
+        var queuedClock = DateTimeOffset.Parse("2026-08-25T00:00:00Z");
+        var queuedGate = new SemaphoreSlim(1, 1);
+        await queuedGate.WaitAsync();
+        var queuedStore = new MemoryRecoveryStore();
+        var queuedTarget = new FakeTimedMuteTarget(false);
+        var queuedAccepted = new TaskCompletionSource<bool>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        var queuedCoordinator = new TimedMuteCoordinator(
+            queuedStore,
+            queuedGate,
+            (_, _) => Task.CompletedTask,
+            () => queuedClock);
+        var queuedUntilExpired = queuedCoordinator.ExecuteAsync(
+            queuedTarget,
+            1_000,
+            CancellationToken.None,
+            () => queuedAccepted.TrySetResult(true),
+            notAfterUtc: queuedClock.AddMinutes(1));
+        await queuedAccepted.Task.WaitAsync(TimeSpan.FromSeconds(2));
+        queuedClock = queuedClock.AddMinutes(2);
+        queuedGate.Release();
+        await ThrowsAsync<VNextActionExpiredException>(
+            () => queuedUntilExpired,
+            "a timed action that expires behind the global mutation gate never activates later");
+        Equal(0, queuedTarget.MuteCalls, "queued expiry performs no target mutation");
+        Equal<TimedMuteRecoveryRecord?>(null, queuedStore.Record, "queued expiry creates no recovery journal");
+
+        var separatedGate = new SemaphoreSlim(1, 1);
+        var separatedStore = new MemoryRecoveryStore();
+        var separatedTarget = new FakeTimedMuteTarget(false);
+        var previewDelay = new ControlledDelay();
+        var previewCoordinator = new TimedMuteCoordinator(
+            separatedStore,
+            separatedGate,
+            previewDelay.DelayAsync);
+        var productionCoordinator = new TimedMuteCoordinator(
+            separatedStore,
+            separatedGate,
+            (_, _) => Task.CompletedTask);
+        using var previewStop = new CancellationTokenSource();
+        var previewRun = previewCoordinator.ExecuteAsync(
+            separatedTarget,
+            5_000,
+            previewStop.Token);
+        _ = await previewDelay.NextAsync();
+        var productionAccepted = new TaskCompletionSource<bool>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        var productionRun = productionCoordinator.ExecuteAsync(
+            separatedTarget,
+            3_000,
+            CancellationToken.None,
+            () => productionAccepted.TrySetResult(true),
+            notAfterUtc: DateTimeOffset.UtcNow.AddMinutes(1));
+        await productionAccepted.Task.WaitAsync(TimeSpan.FromSeconds(2));
+        previewStop.Cancel();
+        await ThrowsAsync<TimedMuteCanceledAfterRestoreException>(
+            () => previewRun,
+            "canceling a preview restores only the isolated preview session");
+        var productionResult = await productionRun;
+        True(productionResult.RestoredVerified, "the queued production action still runs and restores after preview cancellation");
+        Equal(2, separatedTarget.MuteCalls, "preview and production use two distinct physical activations");
+        Equal(2, separatedTarget.UnmuteCalls, "preview cancellation cannot restore the later production activation");
+        False(separatedTarget.Muted, "separated preview and production both finish at the original state");
+
         var accumulatingStore = new MemoryRecoveryStore();
         var accumulatingTarget = new FakeTimedMuteTarget(false);
         var controlledDelay = new ControlledDelay();
@@ -2509,6 +2646,7 @@ internal static class Program
                 null,
                 null,
                 null,
+                null,
                 null),
             new VNextAutomationRuleRpc(
                 "11111111-1111-4111-8111-111111111111",
@@ -2544,6 +2682,7 @@ internal static class Program
                 null,
                 null,
                 null,
+                null,
                 "44444444-4444-4444-8444-444444444444",
                 7),
             new VNextAutomationRuleRpc(
@@ -2562,6 +2701,7 @@ internal static class Program
                 null,
                 5,
                 "22222222-2222-4222-8222-222222222222",
+                null,
                 null,
                 null,
                 null,
@@ -2617,6 +2757,7 @@ internal static class Program
                 null,
                 null,
                 null,
+                null,
                 null)
         };
         var expectedKeys = new HashSet<string>(StringComparer.Ordinal)
@@ -2633,7 +2774,7 @@ internal static class Program
             "p_raffle_draw_position_x", "p_raffle_draw_position_y",
             "p_raffle_draw_scale_percent", "p_raffle_ticket_volume_percent",
             "p_raffle_draw_volume_percent", "p_flashbang_intensity",
-            "p_flashbang_volume_percent"
+            "p_flashbang_volume_percent", "p_voice_preset"
         };
 
         foreach (var draft in drafts)

@@ -58,7 +58,7 @@ test("raffle action exposes ticket policy, independent placements, and a sealed 
   assert.match(ui, /expectedReannounceNumber:request\.reannounceCount\+1/);
   assert.match(ui, /reannounceCount>=10/);
   assert.match(ui, /post\('reannounceRaffleWinner',\{drawId,drawIndex,expectedReannounceNumber\}\)/);
-  assert.match(client, /save_guided_rule_v13/);
+  assert.match(client, /save_guided_rule_v14/);
   assert.match(ui, /id="overlayVolumeRange"[^>]+min="0"[^>]+max="100"/);
   assert.match(ui, /id="testOverlaySoundButton"[^>]*>▶ 테스트 재생/);
   assert.match(ui, /post\('previewRaffleTts',\{kind:positionEditorTarget==='raffle-draw'\?'draw':'ticket',volumePercent:volumeDraft\}\)/);
@@ -75,7 +75,7 @@ test("raffle action exposes ticket policy, independent placements, and a sealed 
   assert.match(client, /raffleAllowMultiples/);
   assert.match(client, /raffleTicketPositionX/);
   assert.match(client, /raffleDrawPositionX/);
-  assert.match(client, /dispatch_guided_rule_test_v3/);
+  assert.match(client, /dispatch_guided_rule_test_v4/);
   assert.match(client, /get_raffle_state_v2/);
   assert.match(client, /start_raffle_draw_v2/);
   assert.doesNotMatch(client, /\/rest\/v1\/rpc\/draw_raffle_v1/);

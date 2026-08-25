@@ -18,6 +18,7 @@ const AGENT_VERSION_PATTERN = /^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}$/;
 const AGENT_PLATFORMS = new Set(["windows", "linux", "macos", "unknown"]);
 const G3A_AGENT_ACTIONS = new Set([
   "obs.mute_for",
+  "obs.voice_anonymize_for",
   "windows.mic_mute_for",
   "raffle.overlay",
   "flashbang.overlay",

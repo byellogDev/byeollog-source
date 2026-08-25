@@ -168,7 +168,7 @@ internal sealed partial class VNextDevelopmentClient
         var token = await GetValidAccessTokenAsync(cancellationToken);
         var result = await SendAutomationRequestAsync(
             HttpMethod.Post,
-            "/rest/v1/rpc/save_guided_rule_v13",
+            "/rest/v1/rpc/save_guided_rule_v14",
             draft,
             token,
             "규칙 저장",
@@ -277,7 +277,7 @@ internal sealed partial class VNextDevelopmentClient
         var token = await GetValidAccessTokenAsync(cancellationToken);
         var result = await SendAutomationRequestAsync(
             HttpMethod.Post,
-            "/rest/v1/rpc/dispatch_guided_rule_test_v3",
+            "/rest/v1/rpc/dispatch_guided_rule_test_v4",
             new
             {
                 p_workspace_id = WorkspaceId,
@@ -669,6 +669,7 @@ internal sealed partial class VNextDevelopmentClient
             "실행 동작",
             "upbo.apply",
             "obs.mute_for",
+            "obs.voice_anonymize_for",
             "windows.mic_mute_for",
             "roulette.reward_multiplier_next",
             "raffle.ticket_grant",
@@ -708,6 +709,7 @@ internal sealed partial class VNextDevelopmentClient
         int? raffleDrawVolumePercent = null;
         string? flashbangIntensity = null;
         int? flashbangVolumePercent = null;
+        string? voicePreset = null;
 
         if (actionType == "roulette.reward_multiplier_next")
         {
@@ -756,6 +758,16 @@ internal sealed partial class VNextDevelopmentClient
                 0,
                 100,
                 "섬광탄 소리 음량");
+        }
+        else if (actionType == "obs.voice_anonymize_for")
+        {
+            durationSeconds = RequiredInt(payload, "durationSeconds", 3, 60, "신원보호모드 실행 시간");
+            agentDeviceId = RequireGuidString(payload, "agentDeviceId", "등록 PC");
+            voicePreset = RequiredChoice(
+                payload,
+                "voicePreset",
+                "신원보호 음성 프리셋",
+                ObsVoiceAnonymizerContract.Preset);
         }
         else if (actionType == "upbo.apply")
         {
@@ -839,6 +851,7 @@ internal sealed partial class VNextDevelopmentClient
             raffleDrawVolumePercent,
             flashbangIntensity,
             flashbangVolumePercent,
+            voicePreset,
             replaceRuleId,
             expectedVersion);
     }

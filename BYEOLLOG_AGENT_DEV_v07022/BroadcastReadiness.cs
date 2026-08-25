@@ -3,6 +3,7 @@ namespace HurogiCollector;
 internal sealed record BroadcastReadinessScope(
     bool RequiresLocalAgent,
     bool RequiresObs,
+    bool RequiresObsVoiceAnonymizer,
     bool RequiresWindowsMicrophone,
     bool RequiresOverlay,
     bool HasForeignDeviceRules,
@@ -10,7 +11,7 @@ internal sealed record BroadcastReadinessScope(
     IReadOnlyList<string> RequiredOverlayAssetIds)
 {
     public static BroadcastReadinessScope Empty { get; } =
-        new(false, false, false, false, false, false, Array.Empty<string>());
+        new(false, false, false, false, false, false, false, Array.Empty<string>());
 }
 
 internal static class BroadcastReadinessPolicy
@@ -22,6 +23,7 @@ internal static class BroadcastReadinessPolicy
         "agent_runtime",
         "agent_database",
         "obs_websocket",
+        "obs_voice_anonymizer",
         "windows_microphone",
         "overlay_loopback",
         "approved_assets",
@@ -58,12 +60,16 @@ internal static class BroadcastReadinessPolicy
             "local.dev_delay" or
             "obs.set_input_mute" or
             TimedMuteActionAdapter.ObsActionType or
+            TimedMuteActionAdapter.VoiceAnonymizerActionType or
             TimedMuteActionAdapter.WindowsActionType));
         return new BroadcastReadinessScope(
             current.Length > 0,
             current.Any(item =>
                 string.Equals(item.ActionType, TimedMuteActionAdapter.ObsActionType, StringComparison.Ordinal)
+                || string.Equals(item.ActionType, TimedMuteActionAdapter.VoiceAnonymizerActionType, StringComparison.Ordinal)
                 || string.Equals(item.ActionType, "obs.set_input_mute", StringComparison.Ordinal)),
+            current.Any(item =>
+                string.Equals(item.ActionType, TimedMuteActionAdapter.VoiceAnonymizerActionType, StringComparison.Ordinal)),
             current.Any(item =>
                 string.Equals(item.ActionType, TimedMuteActionAdapter.WindowsActionType, StringComparison.Ordinal)),
             assets.Length > 0,

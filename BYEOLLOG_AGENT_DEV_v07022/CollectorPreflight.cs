@@ -186,6 +186,50 @@ internal static partial class CollectorPreflightRunner
                 ? ObsMessage(obs.State)
                 : "활성 OBS 규칙 없음 · 설정은 변경하지 않음"));
 
+        var voiceRequired = !scopeLoaded || scope.RequiresObsVoiceAnonymizer;
+        var voiceState = "pass";
+        var voiceMessage = "활성 신원보호모드 규칙 없음 · 필터 상태 변경 없음";
+        if (!scopeLoaded)
+        {
+            voiceState = "blocked";
+            voiceMessage = "활성 규칙 범위를 확인하지 못함";
+        }
+        else if (voiceRequired)
+        {
+            if (localAgent is null)
+            {
+                voiceState = "blocked";
+                voiceMessage = "이 PC 자동화 실행기에서 필터를 확인할 수 없음";
+            }
+            else
+            {
+                try
+                {
+                    using var voiceTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    voiceTimeout.CancelAfter(TimeSpan.FromSeconds(4));
+                    var voice = await localAgent.ProbeVoiceAnonymizerAsync(voiceTimeout.Token);
+                    voiceState = voice.FilterEnabled ? "attention" : "pass";
+                    voiceMessage = voice.FilterEnabled
+                        ? "VST 2.x 필터 준비됨 · 현재 켜짐 (평소에는 꺼두기 권장)"
+                        : "VST 2.x 필터·마이크 입력 읽기 성공 · 상태 변경 없음";
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+                catch
+                {
+                    voiceState = "blocked";
+                    voiceMessage = "로컬 VST 2.x 필터·마이크 설정 확인 필요";
+                }
+            }
+        }
+        checks.Add(Check(
+            "obs_voice_anonymizer",
+            "OBS 신원보호 필터",
+            voiceState,
+            voiceMessage));
+
         var windows = await ProbeWindowsMicrophoneAsync(storage, scopeLoaded && scope.RequiresWindowsMicrophone, cancellationToken);
         checks.Add(Check(
             "windows_microphone",
