@@ -119,3 +119,19 @@ test("v85 release preparation is immutable and identifies the redirect compatibi
   assert.match(notes, /최대 2회/);
   assert.match(notes, /SHA-256/);
 });
+
+test("v86 release preparation is immutable and identifies the OBS filter response hotfix", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07086-AutoUpdate.ps1"),
+    source("RELEASE_v07086_OBS_FILTER_RESPONSE_FIX_KO.txt")
+  ]);
+
+  assert.match(build, /\$releaseSequence = 7086/);
+  assert.match(build, /byeollog_agent_v07086_OBS_FILTER_RESPONSE_FIX_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.86'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.86'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /v0\.7\.0\.86/);
+  assert.match(notes, /GetSourceFilter/);
+  assert.match(notes, /OBS 32\.2\.1/);
+});

@@ -5,7 +5,7 @@ import test from "node:test";
 const readJson = async (path) => JSON.parse(await readFile(new URL(path, import.meta.url), "utf8"));
 const readText = async (path) => readFile(new URL(path, import.meta.url), "utf8");
 
-test("GitHub release storage keeps one direct v85 bootstrap exception for legacy updaters", async () => {
+test("GitHub release storage keeps one direct stable-package exception for legacy updaters", async () => {
   const [storage, vercel, ignore, publisher, signedFeed] = await Promise.all([
     readJson("../agent-updates/release-asset-storage.json"),
     readJson("../vercel.json"),

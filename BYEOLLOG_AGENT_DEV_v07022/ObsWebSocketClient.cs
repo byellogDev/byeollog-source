@@ -277,7 +277,12 @@ internal sealed class ObsWebSocketClient : IAsyncDisposable
             cancellationToken);
         var returnedName = OptionalString(response, "filterName");
         var kind = OptionalString(response, "filterKind");
-        if (!string.Equals(returnedName, filterName, StringComparison.Ordinal)
+        // obs-websocket 5.x GetSourceFilter identifies the requested filter in
+        // RequestData and normally omits filterName from ResponseData. Accept
+        // the standard response, while still rejecting a conflicting optional
+        // name if a server implementation supplies one.
+        if ((returnedName.Length > 0
+                && !string.Equals(returnedName, filterName, StringComparison.Ordinal))
             || kind.Length == 0
             || !response.TryGetProperty("filterEnabled", out var enabled)
             || enabled.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
@@ -286,7 +291,7 @@ internal sealed class ObsWebSocketClient : IAsyncDisposable
             && indexValue.TryGetInt32(out var parsedIndex)
             ? parsedIndex
             : -1;
-        return new ObsSourceFilterSummary(returnedName, kind, enabled.GetBoolean(), index);
+        return new ObsSourceFilterSummary(filterName, kind, enabled.GetBoolean(), index);
     }
 
     public async Task SetSourceFilterEnabledAsync(

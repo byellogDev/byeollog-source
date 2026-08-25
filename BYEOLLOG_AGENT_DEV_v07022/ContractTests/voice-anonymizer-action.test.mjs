@@ -51,6 +51,9 @@ test("OBS WebSocket control uses the official 5.x source-filter requests", async
   assert.match(websocket, /"GetSourceFilterList"/);
   assert.match(websocket, /"GetSourceFilter"/);
   assert.match(websocket, /"SetSourceFilterEnabled"/);
+  assert.match(websocket, /returnedName\.Length > 0[\s\S]+!string\.Equals\(returnedName, filterName/);
+  assert.match(websocket, /new ObsSourceFilterSummary\(filterName, kind, enabled\.GetBoolean\(\), index\)/);
+  assert.doesNotMatch(websocket, /if \(!string\.Equals\(returnedName, filterName/);
   assert.doesNotMatch(websocket, /CreateSourceFilter/);
   assert.doesNotMatch(websocket, /SetSourceFilterSettings/);
 });
