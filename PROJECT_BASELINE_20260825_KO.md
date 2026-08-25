@@ -4,31 +4,31 @@
 
 | 영역 | 디렉터리 | 버전 |
 |---|---|---|
-| Windows Agent | `BYEOLLOG_AGENT_DEV_v07022` | `0.7.0.71` |
-| Web/Vercel/Supabase | `BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX` | package `0.6.3-g3a.40`, build `0.6.3.56-g3a-collection-health-visibility` |
+| Windows Agent | `BYEOLLOG_AGENT_DEV_v07022` | `0.7.0.81` |
+| Web/Vercel/Supabase | `BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX` | package `0.6.3-g3a.47`, build `0.6.3.66-g3a-winner-preview-voice-sync` |
 
 폴더명보다 코드에 선언된 버전을 우선합니다. 다른 Agent DEV 폴더와 서버 checkpoint는 회귀 비교·복구 증거로만 사용합니다.
 
 ## 2. 마지막 확인된 운영 배포
 
 - Vercel project: `observer_abangseladmin`
-- Production deployment: `dpl_4itAANkC16WveGtQviErqJxNRU6J`
+- Production deployment: `dpl_8oKN5Fa9KLCMQkuZkrgZETKpnKQj`
 - Production aliases: `byeollog.com`, `www.byeollog.com`
 - Supabase project: `offslvwaugvjotkywlus`
-- Edge Functions: `agent-runtime-g3a v8`, `event-runtime-g3a v5`, `execution-worker-g3a v2`
-- Agent update release sequence: `7071`
-- Agent package: `byeollog_agent_v07071_COLLECTION_HEALTH_VISIBILITY_WIN_X64.zip`
+- Edge Functions: `agent-runtime-g3a v11`, `event-runtime-g3a v7`, `execution-worker-g3a v3`
+- Agent update release sequence: `7081`
+- Agent package: `byeollog_agent_v07081_WINNER_PREVIEW_VOICE_SYNC_WIN_X64.zip`
 
-## 3. v0.7.0.71 무결성
+## 3. v0.7.0.81 무결성
 
 | 대상 | SHA-256 |
 |---|---|
-| release ZIP | `24bcd58baa2c738a2426a8aa576a1e4a65dab9ab5fc1594492de788e18c5820a` |
-| Agent EXE | `2b78a6112f7452e9f7729673ce418bd9af6c86789ee19f769c4bc2723372f187` |
-| inner manifest | `ba6b194187435def2bace91808348e7116edc96f47a661e1d8d498b341d41f03` |
-| signed feed | `ed84c2edf61a2fcf67b5804445d7b17c82690af0f70fac2711d5e1a572d9dfc1` |
+| release ZIP | `bb96f4954d0350894e54a0f784ecdd28e12e77e8d51b02274e9da8e119de25d9` |
+| Agent EXE | `d32bd0e4eac6209365596b507366a39b6eac7ce09d7313a054f9d069cfc9cd53` |
+| inner manifest | `f40f2c0b8b58f4373667486a1b361bfa458f1b897d64f54190ae75eb8b46b733` |
+| signed feed | `6d3ca47415dcf14d1a9c6d76f960c18eff9426329357bafde827b3d90a6a448a` |
 
-상세 배포 증거는 `PUBLIC_RELEASE_READINESS_REPORT_20260825_KO.md`에 보존되어 있습니다.
+다음 대화용 최신 운영 증거는 `PROJECT_HANDOFF_20260825_NEXT_CHAT`에 있습니다. `PUBLIC_RELEASE_READINESS_REPORT_20260825_KO.md`는 v71 당시의 역사 기록으로 보존합니다.
 
 ## 4. 추적하지 않는 항목
 
@@ -47,6 +47,8 @@
 - rollout/action 기록 시간과 의미 명확화
 - 무료 보안 통제, CI/회귀 게이트, 빌드 경고 정비
 - Preview 검증 후 동일 산출물 Production 승격
+- 추첨 Browser Source 음성, 오프라인 fallback, 섬광탄과 설정창 미리듣기
+- SOOP Developers callback 수신 준비
 
 이번 범위에서 제외한 항목:
 

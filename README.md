@@ -9,13 +9,13 @@
 
 ## 현재 기준선
 
-- Agent: `0.7.0.71`
-- Server package: `0.6.3-g3a.40`
-- Server build: `0.6.3.56-g3a-collection-health-visibility`
+- Agent: `0.7.0.81`
+- Server package: `0.6.3-g3a.47`
+- Server build: `0.6.3.66-g3a-winner-preview-voice-sync`
 - Vercel project: `observer_abangseladmin`
 - Supabase project: `offslvwaugvjotkywlus`
 
-세부 무결성 값과 운영 배포 기준은 [PROJECT_BASELINE_20260825_KO.md](PROJECT_BASELINE_20260825_KO.md)를 참고합니다.
+다음 대화에서 작업을 이어갈 때는 [PROJECT_HANDOFF_20260825_NEXT_CHAT/00_START_HERE_NEXT_CHAT_KO.md](PROJECT_HANDOFF_20260825_NEXT_CHAT/00_START_HERE_NEXT_CHAT_KO.md)를 먼저 읽습니다. 세부 무결성 값과 운영 배포 기준은 [PROJECT_BASELINE_20260825_KO.md](PROJECT_BASELINE_20260825_KO.md)를 참고합니다.
 
 ## 기본 검증
 
