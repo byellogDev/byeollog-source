@@ -77,6 +77,14 @@
 - unused index는 아직 사용 통계가 부족하므로 삭제하지 않았습니다. [Supabase 안내](https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index)
 - 실제 수집 방송이 없는 현재 상태에서 collection health 행이 0건인 것은 정상입니다. v0.7.0.71 Agent가 실행되면 `idle` 또는 실제 수집 상태가 기록됩니다.
 
+## SOOP Developers 재신청용 외부 API 수신 준비
+
+- 운영 Redirect URL `https://byeollog.com/api/auth/soop/callback`을 Vercel Production에 개설했습니다.
+- 공개 URL은 기존 인증 함수의 `soop-callback` 작업으로 연결되며 GET·HEAD만 허용합니다.
+- 신청·심사 단계에서는 `authCode` 수신 여부만 안전한 화면으로 처리하고, 코드·`state`·오류 상세를 저장하거나 외부에 노출하지 않습니다.
+- 이 작업은 **공식 SOOP API 연동 완료가 아니라 승인 전 수신 경로 확보**입니다. 승인 후 Client ID/Secret과 규격을 받은 다음 `state` 검증, 토큰 교환·암호화 저장·갱신·연결 해제를 별도 구현해야 합니다.
+- 재신청 이후에도 URL, Vercel rewrite와 회귀 테스트를 유지해야 하며, 상세 내용은 `BYEOLLOG_SOOP_OAUTH_CALLBACK_DEPLOYMENT_REPORT_20260824_KO.md`를 권위 기록으로 사용합니다.
+
 ## 명시적으로 제외한 작업
 
 - 백그라운드 업데이트 알림 및 구버전 자동 정리
