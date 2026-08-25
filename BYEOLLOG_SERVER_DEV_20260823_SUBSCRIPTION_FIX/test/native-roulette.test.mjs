@@ -24,7 +24,7 @@ function draft(overrides={}){
     overlayAssetKey:'roulette_navy_gold_v1',soundKey:'roulette_spin_v1',
     soundVolumePercent:75,ttsVolumePercent:85,
     items:[
-      {resultText:'A 단컷 & 움짤',probabilityPpm:250000,directUpbo:true,upboEventName:'8월 이벤트'},
+      {resultText:'노래 & 춤',probabilityPpm:250000,directUpbo:true,upboEventName:'8월 이벤트'},
       {resultText:'간식 당첨',probabilityPpm:750000,directUpbo:false,ttsText:'간식 당첨!'}
     ],
     ...overrides
@@ -54,15 +54,15 @@ test('draft normalization binds WebP, sound, exact TTS keys, and direct upbo spl
   const value=normalizeNativeRouletteDraft(draft());
   assert.equal(value.overlayAssetSha256,NATIVE_ROULETTE_ASSETS[0].contentSha256);
   assert.equal(value.overlayAssetBytes,NATIVE_ROULETTE_ASSETS[0].byteSize);
-  assert.deepEqual(value.items[0].outputTypes,['A 단컷','A 움짤']);
+  assert.deepEqual(value.items[0].outputTypes,['노래','춤']);
   assert.equal(value.items[0].ttsText,null);assert.equal(value.items[0].ttsVoiceKey,null);
   assert.equal(value.items[1].ttsText,'간식 당첨!');
   assert.equal(value.items[1].ttsVoiceKey,nativeRouletteTtsVoiceKey('간식 당첨!'));
   assert.equal(value.items.reduce((sum,item)=>sum+item.probabilityPpm,0),NATIVE_ROULETTE_PROBABILITY_SCALE);
 });
 
-test('direct upbo preserves generic ampersand parsing and the special cut/sticker pair',()=>{
-  assert.deepEqual(splitDirectUpboOutputs('A 단컷 & 움짤'),['A 단컷','A 움짤']);
+test('direct upbo uses only generic ampersand parsing',()=>{
+  assert.deepEqual(splitDirectUpboOutputs('A 단컷 & 움짤'),['A 단컷','움짤']);
   assert.deepEqual(splitDirectUpboOutputs('노래 & 춤 & 벌칙'),['노래','춤','벌칙']);
 });
 
@@ -75,7 +75,7 @@ test('direct upbo dispatch skips presentation and every automation action',()=>{
   });
   assert.equal(dispatch.kind,'direct_upbo');assert.equal(dispatch.skipAutomation,true);
   assert.equal(dispatch.skipPresentation,true);assert.equal('event' in dispatch,false);
-  assert.deepEqual(dispatch.outputTypes,['A 단컷','A 움짤']);
+  assert.deepEqual(dispatch.outputTypes,['노래','춤']);
 });
 
 test('ordinary result dispatch carries overlay, sound, cached TTS, and canonical action condition event',()=>{
@@ -100,7 +100,7 @@ test('probability and spin boundaries are exact and deterministic',()=>{
   ]})),/정확히 100%/);
   const normalized=normalizeNativeRouletteDraft(draft());
   assert.equal(nativeRouletteSpinCount(29,normalized),0);assert.equal(nativeRouletteSpinCount(90,normalized),3);
-  assert.equal(selectNativeRouletteItem(normalized.items,249999).resultText,'A 단컷 & 움짤');
+  assert.equal(selectNativeRouletteItem(normalized.items,249999).resultText,'노래 & 춤');
   assert.equal(selectNativeRouletteItem(normalized.items,250000).resultText,'간식 당첨');
 });
 

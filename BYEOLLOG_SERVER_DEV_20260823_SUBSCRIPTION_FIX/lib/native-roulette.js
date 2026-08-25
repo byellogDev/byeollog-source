@@ -70,11 +70,6 @@ export function probabilityPpmToPercent(value){
 
 export function splitDirectUpboOutputs(value){
   const text=requiredText(value,200,'상품명');
-  const paired=text.match(/^(.*?)\s*단컷\s*&\s*움짤$/);
-  if(paired){
-    const prefix=String(paired[1]||'').trim();
-    return [prefix?`${prefix} 단컷`:'단컷',prefix?`${prefix} 움짤`:'움짤'];
-  }
   const outputs=text.split(/\s*&\s*/).map(item=>item.trim()).filter(Boolean);
   if(!outputs.length||outputs.length>20||outputs.some(item=>item.length>120)){
     throw new NativeRouletteValidationError('업보 상품의 & 분리 결과가 올바르지 않습니다.');
