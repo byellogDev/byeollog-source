@@ -145,8 +145,12 @@ test("both raffle overlay resources are real, immutable, embedded animated GIFs"
   ]);
   assert.equal(ticket.subarray(0, 6).toString("ascii"), "GIF89a");
   assert.equal(draw.subarray(0, 6).toString("ascii"), "GIF89a");
-  assert.equal(createHash("sha256").update(ticket).digest("hex"), "e3a2a5b9c60974b3bed0f8e200dea6035f7dff3439fbafd481efcc505cce6587");
+  assert.equal(createHash("sha256").update(ticket).digest("hex"), "104470fa1839c6b8711863aed35d6a33ff52c6fb1dabc93e616da0441c190b86");
   assert.equal(createHash("sha256").update(draw).digest("hex"), "4a21dcdb62ac5bae96159dcebb33dd0215a4cedd17218561cac5d04004923d80");
+  assert.equal(ticket.readUInt16LE(6), 640);
+  assert.equal(ticket.readUInt16LE(8), 400);
+  assert.equal(draw.readUInt16LE(6), 640);
+  assert.equal(draw.readUInt16LE(8), 640);
   assert.equal(draw.includes(Buffer.from("NETSCAPE2.0", "ascii")), true);
   assert.match(project, /byeollog_raffle_ticket_granted\.gif/);
   assert.match(project, /byeollog_raffle_draw\.gif/);
@@ -157,8 +161,8 @@ test("both raffle overlay resources are real, immutable, embedded animated GIFs"
   assert.match(adapter, /kind != "test_sequence"/);
   assert.match(adapter, /RAFFLE_TEST_SEQUENCE_COMPLETED/);
   assert.match(adapter, /TicketSpeechText\s*=\s*"추첨권을 드렸어요!"/);
-  assert.match(adapter, /\$"\{displayName\}, 추첨권을 \{granted\}장 드렸어요!"/);
-  assert.match(adapter, /\$"추첨함에 총 \{totalTickets\}장\/\{participants\}명"/);
+  assert.match(adapter, /\$"\{displayName\}, 추첨권 \{granted\}장!"/);
+  assert.doesNotMatch(adapter, /추첨함에 총/);
   assert.match(adapter, /TicketSpeechPreparation/);
   assert.match(adapter, /WinnerSpeechPreparation/);
   assert.match(adapter, /executionId/);
@@ -184,6 +188,15 @@ test("raffle artwork generation fails closed on opaque GIF backgrounds and the l
   assert.match(generator, /output\.info\["transparency"\] = 0/);
   assert.match(generator, /def build_raffle_ticket/);
   assert.equal((generator.match(/build_raffle_ticket\(s\)/g) || []).length, 1);
+  const grantedTicketGenerator = generator.slice(
+    generator.indexOf("def build_raffle_ticket"),
+    generator.indexOf("def build_ticket_artwork")
+  );
+  assert.match(grantedTicketGenerator, /ticket_draw\.polygon\(star_points/);
+  assert.match(generator, /TICKET_CANVAS_HEIGHT = 400/);
+  assert.match(generator, /Image\.new\("RGBA", \(CANVAS_SIZE, TICKET_CANVAS_HEIGHT\)/);
+  assert.match(generator, /def sparkle/);
+  assert.match(generator, /sparkle\(draw, x, y/);
   assert.match(generator, /DRAW_FRAME_COUNT = 32/);
   assert.match(generator, /def build_draw_ticket/);
   assert.match(generator, /def build_draw_layers/);
@@ -202,8 +215,10 @@ test("raffle artwork generation fails closed on opaque GIF backgrounds and the l
 test("raffle artwork and copy share one placement and scale stage", async () => {
   const overlay = await text("ByeollogOverlayService.cs");
   assert.match(overlay, /<div id="raffle-stage"[^>]*><img id="raffle-asset"[\s\S]*<section id="raffle-copy"/);
-  assert.match(overlay, /#raffle-copy \{[^}]*top: calc\(100% \+ clamp\(/);
+  assert.match(overlay, /#raffle-copy \{[^}]*top: calc\(100% \+ clamp\(2px, \.4vh, 6px\)\)/);
   assert.match(overlay, /#raffle-copy \{[^}]*width: 180%;/);
+  assert.doesNotMatch(overlay, /id="raffle-secondary"|id="raffle-winners"/);
+  assert.match(overlay, /#raffle-primary \{[^}]*white-space: nowrap;/);
   assert.match(overlay, /function applyRafflePlacement\(state\)/);
   assert.match(overlay, /raffleStage\.style\.left = Number\.isInteger\(state\.positionX\)/);
   assert.match(overlay, /raffleStage\.style\.top = Number\.isInteger\(state\.positionY\)/);
@@ -220,8 +235,8 @@ test("raffle action refreshes a stale OBS browser document before its first outp
   assert.match(adapter, /_refreshBrowserSources\(timeout\.Token\)/);
   assert.match(adapter, /requireNewRequest:\s*true/);
   assert.match(adapter, /_currentDocumentObserved/);
-  assert.match(overlay, /DocumentRevision\s*=\s*"flashbang-asset-sync-v5"/);
-  assert.match(overlay, /data-document-revision="flashbang-asset-sync-v5"/);
+  assert.match(overlay, /DocumentRevision\s*=\s*"raffle-compact-copy-v6"/);
+  assert.match(overlay, /data-document-revision="raffle-compact-copy-v6"/);
   assert.match(overlay, /media-src 'self'/);
   assert.match(overlay, /audioContentSha256/);
   assert.match(overlay, /audioPresentationRevision/);

@@ -273,7 +273,7 @@ internal sealed class OverlayAssetCache
     internal const string RaffleDrawAssetKey = "raffle_draw";
     internal const string RaffleTicketGrantedAssetId = "956a73da-1eda-496f-a3fa-d0687f5a9b91";
     internal const string RaffleDrawAssetId = "9a3c7159-dcfe-49fa-b086-dcc6518c3512";
-    internal const string RaffleTicketGrantedContentSha256 = "e3a2a5b9c60974b3bed0f8e200dea6035f7dff3439fbafd481efcc505cce6587";
+    internal const string RaffleTicketGrantedContentSha256 = "104470fa1839c6b8711863aed35d6a33ff52c6fb1dabc93e616da0441c190b86";
     internal const string RaffleDrawContentSha256 = "4a21dcdb62ac5bae96159dcebb33dd0215a4cedd17218561cac5d04004923d80";
     internal const string FlashbangSoftAssetKey = "flashbang_soft";
     internal const string FlashbangStandardAssetKey = "flashbang_standard";
@@ -306,7 +306,7 @@ internal sealed class OverlayAssetCache
         new(MicrophoneOffQuietAssetId, MicrophoneOffQuietAssetKey, MicrophoneOffQuietAssetKey, "마이크 OFF · 조용한 구름", "image/png", MicrophoneOffQuietContentSha256, 777_095, 1_254, 1_254, false, QuietBuiltInResourceName),
         new(MicrophoneOffSignalPanelAssetId, MicrophoneOffSignalPanelAssetKey, MicrophoneOffSignalPanelAssetKey, "마이크 OFF · 신호 패널", "image/png", MicrophoneOffSignalPanelContentSha256, 538_609, 1_672, 941, false, SignalPanelBuiltInResourceName),
         new(MicrophoneOffScreenprintAssetId, MicrophoneOffScreenprintAssetKey, MicrophoneOffScreenprintAssetKey, "마이크 OFF · 스크린 프린트", "image/png", MicrophoneOffScreenprintContentSha256, 2_378_428, 1_024, 1_536, false, ScreenprintBuiltInResourceName),
-        new(RaffleTicketGrantedAssetId, RaffleTicketGrantedAssetKey, RaffleTicketGrantedAssetKey, "추첨권 지급 애니메이션", "image/gif", RaffleTicketGrantedContentSha256, 1_057_830, 640, 640, false, RaffleTicketGrantedResourceName),
+        new(RaffleTicketGrantedAssetId, RaffleTicketGrantedAssetKey, RaffleTicketGrantedAssetKey, "추첨권 지급 애니메이션", "image/gif", RaffleTicketGrantedContentSha256, 907_149, 640, 400, false, RaffleTicketGrantedResourceName),
         new(RaffleDrawAssetId, RaffleDrawAssetKey, RaffleDrawAssetKey, "추첨 진행 애니메이션", "image/gif", RaffleDrawContentSha256, 759_930, 640, 640, false, RaffleDrawResourceName),
         new(FlashbangSoftAssetId, FlashbangSoftAssetKey, FlashbangSoftAssetKey, "섬광탄 · 약하게", "image/gif", FlashbangSoftContentSha256, 1_921_621, 1_920, 1_080, false, FlashbangSoftResourceName),
         new(FlashbangStandardAssetId, FlashbangStandardAssetKey, FlashbangStandardAssetKey, "섬광탄 · 보통", "image/gif", FlashbangStandardContentSha256, 1_209_872, 1_920, 1_080, false, FlashbangStandardResourceName),

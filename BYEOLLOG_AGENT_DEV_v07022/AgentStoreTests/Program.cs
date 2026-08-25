@@ -216,10 +216,10 @@ internal static class Program
             "strict raffle ticket payload is accepted");
         Equal(OverlayAssetCache.RaffleTicketGrantedAssetKey, ticketKey, "raffle ticket payload selects only the ticket GIF");
         Equal(5000, ticketDuration, "raffle ticket duration is bounded and preserved");
-        Equal("별님, 추첨권을 3장 드렸어요!", ticketPresentation?.Primary,
-            "raffle ticket overlay names the viewer and exact granted count in one line");
-        Equal("추첨함에 총 21장/5명", ticketPresentation?.Secondary,
-            "raffle ticket overlay shows the current pool total and participant count");
+        Equal("별님, 추첨권 3장!", ticketPresentation?.Primary,
+            "raffle ticket overlay uses the compact viewer and granted-count copy");
+        Equal("", ticketPresentation?.Secondary,
+            "raffle ticket overlay omits cumulative pool details");
         Equal("추첨권을 드렸어요!", RaffleOverlayActionAdapter.TicketSpeechText,
             "frequent ticket grants use one fixed, nickname-free speech line");
         var fixedTicketAudio = ByeollogRaffleAudio.TicketAudioForPreflight();
@@ -243,6 +243,8 @@ internal static class Program
             "ordered raffle draw payload is accepted");
         Equal(OverlayAssetCache.RaffleDrawAssetKey, drawKey, "raffle draw payload selects only the draw GIF");
         Equal(3, drawPresentation?.WinnerNames.Count, "all ordered winners are shown on the overlay");
+        Equal("", drawPresentation?.Secondary,
+            "raffle draw overlay omits the congratulation subline");
 
         using var forged = JsonDocument.Parse("""{"kind":"draw_result","overlayImageKey":"raffle_draw","durationMs":4000,"winnerCount":2,"winners":[{"drawIndex":2,"actorName":"순서 위조"},{"drawIndex":1,"actorName":"거부"}]}""");
         False(RaffleOverlayActionAdapter.TryRead(forged.RootElement, out _, out _, out _, out _),
@@ -674,12 +676,12 @@ internal static class Program
         var sequenceAudioStates = observedAudioStates.ToArray().Skip(observedBeforeSequence).ToArray();
         Equal(2, sequenceAudioStates.Length,
             "test_sequence publishes one exact OBS audio payload per presentation");
-        Equal("테스트 시청자님, 추첨권을 1장 드렸어요!",
+        Equal("테스트 시청자님, 추첨권 1장!",
             sequenceAudioStates[0].PresentationPrimary,
             "test_sequence ticket primary copy is identical to production formatting");
-        Equal("추첨함에 총 1장/1명",
+        Equal("",
             sequenceAudioStates[0].PresentationSecondary,
-            "test_sequence ticket secondary copy is identical to production formatting");
+            "test_sequence omits ticket cumulative details like production");
         True(liveSequenceResult.GetProperty("overlayEvidence")[0]
                 .GetProperty("Audio").GetProperty("Ended").GetBoolean()
             && liveSequenceResult.GetProperty("overlayEvidence")[1]
@@ -936,8 +938,8 @@ internal static class Program
             new RaffleOverlayPresentation(
                 "ticket_granted",
                 "만료 가드 테스트",
-                "테스트 시청자님, 추첨권을 1장 드렸어요!",
-                "추첨함에 총 1장/1명",
+                "테스트 시청자님, 추첨권 1장!",
+                "",
                 Array.Empty<string>()),
             placement: null,
             async token =>

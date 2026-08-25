@@ -90,7 +90,7 @@ internal sealed class OverlayPresentationNotObservedException : IOException
 internal sealed class ByeollogOverlayService : IDisposable
 {
     internal const string MicrophoneOffAssetKey = TimedMuteContract.MicrophoneOffOverlayAssetKey;
-    internal const string DocumentRevision = "flashbang-asset-sync-v5";
+    internal const string DocumentRevision = "raffle-compact-copy-v6";
     internal const int DefaultPort = 43_120;
     internal const int BrowserAudioStartTimeoutMs = 5_000;
     internal const int MaximumBrowserAudioPlaybackMs = 25_000;
@@ -114,12 +114,10 @@ internal sealed class ByeollogOverlayService : IDisposable
     #raffle-stage { position: absolute; display: block; width: 30vw; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1); transform-origin: 50% 50%; opacity: 0; transition: opacity 120ms ease-out; pointer-events: none; }
     #raffle-stage.visible { opacity: 1; }
     #raffle-asset { display: block; width: 100%; height: auto; object-fit: contain; }
-    #raffle-copy { position: absolute; left: 50%; top: calc(100% + clamp(8px, 1.4vh, 20px)); transform: translateX(-50%); width: 180%; box-sizing: border-box; padding: 10px 22px; border: 0; background: transparent; color: #fff; text-align: center; opacity: 0; transition: opacity 150ms ease-out,transform 180ms ease-out; font-family: "Malgun Gothic","Apple SD Gothic Neo",sans-serif; filter: drop-shadow(0 3px 2px rgba(5,22,48,.92)) drop-shadow(0 0 7px rgba(5,22,48,.72)); }
+    #raffle-copy { position: absolute; left: 50%; top: calc(100% + clamp(2px, .4vh, 6px)); transform: translateX(-50%); width: 180%; box-sizing: border-box; padding: 4px 22px; border: 0; background: transparent; color: #fff; text-align: center; opacity: 0; transition: opacity 150ms ease-out,transform 180ms ease-out; font-family: "Malgun Gothic","Apple SD Gothic Neo",sans-serif; filter: drop-shadow(0 3px 2px rgba(5,22,48,.92)) drop-shadow(0 0 7px rgba(5,22,48,.72)); }
     #raffle-copy.visible { opacity: 1; transform: translateX(-50%) translateY(-4px); }
     #raffle-title { color: #ffc23a; font-size: clamp(22px,2.1vw,42px); font-weight: 900; letter-spacing: -.03em; text-shadow: 0 2px 0 #071c3d; }
-    #raffle-primary { margin-top: 7px; font-size: clamp(28px,3vw,58px); font-weight: 900; letter-spacing: -.04em; }
-    #raffle-secondary { margin-top: 5px; color: #c9daf3; font-size: clamp(16px,1.3vw,25px); font-weight: 700; }
-    #raffle-winners { margin-top: 9px; color: #fff2c8; font-size: clamp(18px,1.55vw,30px); font-weight: 800; }
+    #raffle-primary { margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: clamp(26px,2.6vw,50px); font-weight: 900; letter-spacing: -.04em; }
     #flashbang-stage { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
     #flashbang-stage.visible.soft { animation: flashbang-soft-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
     #flashbang-stage.visible.standard { animation: flashbang-standard-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
@@ -132,8 +130,8 @@ internal sealed class ByeollogOverlayService : IDisposable
 </head>
 <body>
   <img id="asset" alt="" draggable="false">
-  <div id="raffle-stage"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div><div id="raffle-secondary"></div><div id="raffle-winners"></div></section></div>
-  <div id="flashbang-stage" data-document-revision="flashbang-asset-sync-v5"><img id="flashbang-asset" alt="" draggable="false"></div>
+  <div id="raffle-stage"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div></section></div>
+  <div id="flashbang-stage" data-document-revision="raffle-compact-copy-v6"><img id="flashbang-asset" alt="" draggable="false"></div>
   <script>
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
@@ -141,8 +139,6 @@ internal sealed class ByeollogOverlayService : IDisposable
     const raffleCopy = document.getElementById('raffle-copy');
     const raffleTitle = document.getElementById('raffle-title');
     const rafflePrimary = document.getElementById('raffle-primary');
-    const raffleSecondary = document.getElementById('raffle-secondary');
-    const raffleWinners = document.getElementById('raffle-winners');
     const flashbangStage = document.getElementById('flashbang-stage');
     const flashbangAsset = document.getElementById('flashbang-asset');
     let currentRevision = '';
@@ -216,8 +212,6 @@ internal sealed class ByeollogOverlayService : IDisposable
       if (typeof state.presentationKind !== 'string') { raffleCopy.classList.remove('visible'); return; }
       raffleTitle.textContent = typeof state.presentationTitle === 'string' ? state.presentationTitle : '';
       rafflePrimary.textContent = typeof state.presentationPrimary === 'string' ? state.presentationPrimary : '';
-      raffleSecondary.textContent = typeof state.presentationSecondary === 'string' ? state.presentationSecondary : '';
-      raffleWinners.textContent = Array.isArray(state.winnerNames) ? state.winnerNames.join(' · ') : '';
       raffleCopy.classList.add('visible');
     }
     function applyPlacement(state) {
@@ -252,7 +246,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     async function refresh() {
       try {
-        const response = await fetch('/overlay/state?documentRevision=flashbang-asset-sync-v5', { cache: 'no-store' });
+        const response = await fetch('/overlay/state?documentRevision=raffle-compact-copy-v6', { cache: 'no-store' });
         if (!response.ok) throw new Error('state unavailable');
         const state = await response.json();
         if (state.active === true && typeof state.assetToken === 'string') {

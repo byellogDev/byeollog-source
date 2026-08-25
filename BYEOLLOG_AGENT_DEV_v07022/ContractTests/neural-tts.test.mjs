@@ -33,8 +33,8 @@ test("frequent raffle grants use one pinned local phrase without a local neural 
   assert.match(player, /WaveFileReader/);
   assert.match(player, /WaveOutEvent/);
   assert.match(adapter, /TicketSpeechText\s*=\s*"추첨권을 드렸어요!"/);
-  assert.match(adapter, /\$"\{displayName\}, 추첨권을 \{granted\}장 드렸어요!"/);
-  assert.match(adapter, /\$"추첨함에 총 \{totalTickets\}장\/\{participants\}명"/);
+  assert.match(adapter, /\$"\{displayName\}, 추첨권 \{granted\}장!"/);
+  assert.doesNotMatch(adapter, /추첨함에 총/);
   assert.doesNotMatch(adapter, /KoreanTicketCounter/);
   assert.match(localAgent, /new RafflePreparedAudio\([\s\S]*ByeollogRaffleAudio\.TicketAudioForPreflight\(\)/);
   assert.doesNotMatch(localAgent, /ByeollogRaffleAudio\.PlayTicketAsync/);

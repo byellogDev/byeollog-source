@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw, ImageFilter
 FRAME_COUNT = 24
 DRAW_FRAME_COUNT = 32
 CANVAS_SIZE = 640
+TICKET_CANVAS_HEIGHT = 400
 ART_SIZE = 520
 FRAME_MS = 70
 SUPERSAMPLE = 3
@@ -48,9 +49,6 @@ def build_raffle_ticket(s: int) -> Image.Image:
     ticket_draw.rounded_rectangle((p(8), p(8), p(332), p(222)), radius=p(24), fill=CREAM, outline=NAVY, width=outline)
     ticket_draw.rounded_rectangle((p(35), p(35), p(305), p(195)), radius=p(16), outline=GOLD, width=p(7))
     ticket_draw.polygon(star_points(p(170), p(115), p(52), p(23)), fill=GOLD, outline=NAVY)
-    for y in (62, 92, 122, 152):
-        ticket_draw.ellipse((p(18), p(y), p(28), p(y + 10)), fill=GOLD)
-        ticket_draw.ellipse((p(312), p(y), p(322), p(y + 10)), fill=GOLD)
     return ticket
 
 
@@ -70,10 +68,6 @@ def build_ticket_artwork() -> Image.Image:
         draw.polygon([(p(82), p(258)), (p(260), p(375)), (p(438), p(258)), (p(432), p(430)), (p(88), p(430))], fill=NAVY_2, outline=NAVY)
         draw.line([(p(86), p(424)), (p(218), p(316))], fill=NAVY, width=outline)
         draw.line([(p(434), p(424)), (p(302), p(316))], fill=NAVY, width=outline)
-        draw.ellipse((p(218), p(333), p(302), p(417)), fill=GOLD, outline=NAVY, width=outline)
-        draw.polygon(star_points(p(260), p(375), p(27), p(12)), fill=CREAM, outline=NAVY)
-        draw.line([(p(68), p(150)), (p(95), p(181))], fill=CORAL, width=p(13))
-        draw.line([(p(425), p(155)), (p(452), p(128))], fill=CORAL, width=p(13))
 
     return scaled_artwork(render)
 
@@ -215,11 +209,11 @@ def build_ticket_frames(artwork: Image.Image) -> list[Image.Image]:
     frames: list[Image.Image] = []
     for frame_index in range(FRAME_COUNT):
         phase = frame_index / FRAME_COUNT * math.tau
-        canvas = Image.new("RGBA", (CANVAS_SIZE, CANVAS_SIZE), (0, 0, 0, 0))
+        canvas = Image.new("RGBA", (CANVAS_SIZE, TICKET_CANVAS_HEIGHT), (0, 0, 0, 0))
         scale = 0.94 + 0.028 * math.sin(phase)
         composite_center(canvas, artwork, scale, 1.2 * math.sin(phase), round(-6 * math.sin(phase)))
         draw = ImageDraw.Draw(canvas, "RGBA")
-        for offset, x, y in ((0.0, 105, 145), (2.2, 532, 190)):
+        for offset, x, y in ((0.0, 105, 82), (2.2, 532, 120)):
             pulse = max(0.0, math.sin(phase + offset))
             sparkle(draw, x, y, 7 + 12 * pulse, round(230 * pulse))
         frames.append(canvas)

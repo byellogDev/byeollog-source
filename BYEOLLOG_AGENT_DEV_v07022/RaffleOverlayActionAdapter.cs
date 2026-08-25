@@ -70,8 +70,8 @@ internal sealed class RaffleOverlayActionAdapter
                     new RaffleOverlayPresentation(
                         "ticket_granted",
                         "추첨권 지급",
-                        "테스트 시청자님, 추첨권을 1장 드렸어요!",
-                        "추첨함에 총 1장/1명",
+                        "테스트 시청자님, 추첨권 1장!",
+                        "",
                         Array.Empty<string>()),
                     sequence.TicketPlacement,
                     TicketSpeechPreparation(sequence.TicketVolumePercent),
@@ -86,7 +86,7 @@ internal sealed class RaffleOverlayActionAdapter
                         "draw_result",
                         "추첨 1/1",
                         "테스트 시청자님 당첨!",
-                        "축하합니다!",
+                        "",
                         new[] { "테스트 시청자" }),
                     sequence.DrawPlacement,
                     WinnerSpeechPreparation(
@@ -157,7 +157,7 @@ internal sealed class RaffleOverlayActionAdapter
                         presentation.Kind,
                         $"추첨 {firstDrawIndex + index}/{winnerTarget}",
                         $"{displayName} 당첨!",
-                        "축하합니다!",
+                        "",
                         new[] { actorName });
                     overlayEvidence.Add(await ShowWithSpeechAsync(
                         assetKey,
@@ -509,16 +509,16 @@ internal sealed class RaffleOverlayActionAdapter
             if (assetKey != OverlayAssetCache.RaffleTicketGrantedAssetKey
                 || !TryText(parameters, "actorName", 1, 120, out var actorName)
                 || !TryInt(parameters, "ticketsGranted", 1, 100_000, out var granted)
-                || !TryInt(parameters, "actorTickets", 1, 100_000, out var actorTickets)
-                || !TryInt(parameters, "totalTickets", 1, 1_000_000, out var totalTickets)
-                || !TryInt(parameters, "participantCount", 1, 100_000, out var participants))
+                || !TryInt(parameters, "actorTickets", 1, 100_000, out _)
+                || !TryInt(parameters, "totalTickets", 1, 1_000_000, out _)
+                || !TryInt(parameters, "participantCount", 1, 100_000, out _))
                 return false;
             var displayName = actorName.EndsWith("님", StringComparison.Ordinal) ? actorName : actorName + "님";
             presentation = new RaffleOverlayPresentation(
                 kind,
                 "추첨권 지급",
-                $"{displayName}, 추첨권을 {granted}장 드렸어요!",
-                $"추첨함에 총 {totalTickets}장/{participants}명",
+                $"{displayName}, 추첨권 {granted}장!",
+                "",
                 Array.Empty<string>());
             error = "";
             return true;
@@ -560,7 +560,7 @@ internal sealed class RaffleOverlayActionAdapter
                 kind,
                 "추첨 결과",
                 winnerCount == 1 ? "당첨자를 발표합니다" : $"{winnerCount}개의 당첨 결과",
-                "축하합니다!",
+                "",
                 winners);
             error = "";
             return true;
