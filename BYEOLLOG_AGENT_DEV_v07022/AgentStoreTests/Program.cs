@@ -48,6 +48,7 @@ internal static class Program
                 "retryable local failure keeps UI waiting for the server-scheduled attempt");
             RouletteResultParserTests();
             AgentUpdateTests(root);
+            await AgentUpdateRedirectTestsAsync(root);
             string deviceId;
             using (var store = new VNextAgentStore(databasePath))
             {
@@ -1331,6 +1332,140 @@ internal static class Program
             "an older immutable version folder is preserved during pointer update");
         True(File.Exists(Path.Combine(adjacentLegacyRoot, "legacy-install.keep")),
             "an adjacent legacy installation root is never modified by the managed updater");
+    }
+
+    private static async Task AgentUpdateRedirectTestsAsync(string root)
+    {
+        const string version = "0.7.0.85";
+        const string fileName = "byeollog_agent_v07085_VOICE_ANONYMIZER_REDIRECT_FIX_WIN_X64.zip";
+        var initial = new Uri($"https://byeollog.com/agent-updates/releases/{version}/{fileName}");
+        var github = new Uri(
+            $"https://github.com/byellogDev/byeollog-releases/releases/download/agent-v{version}/{fileName}");
+        var releaseAsset = new Uri(
+            "https://release-assets.githubusercontent.com/github-production-release-asset/123/asset.zip?sig=one");
+        var bytes = Encoding.UTF8.GetBytes("redirected-signed-package-fixture");
+        var sha256 = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
+
+        async Task DownloadAsync(ScriptedUpdateHandler handler, string destination)
+        {
+            using var client = new HttpClient(handler);
+            await AgentUpdateRunner.DownloadPackageAsync(
+                client,
+                initial,
+                version,
+                destination,
+                bytes.LongLength,
+                sha256,
+                CancellationToken.None);
+        }
+
+        var githubDestination = Path.Combine(root, "redirect-github.zip");
+        var githubHandler = new ScriptedUpdateHandler(
+            _ => UpdateRedirect(HttpStatusCode.TemporaryRedirect, github),
+            _ => UpdateRedirect(HttpStatusCode.Redirect, releaseAsset),
+            _ => UpdateOk(bytes));
+        await DownloadAsync(githubHandler, githubDestination);
+        Equal(3, githubHandler.Requests.Count,
+            "the package downloader follows exactly the approved GitHub and release-assets hops");
+        Equal(initial.AbsoluteUri, githubHandler.Requests[0].AbsoluteUri,
+            "the first package request preserves the exact signed byeollog.com URL");
+        Equal(github.AbsoluteUri, githubHandler.Requests[1].AbsoluteUri,
+            "the first redirect uses the exact release tag and package filename");
+        Equal(releaseAsset.AbsoluteUri, githubHandler.Requests[2].AbsoluteUri,
+            "the second redirect reaches only the GitHub release-assets host");
+        True(CryptographicOperations.FixedTimeEquals(bytes, File.ReadAllBytes(githubDestination)),
+            "an approved two-hop package still passes length and SHA-256 verification");
+
+        var directDestination = Path.Combine(root, "redirect-direct-assets.zip");
+        var directHandler = new ScriptedUpdateHandler(
+            _ => UpdateRedirect(HttpStatusCode.TemporaryRedirect, releaseAsset),
+            _ => UpdateOk(bytes));
+        await DownloadAsync(directHandler, directDestination);
+        Equal(2, directHandler.Requests.Count,
+            "a Vercel external rewrite may redirect directly to release-assets");
+
+        var crossHostDestination = Path.Combine(root, "redirect-cross-host.zip");
+        var crossHostHandler = new ScriptedUpdateHandler(
+            _ => UpdateRedirect(HttpStatusCode.TemporaryRedirect, new Uri("https://downloads.example/agent.zip")));
+        await ThrowsAsync<InvalidDataException>(
+            () => DownloadAsync(crossHostHandler, crossHostDestination),
+            "a package redirect to an unapproved host is rejected before a second request");
+        Equal(1, crossHostHandler.Requests.Count,
+            "a rejected cross-host redirect is never requested");
+        False(File.Exists(crossHostDestination),
+            "a rejected cross-host redirect creates no package file");
+
+        var context = AgentUpdatePackageRedirectPolicy.Create(initial, version);
+        Throws<InvalidDataException>(
+            () => AgentUpdatePackageRedirectPolicy.Create(
+                new Uri($"https://byeollog.com/agent-updates/releases/0.7.0.84/{fileName}"),
+                version),
+            "the signed package URL path must contain the exact payload version");
+        foreach (var invalidTarget in new[]
+        {
+            new Uri("http://release-assets.githubusercontent.com/asset.zip"),
+            new Uri("https://user@release-assets.githubusercontent.com/asset.zip"),
+            new Uri("https://release-assets.githubusercontent.com:444/asset.zip"),
+            new Uri("https://release-assets.githubusercontent.com/asset.zip#fragment"),
+            new Uri($"https://github.com/byellogDev/byeollog-releases/releases/download/agent-v{version}/wrong.zip")
+        })
+        {
+            Throws<InvalidDataException>(
+                () => AgentUpdatePackageRedirectPolicy.ResolveAndValidate(
+                    context,
+                    initial,
+                    invalidTarget,
+                    redirectNumber: 1),
+                "redirect endpoints require HTTPS, the default port, no credentials/fragment, and the exact GitHub path");
+        }
+        Throws<InvalidDataException>(
+            () => AgentUpdatePackageRedirectPolicy.ResolveAndValidate(
+                context,
+                github,
+                github,
+                redirectNumber: 2),
+            "the second redirect can target only release-assets.githubusercontent.com");
+
+        var loopDestination = Path.Combine(root, "redirect-loop.zip");
+        var loopHandler = new ScriptedUpdateHandler(
+            _ => UpdateRedirect(HttpStatusCode.TemporaryRedirect, releaseAsset),
+            _ => UpdateRedirect(HttpStatusCode.TemporaryRedirect, releaseAsset));
+        await ThrowsAsync<InvalidDataException>(
+            () => DownloadAsync(loopHandler, loopDestination),
+            "a repeated release-assets URL is rejected as a redirect loop");
+        Equal(2, loopHandler.Requests.Count,
+            "the redirect loop is rejected before repeating its request");
+        False(File.Exists(loopDestination),
+            "a redirect loop creates no package file");
+
+        var secondAsset = new Uri(
+            "https://release-assets.githubusercontent.com/github-production-release-asset/123/asset-2.zip?sig=two");
+        var excessDestination = Path.Combine(root, "redirect-excess.zip");
+        var excessHandler = new ScriptedUpdateHandler(
+            _ => UpdateRedirect(HttpStatusCode.TemporaryRedirect, github),
+            _ => UpdateRedirect(HttpStatusCode.TemporaryRedirect, releaseAsset),
+            _ => UpdateRedirect(HttpStatusCode.TemporaryRedirect, secondAsset));
+        await ThrowsAsync<InvalidDataException>(
+            () => DownloadAsync(excessHandler, excessDestination),
+            "a third redirect is rejected even when its host is otherwise approved");
+        Equal(3, excessHandler.Requests.Count,
+            "the downloader never issues a request beyond its two-redirect budget");
+        False(File.Exists(excessDestination),
+            "an excessive redirect chain creates no package file");
+    }
+
+    private static HttpResponseMessage UpdateRedirect(HttpStatusCode statusCode, Uri location)
+    {
+        var response = new HttpResponseMessage(statusCode);
+        response.Headers.Location = location;
+        return response;
+    }
+
+    private static HttpResponseMessage UpdateOk(byte[] bytes)
+    {
+        var content = new ByteArrayContent(bytes);
+        content.Headers.ContentLength = bytes.LongLength;
+        return new HttpResponseMessage(HttpStatusCode.OK) { Content = content };
     }
 
     private static byte[] ReadEmbeddedBytes(string resourceName)
@@ -2923,6 +3058,30 @@ internal static class Program
                 if (_record?.OperationId != operationId) throw new InvalidOperationException("operation mismatch");
                 _record = null;
             }
+        }
+    }
+
+    private sealed class ScriptedUpdateHandler : HttpMessageHandler
+    {
+        private readonly Queue<Func<Uri, HttpResponseMessage>> _responses;
+
+        internal ScriptedUpdateHandler(params Func<Uri, HttpResponseMessage>[] responses) =>
+            _responses = new Queue<Func<Uri, HttpResponseMessage>>(responses);
+
+        internal List<Uri> Requests { get; } = [];
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (request.Method != HttpMethod.Get || request.RequestUri is null)
+                throw new InvalidOperationException("The updater test expected an absolute GET request.");
+            if (_responses.Count == 0)
+                throw new InvalidOperationException("The updater issued more requests than the scripted test permits.");
+
+            Requests.Add(request.RequestUri);
+            return Task.FromResult(_responses.Dequeue()(request.RequestUri));
         }
     }
 

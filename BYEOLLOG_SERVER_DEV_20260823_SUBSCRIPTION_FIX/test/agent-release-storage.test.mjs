@@ -5,7 +5,7 @@ import test from "node:test";
 const readJson = async (path) => JSON.parse(await readFile(new URL(path, import.meta.url), "utf8"));
 const readText = async (path) => readFile(new URL(path, import.meta.url), "utf8");
 
-test("Agent ZIPs stay out of Vercel deploys and retain the signed public URL contract", async () => {
+test("GitHub release storage keeps one direct v85 bootstrap exception for legacy updaters", async () => {
   const [storage, vercel, ignore, publisher, signedFeed] = await Promise.all([
     readJson("../agent-updates/release-asset-storage.json"),
     readJson("../vercel.json"),
@@ -23,19 +23,20 @@ test("Agent ZIPs stay out of Vercel deploys and retain the signed public URL con
   assert.equal(storage.historicalArchive, "local-release-tree");
   assert.match(ignore, /^agent-updates\/releases\/\*\*\/\*\.zip\s*$/m);
 
-  const releaseRedirect = vercel.redirects.find(
-    ({ source }) => source === "/agent-updates/releases/:version/:filename([^/]+\\.zip)"
-  );
-  assert.ok(releaseRedirect);
-  assert.equal(releaseRedirect.permanent, false);
-  assert.equal(
-    releaseRedirect.destination,
-    `https://github.com/${storage.repository}/releases/download/${storage.tagPrefix}:version/:filename`
-  );
-
   const payload = JSON.parse(Buffer.from(signedFeed.payload, "base64").toString("utf8"));
   assert.match(payload.package.url, /^https:\/\/byeollog\.com\/agent-updates\/releases\//);
   assert.doesNotMatch(payload.package.url, /github\.com/);
+
+  const packagePath = new URL(payload.package.url).pathname.slice(1);
+  const ignoreLines = ignore.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const genericIndex = ignoreLines.indexOf("agent-updates/releases/**/*.zip");
+  const bootstrapIndex = ignoreLines.indexOf(`!${packagePath}`);
+  assert.ok(genericIndex >= 0 && bootstrapIndex > genericIndex);
+  assert.equal(ignoreLines.filter((line) => line.startsWith("!agent-updates/releases/")).length, 1);
+  assert.equal((vercel.redirects || []).some(({ source }) =>
+    source === "/agent-updates/releases/:version/:filename([^/]+\\.zip)"), false);
+  assert.ok(vercel.headers.some(({ source }) =>
+    source === "/agent-updates/releases/:version/:filename([^/]+\\.zip)"));
 
   assert.match(publisher, /specify exactly one of --version <version> or --all/);
   assert.match(publisher, /release asset storage must prohibit overwrites/);

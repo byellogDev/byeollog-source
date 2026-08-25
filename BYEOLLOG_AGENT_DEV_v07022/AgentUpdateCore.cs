@@ -337,14 +337,7 @@ internal static class AgentUpdateVerifier
         }
 
         if (!Uri.TryCreate(payload.Package.Url, UriKind.Absolute, out var packageUri) ||
-            !string.Equals(packageUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) ||
-            !string.Equals(packageUri.IdnHost, "byeollog.com", StringComparison.OrdinalIgnoreCase) ||
-            !packageUri.IsDefaultPort ||
-            !string.IsNullOrEmpty(packageUri.UserInfo) ||
-            !string.IsNullOrEmpty(packageUri.Query) ||
-            !string.IsNullOrEmpty(packageUri.Fragment) ||
-            !packageUri.AbsolutePath.StartsWith("/agent-updates/releases/", StringComparison.Ordinal) ||
-            !packageUri.AbsolutePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+            !AgentUpdatePackageRedirectPolicy.IsValidInitialPackageUri(packageUri, payload.Version))
         {
             throw new InvalidDataException("update_package_url");
         }
@@ -353,6 +346,111 @@ internal static class AgentUpdateVerifier
     internal static bool IsSha256(string value) =>
         value.Length == 64 && value.All(static character =>
             character is >= '0' and <= '9' or >= 'a' and <= 'f');
+}
+
+internal sealed record AgentUpdatePackageRedirectContext(
+    Uri InitialUri,
+    string Version,
+    string EscapedPackageFileName);
+
+internal static class AgentUpdatePackageRedirectPolicy
+{
+    internal const int MaximumRedirects = 2;
+    private const string GithubHost = "github.com";
+    private const string ReleaseAssetsHost = "release-assets.githubusercontent.com";
+
+    internal static bool IsValidInitialPackageUri(Uri uri) =>
+        uri.IsAbsoluteUri &&
+        string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(uri.IdnHost, "byeollog.com", StringComparison.OrdinalIgnoreCase) &&
+        uri.IsDefaultPort &&
+        string.IsNullOrEmpty(uri.UserInfo) &&
+        string.IsNullOrEmpty(uri.Query) &&
+        string.IsNullOrEmpty(uri.Fragment) &&
+        uri.AbsolutePath.StartsWith("/agent-updates/releases/", StringComparison.Ordinal) &&
+        uri.AbsolutePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+
+    internal static bool IsValidInitialPackageUri(Uri uri, string version)
+    {
+        if (!IsValidInitialPackageUri(uri)) return false;
+        var escapedFileName = EscapedFileName(uri);
+        return escapedFileName.Length > ".zip".Length &&
+               string.Equals(
+                   uri.AbsolutePath,
+                   $"/agent-updates/releases/{version}/{escapedFileName}",
+                   StringComparison.Ordinal);
+    }
+
+    internal static AgentUpdatePackageRedirectContext Create(Uri initialUri, string version)
+    {
+        AgentUpdateVerifier.ParseVersion(version, "update_package_redirect_version");
+        if (!IsValidInitialPackageUri(initialUri, version))
+            throw new InvalidDataException("update_package_url");
+
+        var escapedFileName = EscapedFileName(initialUri);
+        return new AgentUpdatePackageRedirectContext(initialUri, version, escapedFileName);
+    }
+
+    internal static Uri ResolveAndValidate(
+        AgentUpdatePackageRedirectContext context,
+        Uri currentUri,
+        Uri location,
+        int redirectNumber)
+    {
+        if (redirectNumber is < 1 or > MaximumRedirects)
+            throw new InvalidDataException("update_package_redirect_limit");
+
+        Uri nextUri;
+        try
+        {
+            nextUri = location.IsAbsoluteUri ? location : new Uri(currentUri, location);
+        }
+        catch (UriFormatException ex)
+        {
+            throw new InvalidDataException("update_package_redirect_location", ex);
+        }
+
+        if (!IsSecureEndpoint(nextUri))
+            throw new InvalidDataException("update_package_redirect_target");
+
+        var isReleaseAsset = string.Equals(
+            nextUri.IdnHost,
+            ReleaseAssetsHost,
+            StringComparison.OrdinalIgnoreCase);
+        if (redirectNumber == 2)
+        {
+            if (!isReleaseAsset)
+                throw new InvalidDataException("update_package_redirect_target");
+            return nextUri;
+        }
+
+        if (isReleaseAsset) return nextUri;
+
+        var exactGithubPath =
+            $"/byellogDev/byeollog-releases/releases/download/agent-v{context.Version}/{context.EscapedPackageFileName}";
+        if (!string.Equals(nextUri.IdnHost, GithubHost, StringComparison.OrdinalIgnoreCase) ||
+            !string.IsNullOrEmpty(nextUri.Query) ||
+            !string.Equals(nextUri.AbsolutePath, exactGithubPath, StringComparison.Ordinal))
+        {
+            throw new InvalidDataException("update_package_redirect_target");
+        }
+        return nextUri;
+    }
+
+    private static bool IsSecureEndpoint(Uri uri) =>
+        uri.IsAbsoluteUri &&
+        string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) &&
+        uri.IsDefaultPort &&
+        string.IsNullOrEmpty(uri.UserInfo) &&
+        string.IsNullOrEmpty(uri.Fragment);
+
+    private static string EscapedFileName(Uri uri)
+    {
+        var separator = uri.AbsolutePath.LastIndexOf('/');
+        return separator >= 0 && separator < uri.AbsolutePath.Length - 1
+            ? uri.AbsolutePath[(separator + 1)..]
+            : "";
+    }
 }
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
@@ -1017,6 +1115,7 @@ internal static class AgentUpdateRunner
                 await DownloadPackageAsync(
                     client,
                     new Uri(verified.Payload.Package.Url),
+                    verified.Payload.Version,
                     packagePath,
                     verified.Payload.Package.ByteSize,
                     verified.Payload.Package.Sha256,
@@ -1102,9 +1201,10 @@ internal static class AgentUpdateRunner
         return output.ToArray();
     }
 
-    private static async Task DownloadPackageAsync(
+    internal static async Task DownloadPackageAsync(
         HttpClient client,
         Uri uri,
+        string version,
         string destination,
         long expectedBytes,
         string expectedSha256,
@@ -1115,8 +1215,7 @@ internal static class AgentUpdateRunner
             throw new IOException("update_download_destination_exists");
         using var timeoutSource = CancellationTokenSource.CreateLinkedTokenSource(outerToken);
         timeoutSource.CancelAfter(TimeSpan.FromMinutes(15));
-        using var request = new HttpRequestMessage(HttpMethod.Get, uri);
-        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeoutSource.Token);
+        using var response = await SendPackageRequestAsync(client, uri, version, timeoutSource.Token);
         if (response.StatusCode != HttpStatusCode.OK ||
             response.Headers.Location is not null ||
             response.Content.Headers.ContentLength is { } contentLength && contentLength != expectedBytes ||
@@ -1166,6 +1265,60 @@ internal static class AgentUpdateRunner
             throw;
         }
     }
+
+    private static async Task<HttpResponseMessage> SendPackageRequestAsync(
+        HttpClient client,
+        Uri initialUri,
+        string version,
+        CancellationToken cancellationToken)
+    {
+        var context = AgentUpdatePackageRedirectPolicy.Create(initialUri, version);
+        var currentUri = context.InitialUri;
+        var visited = new HashSet<string>(StringComparer.Ordinal) { currentUri.AbsoluteUri };
+        var redirectCount = 0;
+
+        while (true)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, currentUri);
+            var response = await client.SendAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken);
+            if (!IsRedirect(response.StatusCode)) return response;
+
+            try
+            {
+                if (response.Headers.Location is null)
+                    throw new HttpRequestException("update_package_http");
+                if (redirectCount >= AgentUpdatePackageRedirectPolicy.MaximumRedirects)
+                    throw new InvalidDataException("update_package_redirect_limit");
+
+                var nextUri = AgentUpdatePackageRedirectPolicy.ResolveAndValidate(
+                    context,
+                    currentUri,
+                    response.Headers.Location,
+                    redirectCount + 1);
+                if (!visited.Add(nextUri.AbsoluteUri))
+                    throw new InvalidDataException("update_package_redirect_loop");
+
+                redirectCount++;
+                currentUri = nextUri;
+            }
+            catch
+            {
+                response.Dispose();
+                throw;
+            }
+            response.Dispose();
+        }
+    }
+
+    private static bool IsRedirect(HttpStatusCode statusCode) => statusCode is
+        HttpStatusCode.MovedPermanently or
+        HttpStatusCode.Redirect or
+        HttpStatusCode.RedirectMethod or
+        HttpStatusCode.TemporaryRedirect or
+        HttpStatusCode.PermanentRedirect;
 
     private static FileStream? TryAcquireInstallLock(string path)
     {

@@ -2,13 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "regions": ["hnd1"],
   "cleanUrls": true,
-  "redirects": [
-    {
-      "source": "/agent-updates/releases/:version/:filename([^/]+\\.zip)",
-      "destination": "https://github.com/byellogDev/byeollog-releases/releases/download/agent-v:version/:filename",
-      "permanent": false
-    }
-  ],
   "rewrites": [
     {
       "source": "/assets/byeollog_app_icon.png",

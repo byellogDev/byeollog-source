@@ -4,7 +4,7 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("Agent 0.7.0.84 preserves explicit trust boundaries for every embedded WebView", async () => {
+test("Agent 0.7.0.85 preserves explicit trust boundaries for every embedded WebView", async () => {
   const [main, startup, startupHtml, policy, project] = await Promise.all([
     readFile(new URL("MainForm.cs", root), "utf8"),
     readFile(new URL("StartupLoadingForm.cs", root), "utf8"),
@@ -13,7 +13,7 @@ test("Agent 0.7.0.84 preserves explicit trust boundaries for every embedded WebV
     readFile(new URL("HurogiCollector.csproj", root), "utf8")
   ]);
 
-  assert.match(project, /<Version>0\.7\.0\.84<\/Version>/);
+  assert.match(project, /<Version>0\.7\.0\.85<\/Version>/);
   assert.match(policy, /MaxUiMessageChars = 64 \* 1024/);
   assert.match(policy, /MaxWeflabMessageChars = 4 \* 1024 \* 1024/);
   assert.match(policy, /AllowedUiActions/);

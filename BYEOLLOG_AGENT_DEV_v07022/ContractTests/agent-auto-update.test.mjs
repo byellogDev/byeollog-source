@@ -22,8 +22,15 @@ test("automatic updates require a pinned offline signature and immutable version
   assert.match(core, /RSASignaturePadding\.Pss/);
   assert.match(core, /VerifyData\(/);
   assert.match(core, /AllowAutoRedirect = false/);
+  assert.match(core, /UseCookies = false/);
   assert.match(core, /AutomaticDecompression = DecompressionMethods\.None/);
-  assert.match(core, /packageUri\.IdnHost, "byeollog\.com"/);
+  assert.match(core, /uri\.IdnHost, "byeollog\.com"/);
+  assert.match(core, /MaximumRedirects = 2/);
+  assert.match(core, /GithubHost = "github\.com"/);
+  assert.match(core, /ReleaseAssetsHost = "release-assets\.githubusercontent\.com"/);
+  assert.match(core, /agent-v\{context\.Version\}\/\{context\.EscapedPackageFileName\}/);
+  assert.match(core, /update_package_redirect_loop/);
+  assert.match(core, /update_package_redirect_limit/);
   assert.match(core, /CryptographicOperations\.FixedTimeEquals/);
   assert.match(core, /\.staging-update-/);
   assert.match(core, /Directory\.Move\(staging, target\)/);
@@ -94,4 +101,21 @@ test("updater keys and payloads never contain a private signing key", async () =
   for (const contents of [core, project, signerReferences]) {
     assert.doesNotMatch(contents, /BEGIN (?:RSA )?PRIVATE KEY|privateExponent|\.Pfx|ExportParameters\(true\)/i);
   }
+});
+
+test("v85 release preparation is immutable and identifies the redirect compatibility build", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07085-AutoUpdate.ps1"),
+    source("RELEASE_v07085_VOICE_ANONYMIZER_REDIRECT_FIX_KO.txt")
+  ]);
+
+  assert.match(build, /\$releaseSequence = 7085/);
+  assert.match(build, /byeollog_agent_v07085_VOICE_ANONYMIZER_REDIRECT_FIX_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.85'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.85'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /v0\.7\.0\.85/);
+  assert.match(notes, /GitHub Releases/);
+  assert.match(notes, /최대 2회/);
+  assert.match(notes, /SHA-256/);
 });
