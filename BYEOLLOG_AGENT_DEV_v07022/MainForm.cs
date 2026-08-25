@@ -17,12 +17,20 @@ public sealed class MainForm : Form
     // The legacy Collector wire contract has always sent a four-part numeric
     // version. Keep build labels out of /api/collector* for v0.5.1.8 servers.
     private const string CollectorVersion = BuildInfo.Version;
+    private static readonly Uri TtsRelayHealthUri = new(
+        "https://byeollog-tts-relay.byeollog-tts-relay.workers.dev/healthz");
+    private const string ExpectedTtsVoiceVersion = "raffle-winner-cosyvoice3-v1";
     private readonly WebView2 _ui = new();
     private WebView2 _web = new();
     private readonly CollectorStorage _storage;
     private readonly DateTime _programStartedAtLocal;
     private bool _forceStartTimeOnce = true;
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(30) };
+    private readonly HttpClient _ttsHealthHttp = new()
+    {
+        Timeout = TimeSpan.FromSeconds(10),
+        MaxResponseContentBufferSize = 16 * 1024
+    };
     private readonly VNextDevelopmentClient _vNextDevClient;
     private readonly VNextLocalAgent? _vNextLocalAgent;
     private readonly VNextActivityMonitor _activityMonitor;
@@ -45,6 +53,7 @@ public sealed class MainForm : Form
     // 다음 UI turn에서 빠르게 이어 보내기 위한 짧은 fallback일 뿐입니다.
     private readonly System.Windows.Forms.Timer _vNextDevUploadTimer = new() { Interval = 100 };
     private readonly System.Windows.Forms.Timer _vNextDevRetryTimer = new() { Interval = 60 * 1000 };
+    private readonly System.Windows.Forms.Timer _ttsHealthTimer = new() { Interval = 60 * 1000 };
     private bool _uploadInProgress;
     private bool _vNextDevUploadInProgress;
     private bool _vNextDevE2EInProgress;
@@ -57,6 +66,9 @@ public sealed class MainForm : Form
     private bool _acceptanceInProgress;
     private int _uploadRetryStep;
     private int _vNextDevRetryStep;
+    private bool _ttsHealthCheckInProgress;
+    private bool _ttsRelayChecked;
+    private bool _ttsRelayConnected;
     private DateTime _nextUploadRetryAt = DateTime.MinValue;
     private DateTime _nextVNextDevRetryAt = DateTime.MinValue;
 
@@ -174,12 +186,20 @@ public sealed class MainForm : Form
         _retryUploadTimer.Tick += async (_, _) => await RetryPendingUploadTickAsync();
         _vNextDevUploadTimer.Tick += async (_, _) => { _vNextDevUploadTimer.Stop(); await MirrorVNextDevelopmentAsync(); };
         _vNextDevRetryTimer.Tick += async (_, _) => await MirrorVNextDevelopmentAsync();
+        _ttsHealthTimer.Tick += async (_, _) =>
+        {
+            _ttsHealthTimer.Stop();
+            await RefreshTtsRelayHealthAsync();
+            if (!IsDisposed && !Disposing) _ttsHealthTimer.Start();
+        };
         Shown += async (_, _) =>
         {
             EnsureMainWindowVisible();
             if (_vNextDevClient.IsSignedIn) _vNextLocalAgent?.Start();
             _activityMonitor.Start();
             await InitUiAsync();
+            _ttsHealthTimer.Start();
+            _ = RefreshTtsRelayHealthAsync();
             await InitWebAsync();
             await RestoreWeflabSessionAsync();
             _retryUploadTimer.Start();
@@ -2348,12 +2368,60 @@ public sealed class MainForm : Form
             uploadStatus = uploadText,
             pending,
             serverConnected = _storage.HasServerCredential,
+            ttsRelayChecked = _ttsRelayChecked,
+            ttsRelayConnected = _ttsRelayConnected,
             donations = _sessionDonationCount,
             balloons = _sessionBalloonCount,
             roulette = _sessionRouletteCount,
             lastTransfer = string.IsNullOrWhiteSpace(_lastCheck.Text) ? "없음" : _lastCheck.Text
         });
         _forceStartTimeOnce = false;
+    }
+
+    private async Task RefreshTtsRelayHealthAsync()
+    {
+        if (_ttsHealthCheckInProgress || IsDisposed || Disposing) return;
+        _ttsHealthCheckInProgress = true;
+
+        var connected = false;
+        try
+        {
+            using var response = await _ttsHealthHttp.GetAsync(TtsRelayHealthUri);
+            response.EnsureSuccessStatusCode();
+            if (!string.Equals(
+                    response.Content.Headers.ContentType?.MediaType,
+                    "application/json",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidDataException("TTS relay health response is not JSON.");
+            }
+
+            await using var responseStream = await response.Content.ReadAsStreamAsync();
+            using var document = await JsonDocument.ParseAsync(responseStream);
+            var root = document.RootElement;
+            connected = root.ValueKind == JsonValueKind.Object &&
+                        root.TryGetProperty("healthy", out var healthy) &&
+                        healthy.ValueKind == JsonValueKind.True &&
+                        root.TryGetProperty("version", out var version) &&
+                        version.ValueKind == JsonValueKind.String &&
+                        string.Equals(
+                            version.GetString(),
+                            ExpectedTtsVoiceVersion,
+                            StringComparison.Ordinal);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or
+                                   JsonException or InvalidDataException or ObjectDisposedException)
+        {
+            connected = false;
+        }
+        finally
+        {
+            var changed = !_ttsRelayChecked || _ttsRelayConnected != connected;
+            _ttsRelayChecked = true;
+            _ttsRelayConnected = connected;
+            _ttsHealthCheckInProgress = false;
+            if (changed && !IsDisposed && !Disposing) await PushMainStateAsync();
+        }
     }
 
     private async Task PushCollectionAsync()
@@ -7051,8 +7119,11 @@ public sealed class MainForm : Form
             _activityMonitor.Dispose();
             _vNextDevUploadTimer.Stop();
             _vNextDevRetryTimer.Stop();
+            _ttsHealthTimer.Stop();
             _vNextDevUploadTimer.Dispose();
             _vNextDevRetryTimer.Dispose();
+            _ttsHealthTimer.Dispose();
+            _ttsHealthHttp.Dispose();
             if (_vNextLocalAgent is not null)
             {
                 _vNextLocalAgent.StatusChanged -= VNextLocalAgent_StatusChanged;

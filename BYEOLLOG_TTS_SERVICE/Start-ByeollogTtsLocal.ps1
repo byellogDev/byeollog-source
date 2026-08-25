@@ -50,8 +50,29 @@ function Write-StartupStatus {
 }
 
 function Test-DockerReady {
-    & docker info --format '{{.ServerVersion}}' 2>$null | Out-Null
-    return $LASTEXITCODE -eq 0
+    try {
+        $dockerCommand = Get-Command docker.exe -ErrorAction Stop
+        $startInfo = New-Object Diagnostics.ProcessStartInfo
+        $startInfo.FileName = $dockerCommand.Source
+        $startInfo.Arguments = 'info --format "{{.ServerVersion}}"'
+        $startInfo.UseShellExecute = $false
+        $startInfo.CreateNoWindow = $true
+        $startInfo.RedirectStandardOutput = $true
+        $startInfo.RedirectStandardError = $true
+        $process = New-Object Diagnostics.Process
+        $process.StartInfo = $startInfo
+        try {
+            if (-not $process.Start()) { return $false }
+            $null = $process.StandardOutput.ReadToEnd()
+            $null = $process.StandardError.ReadToEnd()
+            $process.WaitForExit()
+            return $process.ExitCode -eq 0
+        } finally {
+            $process.Dispose()
+        }
+    } catch {
+        return $false
+    }
 }
 
 function Start-DockerDesktopIfNeeded {
@@ -69,6 +90,36 @@ function Start-DockerDesktopIfNeeded {
 
     Write-StartupLog "Starting Docker Desktop."
     Start-Process -FilePath $candidates[0] -WindowStyle Hidden | Out-Null
+}
+
+function Get-HealthyRelaySnapshot {
+    param(
+        [Parameter(Mandatory = $true)][string]$ConfigPath,
+        [Parameter(Mandatory = $true)][string]$ExpectedVoiceVersion
+    )
+    try {
+        $config = Get-Content -Raw -LiteralPath $ConfigPath | ConvertFrom-Json
+        $relayUrl = ([string]$config.relayUrl).TrimEnd('/')
+        if ($relayUrl -notmatch '^https://[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev$') {
+            return $null
+        }
+        $quickTunnel = Get-CimInstance Win32_Process | Where-Object {
+            $_.Name -eq 'cloudflared.exe' -and
+            $_.CommandLine -match 'tunnel\s+--url\s+http://127\.0\.0\.1:8080'
+        } | Select-Object -First 1
+        if ($null -eq $quickTunnel) { return $null }
+        $health = Invoke-RestMethod -Uri "$relayUrl/healthz" -TimeoutSec 20
+        if ($health.healthy -ne $true -or [string]$health.version -ne $ExpectedVoiceVersion) {
+            return $null
+        }
+        return [pscustomobject]@{
+            Healthy = $true
+            RelayUrl = $relayUrl
+            VoiceVersion = [string]$health.version
+        }
+    } catch {
+        return $null
+    }
 }
 
 try {
@@ -129,18 +180,27 @@ try {
     $message = "Local CosyVoice service is ready."
     $stage = "ready_local"
     if (Test-Path -LiteralPath $RelayConfigPath -PathType Leaf) {
-        $relayScript = Join-Path $PSScriptRoot "Start-ByeollogTtsRelay.ps1"
-        if (-not (Test-Path -LiteralPath $relayScript -PathType Leaf)) {
-            throw "Relay startup script is missing: $relayScript"
-        }
-        Write-StartupLog "Starting or refreshing the stable TTS relay."
-        $relay = & $relayScript -ConfigPath $RelayConfigPath
-        if ($null -eq $relay -or $relay.Healthy -ne $true) {
-            throw "Stable TTS relay did not become healthy"
+        $relay = Get-HealthyRelaySnapshot `
+            -ConfigPath $RelayConfigPath `
+            -ExpectedVoiceVersion $voiceVersion
+        if ($null -ne $relay -and $relay.Healthy -eq $true) {
+            Write-StartupLog "Stable TTS relay is already healthy; refresh skipped."
+        } else {
+            $relayScript = Join-Path $PSScriptRoot "Start-ByeollogTtsRelay.ps1"
+            if (-not (Test-Path -LiteralPath $relayScript -PathType Leaf)) {
+                throw "Relay startup script is missing: $relayScript"
+            }
+            Write-StartupLog "Starting or refreshing the stable TTS relay."
+            $relay = & $relayScript -ConfigPath $RelayConfigPath
+            if ($null -eq $relay -or $relay.Healthy -ne $true) {
+                throw "Stable TTS relay did not become healthy"
+            }
         }
         $relayHealthy = $true
         $relayUrl = [string]$relay.RelayUrl
-        $quickTunnelUrl = [string]$relay.QuickTunnelUrl
+        if ($relay.PSObject.Properties.Name -contains 'QuickTunnelUrl') {
+            $quickTunnelUrl = [string]$relay.QuickTunnelUrl
+        }
         $message = "Local CosyVoice service and stable relay are ready."
         $stage = "ready"
         Write-StartupLog "Stable TTS relay is healthy."

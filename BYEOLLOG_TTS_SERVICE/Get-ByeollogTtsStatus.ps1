@@ -31,9 +31,15 @@ if (Test-Path -LiteralPath $relayConfigPath -PathType Leaf) {
     try {
         $relayConfig = Get-Content -Raw -LiteralPath $relayConfigPath | ConvertFrom-Json
         $relayUrl = ([string]$relayConfig.relayUrl).TrimEnd('/')
-        $relayHealth = Invoke-RestMethod -Uri "$relayUrl/healthz" -TimeoutSec 10
-        $relayMeta = Invoke-RestMethod -Uri "$relayUrl/__byeollog/relay/meta" -TimeoutSec 10
     } catch { }
+    if (-not [string]::IsNullOrWhiteSpace($relayUrl)) {
+        try {
+            $relayHealth = Invoke-RestMethod -Uri "$relayUrl/healthz" -TimeoutSec 10
+        } catch { }
+        try {
+            $relayMeta = Invoke-RestMethod -Uri "$relayUrl/__byeollog/relay/meta" -TimeoutSec 10
+        } catch { }
+    }
 }
 
 try {

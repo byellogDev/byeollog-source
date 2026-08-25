@@ -61,6 +61,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\Get-ByeollogTtsStatus.ps1
 3. HMAC으로 서명된 새 주소를 고정 Worker에 등록
 4. 고정 Worker 주소를 통한 외부 `/healthz`
 
+예약 작업은 로그인 직후뿐 아니라 기본 5분 간격으로 경로를 다시 확인합니다.
+Docker Desktop이 늦게 준비되거나 사용자가 나중에 수동 실행해도 다음 주기에
+컨테이너, Quick Tunnel, 고정 중계를 복구합니다. 전체 경로가 이미 정상일 때는
+Worker 원본을 다시 등록하지 않고 health 확인만 수행합니다. 기존 설치를 이
+동작으로 갱신하려면 설치 스크립트를 다시 한 번 실행하십시오.
+
 운영 고정 주소는
 `https://byeollog-tts-relay.byeollog-tts-relay.workers.dev`입니다. 새 Quick
 Tunnel은 주소 발급 뒤 외부 접근 가능 상태까지 1~2분 걸릴 수 있으므로 복구
