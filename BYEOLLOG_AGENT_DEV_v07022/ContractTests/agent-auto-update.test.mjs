@@ -412,3 +412,15 @@ test("v105 release preparation is immutable and packages photoreal confetti moti
   assert.match(notes, /실사 촬영 질감/);
   assert.match(notes, /54개/);
 });
+
+test("v106 release preparation is immutable and doubles only photoreal confetti count", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07106-AutoUpdate.ps1"),
+    source("RELEASE_v07106_DOUBLE_PHOTOREAL_CONFETTI_VFX_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7106/);
+  assert.match(build, /byeollog_agent_v07106_DOUBLE_PHOTOREAL_CONFETTI_VFX_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.106'/);
+  assert.match(notes, /54개에서 108개/);
+  assert.match(notes, /질감과 파티클 크기, 회전, 낙하 속도는 그대로/);
+});

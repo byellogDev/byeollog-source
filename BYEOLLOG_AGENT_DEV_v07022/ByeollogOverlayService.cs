@@ -90,7 +90,7 @@ internal sealed class OverlayPresentationNotObservedException : IOException
 internal sealed class ByeollogOverlayService : IDisposable
 {
     internal const string MicrophoneOffAssetKey = TimedMuteContract.MicrophoneOffOverlayAssetKey;
-    internal const string DocumentRevision = "categorized-actions-v11";
+    internal const string DocumentRevision = "categorized-actions-v12";
     internal const int DefaultPort = 43_120;
     internal const int BrowserAudioStartTimeoutMs = 5_000;
     internal const int MaximumBrowserAudioPlaybackMs = 25_000;
@@ -154,7 +154,7 @@ internal sealed class ByeollogOverlayService : IDisposable
   <img id="asset" alt="" draggable="false">
   <div id="raffle-stage"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div></section></div>
   <div id="flashbang-stage"><img id="flashbang-asset" alt="" draggable="false"></div>
-  <div id="effect-stage" data-document-revision="categorized-actions-v11"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><video id="water-vfx-video" muted playsinline preload="auto" src="/overlay/builtin/water-splash-v4.webm?v=553531218503cf9d79963944900e82c6184eba87bf7e516e414a231b405f3775"></video><video id="fireworks-vfx-video" muted playsinline preload="auto" src="/overlay/builtin/photoreal-confetti-v4.webm?v=b156e075bf5e1b463fa9cc5663d4809b96a99982ae8297a9aefc92009a8670bc"></video><img id="water-runoff-asset" alt="" draggable="false" src="/overlay/builtin/water-runoff-v2.png?v=d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee"><canvas id="water-flow-canvas"></canvas></div>
+  <div id="effect-stage" data-document-revision="categorized-actions-v12"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><video id="water-vfx-video" muted playsinline preload="auto" src="/overlay/builtin/water-splash-v4.webm?v=553531218503cf9d79963944900e82c6184eba87bf7e516e414a231b405f3775"></video><video id="fireworks-vfx-video" muted playsinline preload="auto" src="/overlay/builtin/photoreal-confetti-double-v5.webm?v=bcdcac2dbe0073af9fb7ea0fd59e5c7107fe6a66e32be11eb6260110573f8b9c"></video><img id="water-runoff-asset" alt="" draggable="false" src="/overlay/builtin/water-runoff-v2.png?v=d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee"><canvas id="water-flow-canvas"></canvas></div>
   <script>
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
@@ -443,7 +443,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     async function refresh() {
       try {
-        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v11', { cache: 'no-store' });
+        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v12', { cache: 'no-store' });
         if (!response.ok) throw new Error('state unavailable');
         const state = await response.json();
         if (state.active === true && typeof state.assetToken === 'string') {
@@ -1834,7 +1834,7 @@ internal sealed class ByeollogOverlayService : IDisposable
                         timeout.Token);
                     return;
                 }
-                if (path == "/overlay/builtin/photoreal-confetti-v4.webm"
+                if (path == "/overlay/builtin/photoreal-confetti-double-v5.webm"
                     && FireworksMotionBytes.Value.Length > 0)
                 {
                     await WriteResponseAsync(

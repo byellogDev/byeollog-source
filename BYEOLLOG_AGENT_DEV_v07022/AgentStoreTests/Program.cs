@@ -2384,9 +2384,9 @@ internal static class Program
                 OverlayAssetValidator.Sha256Hex(waterMotion),
                 "the served FLIP water motion retains its sealed digest");
             var fireworksMotion = await http.GetByteArrayAsync(
-                $"{service.OverlayUrl}/builtin/photoreal-confetti-v4.webm");
-            Equal(2_412_605, fireworksMotion.Length,
-                "the loopback overlay serves the complete photoreal confetti motion");
+                $"{service.OverlayUrl}/builtin/photoreal-confetti-double-v5.webm");
+            Equal(3_058_558, fireworksMotion.Length,
+                "the loopback overlay serves the complete double-density photoreal confetti motion");
             Equal(
                 OverlayAssetCache.FireworksMotionContentSha256,
                 OverlayAssetValidator.Sha256Hex(fireworksMotion),
