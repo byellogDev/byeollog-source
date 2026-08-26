@@ -75,6 +75,9 @@
     <EmbeddedResource Include="../Assets/byeollog_water_splash.png"
                       Link="Assets/byeollog_water_splash.png"
                       LogicalName="HurogiCollector.Assets.byeollog_water_splash.png" />
+    <EmbeddedResource Include="../Assets/byeollog_water_splash_flip_v3.webm"
+                      Link="Assets/byeollog_water_splash_flip_v3.webm"
+                      LogicalName="HurogiCollector.Assets.byeollog_water_splash_flip_v3.webm" />
     <EmbeddedResource Include="../Assets/byeollog_fireworks.png"
                       Link="Assets/byeollog_fireworks.png"
                       LogicalName="HurogiCollector.Assets.byeollog_fireworks.png" />

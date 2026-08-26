@@ -2375,6 +2375,14 @@ internal static class Program
         using (var http = new HttpClient(new HttpClientHandler { UseProxy = false }))
         {
             _ = await http.GetStringAsync($"{service.OverlayUrl}/state");
+            var waterMotion = await http.GetByteArrayAsync(
+                $"{service.OverlayUrl}/builtin/water-splash-v3.webm");
+            Equal(9_497_910, waterMotion.Length,
+                "the loopback overlay serves the complete built-in FLIP water motion");
+            Equal(
+                OverlayAssetCache.WaterSplashMotionContentSha256,
+                OverlayAssetValidator.Sha256Hex(waterMotion),
+                "the served FLIP water motion retains its sealed digest");
         }
         True(
             await browserReady,

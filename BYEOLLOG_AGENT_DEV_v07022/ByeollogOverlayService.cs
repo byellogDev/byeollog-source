@@ -90,7 +90,7 @@ internal sealed class OverlayPresentationNotObservedException : IOException
 internal sealed class ByeollogOverlayService : IDisposable
 {
     internal const string MicrophoneOffAssetKey = TimedMuteContract.MicrophoneOffOverlayAssetKey;
-    internal const string DocumentRevision = "categorized-actions-v4";
+    internal const string DocumentRevision = "categorized-actions-v5";
     internal const int DefaultPort = 43_120;
     internal const int BrowserAudioStartTimeoutMs = 5_000;
     internal const int MaximumBrowserAudioPlaybackMs = 25_000;
@@ -130,6 +130,12 @@ internal sealed class ByeollogOverlayService : IDisposable
     #water-runoff-asset { position:absolute; inset:-4%; display:none; width:108%; height:108%; object-fit:cover; opacity:0; z-index:3; }
     #water-refraction { position:absolute; inset:0; display:none; z-index:1; opacity:0; background:radial-gradient(ellipse at 48% 38%,rgba(205,247,255,.12),rgba(52,169,220,.07) 44%,rgba(2,63,126,.04) 72%,transparent 90%); backdrop-filter:blur(.65px) saturate(1.08); }
     #water-flow-canvas { position:absolute; inset:0; display:none; width:100%; height:100%; }
+    #water-vfx-video { position:absolute; inset:0; display:none; width:100%; height:100%; object-fit:cover; z-index:4; }
+    #effect-stage.water-splash #water-vfx-video { display:block; }
+    #effect-stage.water-splash #effect-asset,
+    #effect-stage.water-splash #water-runoff-asset,
+    #effect-stage.water-splash #water-refraction,
+    #effect-stage.water-splash #water-flow-canvas { display:none; }
     #effect-stage.water-splash #water-flow-canvas { display:block; }
     #effect-stage.water-splash #water-runoff-asset,
     #effect-stage.water-splash #water-refraction { display:block; }
@@ -153,7 +159,7 @@ internal sealed class ByeollogOverlayService : IDisposable
   <img id="asset" alt="" draggable="false">
   <div id="raffle-stage"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div></section></div>
   <div id="flashbang-stage"><img id="flashbang-asset" alt="" draggable="false"></div>
-  <div id="effect-stage" data-document-revision="categorized-actions-v4"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><img id="water-runoff-asset" alt="" draggable="false" src="/overlay/builtin/water-runoff-v2.png?v=d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee"><canvas id="water-flow-canvas"></canvas></div>
+  <div id="effect-stage" data-document-revision="categorized-actions-v5"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><video id="water-vfx-video" muted playsinline preload="auto" src="/overlay/builtin/water-splash-v3.webm?v=11e75ca18fc41cc3becc1d4bf5ee21e7e1bbf4007bda6ee259c6d186bd3f4303"></video><img id="water-runoff-asset" alt="" draggable="false" src="/overlay/builtin/water-runoff-v2.png?v=d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee"><canvas id="water-flow-canvas"></canvas></div>
   <script>
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
@@ -167,6 +173,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     const effectAsset = document.getElementById('effect-asset');
     const waterRunoffAsset = document.getElementById('water-runoff-asset');
     const waterFlowCanvas = document.getElementById('water-flow-canvas');
+    const waterVfxVideo = document.getElementById('water-vfx-video');
     let currentRevision = '';
     let loadedFlashbangRevision = '';
     let loadedEffectRevision = '';
@@ -182,6 +189,7 @@ internal sealed class ByeollogOverlayService : IDisposable
       waterRunId++;
       if (waterAnimationFrame) cancelAnimationFrame(waterAnimationFrame);
       waterAnimationFrame = 0;
+      try { waterVfxVideo.pause(); waterVfxVideo.currentTime = 0; } catch {}
       const context = waterFlowCanvas.getContext('2d');
       if (context) context.clearRect(0, 0, waterFlowCanvas.width, waterFlowCanvas.height);
     }
@@ -225,6 +233,11 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     function startWaterAnimation(identity) {
       stopWaterAnimation();
+      try {
+        waterVfxVideo.currentTime = 0;
+        void waterVfxVideo.play();
+      } catch {}
+      return;
       const runId = waterRunId;
       const context = waterFlowCanvas.getContext('2d', { alpha: true });
       if (!context) return;
@@ -423,7 +436,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     async function refresh() {
       try {
-        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v4', { cache: 'no-store' });
+        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v5', { cache: 'no-store' });
         if (!response.ok) throw new Error('state unavailable');
         const state = await response.json();
         if (state.active === true && typeof state.assetToken === 'string') {
@@ -547,6 +560,25 @@ internal sealed class ByeollogOverlayService : IDisposable
             return string.Equals(
                     sha256,
                     OverlayAssetCache.WaterRunoffContentSha256,
+                    StringComparison.Ordinal)
+                ? bytes
+                : [];
+        },
+        LazyThreadSafetyMode.ExecutionAndPublication);
+
+    private static readonly Lazy<byte[]> WaterSplashMotionBytes = new(
+        static () =>
+        {
+            using var stream = typeof(ByeollogOverlayService).Assembly
+                .GetManifestResourceStream(OverlayAssetCache.WaterSplashMotionResourceName);
+            if (stream is null) return [];
+            using var memory = new MemoryStream();
+            stream.CopyTo(memory);
+            var bytes = memory.ToArray();
+            var sha256 = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
+            return string.Equals(
+                    sha256,
+                    OverlayAssetCache.WaterSplashMotionContentSha256,
                     StringComparison.Ordinal)
                 ? bytes
                 : [];
@@ -1754,6 +1786,18 @@ internal sealed class ByeollogOverlayService : IDisposable
                         200,
                         "image/png",
                         WaterRunoffBytes.Value,
+                        headOnly,
+                        timeout.Token);
+                    return;
+                }
+                if (path == "/overlay/builtin/water-splash-v3.webm"
+                    && WaterSplashMotionBytes.Value.Length > 0)
+                {
+                    await WriteResponseAsync(
+                        stream,
+                        200,
+                        "video/webm",
+                        WaterSplashMotionBytes.Value,
                         headOnly,
                         timeout.Token);
                     return;

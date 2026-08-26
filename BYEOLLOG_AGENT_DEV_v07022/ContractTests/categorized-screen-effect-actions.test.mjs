@@ -65,6 +65,10 @@ test("water and party popper package immutable transparent art and CC0 natural a
     ["byeollog_water_splash_natural.wav", "5622afc8e00c43413d1c14684ea37cea6b0e7577b9e953273920ef14a389f298"],
     ["byeollog_party_popper_natural.wav", "16f5f25be2dd82f1264cb6094256dc17bf97be10c8b20f3b7765cad00559a2c8"]
   ];
+  const motion = [
+    "byeollog_water_splash_flip_v3.webm",
+    "11e75ca18fc41cc3becc1d4bf5ee21e7e1bbf4007bda6ee259c6d186bd3f4303"
+  ];
   const [cache, project, adapter, overlay, factory, notices] = await Promise.all([
     text("OverlayAssetCache.cs"),
     text("HurogiCollector.csproj"),
@@ -89,6 +93,12 @@ test("water and party popper package immutable transparent art and CC0 natural a
     assert.match(project, new RegExp(file.replaceAll(".", "\\.")));
     assert.match(factory, new RegExp(file.replaceAll(".", "\\.")));
   }
+  const motionBytes = await bytes(`Assets/${motion[0]}`);
+  assert.equal(motionBytes.subarray(0, 4).toString("hex"), "1a45dfa3", "water motion must be WebM");
+  assert.ok(motionBytes.byteLength < 10 * 1024 * 1024, "water motion must remain below the built-in safety budget");
+  assert.equal(createHash("sha256").update(motionBytes).digest("hex"), motion[1]);
+  assert.match(cache, new RegExp(motion[1], "i"));
+  assert.match(project, /byeollog_water_splash_flip_v3\.webm/);
   assert.doesNotMatch(factory, /Math\.Sin|NextNoise|CreateWave/);
   for (const soundId of ["719551", "442773", "458398"])
     assert.match(notices, new RegExp(soundId));
@@ -98,14 +108,14 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.match(adapter, /FireworksDurationMs = 5_000/);
   assert.match(adapter, /ShowObservedAudioTransientAsync/);
   assert.match(adapter, /parameters\.EnumerateObject\(\)\.Count\(\) != 6/);
-  assert.match(overlay, /categorized-actions-v4/);
-  assert.match(overlay, /requestAnimationFrame\(draw\)/);
-  assert.match(overlay, /sprayDroplets/);
-  assert.match(overlay, /lensBeads/);
-  assert.match(overlay, /water-runoff-settle/);
-  assert.match(overlay, /water-refraction-pulse/);
-  assert.match(overlay, /\/overlay\/builtin\/water-runoff-v2\.png/);
-  assert.match(overlay, /WaterRunoffContentSha256/);
+  assert.match(overlay, /categorized-actions-v5/);
+  assert.match(overlay, /<video id="water-vfx-video" muted playsinline preload="auto"/);
+  assert.match(overlay, /\/overlay\/builtin\/water-splash-v3\.webm/);
+  assert.match(overlay, /WaterSplashMotionContentSha256/);
+  assert.match(overlay, /"video\/webm"/);
+  assert.match(overlay, /waterVfxVideo\.currentTime = 0/);
+  assert.match(overlay, /waterVfxVideo\.play\(\)/);
+  assert.match(overlay, /#effect-stage\.water-splash #effect-asset,[\s\S]*#effect-stage\.water-splash #water-flow-canvas \{ display:none; \}/);
   assert.doesNotMatch(overlay, /streamCount|bezierCurveTo/);
   assert.doesNotMatch(overlay, /water-splash-motion[\s\S]*translateY\(25%\)/);
   assert.match(overlay, /#effect-stage\.visible\.water-splash/);
