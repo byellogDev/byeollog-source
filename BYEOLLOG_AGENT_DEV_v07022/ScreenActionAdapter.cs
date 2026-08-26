@@ -9,8 +9,11 @@ internal sealed class ScreenActionAdapter
     internal const string ShakeActionType = "obs.screen_shake_for";
     internal const string EarthquakeAssetKey = "earthquake_audio";
     private const string TemporaryScenePrefix = "별록 화면 액션 ";
+    private const string EarthquakeAudioBindingKey = "earthquake-sustained-rumble-v3";
+    private const int EarthquakeAudioTailMs = 600;
     private readonly CollectorStorage _storage;
     private readonly ByeollogOverlayService _overlay;
+    private readonly Func<CancellationToken, Task<int>>? _refreshBrowserSources;
     private readonly Func<CancellationToken, Task<bool>>? _ensureBrowserAudioRouting;
     private readonly Action<string>? _log;
     private readonly SemaphoreSlim _gate = new(1, 1);
@@ -18,11 +21,13 @@ internal sealed class ScreenActionAdapter
     internal ScreenActionAdapter(
         CollectorStorage storage,
         ByeollogOverlayService overlay,
+        Func<CancellationToken, Task<int>>? refreshBrowserSources = null,
         Func<CancellationToken, Task<bool>>? ensureBrowserAudioRouting = null,
         Action<string>? log = null)
     {
         _storage = storage;
         _overlay = overlay;
+        _refreshBrowserSources = refreshBrowserSources;
         _ensureBrowserAudioRouting = ensureBrowserAudioRouting;
         _log = log;
     }
@@ -46,6 +51,7 @@ internal sealed class ScreenActionAdapter
         string? originalSceneUuid = null;
         var restored = false;
         var activated = false;
+        var phase = "connect";
         try
         {
             await using var obs = await ObsWebSocketClient.ConnectAsync(settings, cancellationToken);
@@ -56,7 +62,44 @@ internal sealed class ScreenActionAdapter
             var original = await obs.GetCurrentProgramSceneAsync(cancellationToken);
             var video = await obs.GetVideoSettingsAsync(cancellationToken);
             originalSceneUuid = original.SceneUuid;
+
+            Task<ByeollogObservedAudioDisplayResult>? soundTask = null;
+            ByeollogOverlayAudioEvidence? soundEvidence = null;
+            if (actionType == ShakeActionType && volumePercent > 0)
+            {
+                phase = "earthquake_audio_prepare";
+                // Start and positively observe the Browser Source audio while the
+                // user's original scene is still current. Some OBS configurations
+                // suspend nested Browser Sources during the temporary shake scene.
+                await PrepareEarthquakeAudioAsync(cancellationToken);
+                var soundDurationMs = durationMs + EarthquakeAudioTailMs;
+                var audioBytes = ActionSoundFactory.CreateEarthquake(soundDurationMs);
+                var audioSha = Convert.ToHexString(SHA256.HashData(audioBytes)).ToLowerInvariant();
+                soundTask = _overlay.ShowObservedAudioTransientAsync(
+                    EarthquakeAssetKey,
+                    soundDurationMs,
+                    new RaffleOverlayPresentation("earthquake", "", "", "", Array.Empty<string>()),
+                    null,
+                    new RaffleOverlayAudioContent(
+                        audioBytes,
+                        audioSha,
+                        volumePercent,
+                        EarthquakeAudioBindingKey),
+                    cancellationToken,
+                    notAfterUtc);
+                if (!await _overlay.WaitForActiveAudioStartedAsync(
+                        EarthquakeAudioBindingKey,
+                        audioSha,
+                        TimeSpan.FromSeconds(4),
+                        cancellationToken))
+                {
+                    try { _ = await soundTask; } catch { }
+                    throw new OverlayPresentationNotObservedException();
+                }
+            }
+
             var temporaryName = TemporaryScenePrefix + original.SceneUuid;
+            phase = "temporary_scene_create";
             temporarySceneUuid = await obs.CreateSceneAsync(temporaryName, cancellationToken);
             var sceneItemId = await obs.CreateSceneItemAsync(
                 temporarySceneUuid,
@@ -97,35 +140,19 @@ internal sealed class ScreenActionAdapter
                     cancellationToken);
             }
 
+            phase = "temporary_scene_activate";
             await obs.SetCurrentProgramSceneAsync(temporarySceneUuid, cancellationToken);
             activated = true;
-            Task? soundTask = null;
-            if (actionType == ShakeActionType && volumePercent > 0)
-            {
-                if (_ensureBrowserAudioRouting is null
-                    || !await _ensureBrowserAudioRouting(cancellationToken))
-                    throw new InvalidOperationException("OBS 브라우저 소스 오디오 라우팅을 준비하지 못했습니다.");
-                var audioBytes = ActionSoundFactory.CreateEarthquake(durationMs);
-                soundTask = _overlay.ShowObservedAudioTransientAsync(
-                    EarthquakeAssetKey,
-                    durationMs,
-                    new RaffleOverlayPresentation("earthquake", "", "", "", Array.Empty<string>()),
-                    null,
-                    new RaffleOverlayAudioContent(
-                        audioBytes,
-                        Convert.ToHexString(SHA256.HashData(audioBytes)).ToLowerInvariant(),
-                        volumePercent,
-                        "earthquake-natural-rumble-v2"),
-                    cancellationToken,
-                    notAfterUtc);
-            }
 
             if (actionType == FlipActionType)
                 await Task.Delay(durationMs, cancellationToken);
             else
+            {
+                phase = "screen_shake";
                 await RunShakeAsync(obs, temporarySceneUuid, sceneItemId, video, intensity, durationMs, cancellationToken);
-            if (soundTask is not null) await soundTask;
+            }
 
+            phase = "restore";
             restored = await RestoreAndRemoveAsync(
                 settings,
                 obs,
@@ -133,6 +160,11 @@ internal sealed class ScreenActionAdapter
                 temporarySceneUuid,
                 CancellationToken.None);
             temporarySceneUuid = null;
+            if (soundTask is not null)
+            {
+                phase = "earthquake_audio_complete";
+                soundEvidence = (await soundTask).AudioEvidence;
+            }
             return new VNextAgentOutcome(true, false, new
             {
                 message = actionType == FlipActionType
@@ -141,6 +173,9 @@ internal sealed class ScreenActionAdapter
                 durationMs,
                 intensity = actionType == ShakeActionType ? intensity : null,
                 volumePercent = actionType == ShakeActionType ? (int?)volumePercent : null,
+                audioStarted = soundEvidence?.Started,
+                audioEnded = soundEvidence?.Ended,
+                audioFailureType = soundEvidence?.FailureType,
                 restored
             }, null);
         }
@@ -154,6 +189,8 @@ internal sealed class ScreenActionAdapter
         }
         catch (Exception ex)
         {
+            _log?.Invoke(
+                $"화면 액션 실패 · action={actionType} · phase={phase} · activated={activated} · type={ex.GetType().Name}");
             return new VNextAgentOutcome(
                 false,
                 !activated,
@@ -197,6 +234,27 @@ internal sealed class ScreenActionAdapter
         {
             _gate.Release();
         }
+    }
+
+    private async Task PrepareEarthquakeAudioAsync(CancellationToken cancellationToken)
+    {
+        if (_ensureBrowserAudioRouting is null
+            || !await _ensureBrowserAudioRouting(cancellationToken))
+            throw new InvalidOperationException("OBS 브라우저 소스 오디오 라우팅을 준비하지 못했습니다.");
+
+        if (await _overlay.WaitForCurrentDocumentBrowserSourceAsync(
+                TimeSpan.FromMilliseconds(700),
+                cancellationToken))
+            return;
+
+        if (_refreshBrowserSources is null)
+            throw new OverlayPresentationNotObservedException();
+        _ = await _refreshBrowserSources(cancellationToken);
+        if (!await _overlay.WaitForCurrentDocumentBrowserSourceAsync(
+                TimeSpan.FromSeconds(3),
+                cancellationToken,
+                requireNewRequest: true))
+            throw new OverlayPresentationNotObservedException();
     }
 
     private static async Task RunShakeAsync(

@@ -18,7 +18,9 @@ internal static class ActionSoundFactory
 
     internal static byte[] CreateEarthquake(int durationMs)
     {
-        if (durationMs is < 2_000 or > 10_000 || durationMs % 1_000 != 0)
+        // The action runtime adds a short natural decay after the screen stops,
+        // so the packaged sustained rumble deliberately supports sub-second tails.
+        if (durationMs is < 2_000 or > 10_750)
             throw new ArgumentOutOfRangeException(nameof(durationMs));
         return TrimPcm16Wave(Earthquake, durationMs, fadeOutMs: 180);
     }

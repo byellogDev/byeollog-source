@@ -245,6 +245,16 @@ internal sealed class VNextLocalAgent : IDisposable
                 {
                     var settings = collectorStorage.LoadObsSettings();
                     return settings.Enabled
+                        ? await ObsActionAdapter.RefreshOverlayBrowserSourcesAsync(
+                            settings,
+                            _overlay.OverlayUrl,
+                            token)
+                        : 0;
+                },
+                async token =>
+                {
+                    var settings = collectorStorage.LoadObsSettings();
+                    return settings.Enabled
                         && await ObsActionAdapter.EnsureOverlayBrowserAudioRoutingAsync(
                             settings,
                             _overlay.OverlayUrl,

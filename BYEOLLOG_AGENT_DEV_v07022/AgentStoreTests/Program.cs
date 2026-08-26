@@ -258,8 +258,13 @@ internal static class Program
         Equal("RIFF", Encoding.ASCII.GetString(earthquake, 0, 4), "earthquake natural sound keeps RIFF");
         Equal("WAVE", Encoding.ASCII.GetString(earthquake, 8, 4), "earthquake natural sound keeps WAVE");
         Equal(384_000, BitConverter.ToInt32(earthquake, 40), "earthquake trimmed data length is exact");
+        var sustainedEarthquake = ActionSoundFactory.CreateEarthquake(10_600);
+        Equal(2_035_244, sustainedEarthquake.Length,
+            "earthquake action audio fills ten seconds plus its natural decay tail");
+        Equal(2_035_200, BitConverter.ToInt32(sustainedEarthquake, 40),
+            "earthquake decay tail keeps an exact PCM data length");
         Equal(
-            "8ddfe4349f8e41b2acf97ddf21752b46f69bf3e84b6320759ac284cc3c978067",
+            "5622afc8e00c43413d1c14684ea37cea6b0e7577b9e953273920ef14a389f298",
             Convert.ToHexString(SHA256.HashData(ActionSoundFactory.CreateWaterSplash())).ToLowerInvariant(),
             "water action uses the reviewed CC0 natural recording");
         Equal(

@@ -298,3 +298,18 @@ test("v96 release preparation is immutable and identifies natural action audio a
   assert.match(notes, /콘페티 팝퍼/);
   assert.match(notes, /CC0/);
 });
+
+test("v97 release preparation is immutable and identifies earthquake reliability and flowing water", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07097-AutoUpdate.ps1"),
+    source("RELEASE_v07097_EARTHQUAKE_RELIABILITY_FLOWING_WATER_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7097/);
+  assert.match(build, /byeollog_agent_v07097_EARTHQUAKE_RELIABILITY_FLOWING_WATER_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.97'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.97'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /실제 재생 시작/);
+  assert.match(notes, /크로스페이드/);
+  assert.match(notes, /Canvas 애니메이션/);
+});

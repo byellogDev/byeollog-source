@@ -12,11 +12,11 @@
    License: Creative Commons CC0 1.0
    Use: 지진이야! 저주파 자연음
 
-2. water splash.wav
-   Author: VacekH
-   Source: https://freesound.org/people/VacekH/sounds/189504/
+2. Big Water Splash
+   Author: qubodup
+   Source: https://freesound.org/people/qubodup/sounds/442773/
    License: Creative Commons CC0 1.0
-   Use: 물벼락 자연음
+   Use: 물벼락 대형 물 투척 자연음
 
 3. Balloon Pop / Christmas cracker / Confetti Cannon
    Author: Breviceps

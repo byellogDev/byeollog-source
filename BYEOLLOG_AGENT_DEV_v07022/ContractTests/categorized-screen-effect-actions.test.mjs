@@ -20,9 +20,10 @@ test("action catalog is grouped and camera remains an honest placeholder", async
 });
 
 test("screen actions use only OBS scene APIs and guarantee cleanup", async () => {
-  const [adapter, obs, agent, capabilities] = await Promise.all([
+  const [adapter, obs, obsAdapter, agent, capabilities] = await Promise.all([
     text("ScreenActionAdapter.cs"),
     text("ObsWebSocketClient.cs"),
+    text("ObsActionAdapter.cs"),
     text("VNextLocalAgent.cs"),
     text("VNextAgentCapabilities.cs")
   ]);
@@ -31,6 +32,13 @@ test("screen actions use only OBS scene APIs and guarantee cleanup", async () =>
   assert.match(adapter, /TemporaryScenePrefix = "별록 화면 액션 "/);
   assert.match(adapter, /scaleY = -1\.0/);
   assert.match(adapter, /RunShakeAsync/);
+  assert.match(adapter, /PrepareEarthquakeAudioAsync/);
+  assert.match(adapter, /WaitForActiveAudioStartedAsync/);
+  assert.match(adapter, /ShowObservedAudioTransientAsync[\s\S]*WaitForActiveAudioStartedAsync[\s\S]*SetCurrentProgramSceneAsync\(temporarySceneUuid/);
+  assert.match(adapter, /EarthquakeAudioTailMs = 600/);
+  assert.match(obsAdapter, /shutdown = false/);
+  assert.match(obsAdapter, /restart_when_active = false/);
+  assert.match(adapter, /SetCurrentProgramSceneAsync\(temporarySceneUuid[\s\S]*RunShakeAsync/);
   assert.match(adapter, /finally[\s\S]*RestoreAndRemoveAsync/);
   assert.match(adapter, /RecoverStaleTemporaryScenesAsync/);
   assert.match(adapter, /SetCurrentProgramSceneAsync\(encoded/);
@@ -52,8 +60,8 @@ test("water and party popper package immutable transparent art and CC0 natural a
     ["byeollog_fireworks.png", "16c9c3a09100a48a3c9818efc91335d109d96ba985709e9b5a6439d3f37a1c57"]
   ];
   const audio = [
-    ["byeollog_earthquake_natural.wav", "9ce299d6d1ca8643638742324d12a75a46f4f720cb45336b43178c2df2182f43"],
-    ["byeollog_water_splash_natural.wav", "8ddfe4349f8e41b2acf97ddf21752b46f69bf3e84b6320759ac284cc3c978067"],
+    ["byeollog_earthquake_natural.wav", "59630b88ea2d67490e96be7c21748fa1a07181c1c3fc24691a88b5e572b36bee"],
+    ["byeollog_water_splash_natural.wav", "5622afc8e00c43413d1c14684ea37cea6b0e7577b9e953273920ef14a389f298"],
     ["byeollog_party_popper_natural.wav", "16f5f25be2dd82f1264cb6094256dc17bf97be10c8b20f3b7765cad00559a2c8"]
   ];
   const [cache, project, adapter, overlay, factory, notices] = await Promise.all([
@@ -81,7 +89,7 @@ test("water and party popper package immutable transparent art and CC0 natural a
     assert.match(factory, new RegExp(file.replaceAll(".", "\\.")));
   }
   assert.doesNotMatch(factory, /Math\.Sin|NextNoise|CreateWave/);
-  for (const soundId of ["719551", "189504", "458398"])
+  for (const soundId of ["719551", "442773", "458398"])
     assert.match(notices, new RegExp(soundId));
   assert.match(notices, /Creative Commons CC0 1\.0/g);
   assert.match(project, /THIRD_PARTY_NOTICES_ACTION_ASSETS\.txt/);
@@ -89,8 +97,12 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.match(adapter, /FireworksDurationMs = 5_000/);
   assert.match(adapter, /ShowObservedAudioTransientAsync/);
   assert.match(adapter, /parameters\.EnumerateObject\(\)\.Count\(\) != 6/);
-  assert.match(overlay, /categorized-actions-v2/);
-  assert.match(overlay, /translateY\(25%\)/);
+  assert.match(overlay, /categorized-actions-v3/);
+  assert.match(overlay, /requestAnimationFrame\(draw\)/);
+  assert.match(overlay, /streamCount/);
+  assert.match(overlay, /bezierCurveTo/);
+  assert.match(overlay, /droplets/);
+  assert.doesNotMatch(overlay, /water-splash-motion[\s\S]*translateY\(25%\)/);
   assert.match(overlay, /#effect-stage\.visible\.water-splash/);
   assert.match(overlay, /#effect-stage\.visible\.fireworks/);
 });

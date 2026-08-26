@@ -340,17 +340,30 @@ internal sealed class ObsActionAdapter
 
             var routed = inputSettings.TryGetProperty("reroute_audio", out var routedValue)
                 && routedValue.ValueKind is JsonValueKind.True;
-            if (!routed)
+            var staysActive = !inputSettings.TryGetProperty("shutdown", out var shutdownValue)
+                || shutdownValue.ValueKind is JsonValueKind.False;
+            var doesNotRestart = !inputSettings.TryGetProperty("restart_when_active", out var restartValue)
+                || restartValue.ValueKind is JsonValueKind.False;
+            if (!routed || !staysActive || !doesNotRestart)
             {
                 await obs.SetInputSettingsOverlayAsync(
                     input.InputName,
-                    new { reroute_audio = true },
+                    new
+                    {
+                        reroute_audio = true,
+                        shutdown = false,
+                        restart_when_active = false
+                    },
                     cancellationToken);
                 inputSettings = await obs.GetInputSettingsAsync(input.InputName, cancellationToken);
                 routed = inputSettings.TryGetProperty("reroute_audio", out routedValue)
                     && routedValue.ValueKind is JsonValueKind.True;
+                staysActive = !inputSettings.TryGetProperty("shutdown", out shutdownValue)
+                    || shutdownValue.ValueKind is JsonValueKind.False;
+                doesNotRestart = !inputSettings.TryGetProperty("restart_when_active", out restartValue)
+                    || restartValue.ValueKind is JsonValueKind.False;
             }
-            if (routed) verified++;
+            if (routed && staysActive && doesNotRestart) verified++;
         }
         return verified;
     }
