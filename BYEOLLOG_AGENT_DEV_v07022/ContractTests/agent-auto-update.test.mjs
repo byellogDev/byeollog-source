@@ -400,3 +400,15 @@ test("v104 release preparation is immutable and packages modern restrained confe
   assert.match(notes, /252개에서 186개/);
   assert.match(notes, /얇고 불규칙한 종이 조각/);
 });
+
+test("v105 release preparation is immutable and packages photoreal confetti motion", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07105-AutoUpdate.ps1"),
+    source("RELEASE_v07105_PHOTOREAL_CONFETTI_VFX_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7105/);
+  assert.match(build, /byeollog_agent_v07105_PHOTOREAL_CONFETTI_VFX_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.105'/);
+  assert.match(notes, /실사 촬영 질감/);
+  assert.match(notes, /54개/);
+});

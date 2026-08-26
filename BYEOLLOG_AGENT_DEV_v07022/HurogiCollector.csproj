@@ -8,8 +8,8 @@
     <Nullable>enable</Nullable>
     <AssemblyName>byeollog</AssemblyName>
     <RootNamespace>HurogiCollector</RootNamespace>
-    <Version>0.7.0.104</Version>
-    <InformationalVersion>0.7.0.104</InformationalVersion>
+    <Version>0.7.0.105</Version>
+    <InformationalVersion>0.7.0.105</InformationalVersion>
     <Product>별록 에이전트</Product>
     <AssemblyTitle>별록 에이전트</AssemblyTitle>
     <Description>후원 수집과 별록 액션을 연결하는 별록 에이전트</Description>
@@ -65,7 +65,7 @@
     <EmbeddedResource Include="Assets\byeollog_water_splash_flip_v4.webm" LogicalName="HurogiCollector.Assets.byeollog_water_splash_flip_v4.webm" />
     <EmbeddedResource Include="Assets\byeollog_water_runoff_v2.png" LogicalName="HurogiCollector.Assets.byeollog_water_runoff_v2.png" />
     <EmbeddedResource Include="Assets\byeollog_fireworks.png" LogicalName="HurogiCollector.Assets.byeollog_fireworks.png" />
-    <EmbeddedResource Include="Assets\byeollog_modern_confetti_v3.webm" LogicalName="HurogiCollector.Assets.byeollog_modern_confetti_v3.webm" />
+    <EmbeddedResource Include="Assets\byeollog_photoreal_confetti_v4.webm" LogicalName="HurogiCollector.Assets.byeollog_photoreal_confetti_v4.webm" />
     <EmbeddedResource Include="Assets\byeollog_earthquake_audio.svg" LogicalName="HurogiCollector.Assets.byeollog_earthquake_audio.svg" />
     <EmbeddedResource Include="Assets\byeollog_earthquake_natural.wav" LogicalName="HurogiCollector.Assets.byeollog_earthquake_natural.wav" />
     <EmbeddedResource Include="Assets\byeollog_water_splash_natural.wav" LogicalName="HurogiCollector.Assets.byeollog_water_splash_natural.wav" />

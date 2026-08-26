@@ -70,8 +70,8 @@ test("water and party popper package immutable transparent art and CC0 natural a
     "553531218503cf9d79963944900e82c6184eba87bf7e516e414a231b405f3775"
   ];
   const fireworksMotion = [
-    "byeollog_modern_confetti_v3.webm",
-    "04be162d940c9c4e1acc5c2f37fa3951edc8107ea0221d0f75f415cfb59683db"
+    "byeollog_photoreal_confetti_v4.webm",
+    "b156e075bf5e1b463fa9cc5663d4809b96a99982ae8297a9aefc92009a8670bc"
   ];
   const [cache, project, adapter, overlay, factory, notices] = await Promise.all([
     text("OverlayAssetCache.cs"),
@@ -108,7 +108,7 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.ok(fireworksMotionBytes.byteLength < 10 * 1024 * 1024, "bodyless confetti motion must remain below the built-in safety budget");
   assert.equal(createHash("sha256").update(fireworksMotionBytes).digest("hex"), fireworksMotion[1]);
   assert.match(cache, new RegExp(fireworksMotion[1], "i"));
-  assert.match(project, /byeollog_modern_confetti_v3\.webm/);
+  assert.match(project, /byeollog_photoreal_confetti_v4\.webm/);
   assert.doesNotMatch(factory, /Math\.Sin|NextNoise|CreateWave/);
   for (const soundId of ["719551", "442773", "458398"])
     assert.match(notices, new RegExp(soundId));
@@ -118,7 +118,7 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.match(adapter, /FireworksDurationMs = 5_000/);
   assert.match(adapter, /ShowObservedAudioTransientAsync/);
   assert.match(adapter, /parameters\.EnumerateObject\(\)\.Count\(\) != 6/);
-  assert.match(overlay, /categorized-actions-v10/);
+  assert.match(overlay, /categorized-actions-v11/);
   assert.match(overlay, /<video id="water-vfx-video" muted playsinline preload="auto"/);
   assert.match(overlay, /\/overlay\/builtin\/water-splash-v4\.webm/);
   assert.match(overlay, /WaterSplashMotionContentSha256/);
@@ -134,7 +134,7 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.match(overlay, /#effect-stage\.visible\.water-splash/);
   assert.match(overlay, /#effect-stage\.visible\.fireworks/);
   assert.match(overlay, /<video id="fireworks-vfx-video" muted playsinline preload="auto"/);
-  assert.match(overlay, /\/overlay\/builtin\/modern-confetti-v3\.webm/);
+  assert.match(overlay, /\/overlay\/builtin\/photoreal-confetti-v4\.webm/);
   assert.match(overlay, /FireworksMotionContentSha256/);
   assert.match(overlay, /startFireworksAnimation\(\)/);
   assert.match(overlay, /fireworksVfxVideo\.currentTime = 0/);

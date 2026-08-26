@@ -2384,13 +2384,13 @@ internal static class Program
                 OverlayAssetValidator.Sha256Hex(waterMotion),
                 "the served FLIP water motion retains its sealed digest");
             var fireworksMotion = await http.GetByteArrayAsync(
-                $"{service.OverlayUrl}/builtin/modern-confetti-v3.webm");
-            Equal(1_052_026, fireworksMotion.Length,
-                "the loopback overlay serves the complete modern confetti motion");
+                $"{service.OverlayUrl}/builtin/photoreal-confetti-v4.webm");
+            Equal(2_412_605, fireworksMotion.Length,
+                "the loopback overlay serves the complete photoreal confetti motion");
             Equal(
                 OverlayAssetCache.FireworksMotionContentSha256,
                 OverlayAssetValidator.Sha256Hex(fireworksMotion),
-                "the served modern confetti motion retains its sealed digest");
+                "the served photoreal confetti motion retains its sealed digest");
         }
         True(
             await browserReady,
