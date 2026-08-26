@@ -81,16 +81,16 @@ test("Collector disconnect revokes only its in-memory automation session and ver
     source("tools/package-complete-release-linux.mjs")
   ]);
   assert.match(client, /\/auth\/v1\/logout\?scope=local/);
-  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.94"/);
-  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.94"/);
-  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.94"/);
-  assert.match(project, /<Version>0\.7\.0\.94<\/Version>/);
-  assert.match(project, /<InformationalVersion>0\.7\.0\.94<\/InformationalVersion>/);
+  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.95"/);
+  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.95"/);
+  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.95"/);
+  assert.match(project, /<Version>0\.7\.0\.95<\/Version>/);
+  assert.match(project, /<InformationalVersion>0\.7\.0\.95<\/InformationalVersion>/);
   assert.match(program, /CollectorBuildVersion\s*=\s*BuildInfo\.InformationalVersion/);
   assert.match(main, /CollectorVersion\s*=\s*BuildInfo\.Version/);
   assert.match(publish, /byeollog_agent_v07032_AUTO_UPDATE_BOOTSTRAP_WIN_X64\.zip/);
   assert.match(build, /0\.7\.0\.32/);
-  assert.match(uiStore, /UiVersion\s*=\s*"v0\.7\.0\.94"/);
+  assert.match(uiStore, /UiVersion\s*=\s*"v0\.7\.0\.95"/);
   assert.match(readiness, /collectorVersion\s*=\s*"0\.7\.0\.32"/);
   assert.match(manifest, /README_TESTER_v070_RC2_KO\.txt/);
   assert.match(testerPackager, /VERSION\s*=\s*"0\.7\.0\.32"/);

@@ -22,6 +22,12 @@ internal sealed record ObsSourceFilterSummary(
     bool FilterEnabled,
     int FilterIndex);
 
+internal sealed record ObsProgramScene(string SceneName, string SceneUuid);
+
+internal sealed record ObsSceneSummary(string SceneName, string SceneUuid);
+
+internal sealed record ObsVideoSettings(int BaseWidth, int BaseHeight, double FramesPerSecond);
+
 internal sealed class ObsAuthenticationException : Exception
 {
     public ObsAuthenticationException(string message) : base(message) { }
@@ -375,6 +381,137 @@ internal sealed class ObsWebSocketClient : IAsyncDisposable
             "SetSourceFilterEnabled",
             new { sourceName, filterName, filterEnabled },
             cancellationToken);
+    }
+
+    public async Task<ObsProgramScene> GetCurrentProgramSceneAsync(
+        CancellationToken cancellationToken)
+    {
+        var response = await RequestAsync("GetCurrentProgramScene", null, cancellationToken);
+        var sceneName = OptionalString(response, "sceneName");
+        if (sceneName.Length == 0)
+            sceneName = OptionalString(response, "currentProgramSceneName");
+        var sceneUuid = OptionalString(response, "sceneUuid");
+        if (sceneUuid.Length == 0)
+            sceneUuid = OptionalString(response, "currentProgramSceneUuid");
+        ValidateObsName(sceneName, nameof(sceneName));
+        if (!Guid.TryParse(sceneUuid, out _))
+            throw new InvalidDataException("OBS 프로그램 장면 UUID 응답이 올바르지 않습니다.");
+        return new ObsProgramScene(sceneName, sceneUuid);
+    }
+
+    public async Task<IReadOnlyList<ObsSceneSummary>> GetSceneListAsync(
+        CancellationToken cancellationToken)
+    {
+        var response = await RequestAsync("GetSceneList", null, cancellationToken);
+        if (!response.TryGetProperty("scenes", out var scenes)
+            || scenes.ValueKind != JsonValueKind.Array)
+            throw new InvalidDataException("OBS 장면 목록 응답이 올바르지 않습니다.");
+        var result = new List<ObsSceneSummary>();
+        foreach (var scene in scenes.EnumerateArray())
+        {
+            if (scene.ValueKind != JsonValueKind.Object) continue;
+            var name = OptionalString(scene, "sceneName");
+            var uuid = OptionalString(scene, "sceneUuid");
+            if (name.Length == 0 || !Guid.TryParse(uuid, out _)) continue;
+            result.Add(new ObsSceneSummary(name, uuid));
+        }
+        return result;
+    }
+
+    public async Task<ObsVideoSettings> GetVideoSettingsAsync(
+        CancellationToken cancellationToken)
+    {
+        var response = await RequestAsync("GetVideoSettings", null, cancellationToken);
+        if (!response.TryGetProperty("baseWidth", out var widthValue)
+            || !widthValue.TryGetInt32(out var width)
+            || !response.TryGetProperty("baseHeight", out var heightValue)
+            || !heightValue.TryGetInt32(out var height)
+            || !response.TryGetProperty("fpsNumerator", out var numeratorValue)
+            || !numeratorValue.TryGetDouble(out var numerator)
+            || !response.TryGetProperty("fpsDenominator", out var denominatorValue)
+            || !denominatorValue.TryGetDouble(out var denominator)
+            || width is < 16 or > 32_768
+            || height is < 16 or > 32_768
+            || numerator <= 0
+            || denominator <= 0)
+            throw new InvalidDataException("OBS 영상 설정 응답이 올바르지 않습니다.");
+        return new ObsVideoSettings(width, height, numerator / denominator);
+    }
+
+    public async Task<string> CreateSceneAsync(
+        string sceneName,
+        CancellationToken cancellationToken)
+    {
+        ValidateObsName(sceneName, nameof(sceneName));
+        var response = await RequestAsync("CreateScene", new { sceneName }, cancellationToken);
+        var sceneUuid = OptionalString(response, "sceneUuid");
+        if (!Guid.TryParse(sceneUuid, out _))
+            throw new InvalidDataException("OBS 임시 장면 UUID 응답이 올바르지 않습니다.");
+        return sceneUuid;
+    }
+
+    public Task RemoveSceneAsync(string sceneUuid, CancellationToken cancellationToken)
+    {
+        ValidateObsUuid(sceneUuid, nameof(sceneUuid));
+        return RequestNoResultAsync("RemoveScene", new { sceneUuid }, cancellationToken);
+    }
+
+    public async Task<int> CreateSceneItemAsync(
+        string sceneUuid,
+        string sourceUuid,
+        CancellationToken cancellationToken)
+    {
+        ValidateObsUuid(sceneUuid, nameof(sceneUuid));
+        ValidateObsUuid(sourceUuid, nameof(sourceUuid));
+        var response = await RequestAsync(
+            "CreateSceneItem",
+            new { sceneUuid, sourceUuid, sceneItemEnabled = true },
+            cancellationToken);
+        if (!response.TryGetProperty("sceneItemId", out var idValue)
+            || !idValue.TryGetInt32(out var sceneItemId)
+            || sceneItemId < 0)
+            throw new InvalidDataException("OBS 임시 장면 아이템 응답이 올바르지 않습니다.");
+        return sceneItemId;
+    }
+
+    public Task SetCurrentProgramSceneAsync(
+        string sceneUuid,
+        CancellationToken cancellationToken)
+    {
+        ValidateObsUuid(sceneUuid, nameof(sceneUuid));
+        return RequestNoResultAsync(
+            "SetCurrentProgramScene",
+            new { sceneUuid },
+            cancellationToken);
+    }
+
+    public Task SetSceneItemTransformAsync(
+        string sceneUuid,
+        int sceneItemId,
+        object sceneItemTransform,
+        CancellationToken cancellationToken)
+    {
+        ValidateObsUuid(sceneUuid, nameof(sceneUuid));
+        if (sceneItemId < 0) throw new ArgumentOutOfRangeException(nameof(sceneItemId));
+        ArgumentNullException.ThrowIfNull(sceneItemTransform);
+        return RequestNoResultAsync(
+            "SetSceneItemTransform",
+            new { sceneUuid, sceneItemId, sceneItemTransform },
+            cancellationToken);
+    }
+
+    private async Task RequestNoResultAsync(
+        string requestType,
+        object requestData,
+        CancellationToken cancellationToken)
+    {
+        _ = await RequestAsync(requestType, requestData, cancellationToken);
+    }
+
+    private static void ValidateObsUuid(string value, string parameterName)
+    {
+        if (!Guid.TryParse(value, out _))
+            throw new ArgumentException("OBS UUID가 올바르지 않습니다.", parameterName);
     }
 
     private static void ValidateObsName(string value, string parameterName)

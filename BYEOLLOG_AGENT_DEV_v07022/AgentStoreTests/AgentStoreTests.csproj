@@ -71,6 +71,15 @@
     <EmbeddedResource Include="../Assets/byeollog_flashbang_strong.gif"
                       Link="Assets/byeollog_flashbang_strong.gif"
                       LogicalName="HurogiCollector.Assets.byeollog_flashbang_strong.gif" />
+    <EmbeddedResource Include="../Assets/byeollog_water_splash.png"
+                      Link="Assets/byeollog_water_splash.png"
+                      LogicalName="HurogiCollector.Assets.byeollog_water_splash.png" />
+    <EmbeddedResource Include="../Assets/byeollog_fireworks.png"
+                      Link="Assets/byeollog_fireworks.png"
+                      LogicalName="HurogiCollector.Assets.byeollog_fireworks.png" />
+    <EmbeddedResource Include="../Assets/byeollog_earthquake_audio.svg"
+                      Link="Assets/byeollog_earthquake_audio.svg"
+                      LogicalName="HurogiCollector.Assets.byeollog_earthquake_audio.svg" />
     <EmbeddedResource Include="../Assets/byeollog_raffle_ticket_fixed.wav"
                       Link="Assets/byeollog_raffle_ticket_fixed.wav"
                       LogicalName="HurogiCollector.Assets.byeollog_raffle_ticket_fixed.wav" />

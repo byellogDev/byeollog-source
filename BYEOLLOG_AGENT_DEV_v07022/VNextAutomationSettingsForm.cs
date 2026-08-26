@@ -496,6 +496,9 @@ internal sealed class VNextAutomationSettingsForm : Form
                 case "previewFlashbang":
                     await PreviewFlashbangAsync(payload);
                     break;
+                case "previewVisualActionSound":
+                    await PreviewVisualActionSoundAsync(payload);
+                    break;
                 case "startRaffleDraw":
                     await StartRaffleDrawAsync(payload);
                     break;
@@ -1046,6 +1049,50 @@ internal sealed class VNextAutomationSettingsForm : Form
             _lifetimeToken);
         await ShowToastAsync(
             $"이 PC에서 섬광탄 삐- 소리를 {volumePercent}%로 재생했어요.",
+            "success");
+    }
+
+    private async Task PreviewVisualActionSoundAsync(JsonElement payload)
+    {
+        var actionType = PayloadText(payload, "actionType", "액션 종류", 1, 64);
+        if (actionType is not (ScreenActionAdapter.ShakeActionType
+            or VisualEffectOverlayActionAdapter.WaterActionType
+            or VisualEffectOverlayActionAdapter.FireworksActionType))
+            throw new VNextDevelopmentException(
+                "소리 미리듣기를 지원하지 않는 액션입니다.",
+                code: "invalid_visual_sound_preview");
+
+        var volumePercent = PayloadInt(payload, "volumePercent", 0, 100, "효과음 음량");
+        if (volumePercent == 0)
+        {
+            await ShowToastAsync("음량이 0%라 효과음이 재생되지 않아요.", "warning");
+            return;
+        }
+
+        if (actionType == ScreenActionAdapter.ShakeActionType)
+        {
+            var variant = PayloadText(payload, "visualVariant", "흔들림 강도", 1, 16);
+            if (variant is not ("soft" or "standard" or "strong"))
+                throw new VNextDevelopmentException(
+                    "흔들림 강도가 올바르지 않습니다.",
+                    code: "invalid_screen_shake_preview");
+            await ByeollogRaffleAudio.PlayWavAsync(
+                ActionSoundFactory.CreateEarthquake(4_000),
+                volumePercent,
+                _lifetimeToken);
+        }
+        else
+        {
+            await VisualEffectOverlayActionAdapter.PlayPreviewAsync(
+                actionType == VisualEffectOverlayActionAdapter.WaterActionType
+                    ? "water_splash"
+                    : "fireworks",
+                volumePercent,
+                _lifetimeToken);
+        }
+
+        await ShowToastAsync(
+            $"이 PC에서 효과음을 {volumePercent}%로 재생했어요.",
             "success");
     }
 

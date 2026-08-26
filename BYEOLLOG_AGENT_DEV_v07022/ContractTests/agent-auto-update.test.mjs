@@ -264,3 +264,20 @@ test("v94 release preparation is immutable and identifies the inline microphone 
   assert.match(notes, /액션 생성 화면/);
   assert.match(notes, /아봉/);
 });
+
+test("v95 release preparation is immutable and identifies categorized screen and effect actions", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07095-AutoUpdate.ps1"),
+    source("RELEASE_v07095_CATEGORIZED_SCREEN_EFFECT_ACTIONS_KO.txt")
+  ]);
+
+  assert.match(build, /\$releaseSequence = 7095/);
+  assert.match(build, /byeollog_agent_v07095_CATEGORIZED_SCREEN_EFFECT_ACTIONS_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.95'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.95'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /v0\.7\.0\.95/);
+  assert.match(notes, /화면 뒤집기/);
+  assert.match(notes, /지진이야!/);
+  assert.match(notes, /물벼락과 축포/);
+});

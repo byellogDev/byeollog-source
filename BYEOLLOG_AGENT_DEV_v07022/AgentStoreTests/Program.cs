@@ -1639,7 +1639,7 @@ internal static class Program
     private static void AgentCapabilityTests()
     {
         var supported = VNextAgentCapabilities.ForWindowsAgent();
-        Equal(6, supported.Length, "fresh Windows Agent reports only server-routable capabilities");
+        Equal(10, supported.Length, "fresh Windows Agent reports only server-routable capabilities");
         True(supported.Contains("obs.mute_for", StringComparer.Ordinal),
             "OBS timed mute capability is reported before OBS settings are configured");
         True(supported.Contains("obs.voice_anonymize_for", StringComparer.Ordinal),
@@ -1656,6 +1656,14 @@ internal static class Program
             "raffle animation is sent after the public runtime supports it");
         True(supported.Contains("flashbang.overlay", StringComparer.Ordinal),
             "flashbang animation and Browser Source sound are publicly routable");
+        True(supported.Contains("obs.screen_flip_for", StringComparer.Ordinal),
+            "screen flip is routed only after OBS scene recovery support is packaged");
+        True(supported.Contains("obs.screen_shake_for", StringComparer.Ordinal),
+            "screen shake is routed only after OBS scene recovery support is packaged");
+        True(supported.Contains("water_splash.overlay", StringComparer.Ordinal),
+            "water splash overlay and sound are publicly routable");
+        True(supported.Contains("fireworks.overlay", StringComparer.Ordinal),
+            "fireworks overlay and sound are publicly routable");
 
         supported[0] = "mutated";
         False(VNextAgentCapabilities.ForWindowsAgent().Contains("mutated", StringComparer.Ordinal),
@@ -2888,6 +2896,8 @@ internal static class Program
                 null,
                 null,
                 null,
+                null,
+                null,
                 null),
             new VNextAutomationRuleRpc(
                 "11111111-1111-4111-8111-111111111111",
@@ -2924,6 +2934,8 @@ internal static class Program
                 null,
                 null,
                 null,
+                null,
+                null,
                 "44444444-4444-4444-8444-444444444444",
                 7),
             new VNextAutomationRuleRpc(
@@ -2942,6 +2954,8 @@ internal static class Program
                 null,
                 5,
                 "22222222-2222-4222-8222-222222222222",
+                null,
+                null,
                 null,
                 null,
                 null,
@@ -2999,6 +3013,8 @@ internal static class Program
                 null,
                 null,
                 null,
+                null,
+                null,
                 null)
         };
         var expectedKeys = new HashSet<string>(StringComparer.Ordinal)
@@ -3015,7 +3031,8 @@ internal static class Program
             "p_raffle_draw_position_x", "p_raffle_draw_position_y",
             "p_raffle_draw_scale_percent", "p_raffle_ticket_volume_percent",
             "p_raffle_draw_volume_percent", "p_flashbang_intensity",
-            "p_flashbang_volume_percent", "p_voice_preset"
+            "p_flashbang_volume_percent", "p_voice_preset",
+            "p_visual_variant", "p_visual_volume_percent"
         };
 
         foreach (var draft in drafts)

@@ -78,6 +78,8 @@ internal sealed class VNextLocalAgent : IDisposable
     private readonly TimedMuteActionAdapter _timedMuteActions;
     private readonly RaffleOverlayActionAdapter _raffleOverlayActions;
     private readonly FlashbangOverlayActionAdapter _flashbangOverlayActions;
+    private readonly ScreenActionAdapter _screenActions;
+    private readonly VisualEffectOverlayActionAdapter _visualEffectActions;
     private readonly RaffleWinnerSpeechCache _raffleWinnerSpeechCache;
     private readonly string _deviceId;
     private string _deviceSecret;
@@ -215,6 +217,41 @@ internal sealed class VNextLocalAgent : IDisposable
                 },
                 collectorStorage.Log);
             _flashbangOverlayActions = new FlashbangOverlayActionAdapter(
+                _overlay,
+                async token =>
+                {
+                    var settings = collectorStorage.LoadObsSettings();
+                    return settings.Enabled
+                        ? await ObsActionAdapter.RefreshOverlayBrowserSourcesAsync(
+                            settings,
+                            _overlay.OverlayUrl,
+                            token)
+                        : 0;
+                },
+                async token =>
+                {
+                    var settings = collectorStorage.LoadObsSettings();
+                    return settings.Enabled
+                        && await ObsActionAdapter.EnsureOverlayBrowserAudioRoutingAsync(
+                            settings,
+                            _overlay.OverlayUrl,
+                            token) > 0;
+                },
+                collectorStorage.Log);
+            _screenActions = new ScreenActionAdapter(
+                collectorStorage,
+                _overlay,
+                async token =>
+                {
+                    var settings = collectorStorage.LoadObsSettings();
+                    return settings.Enabled
+                        && await ObsActionAdapter.EnsureOverlayBrowserAudioRoutingAsync(
+                            settings,
+                            _overlay.OverlayUrl,
+                            token) > 0;
+                },
+                collectorStorage.Log);
+            _visualEffectActions = new VisualEffectOverlayActionAdapter(
                 _overlay,
                 async token =>
                 {
@@ -526,6 +563,11 @@ internal sealed class VNextLocalAgent : IDisposable
                 if (!recoveryCompleted)
                 {
                     await _timedMuteActions.RecoverPendingAsync(cancellationToken);
+                    try { await _screenActions.RecoverStaleAsync(cancellationToken); }
+                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    {
+                        _collectorStorage.Log("화면 액션 임시 장면 시작 정리 보류 · type=" + ex.GetType().Name);
+                    }
                     recoveryCompleted = true;
                 }
                 await EnsureDeviceRegisteredAsync(cancellationToken);
@@ -1063,7 +1105,7 @@ internal sealed class VNextLocalAgent : IDisposable
                 ? "lease heartbeat가 예상보다 일찍 종료됐습니다."
                 : "lease heartbeat 실패: " + SafeMessage(heartbeatError);
 
-            if (IsTimedMuteAction(job))
+            if (RequiresGuaranteedRestore(job))
             {
                 // A transient lease failure must not cancel the shared physical
                 // mute/overlay session. Let it complete and restore safely, then
@@ -1093,6 +1135,11 @@ internal sealed class VNextLocalAgent : IDisposable
             or TimedMuteActionAdapter.VoiceAnonymizerActionType
             or TimedMuteActionAdapter.VoiceAnonymizerPresetActionType;
 
+    private static bool RequiresGuaranteedRestore(VNextAgentJob job) =>
+        IsTimedMuteAction(job)
+        || job.ActionType is ScreenActionAdapter.FlipActionType
+            or ScreenActionAdapter.ShakeActionType;
+
     internal static int EffectiveActionTimeoutMs(VNextAgentJob job)
     {
         if (IsTimedMuteAction(job))
@@ -1100,6 +1147,11 @@ internal sealed class VNextLocalAgent : IDisposable
         if (job.ActionType == RaffleOverlayActionAdapter.ActionType)
             return RaffleOverlayActionAdapter.EffectiveTimeoutMs(job.ActionParams, job.TimeoutMs);
         if (job.ActionType == FlashbangOverlayActionAdapter.ActionType)
+            return Math.Max(job.TimeoutMs, 180_000);
+        if (job.ActionType is ScreenActionAdapter.FlipActionType or ScreenActionAdapter.ShakeActionType)
+            return Math.Max(job.TimeoutMs, 75_000);
+        if (job.ActionType is VisualEffectOverlayActionAdapter.WaterActionType
+            or VisualEffectOverlayActionAdapter.FireworksActionType)
             return Math.Max(job.TimeoutMs, 180_000);
         return job.TimeoutMs;
     }
@@ -1177,6 +1229,21 @@ internal sealed class VNextLocalAgent : IDisposable
 
         if (job.ActionType == FlashbangOverlayActionAdapter.ActionType)
             return await _flashbangOverlayActions.ExecuteAsync(
+                actionParameters,
+                cancellationToken,
+                notAfterUtc);
+
+        if (job.ActionType is ScreenActionAdapter.FlipActionType or ScreenActionAdapter.ShakeActionType)
+            return await _screenActions.ExecuteAsync(
+                job.ActionType,
+                actionParameters,
+                cancellationToken,
+                notAfterUtc);
+
+        if (job.ActionType is VisualEffectOverlayActionAdapter.WaterActionType
+            or VisualEffectOverlayActionAdapter.FireworksActionType)
+            return await _visualEffectActions.ExecuteAsync(
+                job.ActionType,
                 actionParameters,
                 cancellationToken,
                 notAfterUtc);

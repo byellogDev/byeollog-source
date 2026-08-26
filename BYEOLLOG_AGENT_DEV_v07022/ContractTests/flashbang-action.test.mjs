@@ -56,9 +56,9 @@ test("flashbang UI exposes three strengths and keeps settings audio preview loca
   assert.match(ui, /룰렛 결과 또는 정확히 일치하는 고정 후원액 중 하나를 선택하세요/);
   assert.doesNotMatch(ui, /if\(multiplier\|\|flashbang\)elements\.eventType\.value='roulette'/);
   assert.match(ui, /draft\.actionType==='flashbang\.overlay'\)return `\$\{when\}\$\{amount\}/);
-  assert.match(client, /save_guided_rule_v15/);
+  assert.match(client, /save_guided_rule_v16/);
   assert.doesNotMatch(client, /섬광탄은 룰렛 결과에만 설정할 수 있습니다/);
-  assert.match(client, /dispatch_guided_rule_test_v5/);
+  assert.match(client, /dispatch_guided_rule_test_v6/);
   assert.match(client, /flashbangIntensity/);
   assert.match(client, /flashbangVolumePercent/);
   assert.match(form, /case "previewFlashbang"/);

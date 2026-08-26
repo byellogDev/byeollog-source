@@ -11,7 +11,11 @@ internal static class VNextAgentCapabilities
         "obs.voice_anonymize_for_v2",
         "windows.mic_mute_for",
         "raffle.overlay",
-        "flashbang.overlay"
+        "flashbang.overlay",
+        "obs.screen_flip_for",
+        "obs.screen_shake_for",
+        "water_splash.overlay",
+        "fireworks.overlay"
     ];
 
     public static string[] ForWindowsAgent() => [.. WindowsActionTypes];

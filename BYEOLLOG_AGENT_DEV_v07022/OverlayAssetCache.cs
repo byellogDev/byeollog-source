@@ -284,6 +284,15 @@ internal sealed class OverlayAssetCache
     internal const string FlashbangSoftContentSha256 = "68066dc4778d70ef85f9c48639b306353fd3f8bb2959c952157820362b2d3374";
     internal const string FlashbangStandardContentSha256 = "1933b6cf667ff7b10edf22c056fc757cb38155c27746d92b5d4da3ce24fa3b71";
     internal const string FlashbangStrongContentSha256 = "e18d5069154cda112af9eba60ec52ea273ee9301252a4cab2e210506fca584b0";
+    internal const string WaterSplashAssetKey = "water_splash";
+    internal const string FireworksAssetKey = "fireworks";
+    internal const string EarthquakeAudioAssetKey = "earthquake_audio";
+    internal const string WaterSplashAssetId = "f4abf066-d0aa-4b57-8a9f-6d0cbcb956e0";
+    internal const string FireworksAssetId = "74346d77-6fe6-4cf9-af9b-afb80ff57fdc";
+    internal const string EarthquakeAudioAssetId = "0f28aaef-8336-41bc-8d96-71405cbd7de0";
+    internal const string WaterSplashContentSha256 = "bb9664f62a75c34cefcf4241e6073a5a5a85708f02da58d05d06cf733c23a384";
+    internal const string FireworksContentSha256 = "3fd85cd5305c354b85f1ae2ca46cddf382c9d2922977526489950db259463a94";
+    internal const string EarthquakeAudioContentSha256 = "bc83d5c814fc3b98389e4fa41818cf01f581c01c0b2b39190967ba7169f2e6fe";
     private const string LegacyBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_overlay.svg";
     private const string IconBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_icon.png";
     private const string BadgeBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_badge.png";
@@ -295,6 +304,9 @@ internal sealed class OverlayAssetCache
     private const string FlashbangSoftResourceName = "HurogiCollector.Assets.byeollog_flashbang_soft.gif";
     private const string FlashbangStandardResourceName = "HurogiCollector.Assets.byeollog_flashbang_standard.gif";
     private const string FlashbangStrongResourceName = "HurogiCollector.Assets.byeollog_flashbang_strong.gif";
+    private const string WaterSplashResourceName = "HurogiCollector.Assets.byeollog_water_splash.png";
+    private const string FireworksResourceName = "HurogiCollector.Assets.byeollog_fireworks.png";
+    private const string EarthquakeAudioResourceName = "HurogiCollector.Assets.byeollog_earthquake_audio.svg";
     private const long DefaultCacheLimitBytes = 50L * 1024 * 1024;
     private static readonly BuiltInDefinition[] BuiltInDefinitions =
     [
@@ -310,7 +322,10 @@ internal sealed class OverlayAssetCache
         new(RaffleDrawAssetId, RaffleDrawAssetKey, RaffleDrawAssetKey, "추첨 진행 애니메이션", "image/gif", RaffleDrawContentSha256, 759_930, 640, 640, false, RaffleDrawResourceName),
         new(FlashbangSoftAssetId, FlashbangSoftAssetKey, FlashbangSoftAssetKey, "섬광탄 · 약하게", "image/gif", FlashbangSoftContentSha256, 1_921_621, 1_920, 1_080, false, FlashbangSoftResourceName),
         new(FlashbangStandardAssetId, FlashbangStandardAssetKey, FlashbangStandardAssetKey, "섬광탄 · 보통", "image/gif", FlashbangStandardContentSha256, 1_209_872, 1_920, 1_080, false, FlashbangStandardResourceName),
-        new(FlashbangStrongAssetId, FlashbangStrongAssetKey, FlashbangStrongAssetKey, "섬광탄 · 강하게", "image/gif", FlashbangStrongContentSha256, 712_706, 1_920, 1_080, false, FlashbangStrongResourceName)
+        new(FlashbangStrongAssetId, FlashbangStrongAssetKey, FlashbangStrongAssetKey, "섬광탄 · 강하게", "image/gif", FlashbangStrongContentSha256, 712_706, 1_920, 1_080, false, FlashbangStrongResourceName),
+        new(WaterSplashAssetId, WaterSplashAssetKey, WaterSplashAssetKey, "물벼락", "image/png", WaterSplashContentSha256, 2_596_031, 1_672, 941, false, WaterSplashResourceName),
+        new(FireworksAssetId, FireworksAssetKey, FireworksAssetKey, "축포", "image/png", FireworksContentSha256, 2_571_829, 1_672, 941, false, FireworksResourceName),
+        new(EarthquakeAudioAssetId, EarthquakeAudioAssetKey, EarthquakeAudioAssetKey, "지진 효과음 연결", "image/svg+xml", EarthquakeAudioContentSha256, 147, 1, 1, false, EarthquakeAudioResourceName)
     ];
 
     internal static bool TryMapBuiltInAssetIdToKey(string? assetId, out string assetKey)
@@ -330,6 +345,9 @@ internal sealed class OverlayAssetCache
             FlashbangSoftAssetId => FlashbangSoftAssetKey,
             FlashbangStandardAssetId => FlashbangStandardAssetKey,
             FlashbangStrongAssetId => FlashbangStrongAssetKey,
+            WaterSplashAssetId => WaterSplashAssetKey,
+            FireworksAssetId => FireworksAssetKey,
+            EarthquakeAudioAssetId => EarthquakeAudioAssetKey,
             _ => ""
         };
         return assetKey.Length > 0;

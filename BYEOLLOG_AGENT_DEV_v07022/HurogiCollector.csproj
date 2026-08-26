@@ -8,8 +8,8 @@
     <Nullable>enable</Nullable>
     <AssemblyName>byeollog</AssemblyName>
     <RootNamespace>HurogiCollector</RootNamespace>
-    <Version>0.7.0.94</Version>
-    <InformationalVersion>0.7.0.94</InformationalVersion>
+    <Version>0.7.0.95</Version>
+    <InformationalVersion>0.7.0.95</InformationalVersion>
     <Product>별록 에이전트</Product>
     <AssemblyTitle>별록 에이전트</AssemblyTitle>
     <Description>후원 수집과 별록 액션을 연결하는 별록 에이전트</Description>
@@ -61,6 +61,9 @@
     <EmbeddedResource Include="Assets\byeollog_flashbang_soft.gif" LogicalName="HurogiCollector.Assets.byeollog_flashbang_soft.gif" />
     <EmbeddedResource Include="Assets\byeollog_flashbang_standard.gif" LogicalName="HurogiCollector.Assets.byeollog_flashbang_standard.gif" />
     <EmbeddedResource Include="Assets\byeollog_flashbang_strong.gif" LogicalName="HurogiCollector.Assets.byeollog_flashbang_strong.gif" />
+    <EmbeddedResource Include="Assets\byeollog_water_splash.png" LogicalName="HurogiCollector.Assets.byeollog_water_splash.png" />
+    <EmbeddedResource Include="Assets\byeollog_fireworks.png" LogicalName="HurogiCollector.Assets.byeollog_fireworks.png" />
+    <EmbeddedResource Include="Assets\byeollog_earthquake_audio.svg" LogicalName="HurogiCollector.Assets.byeollog_earthquake_audio.svg" />
     <EmbeddedResource Include="Assets\byeollog_raffle_ticket_fixed.wav" LogicalName="HurogiCollector.Assets.byeollog_raffle_ticket_fixed.wav" />
     <EmbeddedResource Include="Assets\byeollog_raffle_winner_fallback.wav" LogicalName="HurogiCollector.Assets.byeollog_raffle_winner_fallback.wav" />
     <EmbeddedResource Include="Ui\byeollog_ui.html" LogicalName="HurogiCollector.Ui.byeollog_ui.html" />

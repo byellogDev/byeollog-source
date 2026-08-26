@@ -168,7 +168,7 @@ internal sealed partial class VNextDevelopmentClient
         var token = await GetValidAccessTokenAsync(cancellationToken);
         var result = await SendAutomationRequestAsync(
             HttpMethod.Post,
-            "/rest/v1/rpc/save_guided_rule_v15",
+            "/rest/v1/rpc/save_guided_rule_v16",
             draft,
             token,
             "규칙 저장",
@@ -277,7 +277,7 @@ internal sealed partial class VNextDevelopmentClient
         var token = await GetValidAccessTokenAsync(cancellationToken);
         var result = await SendAutomationRequestAsync(
             HttpMethod.Post,
-            "/rest/v1/rpc/dispatch_guided_rule_test_v5",
+            "/rest/v1/rpc/dispatch_guided_rule_test_v6",
             new
             {
                 p_workspace_id = WorkspaceId,
@@ -675,7 +675,11 @@ internal sealed partial class VNextDevelopmentClient
             "windows.mic_mute_for",
             "roulette.reward_multiplier_next",
             "raffle.ticket_grant",
-            "flashbang.overlay");
+            "flashbang.overlay",
+            "obs.screen_flip_for",
+            "obs.screen_shake_for",
+            "water_splash.overlay",
+            "fireworks.overlay");
         var subtype = OptionalText(payload, "subtype", "세부 구분", 120);
         var result = eventType == "roulette"
             ? BoundedText(payload, "result", "룰렛 결과", 1, 500)
@@ -712,6 +716,8 @@ internal sealed partial class VNextDevelopmentClient
         string? flashbangIntensity = null;
         int? flashbangVolumePercent = null;
         string? voicePreset = null;
+        string? visualVariant = null;
+        int? visualVolumePercent = null;
 
         if (actionType == "roulette.reward_multiplier_next")
         {
@@ -771,6 +777,23 @@ internal sealed partial class VNextDevelopmentClient
                 "신원보호 음성 프리셋",
                 ObsVoiceAnonymizerContract.DownPreset,
                 ObsVoiceAnonymizerContract.UpPreset);
+        }
+        else if (actionType == "obs.screen_flip_for")
+        {
+            durationSeconds = RequiredInt(payload, "durationSeconds", 3, 30, "화면 뒤집기 실행 시간");
+            agentDeviceId = RequireGuidString(payload, "agentDeviceId", "등록 PC");
+        }
+        else if (actionType == "obs.screen_shake_for")
+        {
+            durationSeconds = RequiredInt(payload, "durationSeconds", 2, 10, "지진 효과 실행 시간");
+            agentDeviceId = RequireGuidString(payload, "agentDeviceId", "등록 PC");
+            visualVariant = RequiredChoice(payload, "visualVariant", "흔들림 강도", "soft", "standard", "strong");
+            visualVolumePercent = RequiredInt(payload, "visualVolumePercent", 0, 100, "지진 효과음 음량");
+        }
+        else if (actionType is "water_splash.overlay" or "fireworks.overlay")
+        {
+            agentDeviceId = RequireGuidString(payload, "agentDeviceId", "등록 PC");
+            visualVolumePercent = RequiredInt(payload, "visualVolumePercent", 0, 100, "이펙트 효과음 음량");
         }
         else if (actionType == "upbo.apply")
         {
@@ -855,6 +878,8 @@ internal sealed partial class VNextDevelopmentClient
             flashbangIntensity,
             flashbangVolumePercent,
             voicePreset,
+            visualVariant,
+            visualVolumePercent,
             replaceRuleId,
             expectedVersion);
     }

@@ -90,7 +90,7 @@ internal sealed class OverlayPresentationNotObservedException : IOException
 internal sealed class ByeollogOverlayService : IDisposable
 {
     internal const string MicrophoneOffAssetKey = TimedMuteContract.MicrophoneOffOverlayAssetKey;
-    internal const string DocumentRevision = "raffle-compact-copy-v6";
+    internal const string DocumentRevision = "categorized-actions-v1";
     internal const int DefaultPort = 43_120;
     internal const int BrowserAudioStartTimeoutMs = 5_000;
     internal const int MaximumBrowserAudioPlaybackMs = 25_000;
@@ -123,15 +123,26 @@ internal sealed class ByeollogOverlayService : IDisposable
     #flashbang-stage.visible.standard { animation: flashbang-standard-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
     #flashbang-stage.visible.strong { animation: flashbang-strong-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
     #flashbang-asset { display: block; width: 100%; height: 100%; object-fit: cover; }
+    #effect-stage { position:absolute; inset:0; width:100%; height:100%; opacity:0; pointer-events:none; overflow:hidden; }
+    #effect-stage.visible.water-splash { animation:water-splash-show 3500ms ease-out both; }
+    #effect-stage.visible.fireworks { animation:fireworks-show 5000ms ease-out both; }
+    #effect-asset { display:block; width:100%; height:100%; object-fit:cover; }
+    #effect-stage.water-splash #effect-asset { transform-origin:50% 15%; animation:water-splash-motion 3500ms cubic-bezier(.18,.72,.28,1) both; }
+    #effect-stage.fireworks #effect-asset { animation:fireworks-motion 5000ms cubic-bezier(.2,.8,.2,1) both; }
     @keyframes flashbang-soft-recover { 0%,8% { opacity:.68 } 35% { opacity:.50 } 68% { opacity:.20 } 100% { opacity:0 } }
     @keyframes flashbang-standard-recover { 0%,10% { opacity:.86 } 38% { opacity:.66 } 70% { opacity:.28 } 100% { opacity:0 } }
     @keyframes flashbang-strong-recover { 0%,13% { opacity:1 } 42% { opacity:.82 } 73% { opacity:.38 } 100% { opacity:0 } }
+    @keyframes water-splash-show { 0% {opacity:0} 5%,68% {opacity:1} 100% {opacity:0} }
+    @keyframes water-splash-motion { 0% {transform:translateY(-18%) scale(1.08)} 18% {transform:translateY(0) scale(1)} 72% {transform:translateY(2%) scale(1.02)} 100% {transform:translateY(8%) scale(1.08)} }
+    @keyframes fireworks-show { 0% {opacity:0} 4%,82% {opacity:1} 100% {opacity:0} }
+    @keyframes fireworks-motion { 0% {transform:scale(.78)} 14% {transform:scale(1)} 72% {transform:scale(1.025)} 100% {transform:scale(1.08)} }
   </style>
 </head>
 <body>
   <img id="asset" alt="" draggable="false">
   <div id="raffle-stage"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div></section></div>
-  <div id="flashbang-stage" data-document-revision="raffle-compact-copy-v6"><img id="flashbang-asset" alt="" draggable="false"></div>
+  <div id="flashbang-stage"><img id="flashbang-asset" alt="" draggable="false"></div>
+  <div id="effect-stage" data-document-revision="categorized-actions-v1"><img id="effect-asset" alt="" draggable="false"></div>
   <script>
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
@@ -141,15 +152,18 @@ internal sealed class ByeollogOverlayService : IDisposable
     const rafflePrimary = document.getElementById('raffle-primary');
     const flashbangStage = document.getElementById('flashbang-stage');
     const flashbangAsset = document.getElementById('flashbang-asset');
+    const effectStage = document.getElementById('effect-stage');
+    const effectAsset = document.getElementById('effect-asset');
     let currentRevision = '';
     let loadedFlashbangRevision = '';
+    let loadedEffectRevision = '';
     let activeAudio = null;
     function stopAudio() {
       if (!activeAudio) return;
       try { activeAudio.player.pause(); activeAudio.player.removeAttribute('src'); activeAudio.player.load(); } catch {}
       activeAudio = null;
     }
-    function hide() { asset.classList.remove('visible'); raffleStage.classList.remove('visible'); raffleCopy.classList.remove('visible'); flashbangStage.className = ''; stopAudio(); }
+    function hide() { asset.classList.remove('visible'); raffleStage.classList.remove('visible'); raffleCopy.classList.remove('visible'); flashbangStage.className = ''; effectStage.className = ''; stopAudio(); }
     function reportAudio(descriptor, eventName) {
       if (!activeAudio || activeAudio.identity !== descriptor.identity) return;
       const url = '/overlay/audio-events/' + encodeURIComponent(descriptor.token) + '/' + eventName
@@ -192,6 +206,12 @@ internal sealed class ByeollogOverlayService : IDisposable
       if (assetKey === 'flashbang_soft') return 'soft';
       if (assetKey === 'flashbang_standard') return 'standard';
       if (assetKey === 'flashbang_strong') return 'strong';
+      return '';
+    }
+    function visualEffectKind(assetKey) {
+      if (assetKey === 'water_splash') return 'water-splash';
+      if (assetKey === 'fireworks') return 'fireworks';
+      if (assetKey === 'earthquake_audio') return 'audio-only';
       return '';
     }
     function placementClass(assetKey) {
@@ -246,17 +266,18 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     async function refresh() {
       try {
-        const response = await fetch('/overlay/state?documentRevision=raffle-compact-copy-v6', { cache: 'no-store' });
+        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v1', { cache: 'no-store' });
         if (!response.ok) throw new Error('state unavailable');
         const state = await response.json();
         if (state.active === true && typeof state.assetToken === 'string') {
           const raffle = isRaffleAsset(state.assetKey);
           const flashbang = flashbangIntensity(state.assetKey);
-          const targetAsset = raffle ? raffleAsset : flashbang ? flashbangAsset : asset;
+          const visualEffect = visualEffectKind(state.assetKey);
+          const targetAsset = raffle ? raffleAsset : flashbang ? flashbangAsset : visualEffect ? effectAsset : asset;
           const nextRevision = state.revision + ':' + state.assetToken + ':' + state.assetVersion + ':' + state.contentSha256 + ':' + state.assetKey + ':' + state.positionX + ':' + state.positionY + ':' + state.scalePercent;
           if (currentRevision !== nextRevision) {
             currentRevision = nextRevision;
-            if (raffle) applyRafflePlacement(state); else if (!flashbang) applyPlacement(state);
+            if (raffle) applyRafflePlacement(state); else if (!flashbang && !visualEffect) applyPlacement(state);
             if (flashbang) {
               loadedFlashbangRevision = '';
               flashbangStage.className = '';
@@ -274,13 +295,33 @@ internal sealed class ByeollogOverlayService : IDisposable
                 hide();
               };
             }
+            if (visualEffect) {
+              loadedEffectRevision = '';
+              effectStage.className = '';
+              effectAsset.onload = () => {
+                if (currentRevision !== nextRevision) return;
+                loadedEffectRevision = nextRevision;
+                effectStage.className = '';
+                if (visualEffect !== 'audio-only') {
+                  void effectStage.offsetWidth;
+                  effectStage.classList.add('visible', visualEffect);
+                }
+                applyAudio(state);
+              };
+              effectAsset.onerror = () => {
+                if (currentRevision !== nextRevision) return;
+                loadedEffectRevision = '';
+                hide();
+              };
+            }
             targetAsset.src = '/overlay/assets/' + encodeURIComponent(state.assetToken)
               + '?revision=' + encodeURIComponent(state.contentSha256)
-              + (flashbang ? '&presentationRevision=' + encodeURIComponent(state.revision) : '');
+              + (flashbang || visualEffect ? '&presentationRevision=' + encodeURIComponent(state.revision) : '');
           }
           if (raffle) {
             asset.classList.remove('visible');
             flashbangStage.className = '';
+            effectStage.className = '';
             applyPresentation(state);
             raffleStage.classList.add('visible');
             applyAudio(state);
@@ -288,6 +329,7 @@ internal sealed class ByeollogOverlayService : IDisposable
             asset.classList.remove('visible');
             raffleStage.classList.remove('visible');
             raffleCopy.classList.remove('visible');
+            effectStage.className = '';
             if (loadedFlashbangRevision === nextRevision) {
               flashbangStage.classList.add('visible', flashbang);
               applyAudio(state);
@@ -295,10 +337,20 @@ internal sealed class ByeollogOverlayService : IDisposable
               flashbangStage.className = '';
               stopAudio();
             }
+          } else if (visualEffect) {
+            asset.classList.remove('visible');
+            raffleStage.classList.remove('visible');
+            raffleCopy.classList.remove('visible');
+            flashbangStage.className = '';
+            if (loadedEffectRevision === nextRevision) {
+              if (visualEffect !== 'audio-only') effectStage.classList.add('visible', visualEffect);
+              applyAudio(state);
+            }
           } else {
             raffleStage.classList.remove('visible');
             raffleCopy.classList.remove('visible');
             flashbangStage.className = '';
+            effectStage.className = '';
             stopAudio();
             asset.classList.add('visible');
           }

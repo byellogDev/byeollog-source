@@ -18,8 +18,8 @@ test("voice anonymizer is an end-to-end Windows Agent capability", async () => {
   assert.match(capabilities, /"obs\.voice_anonymize_for_v2"/);
   assert.match(localAgent, /TimedMuteActionAdapter\.VoiceAnonymizerActionType/);
   assert.match(localAgent, /ExecuteVoiceAnonymizerAsync/);
-  assert.match(client, /save_guided_rule_v15/);
-  assert.match(client, /dispatch_guided_rule_test_v5/);
+  assert.match(client, /save_guided_rule_v16/);
+  assert.match(client, /dispatch_guided_rule_test_v6/);
   assert.match(client, /"obs\.voice_anonymize_for"/);
   assert.match(client, /"obs\.voice_anonymize_for_v2"/);
   assert.match(client, /ObsVoiceAnonymizerContract\.DownPreset/);
