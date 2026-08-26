@@ -19,6 +19,10 @@ input,textarea{border:1px solid #d8dee8;border-radius:8px;padding:9px 10px;backg
 .pendingSortControls{display:inline-flex;align-items:center;gap:3px;margin-left:auto;padding:3px;border:1px solid #d8dee8;border-radius:11px;background:#fff}
 .pendingSortControls button{min-height:33px!important;padding:6px 11px!important;border:0!important;border-radius:8px!important;background:transparent!important;box-shadow:none!important;font-size:12px;font-weight:800;color:#6b7280}
 .pendingSortControls button.active{background:#111827!important;color:#fff!important}
+.typeWorkSummary{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-3px 0 12px;padding:14px 16px;border:1px solid #bfdbfe;border-radius:14px;background:linear-gradient(135deg,#eff6ff,#f8fafc)}
+.typeWorkSummary strong{display:block;font-size:19px;color:#0f172a}.typeWorkSummary .typeWorkMeta{color:#64748b;font-size:13px;font-weight:700}.typeWorkTotal{display:flex;align-items:baseline;gap:5px;padding:7px 12px;border-radius:11px;background:#0f2748;color:#fff}.typeWorkTotal b{font-size:24px;line-height:1}.typeWorkTotal span{font-size:12px;font-weight:900}
+.typeQueueCard{border-color:#bfdbfe!important}.typeQueueHead{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;background:linear-gradient(135deg,#eff6ff,#fff)}
+.typeQueueName{font-size:18px;font-weight:900;color:#0f172a}.typeCutBadge{display:flex;align-items:baseline;gap:5px;min-width:92px;justify-content:center;padding:9px 13px;border-radius:12px;background:#0f2748;color:#fff}.typeCutBadge strong{font-size:25px;line-height:1}.typeCutBadge span{font-size:12px;font-weight:900}.typeQueueTable{table-layout:fixed;min-width:1120px}.typeQueueTable th:nth-child(1),.typeQueueTable td:nth-child(1){width:13%}.typeQueueTable th:nth-child(2),.typeQueueTable td:nth-child(2){width:12%}.typeQueueTable th:nth-child(3),.typeQueueTable td:nth-child(3){width:9%}.typeQueueTable th:nth-child(4),.typeQueueTable td:nth-child(4){width:9%}.typeQueueTable th:nth-child(5),.typeQueueTable td:nth-child(5),.typeQueueTable th:nth-child(6),.typeQueueTable td:nth-child(6){width:14%}.typeQueueTable th:nth-child(7),.typeQueueTable td:nth-child(7){width:15%}.typeQueueTable th:nth-child(8),.typeQueueTable td:nth-child(8){width:14%}.typeQueueTable td:nth-child(1),.typeQueueTable td:nth-child(2),.typeQueueTable td:nth-child(3),.typeQueueTable td:nth-child(4),.typeQueueTable td:nth-child(8){white-space:nowrap}.typeQueueTable .cutCount{font-size:16px;font-weight:900;color:#075985}
 .viewTab.active{background:#111827;color:#fff;border-color:#111827}
 .memoCell{max-width:160px;min-width:110px;vertical-align:top;color:#374151}
 .doneRow{background:linear-gradient(90deg,#f8fafc 0%,#f1f5f9 100%)}
@@ -152,6 +156,7 @@ input::placeholder,textarea::placeholder{color:#929dac}
 .viewTabs{margin:2px 0 15px}.viewTabs>button.viewTab{min-height:39px;padding:8px 13px}.viewTab.active{background:var(--navy);color:var(--brand-yellow);border-color:var(--navy)}
 .viewTabs .viewSearch{min-height:43px;border-radius:11px;background:var(--surface)}
 .pendingSortControls{border-color:var(--border);background:var(--surface)}.pendingSortControls button{color:var(--muted)!important}.pendingSortControls button.active{background:var(--navy)!important;color:var(--brand-yellow)!important}
+.typeWorkSummary{border-color:var(--border);background:linear-gradient(135deg,var(--surface-soft),var(--surface))}.typeWorkSummary strong,.typeQueueName{color:var(--text)}.typeWorkTotal,.typeCutBadge{background:var(--navy);color:var(--brand-yellow)}.typeQueueHead{background:linear-gradient(135deg,var(--surface-soft),var(--surface))}.typeQueueTable .cutCount{color:#0284c7}
 .fanCard{background:var(--surface);border-color:var(--border);border-radius:13px;box-shadow:0 2px 8px rgba(15,23,42,.025)}.fanCard:not(.collapsed){border:1px solid var(--border-strong);box-shadow:0 4px 14px rgba(15,23,42,.06)}
 .fanHead{padding:14px 16px;background:var(--surface)}.fanCard:not(.collapsed) .fanHead{background:var(--surface-soft)}.fanName{font-size:16px;color:var(--text)}
 .fanActions .go{background:var(--brand-yellow);color:#172033;border-color:var(--brand-yellow-strong);font-weight:850}.fanActions .go:hover{background:#ffd05f;border-color:var(--brand-yellow-strong)}
@@ -195,6 +200,7 @@ body[data-theme="dark"] .doneRow .pill.donePill{background:rgba(6,118,71,.22);co
 body[data-theme="dark"] .backupRow,body[data-theme="dark"] .legacyRow,body[data-theme="dark"] .fanMasterRow,body[data-theme="dark"] .batchMapRow,body[data-theme="dark"] .ruleRow,body[data-theme="dark"] .statSummaryCard,body[data-theme="dark"] .collectorRuleRow{background:var(--surface-soft)}
 body[data-theme="dark"] .pill,body[data-theme="dark"] .batchSummary span,body[data-theme="dark"] .collectorSummary span{background:var(--surface-strong);color:#c5cfdd}
 body[data-theme="dark"] .pendingSortControls{background:#0e1728;border-color:var(--border)}body[data-theme="dark"] .pendingSortControls button.active{background:#26344f!important;color:var(--brand-yellow)!important}
+body[data-theme="dark"] .typeWorkSummary,body[data-theme="dark"] .typeQueueHead{background:linear-gradient(135deg,#111d31,#0e1728)}body[data-theme="dark"] .typeQueueTable .cutCount{color:#7dd3fc}
 
 .managementMainBtn{font-weight:800;padding-left:18px;padding-right:18px}
 .managementDialog{width:min(900px,100%);max-height:90vh;overflow:auto;padding:0}
@@ -297,9 +303,12 @@ body[data-theme="dark"] code{color:#ffd66f}
     <div id="pendingSortControls" class="pendingSortControls" aria-label="진행중 작업 정렬">
       <button id="sortAlphaBtn" type="button" class="active" onclick="setSort('fan')">가나다순</button>
       <button id="sortLatestBtn" type="button" onclick="setSort('latest')">최신순</button>
+      <button id="sortTypeBtn" type="button" onclick="setSort('type')">종류별 정렬</button>
     </div>
     <input id="search" class="viewSearch" placeholder="팬 / 이벤트 / 업보종류 검색" oninput="render()">
   </div>
+
+  <div id="typeWorkSummary" class="typeWorkSummary hidden" aria-live="polite"></div>
 
   <div class="donationStatsBox hidden" id="donationStatsBox">
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
@@ -2659,9 +2668,10 @@ function setViewMode(mode){
   render();
 }
 function setSort(k){
-  sortKey=k==='latest'?'latest':'fan';
+  sortKey=k==='latest'||k==='type'?k:'fan';
   $('sortAlphaBtn')?.classList.toggle('active',sortKey==='fan');
   $('sortLatestBtn')?.classList.toggle('active',sortKey==='latest');
+  $('sortTypeBtn')?.classList.toggle('active',sortKey==='type');
   render();
 }
 function displayFanName(r){
@@ -2788,6 +2798,41 @@ function displayAddedDate(v){
   return /^\d{4}-\d{2}-\d{2}$/.test(s)?s:s.slice(0,10);
 }
 
+function typeWorkFanKey(task){
+  return task.fan_soop_id?'id:'+task.fan_soop_id:'legacy:'+String(task.fan||'');
+}
+function renderTypeWorkQueue(list,fileHtmlById){
+  const groups=new Map();
+  list.forEach(task=>{
+    const type=String(task.type||'').trim()||'미지정';
+    if(!groups.has(type))groups.set(type,[]);
+    groups.get(type).push(task);
+  });
+  const ordered=[...groups.entries()].sort((a,b)=>a[0].localeCompare(b[0],'ko'));
+  const totalCuts=list.reduce((sum,task)=>sum+remain(task),0);
+  const totalFans=new Set(list.map(typeWorkFanKey)).size;
+  const summary=$('typeWorkSummary');
+  summary.classList.remove('hidden');
+  summary.innerHTML=`<div><strong>종류별 촬영 작업표</strong><div class="typeWorkMeta">${ordered.length.toLocaleString()}종류 · ${totalFans.toLocaleString()}명 · ${list.length.toLocaleString()}개 작업</div></div><div class="typeWorkTotal"><b>${totalCuts.toLocaleString()}</b><span>총 촬영 컷</span></div>`;
+
+  return ordered.map(([type,rows])=>{
+    const cuts=rows.reduce((sum,task)=>sum+remain(task),0);
+    const fans=new Set(rows.map(typeWorkFanKey)).size;
+    rows.sort((a,b)=>displayFanName(a).localeCompare(displayFanName(b),'ko')||String(a.event||'').localeCompare(String(b.event||''),'ko')||rowCreatedTs(a)-rowCreatedTs(b));
+    const body=rows.map(task=>`<tr>
+      <td><b>${esc(displayFanName(task))}</b>${task.fan_soop_id?'<div class="fanIdLine">'+esc(task.fan_soop_id)+'</div>':''}</td>
+      <td>${esc(task.event||'이벤트 없음')}</td>
+      <td>${esc(displayAddedDate(task.added_date))}</td>
+      <td><span class="cutCount">${remain(task).toLocaleString()}컷</span></td>
+      <td class="memoCell">${inlineNoteButton(task,'public_comment')}</td>
+      <td class="memoCell">${inlineNoteButton(task,'memo')}</td>
+      <td>${fileHtmlById.get(task.id)||''}</td>
+      <td><button onclick="toggleComplete('${task.id}')">전체 완료</button><button onclick="openEdit('${task.id}')">수정</button></td>
+    </tr>`).join('');
+    return `<div class="fanCard typeQueueCard"><div class="typeQueueHead"><div><div class="typeQueueName">${esc(type)}</div><div class="muted">팬 ${fans.toLocaleString()}명 · 작업 ${rows.length.toLocaleString()}건</div></div><div class="typeCutBadge"><strong>${cuts.toLocaleString()}</strong><span>촬영 컷</span></div></div><div class="fanBody"><div class="eventBlock"><table class="eventTaskTable typeQueueTable"><thead><tr><th>팬</th><th>이벤트</th><th>추가일</th><th>필요 촬영</th><th>코멘트 (공개)</th><th>메모 (비공개)</th><th>로컬 파일</th><th>작업</th></tr></thead><tbody>${body}</tbody></table></div></div></div>`;
+  }).join('');
+}
+
 async function render(){
   const q=$('search').value.trim().toLowerCase();
   let list=tasks.filter(r=>{
@@ -2801,6 +2846,16 @@ async function render(){
 
   const visibleIds=list.map(r=>r.id);
   const fileHtmlById=new Map(visibleIds.map(id=>[id,cachedFileCell(id)]));
+
+  if(viewMode==='pending'&&sortKey==='type'){
+    const typeQueue=renderTypeWorkQueue(list,fileHtmlById);
+    $('list').innerHTML=typeQueue||'<div class="settings muted">진행중인 촬영 작업이 없습니다.</div>';
+    bindFileEvents();
+    requestAnimationFrame(()=>void hydrateExpandedFileCells());
+    return;
+  }
+  $('typeWorkSummary').classList.add('hidden');
+  $('typeWorkSummary').innerHTML='';
 
   const cards=[];
   for(const [groupKey,items] of groups){
