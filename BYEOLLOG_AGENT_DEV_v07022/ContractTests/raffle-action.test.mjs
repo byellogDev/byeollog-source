@@ -235,8 +235,8 @@ test("raffle action refreshes a stale OBS browser document before its first outp
   assert.match(adapter, /_refreshBrowserSources\(timeout\.Token\)/);
   assert.match(adapter, /requireNewRequest:\s*true/);
   assert.match(adapter, /_currentDocumentObserved/);
-  assert.match(overlay, /DocumentRevision\s*=\s*"categorized-actions-v8"/);
-  assert.match(overlay, /data-document-revision="categorized-actions-v8"/);
+  assert.match(overlay, /DocumentRevision\s*=\s*"categorized-actions-v9"/);
+  assert.match(overlay, /data-document-revision="categorized-actions-v9"/);
   assert.match(overlay, /media-src 'self'/);
   assert.match(overlay, /audioContentSha256/);
   assert.match(overlay, /audioPresentationRevision/);

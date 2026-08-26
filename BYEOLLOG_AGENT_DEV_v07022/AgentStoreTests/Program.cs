@@ -2384,8 +2384,8 @@ internal static class Program
                 OverlayAssetValidator.Sha256Hex(waterMotion),
                 "the served FLIP water motion retains its sealed digest");
             var fireworksMotion = await http.GetByteArrayAsync(
-                $"{service.OverlayUrl}/builtin/bodyless-confetti-v1.webm");
-            Equal(1_231_173, fireworksMotion.Length,
+                $"{service.OverlayUrl}/builtin/bodyless-confetti-dense-v2.webm");
+            Equal(3_587_389, fireworksMotion.Length,
                 "the loopback overlay serves the complete bodyless confetti motion");
             Equal(
                 OverlayAssetCache.FireworksMotionContentSha256,

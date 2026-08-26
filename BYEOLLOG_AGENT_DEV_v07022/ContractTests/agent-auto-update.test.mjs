@@ -376,3 +376,15 @@ test("v102 release preparation is immutable and packages bodyless confetti motio
   assert.match(notes, /폭죽통과 발사기 몸통을 완전히 제거/);
   assert.match(notes, /화면 아래까지 떨어져/);
 });
+
+test("v103 release preparation is immutable and packages denser confetti motion", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07103-AutoUpdate.ps1"),
+    source("RELEASE_v07103_DENSE_CONFETTI_VFX_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7103/);
+  assert.match(build, /byeollog_agent_v07103_DENSE_CONFETTI_VFX_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.103'/);
+  assert.match(notes, /124개에서 252개/);
+  assert.match(notes, /중앙 분출/);
+});
