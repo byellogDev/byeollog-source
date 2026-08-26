@@ -8,8 +8,8 @@
     <Nullable>enable</Nullable>
     <AssemblyName>byeollog</AssemblyName>
     <RootNamespace>HurogiCollector</RootNamespace>
-    <Version>0.7.0.95</Version>
-    <InformationalVersion>0.7.0.95</InformationalVersion>
+    <Version>0.7.0.96</Version>
+    <InformationalVersion>0.7.0.96</InformationalVersion>
     <Product>별록 에이전트</Product>
     <AssemblyTitle>별록 에이전트</AssemblyTitle>
     <Description>후원 수집과 별록 액션을 연결하는 별록 에이전트</Description>
@@ -64,6 +64,9 @@
     <EmbeddedResource Include="Assets\byeollog_water_splash.png" LogicalName="HurogiCollector.Assets.byeollog_water_splash.png" />
     <EmbeddedResource Include="Assets\byeollog_fireworks.png" LogicalName="HurogiCollector.Assets.byeollog_fireworks.png" />
     <EmbeddedResource Include="Assets\byeollog_earthquake_audio.svg" LogicalName="HurogiCollector.Assets.byeollog_earthquake_audio.svg" />
+    <EmbeddedResource Include="Assets\byeollog_earthquake_natural.wav" LogicalName="HurogiCollector.Assets.byeollog_earthquake_natural.wav" />
+    <EmbeddedResource Include="Assets\byeollog_water_splash_natural.wav" LogicalName="HurogiCollector.Assets.byeollog_water_splash_natural.wav" />
+    <EmbeddedResource Include="Assets\byeollog_party_popper_natural.wav" LogicalName="HurogiCollector.Assets.byeollog_party_popper_natural.wav" />
     <EmbeddedResource Include="Assets\byeollog_raffle_ticket_fixed.wav" LogicalName="HurogiCollector.Assets.byeollog_raffle_ticket_fixed.wav" />
     <EmbeddedResource Include="Assets\byeollog_raffle_winner_fallback.wav" LogicalName="HurogiCollector.Assets.byeollog_raffle_winner_fallback.wav" />
     <EmbeddedResource Include="Ui\byeollog_ui.html" LogicalName="HurogiCollector.Ui.byeollog_ui.html" />
@@ -72,6 +75,7 @@
     <EmbeddedResource Include="Ui\byeollog_logo_dark_safe.png" LogicalName="HurogiCollector.Ui.byeollog_logo_dark_safe.png" />
     <EmbeddedResource Include="Ui\byeollog_logo_light_safe.png" LogicalName="HurogiCollector.Ui.byeollog_logo_light_safe.png" />
     <EmbeddedResource Include="THIRD_PARTY_NOTICES_TTS.txt" LogicalName="HurogiCollector.THIRD_PARTY_NOTICES_TTS.txt" />
+    <EmbeddedResource Include="THIRD_PARTY_NOTICES_ACTION_ASSETS.txt" LogicalName="HurogiCollector.THIRD_PARTY_NOTICES_ACTION_ASSETS.txt" />
     <EmbeddedResource Include="Native\byeollog-voice-filter.dll" LogicalName="HurogiCollector.Native.byeollog-voice-filter.dll" />
     <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\THIRD_PARTY_NOTICES.txt" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.THIRD_PARTY_NOTICES.txt" />
     <EmbeddedResource Include="ObsPlugin\byeollog-voice-filter\COPYING_GPL-2.0.txt" LogicalName="HurogiCollector.ObsPlugin.byeollog-voice-filter.COPYING_GPL-2.0.txt" />

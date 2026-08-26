@@ -90,7 +90,7 @@ internal sealed class OverlayPresentationNotObservedException : IOException
 internal sealed class ByeollogOverlayService : IDisposable
 {
     internal const string MicrophoneOffAssetKey = TimedMuteContract.MicrophoneOffOverlayAssetKey;
-    internal const string DocumentRevision = "categorized-actions-v1";
+    internal const string DocumentRevision = "categorized-actions-v2";
     internal const int DefaultPort = 43_120;
     internal const int BrowserAudioStartTimeoutMs = 5_000;
     internal const int MaximumBrowserAudioPlaybackMs = 25_000;
@@ -127,22 +127,22 @@ internal sealed class ByeollogOverlayService : IDisposable
     #effect-stage.visible.water-splash { animation:water-splash-show 3500ms ease-out both; }
     #effect-stage.visible.fireworks { animation:fireworks-show 5000ms ease-out both; }
     #effect-asset { display:block; width:100%; height:100%; object-fit:cover; }
-    #effect-stage.water-splash #effect-asset { transform-origin:50% 15%; animation:water-splash-motion 3500ms cubic-bezier(.18,.72,.28,1) both; }
-    #effect-stage.fireworks #effect-asset { animation:fireworks-motion 5000ms cubic-bezier(.2,.8,.2,1) both; }
+    #effect-stage.water-splash #effect-asset { transform-origin:45% 28%; animation:water-splash-motion 3500ms cubic-bezier(.16,.74,.22,1) both; }
+    #effect-stage.fireworks #effect-asset { animation:fireworks-motion 5000ms cubic-bezier(.16,.78,.24,1) both; }
     @keyframes flashbang-soft-recover { 0%,8% { opacity:.68 } 35% { opacity:.50 } 68% { opacity:.20 } 100% { opacity:0 } }
     @keyframes flashbang-standard-recover { 0%,10% { opacity:.86 } 38% { opacity:.66 } 70% { opacity:.28 } 100% { opacity:0 } }
     @keyframes flashbang-strong-recover { 0%,13% { opacity:1 } 42% { opacity:.82 } 73% { opacity:.38 } 100% { opacity:0 } }
-    @keyframes water-splash-show { 0% {opacity:0} 5%,68% {opacity:1} 100% {opacity:0} }
-    @keyframes water-splash-motion { 0% {transform:translateY(-18%) scale(1.08)} 18% {transform:translateY(0) scale(1)} 72% {transform:translateY(2%) scale(1.02)} 100% {transform:translateY(8%) scale(1.08)} }
-    @keyframes fireworks-show { 0% {opacity:0} 4%,82% {opacity:1} 100% {opacity:0} }
-    @keyframes fireworks-motion { 0% {transform:scale(.78)} 14% {transform:scale(1)} 72% {transform:scale(1.025)} 100% {transform:scale(1.08)} }
+    @keyframes water-splash-show { 0% {opacity:0} 4%,62% {opacity:1} 82% {opacity:.74} 100% {opacity:0} }
+    @keyframes water-splash-motion { 0% {transform:translate(-12%,-24%) rotate(-2deg) scale(1.17)} 14% {transform:translate(0,0) rotate(0) scale(1)} 48% {transform:translateY(4%) scale(1.015)} 76% {transform:translateY(12%) scale(1.04)} 100% {transform:translateY(25%) scale(1.08)} }
+    @keyframes fireworks-show { 0% {opacity:0} 3%,58% {opacity:1} 82% {opacity:.66} 100% {opacity:0} }
+    @keyframes fireworks-motion { 0% {transform:translateY(8%) scale(.82)} 9% {transform:translateY(0) scale(1)} 56% {transform:translateY(2%) scale(1.015)} 100% {transform:translateY(12%) scale(1.045)} }
   </style>
 </head>
 <body>
   <img id="asset" alt="" draggable="false">
   <div id="raffle-stage"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div></section></div>
   <div id="flashbang-stage"><img id="flashbang-asset" alt="" draggable="false"></div>
-  <div id="effect-stage" data-document-revision="categorized-actions-v1"><img id="effect-asset" alt="" draggable="false"></div>
+  <div id="effect-stage" data-document-revision="categorized-actions-v2"><img id="effect-asset" alt="" draggable="false"></div>
   <script>
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
@@ -266,7 +266,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     async function refresh() {
       try {
-        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v1', { cache: 'no-store' });
+        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v2', { cache: 'no-store' });
         if (!response.ok) throw new Error('state unavailable');
         const state = await response.json();
         if (state.active === true && typeof state.assetToken === 'string') {

@@ -36,6 +36,7 @@ internal static class Program
             ReplayAcceptanceTests();
             AgentCapabilityTests();
             VoiceAnonymizerContractTests();
+            ActionSoundAssetTests();
             WeflabRecoveryDecisionTests();
             SessionVaultTests(root);
             ActionFreshnessTests();
@@ -248,6 +249,26 @@ internal static class Program
         File.WriteAllBytes(vaultPath, [1, 2, 3, 4]);
         False(vault.TryRead(out _), "corrupt DPAPI bytes fail closed");
         False(File.Exists(vaultPath), "corrupt refresh-token vault is removed");
+    }
+
+    private static void ActionSoundAssetTests()
+    {
+        var earthquake = ActionSoundFactory.CreateEarthquake(2_000);
+        Equal(384_044, earthquake.Length, "two-second earthquake natural sound has exact stereo PCM length");
+        Equal("RIFF", Encoding.ASCII.GetString(earthquake, 0, 4), "earthquake natural sound keeps RIFF");
+        Equal("WAVE", Encoding.ASCII.GetString(earthquake, 8, 4), "earthquake natural sound keeps WAVE");
+        Equal(384_000, BitConverter.ToInt32(earthquake, 40), "earthquake trimmed data length is exact");
+        Equal(
+            "8ddfe4349f8e41b2acf97ddf21752b46f69bf3e84b6320759ac284cc3c978067",
+            Convert.ToHexString(SHA256.HashData(ActionSoundFactory.CreateWaterSplash())).ToLowerInvariant(),
+            "water action uses the reviewed CC0 natural recording");
+        Equal(
+            "16f5f25be2dd82f1264cb6094256dc17bf97be10c8b20f3b7765cad00559a2c8",
+            Convert.ToHexString(SHA256.HashData(ActionSoundFactory.CreateFireworks())).ToLowerInvariant(),
+            "celebration action uses the reviewed CC0 party popper recording");
+        Throws<ArgumentOutOfRangeException>(
+            () => ActionSoundFactory.CreateEarthquake(1_000),
+            "earthquake natural sound rejects an out-of-contract duration");
     }
 
     private static void VoiceAnonymizerContractTests()

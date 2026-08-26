@@ -46,29 +46,51 @@ test("screen actions use only OBS scene APIs and guarantee cleanup", async () =>
   assert.doesNotMatch(adapter, /Process\.Start|SendKeys|mouse_event|keybd_event/);
 });
 
-test("water and fireworks package immutable transparent assets and synchronized audio", async () => {
+test("water and party popper package immutable transparent art and CC0 natural audio", async () => {
   const assets = [
-    ["byeollog_water_splash.png", "bb9664f62a75c34cefcf4241e6073a5a5a85708f02da58d05d06cf733c23a384"],
-    ["byeollog_fireworks.png", "3fd85cd5305c354b85f1ae2ca46cddf382c9d2922977526489950db259463a94"]
+    ["byeollog_water_splash.png", "f8d4da3a5facfee1fd2a07e8dc9ee0e5c84389c65d369dc24d45438c457a440b"],
+    ["byeollog_fireworks.png", "16c9c3a09100a48a3c9818efc91335d109d96ba985709e9b5a6439d3f37a1c57"]
   ];
-  const [cache, project, adapter, overlay] = await Promise.all([
+  const audio = [
+    ["byeollog_earthquake_natural.wav", "9ce299d6d1ca8643638742324d12a75a46f4f720cb45336b43178c2df2182f43"],
+    ["byeollog_water_splash_natural.wav", "8ddfe4349f8e41b2acf97ddf21752b46f69bf3e84b6320759ac284cc3c978067"],
+    ["byeollog_party_popper_natural.wav", "16f5f25be2dd82f1264cb6094256dc17bf97be10c8b20f3b7765cad00559a2c8"]
+  ];
+  const [cache, project, adapter, overlay, factory, notices] = await Promise.all([
     text("OverlayAssetCache.cs"),
     text("HurogiCollector.csproj"),
     text("VisualEffectOverlayActionAdapter.cs"),
-    text("ByeollogOverlayService.cs")
+    text("ByeollogOverlayService.cs"),
+    text("ActionSoundFactory.cs"),
+    text("THIRD_PARTY_NOTICES_ACTION_ASSETS.txt")
   ]);
   for (const [file, sha] of assets) {
     const content = await bytes(`Assets/${file}`);
     assert.equal(content.subarray(1, 4).toString("ascii"), "PNG");
+    assert.equal(content[25], 6, `${file} must retain RGBA alpha`);
     assert.equal(createHash("sha256").update(content).digest("hex"), sha);
     assert.match(cache, new RegExp(sha, "i"));
     assert.match(project, new RegExp(file.replaceAll(".", "\\.")));
   }
+  for (const [file, sha] of audio) {
+    const content = await bytes(`Assets/${file}`);
+    assert.equal(content.subarray(0, 4).toString("ascii"), "RIFF");
+    assert.equal(content.subarray(8, 12).toString("ascii"), "WAVE");
+    assert.equal(createHash("sha256").update(content).digest("hex"), sha);
+    assert.match(project, new RegExp(file.replaceAll(".", "\\.")));
+    assert.match(factory, new RegExp(file.replaceAll(".", "\\.")));
+  }
+  assert.doesNotMatch(factory, /Math\.Sin|NextNoise|CreateWave/);
+  for (const soundId of ["719551", "189504", "458398"])
+    assert.match(notices, new RegExp(soundId));
+  assert.match(notices, /Creative Commons CC0 1\.0/g);
+  assert.match(project, /THIRD_PARTY_NOTICES_ACTION_ASSETS\.txt/);
   assert.match(adapter, /WaterDurationMs = 3_500/);
   assert.match(adapter, /FireworksDurationMs = 5_000/);
   assert.match(adapter, /ShowObservedAudioTransientAsync/);
   assert.match(adapter, /parameters\.EnumerateObject\(\)\.Count\(\) != 6/);
-  assert.match(overlay, /categorized-actions-v1/);
+  assert.match(overlay, /categorized-actions-v2/);
+  assert.match(overlay, /translateY\(25%\)/);
   assert.match(overlay, /#effect-stage\.visible\.water-splash/);
   assert.match(overlay, /#effect-stage\.visible\.fireworks/);
 });

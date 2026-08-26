@@ -281,3 +281,20 @@ test("v95 release preparation is immutable and identifies categorized screen and
   assert.match(notes, /지진이야!/);
   assert.match(notes, /물벼락과 축포/);
 });
+
+test("v96 release preparation is immutable and identifies natural action audio and animated effects", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07096-AutoUpdate.ps1"),
+    source("RELEASE_v07096_NATURAL_ACTION_AUDIO_ANIMATED_EFFECTS_KO.txt")
+  ]);
+
+  assert.match(build, /\$releaseSequence = 7096/);
+  assert.match(build, /byeollog_agent_v07096_NATURAL_ACTION_AUDIO_ANIMATED_EFFECTS_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.96'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.96'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /v0\.7\.0\.96/);
+  assert.match(notes, /지오폰/);
+  assert.match(notes, /콘페티 팝퍼/);
+  assert.match(notes, /CC0/);
+});

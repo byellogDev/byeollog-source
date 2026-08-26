@@ -66,7 +66,7 @@ internal sealed class VisualEffectOverlayActionAdapter
                     bytes,
                     sha,
                     volumePercent,
-                    effect + "-audio-v1"),
+                        effect + "-natural-audio-v2"),
                 cancellationToken,
                 notAfterUtc);
             return new VNextAgentOutcome(true, false, new

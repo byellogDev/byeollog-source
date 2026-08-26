@@ -1,0 +1,27 @@
+별록 화면·이펙트 액션 자연음 제3자 고지
+==========================================
+
+아래 원음은 Creative Commons CC0 1.0으로 공개된 실제 녹음입니다.
+별록은 방송 액션에 맞게 구간 자르기, 대역 제한, 페이드, 음량 정규화 및
+48 kHz / 16-bit PCM WAV 변환을 적용했습니다. 원 저작자는 별록을 보증하거나
+후원하지 않습니다.
+
+1. Earthquake rumble
+   Author: betostado99
+   Source: https://freesound.org/people/betostado99/sounds/719551/
+   License: Creative Commons CC0 1.0
+   Use: 지진이야! 저주파 자연음
+
+2. water splash.wav
+   Author: VacekH
+   Source: https://freesound.org/people/VacekH/sounds/189504/
+   License: Creative Commons CC0 1.0
+   Use: 물벼락 자연음
+
+3. Balloon Pop / Christmas cracker / Confetti Cannon
+   Author: Breviceps
+   Source: https://freesound.org/people/Breviceps/sounds/458398/
+   License: Creative Commons CC0 1.0
+   Use: 축포 파티 팝퍼 자연음
+
+CC0 1.0: https://creativecommons.org/publicdomain/zero/1.0/

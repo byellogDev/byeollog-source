@@ -290,8 +290,8 @@ internal sealed class OverlayAssetCache
     internal const string WaterSplashAssetId = "f4abf066-d0aa-4b57-8a9f-6d0cbcb956e0";
     internal const string FireworksAssetId = "74346d77-6fe6-4cf9-af9b-afb80ff57fdc";
     internal const string EarthquakeAudioAssetId = "0f28aaef-8336-41bc-8d96-71405cbd7de0";
-    internal const string WaterSplashContentSha256 = "bb9664f62a75c34cefcf4241e6073a5a5a85708f02da58d05d06cf733c23a384";
-    internal const string FireworksContentSha256 = "3fd85cd5305c354b85f1ae2ca46cddf382c9d2922977526489950db259463a94";
+    internal const string WaterSplashContentSha256 = "f8d4da3a5facfee1fd2a07e8dc9ee0e5c84389c65d369dc24d45438c457a440b";
+    internal const string FireworksContentSha256 = "16c9c3a09100a48a3c9818efc91335d109d96ba985709e9b5a6439d3f37a1c57";
     internal const string EarthquakeAudioContentSha256 = "bc83d5c814fc3b98389e4fa41818cf01f581c01c0b2b39190967ba7169f2e6fe";
     private const string LegacyBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_overlay.svg";
     private const string IconBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_icon.png";
@@ -323,8 +323,8 @@ internal sealed class OverlayAssetCache
         new(FlashbangSoftAssetId, FlashbangSoftAssetKey, FlashbangSoftAssetKey, "섬광탄 · 약하게", "image/gif", FlashbangSoftContentSha256, 1_921_621, 1_920, 1_080, false, FlashbangSoftResourceName),
         new(FlashbangStandardAssetId, FlashbangStandardAssetKey, FlashbangStandardAssetKey, "섬광탄 · 보통", "image/gif", FlashbangStandardContentSha256, 1_209_872, 1_920, 1_080, false, FlashbangStandardResourceName),
         new(FlashbangStrongAssetId, FlashbangStrongAssetKey, FlashbangStrongAssetKey, "섬광탄 · 강하게", "image/gif", FlashbangStrongContentSha256, 712_706, 1_920, 1_080, false, FlashbangStrongResourceName),
-        new(WaterSplashAssetId, WaterSplashAssetKey, WaterSplashAssetKey, "물벼락", "image/png", WaterSplashContentSha256, 2_596_031, 1_672, 941, false, WaterSplashResourceName),
-        new(FireworksAssetId, FireworksAssetKey, FireworksAssetKey, "축포", "image/png", FireworksContentSha256, 2_571_829, 1_672, 941, false, FireworksResourceName),
+        new(WaterSplashAssetId, WaterSplashAssetKey, WaterSplashAssetKey, "물벼락", "image/png", WaterSplashContentSha256, 2_155_966, 1_672, 941, false, WaterSplashResourceName),
+        new(FireworksAssetId, FireworksAssetKey, FireworksAssetKey, "축포", "image/png", FireworksContentSha256, 1_282_788, 1_672, 941, false, FireworksResourceName),
         new(EarthquakeAudioAssetId, EarthquakeAudioAssetKey, EarthquakeAudioAssetKey, "지진 효과음 연결", "image/svg+xml", EarthquakeAudioContentSha256, 147, 1, 1, false, EarthquakeAudioResourceName)
     ];
 

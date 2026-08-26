@@ -115,7 +115,7 @@ internal sealed class ScreenActionAdapter
                         audioBytes,
                         Convert.ToHexString(SHA256.HashData(audioBytes)).ToLowerInvariant(),
                         volumePercent,
-                        "earthquake-rumble-v1"),
+                        "earthquake-natural-rumble-v2"),
                     cancellationToken,
                     notAfterUtc);
             }
