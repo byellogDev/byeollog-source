@@ -90,7 +90,7 @@ internal sealed class OverlayPresentationNotObservedException : IOException
 internal sealed class ByeollogOverlayService : IDisposable
 {
     internal const string MicrophoneOffAssetKey = TimedMuteContract.MicrophoneOffOverlayAssetKey;
-    internal const string DocumentRevision = "categorized-actions-v6";
+    internal const string DocumentRevision = "categorized-actions-v7";
     internal const int DefaultPort = 43_120;
     internal const int BrowserAudioStartTimeoutMs = 5_000;
     internal const int MaximumBrowserAudioPlaybackMs = 25_000;
@@ -124,7 +124,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     #flashbang-stage.visible.strong { animation: flashbang-strong-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
     #flashbang-asset { display: block; width: 100%; height: 100%; object-fit: cover; }
     #effect-stage { position:absolute; inset:0; width:100%; height:100%; opacity:0; pointer-events:none; overflow:hidden; isolation:isolate; }
-    #effect-stage.visible.water-splash { animation:water-splash-show 1250ms linear both; }
+    #effect-stage.visible.water-splash { animation:water-splash-show 1750ms linear both; }
     #effect-stage.visible.fireworks { animation:fireworks-show 5000ms ease-out both; }
     #effect-asset { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; }
     #water-runoff-asset { position:absolute; inset:-4%; display:none; width:108%; height:108%; object-fit:cover; opacity:0; z-index:3; }
@@ -153,7 +153,7 @@ internal sealed class ByeollogOverlayService : IDisposable
   <img id="asset" alt="" draggable="false">
   <div id="raffle-stage"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div></section></div>
   <div id="flashbang-stage"><img id="flashbang-asset" alt="" draggable="false"></div>
-  <div id="effect-stage" data-document-revision="categorized-actions-v6"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><video id="water-vfx-video" muted playsinline preload="auto" src="/overlay/builtin/water-splash-v4.webm?v=553531218503cf9d79963944900e82c6184eba87bf7e516e414a231b405f3775"></video><img id="water-runoff-asset" alt="" draggable="false" src="/overlay/builtin/water-runoff-v2.png?v=d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee"><canvas id="water-flow-canvas"></canvas></div>
+  <div id="effect-stage" data-document-revision="categorized-actions-v7"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><video id="water-vfx-video" muted playsinline preload="auto" src="/overlay/builtin/water-splash-v4.webm?v=553531218503cf9d79963944900e82c6184eba87bf7e516e414a231b405f3775"></video><img id="water-runoff-asset" alt="" draggable="false" src="/overlay/builtin/water-runoff-v2.png?v=d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee"><canvas id="water-flow-canvas"></canvas></div>
   <script>
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
@@ -231,6 +231,7 @@ internal sealed class ByeollogOverlayService : IDisposable
       effectStage.classList.remove('water-complete');
       waterVfxVideo.onended = () => effectStage.classList.add('water-complete');
       try {
+        waterVfxVideo.playbackRate = 0.7;
         waterVfxVideo.currentTime = 0;
         void waterVfxVideo.play();
       } catch {}
@@ -433,7 +434,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     async function refresh() {
       try {
-        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v6', { cache: 'no-store' });
+        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v7', { cache: 'no-store' });
         if (!response.ok) throw new Error('state unavailable');
         const state = await response.json();
         if (state.active === true && typeof state.assetToken === 'string') {

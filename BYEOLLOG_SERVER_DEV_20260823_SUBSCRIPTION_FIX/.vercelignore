@@ -6,7 +6,7 @@
 node_modules
 supabase/.temp
 agent-updates/releases/**/*.zip
-!agent-updates/releases/0.7.0.100/byeollog_agent_v07100_FRONT_IMPACT_WATER_VFX_WIN_X64.zip
+!agent-updates/releases/0.7.0.101/byeollog_agent_v07101_SLOW_WATER_VFX_WIN_X64.zip
 api/native-roulette.js
 assets/native-roulette-settings.js
 **/__pycache__

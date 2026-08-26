@@ -352,3 +352,15 @@ test("v100 release preparation is immutable and trims persistent water residue",
   assert.match(notes, /약 1\.17초/);
   assert.match(notes, /마지막 프레임/);
 });
+
+test("v101 release preparation is immutable and slows only the water animation", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07101-AutoUpdate.ps1"),
+    source("RELEASE_v07101_SLOW_WATER_VFX_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7101/);
+  assert.match(build, /byeollog_agent_v07101_SLOW_WATER_VFX_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.101'/);
+  assert.match(notes, /0\.7배속/);
+  assert.match(notes, /약 1\.67초/);
+});

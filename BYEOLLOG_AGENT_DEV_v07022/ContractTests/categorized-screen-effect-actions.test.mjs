@@ -108,7 +108,7 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.match(adapter, /FireworksDurationMs = 5_000/);
   assert.match(adapter, /ShowObservedAudioTransientAsync/);
   assert.match(adapter, /parameters\.EnumerateObject\(\)\.Count\(\) != 6/);
-  assert.match(overlay, /categorized-actions-v6/);
+  assert.match(overlay, /categorized-actions-v7/);
   assert.match(overlay, /<video id="water-vfx-video" muted playsinline preload="auto"/);
   assert.match(overlay, /\/overlay\/builtin\/water-splash-v4\.webm/);
   assert.match(overlay, /WaterSplashMotionContentSha256/);
@@ -116,7 +116,8 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.match(overlay, /waterVfxVideo\.currentTime = 0/);
   assert.match(overlay, /waterVfxVideo\.play\(\)/);
   assert.match(overlay, /waterVfxVideo\.onended = \(\) => effectStage\.classList\.add\('water-complete'\)/);
-  assert.match(overlay, /#effect-stage\.visible\.water-splash \{ animation:water-splash-show 1250ms/);
+  assert.match(overlay, /waterVfxVideo\.playbackRate = 0\.7/);
+  assert.match(overlay, /#effect-stage\.visible\.water-splash \{ animation:water-splash-show 1750ms/);
   assert.match(overlay, /#effect-stage\.water-splash #effect-asset,[\s\S]*#effect-stage\.water-splash #water-flow-canvas \{ display:none; \}/);
   assert.doesNotMatch(overlay, /streamCount|bezierCurveTo/);
   assert.doesNotMatch(overlay, /water-splash-motion[\s\S]*translateY\(25%\)/);
