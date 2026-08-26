@@ -9,13 +9,19 @@
 
 ## 현재 기준선
 
-- Agent: `0.7.0.81`
+- Agent: `0.7.0.94`
 - Server package: `0.6.3-g3a.47`
-- Server build: `0.6.3.66-g3a-winner-preview-voice-sync`
+- Server build: `0.6.3.67-g3a-agent-release-assets`
 - Vercel project: `observer_abangseladmin`
 - Supabase project: `offslvwaugvjotkywlus`
 
-다음 대화에서 작업을 이어갈 때는 [PROJECT_HANDOFF_20260825_NEXT_CHAT/00_START_HERE_NEXT_CHAT_KO.md](PROJECT_HANDOFF_20260825_NEXT_CHAT/00_START_HERE_NEXT_CHAT_KO.md)를 먼저 읽습니다. 세부 무결성 값과 운영 배포 기준은 [PROJECT_BASELINE_20260825_KO.md](PROJECT_BASELINE_20260825_KO.md)를 참고합니다.
+최신 운영판, 배포 ID, 무결성 값과 보안 적용 상태는 [PROJECT_CURRENT_STATUS_20260826_KO.md](PROJECT_CURRENT_STATUS_20260826_KO.md)를 기준으로 확인합니다. [PROJECT_BASELINE_20260825_KO.md](PROJECT_BASELINE_20260825_KO.md)와 `PROJECT_HANDOFF_20260825_NEXT_CHAT`은 당시 기준의 역사 기록입니다.
+
+## 현재 웹 보안 기준
+
+- `https://byeollog.com/`은 해시 기반 CSP를 시행하며 `unsafe-inline`과 `unsafe-eval`을 허용하지 않습니다.
+- 전 경로에 HSTS, MIME 스니핑 방지, iframe 삽입 차단, 리퍼러 차단과 카메라·마이크·위치 권한 차단 헤더를 적용합니다.
+- 홈페이지 CSP의 인라인 스크립트·스타일 해시가 소스와 달라지면 서버 회귀 테스트가 실패합니다.
 
 ## 기본 검증
 
