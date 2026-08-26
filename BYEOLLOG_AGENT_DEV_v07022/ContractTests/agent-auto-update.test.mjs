@@ -248,3 +248,19 @@ test("v93 release preparation is immutable and identifies the public voice-filte
   assert.match(notes, /신원보호 필터/);
   assert.match(notes, /필터 자동 준비/);
 });
+
+test("v94 release preparation is immutable and identifies the inline microphone setup build", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07094-AutoUpdate.ps1"),
+    source("RELEASE_v07094_INLINE_MIC_SETUP_KO.txt")
+  ]);
+
+  assert.match(build, /\$releaseSequence = 7094/);
+  assert.match(build, /byeollog_agent_v07094_INLINE_MIC_SETUP_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.94'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.94'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /v0\.7\.0\.94/);
+  assert.match(notes, /액션 생성 화면/);
+  assert.match(notes, /아봉/);
+});

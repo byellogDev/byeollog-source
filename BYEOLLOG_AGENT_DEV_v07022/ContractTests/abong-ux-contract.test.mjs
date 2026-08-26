@@ -128,6 +128,24 @@ test("Abong control uses direct seconds, image preview, and overlays for both mi
   assert.match(automation, /overlayScalePercent/);
 });
 
+test("Abong setup embeds the matching local microphone controls without leaving the wizard", async () => {
+  const automation = await source("Ui/agent_automation.html");
+
+  assert.match(automation, /id="inlineObsSetup" hidden/);
+  assert.match(automation, /id="inlineWindowsSetup" hidden/);
+  assert.match(automation, /id="inlineSaveObsButton"[^>]*>OBS 연결 저장<\/button>/);
+  assert.match(automation, /id="inlineSaveWindowsButton"[^>]*>장치 저장<\/button>/);
+  assert.match(automation, /type==='obs\.mute_for'/);
+  assert.match(automation, /type==='windows\.mic_mute_for'/);
+  assert.match(automation, /function selectedExecutionIsLocal\(\)/);
+  assert.match(automation, /선택한 PC에서 별록을 열어야 해당 PC의 마이크 설정을 변경할 수 있습니다/);
+  assert.match(automation, /post\('saveObsSettings',obsSettingsPayload\('inline'\)\)/);
+  assert.match(automation, /post\('saveWindowsMicSettings',\{enabled:elements\.inlineWindowsEnabled\.checked,endpointId:elements\.inlineWindowsEndpoint\.value\}\)/);
+  assert.match(automation, /syncObsControls\('inline'\)/);
+  assert.match(automation, /inlineWindowsEndpoint\.onchange/);
+  assert.doesNotMatch(automation, /inline(?:Obs|Windows)[\s\S]{0,120}switchView\('microphones'\)/);
+});
+
 test("donation automation keeps one exact amount while roulette runs only by result name", async () => {
   const [automation, client, migration] = await Promise.all([
     source("Ui/agent_automation.html"),

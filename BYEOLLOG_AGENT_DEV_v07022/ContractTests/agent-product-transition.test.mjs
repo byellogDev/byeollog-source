@@ -67,9 +67,9 @@ test("the Agent exposes one unified release label without the historical public-
     source("MainForm.cs"),
     source("Ui/byeollog_ui.html")
   ]);
-  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.93"/);
-  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.93"/);
-  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.93"/);
+  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.94"/);
+  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.94"/);
+  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.94"/);
   assert.match(main, /BuildInfo\.DisplayVersion/);
   assert.doesNotMatch(main, /nDev/);
   assert.match(main, /\$"별록 · \{text\.Replace\("상태: ", ""\)\}"/);
@@ -93,7 +93,7 @@ test("every normally approved streamer can use the public automation surface", a
   assert.match(access, /returnedUserId != authenticatedUserId/);
   assert.doesNotMatch(form, /owner\/admin만/);
   assert.doesNotMatch(automation, /owner\/admin/);
-  assert.match(uiStore, /UiVersion\s*=\s*"v0\.7\.0\.93"/);
+  assert.match(uiStore, /UiVersion\s*=\s*"v0\.7\.0\.94"/);
 });
 
 test("legacy Collector shortcut cleanup removes only the installer-owned target", async () => {

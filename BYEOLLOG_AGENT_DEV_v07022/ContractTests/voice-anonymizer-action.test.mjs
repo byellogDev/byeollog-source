@@ -146,6 +146,13 @@ test("streamer UI exposes the public voice-filter label, readiness, and five-sec
   assert.match(ui, /id="previewVoiceButton"[^>]*aria-label="다운톤 필터 5초 미리보기"[^>]*>5초 미리보기<\/button>/);
   assert.match(ui, /id="previewVoiceUpButton"[^>]*aria-label="업톤 필터 5초 미리보기"[^>]*>5초 미리보기<\/button>/);
   assert.match(ui, /id="previewVoiceWizardButton"/);
+  assert.match(ui, /id="inlineVoiceFilterSetup" hidden/);
+  assert.match(ui, /id="inlineEnsureVoiceFiltersButton"[^>]*>필터 자동 준비<\/button>/);
+  assert.match(ui, /id="inlineTestVoiceFilterButton"[^>]*>선택 필터 확인<\/button>/);
+  assert.match(ui, /id="previewVoiceWizardButton"[^>]*>선택 톤 5초 미리보기<\/button>/);
+  assert.match(ui, /post\('ensureVoiceAnonymizerFilters',\{\.\.\.obsSettingsPayload\('inline'\),enabled:true\}\)/);
+  assert.match(ui, /post\('testVoiceAnonymizerFilter',\{\.\.\.obsSettingsPayload\('inline'\),preset:selectedVoicePreset\(\)\}\)/);
+  assert.match(ui, /inline-microphone-setup-v2/);
   assert.match(ui, /value="anonymous_low"/);
   assert.match(ui, /value="anonymous_high"/);
   assert.match(ui, /post\('previewVoiceAnonymizer',\{preset/);
