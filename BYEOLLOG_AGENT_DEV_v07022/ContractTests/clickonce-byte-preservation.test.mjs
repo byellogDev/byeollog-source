@@ -109,7 +109,7 @@ test("dotnet-mage is pinned and the future SDK profile stays parameterized", asy
   assert.deepEqual(Object.keys(mage).sort(), ["commands", "version"]);
 
   assert.match(profile, /<PublishProtocol>ClickOnce<\/PublishProtocol>/);
-  assert.match(profile, /<ApplicationVersion>0\.7\.0\.103<\/ApplicationVersion>/);
+  assert.match(profile, /<ApplicationVersion>0\.7\.0\.104<\/ApplicationVersion>/);
   assert.match(profile, /<RuntimeIdentifier>win-x64<\/RuntimeIdentifier>/);
   assert.match(profile, /<SelfContained>true<\/SelfContained>/);
   assert.match(profile, /<PublishSingleFile>true<\/PublishSingleFile>/);

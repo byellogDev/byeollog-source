@@ -81,9 +81,9 @@
     <EmbeddedResource Include="../Assets/byeollog_fireworks.png"
                       Link="Assets/byeollog_fireworks.png"
                       LogicalName="HurogiCollector.Assets.byeollog_fireworks.png" />
-    <EmbeddedResource Include="../Assets/byeollog_bodyless_confetti_dense_v2.webm"
-                      Link="Assets/byeollog_bodyless_confetti_dense_v2.webm"
-                      LogicalName="HurogiCollector.Assets.byeollog_bodyless_confetti_dense_v2.webm" />
+    <EmbeddedResource Include="../Assets/byeollog_modern_confetti_v3.webm"
+                      Link="Assets/byeollog_modern_confetti_v3.webm"
+                      LogicalName="HurogiCollector.Assets.byeollog_modern_confetti_v3.webm" />
     <EmbeddedResource Include="../Assets/byeollog_earthquake_audio.svg"
                       Link="Assets/byeollog_earthquake_audio.svg"
                       LogicalName="HurogiCollector.Assets.byeollog_earthquake_audio.svg" />

@@ -388,3 +388,15 @@ test("v103 release preparation is immutable and packages denser confetti motion"
   assert.match(notes, /124개에서 252개/);
   assert.match(notes, /중앙 분출/);
 });
+
+test("v104 release preparation is immutable and packages modern restrained confetti motion", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07104-AutoUpdate.ps1"),
+    source("RELEASE_v07104_MODERN_CONFETTI_VFX_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7104/);
+  assert.match(build, /byeollog_agent_v07104_MODERN_CONFETTI_VFX_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.104'/);
+  assert.match(notes, /252개에서 186개/);
+  assert.match(notes, /얇고 불규칙한 종이 조각/);
+});
