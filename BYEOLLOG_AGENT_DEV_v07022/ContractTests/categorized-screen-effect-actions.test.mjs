@@ -56,7 +56,8 @@ test("screen actions use only OBS scene APIs and guarantee cleanup", async () =>
 
 test("water and party popper package immutable transparent art and CC0 natural audio", async () => {
   const assets = [
-    ["byeollog_water_splash.png", "f8d4da3a5facfee1fd2a07e8dc9ee0e5c84389c65d369dc24d45438c457a440b"],
+    ["byeollog_water_splash.png", "6348579b7f309bb83e06d34d70e6db059f54c5d9824b6a9aaae2e6c4a179ea53"],
+    ["byeollog_water_runoff_v2.png", "d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee"],
     ["byeollog_fireworks.png", "16c9c3a09100a48a3c9818efc91335d109d96ba985709e9b5a6439d3f37a1c57"]
   ];
   const audio = [
@@ -97,14 +98,21 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.match(adapter, /FireworksDurationMs = 5_000/);
   assert.match(adapter, /ShowObservedAudioTransientAsync/);
   assert.match(adapter, /parameters\.EnumerateObject\(\)\.Count\(\) != 6/);
-  assert.match(overlay, /categorized-actions-v3/);
+  assert.match(overlay, /categorized-actions-v4/);
   assert.match(overlay, /requestAnimationFrame\(draw\)/);
-  assert.match(overlay, /streamCount/);
-  assert.match(overlay, /bezierCurveTo/);
-  assert.match(overlay, /droplets/);
+  assert.match(overlay, /sprayDroplets/);
+  assert.match(overlay, /lensBeads/);
+  assert.match(overlay, /water-runoff-settle/);
+  assert.match(overlay, /water-refraction-pulse/);
+  assert.match(overlay, /\/overlay\/builtin\/water-runoff-v2\.png/);
+  assert.match(overlay, /WaterRunoffContentSha256/);
+  assert.doesNotMatch(overlay, /streamCount|bezierCurveTo/);
   assert.doesNotMatch(overlay, /water-splash-motion[\s\S]*translateY\(25%\)/);
   assert.match(overlay, /#effect-stage\.visible\.water-splash/);
   assert.match(overlay, /#effect-stage\.visible\.fireworks/);
+  const inlineScript = overlay.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+  assert.ok(inlineScript, "overlay inline script is missing");
+  assert.doesNotThrow(() => new Function(inlineScript));
 });
 
 test("webview sound previews and v16/v6 client contract are fail closed", async () => {

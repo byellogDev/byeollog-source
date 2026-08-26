@@ -90,7 +90,7 @@ internal sealed class OverlayPresentationNotObservedException : IOException
 internal sealed class ByeollogOverlayService : IDisposable
 {
     internal const string MicrophoneOffAssetKey = TimedMuteContract.MicrophoneOffOverlayAssetKey;
-    internal const string DocumentRevision = "categorized-actions-v3";
+    internal const string DocumentRevision = "categorized-actions-v4";
     internal const int DefaultPort = 43_120;
     internal const int BrowserAudioStartTimeoutMs = 5_000;
     internal const int MaximumBrowserAudioPlaybackMs = 25_000;
@@ -123,20 +123,28 @@ internal sealed class ByeollogOverlayService : IDisposable
     #flashbang-stage.visible.standard { animation: flashbang-standard-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
     #flashbang-stage.visible.strong { animation: flashbang-strong-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
     #flashbang-asset { display: block; width: 100%; height: 100%; object-fit: cover; }
-    #effect-stage { position:absolute; inset:0; width:100%; height:100%; opacity:0; pointer-events:none; overflow:hidden; }
+    #effect-stage { position:absolute; inset:0; width:100%; height:100%; opacity:0; pointer-events:none; overflow:hidden; isolation:isolate; }
     #effect-stage.visible.water-splash { animation:water-splash-show 3500ms linear both; }
     #effect-stage.visible.fireworks { animation:fireworks-show 5000ms ease-out both; }
     #effect-asset { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; }
+    #water-runoff-asset { position:absolute; inset:-4%; display:none; width:108%; height:108%; object-fit:cover; opacity:0; z-index:3; }
+    #water-refraction { position:absolute; inset:0; display:none; z-index:1; opacity:0; background:radial-gradient(ellipse at 48% 38%,rgba(205,247,255,.12),rgba(52,169,220,.07) 44%,rgba(2,63,126,.04) 72%,transparent 90%); backdrop-filter:blur(.65px) saturate(1.08); }
     #water-flow-canvas { position:absolute; inset:0; display:none; width:100%; height:100%; }
     #effect-stage.water-splash #water-flow-canvas { display:block; }
-    #effect-stage.water-splash #effect-asset { z-index:2; transform-origin:45% 28%; animation:water-impact-burst 1450ms cubic-bezier(.13,.76,.2,1) both; }
-    #effect-stage.water-splash #water-flow-canvas { z-index:3; }
+    #effect-stage.water-splash #water-runoff-asset,
+    #effect-stage.water-splash #water-refraction { display:block; }
+    #effect-stage.water-splash #effect-asset { z-index:2; transform-origin:48% 42%; animation:water-impact-burst 1850ms cubic-bezier(.13,.76,.2,1) both; }
+    #effect-stage.water-splash #water-runoff-asset { animation:water-runoff-settle 3200ms cubic-bezier(.16,.68,.22,1) 260ms both; }
+    #effect-stage.water-splash #water-refraction { animation:water-refraction-pulse 3500ms ease-out both; }
+    #effect-stage.water-splash #water-flow-canvas { z-index:4; }
     #effect-stage.fireworks #effect-asset { animation:fireworks-motion 5000ms cubic-bezier(.16,.78,.24,1) both; }
     @keyframes flashbang-soft-recover { 0%,8% { opacity:.68 } 35% { opacity:.50 } 68% { opacity:.20 } 100% { opacity:0 } }
     @keyframes flashbang-standard-recover { 0%,10% { opacity:.86 } 38% { opacity:.66 } 70% { opacity:.28 } 100% { opacity:0 } }
     @keyframes flashbang-strong-recover { 0%,13% { opacity:1 } 42% { opacity:.82 } 73% { opacity:.38 } 100% { opacity:0 } }
     @keyframes water-splash-show { 0% {opacity:0} 3%,82% {opacity:1} 100% {opacity:0} }
-    @keyframes water-impact-burst { 0% {opacity:0;transform:scale(.72) rotate(-3deg)} 11% {opacity:1;transform:scale(1.035) rotate(.5deg)} 28% {opacity:.95;transform:scale(1) rotate(0)} 62% {opacity:.54;transform:scale(1.018)} 100% {opacity:0;transform:scale(1.04)} }
+    @keyframes water-impact-burst { 0% {opacity:0;filter:blur(9px);transform:scale(.64) rotate(-2.5deg)} 8% {opacity:1;filter:blur(0);transform:scale(1.055) rotate(.35deg)} 22% {opacity:.96;transform:scale(1) rotate(0)} 55% {opacity:.56;filter:blur(.2px);transform:scale(1.018)} 100% {opacity:0;filter:blur(1.5px);transform:scale(1.07)} }
+    @keyframes water-runoff-settle { 0% {opacity:0;clip-path:inset(0 0 86% 0);filter:blur(3px);transform:scale(1.025, .94)} 18% {opacity:.78;clip-path:inset(0 0 43% 0);filter:blur(.4px);transform:scale(1.01, .98)} 46% {opacity:.88;clip-path:inset(0);transform:scale(1,1.015)} 76% {opacity:.58;transform:scale(1.004,1.035)} 100% {opacity:0;filter:blur(1.2px);transform:scale(1.008,1.055)} }
+    @keyframes water-refraction-pulse { 0% {opacity:0} 7% {opacity:.74} 34% {opacity:.36} 78% {opacity:.16} 100% {opacity:0} }
     @keyframes fireworks-show { 0% {opacity:0} 3%,58% {opacity:1} 82% {opacity:.66} 100% {opacity:0} }
     @keyframes fireworks-motion { 0% {transform:translateY(8%) scale(.82)} 9% {transform:translateY(0) scale(1)} 56% {transform:translateY(2%) scale(1.015)} 100% {transform:translateY(12%) scale(1.045)} }
   </style>
@@ -145,7 +153,7 @@ internal sealed class ByeollogOverlayService : IDisposable
   <img id="asset" alt="" draggable="false">
   <div id="raffle-stage"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div></section></div>
   <div id="flashbang-stage"><img id="flashbang-asset" alt="" draggable="false"></div>
-  <div id="effect-stage" data-document-revision="categorized-actions-v3"><img id="effect-asset" alt="" draggable="false"><canvas id="water-flow-canvas"></canvas></div>
+  <div id="effect-stage" data-document-revision="categorized-actions-v4"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><img id="water-runoff-asset" alt="" draggable="false" src="/overlay/builtin/water-runoff-v2.png?v=d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee"><canvas id="water-flow-canvas"></canvas></div>
   <script>
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
@@ -157,6 +165,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     const flashbangAsset = document.getElementById('flashbang-asset');
     const effectStage = document.getElementById('effect-stage');
     const effectAsset = document.getElementById('effect-asset');
+    const waterRunoffAsset = document.getElementById('water-runoff-asset');
     const waterFlowCanvas = document.getElementById('water-flow-canvas');
     let currentRevision = '';
     let loadedFlashbangRevision = '';
@@ -237,106 +246,107 @@ internal sealed class ByeollogOverlayService : IDisposable
         seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
         return seed / 4294967296;
       };
-      const streamCount = Math.max(11, Math.min(18, Math.round(width / 115)));
-      const streams = Array.from({ length: streamCount }, (_, index) => ({
-        x: width * (.13 + .74 * (index + .35 + random() * .3) / streamCount),
-        startY: height * (.22 + random() * .17),
-        delay: 260 + random() * 620,
-        duration: 1550 + random() * 850,
-        width: Math.max(7, width * (.006 + random() * .009)),
-        bend: width * (.018 + random() * .032) * (random() > .5 ? 1 : -1),
+      const sprayDroplets = Array.from({ length: 118 }, () => {
+        const angle = random() * Math.PI * 2;
+        const speed = width * (.12 + random() * .48);
+        return {
+          x: width * (.48 + (random() - .5) * .13),
+          y: height * (.43 + (random() - .5) * .14),
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - height * (.05 + random() * .18),
+          gravity: height * (.55 + random() * .65),
+          delay: random() * 170,
+          radius: Math.max(2.2, width * (.0017 + random() * .0068)),
+          stretch: 1.15 + random() * 2.7,
+          opacity: .55 + random() * .4
+        };
+      });
+      const lensBeads = Array.from({ length: 28 }, () => ({
+        x: width * (.04 + random() * .92),
+        y: height * (.04 + random() * .58),
+        delay: 360 + random() * 740,
+        speed: height * (.035 + random() * .12),
+        radius: Math.max(5, width * (.003 + random() * .011)),
         phase: random() * Math.PI * 2,
-        opacity: .5 + random() * .35
-      }));
-      const droplets = Array.from({ length: 72 }, () => ({
-        x: width * (.45 + (random() - .5) * .34),
-        y: height * (.27 + (random() - .5) * .12),
-        vx: width * (random() - .5) * .34,
-        vy: -height * (.08 + random() * .34),
-        gravity: height * (.7 + random() * .42),
-        delay: random() * 340,
-        size: Math.max(2.5, width * (.002 + random() * .0055)),
-        stretch: 1.4 + random() * 2.4,
-        opacity: .5 + random() * .42
+        drift: width * (.002 + random() * .009) * (random() > .5 ? 1 : -1),
+        opacity: .28 + random() * .38
       }));
       const startedAt = performance.now();
       const clamp = value => Math.max(0, Math.min(1, value));
-      const easeOut = value => 1 - Math.pow(1 - clamp(value), 3);
 
       const draw = now => {
         if (runId !== waterRunId) return;
         const elapsed = now - startedAt;
         context.clearRect(0, 0, width, height);
 
-        const wetness = clamp((elapsed - 520) / 900) * (1 - clamp((elapsed - 2820) / 680));
-        if (wetness > 0) {
-          const veil = context.createLinearGradient(0, height * .28, 0, height);
-          veil.addColorStop(0, 'rgba(125,225,255,0)');
-          veil.addColorStop(.62, 'rgba(34,155,222,' + (.055 * wetness) + ')');
-          veil.addColorStop(1, 'rgba(3,89,164,' + (.16 * wetness) + ')');
-          context.fillStyle = veil;
-          context.fillRect(0, height * .25, width, height * .75);
+        const shock = clamp(1 - elapsed / 620);
+        if (shock > 0) {
+          const bloom = context.createRadialGradient(
+            width * .48,
+            height * .43,
+            0,
+            width * .48,
+            height * .43,
+            width * (.16 + (1 - shock) * .42));
+          bloom.addColorStop(0, 'rgba(225,252,255,' + (.2 * shock) + ')');
+          bloom.addColorStop(.4, 'rgba(104,220,255,' + (.11 * shock) + ')');
+          bloom.addColorStop(1, 'rgba(38,150,225,0)');
+          context.fillStyle = bloom;
+          context.fillRect(0, 0, width, height);
         }
 
-        for (const stream of streams) {
-          const progress = easeOut((elapsed - stream.delay) / stream.duration);
-          const fade = 1 - clamp((elapsed - 2700) / 700);
-          if (progress <= 0 || fade <= 0) continue;
-          const endY = stream.startY + (height - stream.startY + height * .12) * progress;
-          const wave = Math.sin(elapsed * .006 + stream.phase) * stream.bend;
-          const controlY = stream.startY + (endY - stream.startY) * .52;
-          const gradient = context.createLinearGradient(stream.x, stream.startY, stream.x, endY);
-          gradient.addColorStop(0, 'rgba(210,249,255,' + (.76 * stream.opacity * fade) + ')');
-          gradient.addColorStop(.28, 'rgba(75,202,245,' + (.72 * stream.opacity * fade) + ')');
-          gradient.addColorStop(1, 'rgba(18,126,215,' + (.12 * stream.opacity * fade) + ')');
-
-          context.lineCap = 'round';
-          context.beginPath();
-          context.moveTo(stream.x, stream.startY);
-          context.bezierCurveTo(
-            stream.x + stream.bend * .35,
-            controlY * .72,
-            stream.x + wave,
-            controlY,
-            stream.x + wave * .58,
-            endY);
-          context.strokeStyle = 'rgba(0,65,145,' + (.2 * fade) + ')';
-          context.lineWidth = stream.width * 1.45;
-          context.stroke();
-          context.strokeStyle = gradient;
-          context.lineWidth = stream.width;
-          context.stroke();
-          context.strokeStyle = 'rgba(235,255,255,' + (.58 * fade) + ')';
-          context.lineWidth = Math.max(1.2, stream.width * .19);
-          context.stroke();
-
-          context.beginPath();
-          context.ellipse(
-            stream.x + wave * .58,
-            endY,
-            stream.width * .68,
-            stream.width * 1.65,
-            0,
-            0,
-            Math.PI * 2);
-          context.fillStyle = 'rgba(91,207,246,' + (.68 * fade) + ')';
-          context.fill();
-        }
-
-        for (const droplet of droplets) {
+        for (const droplet of sprayDroplets) {
           const seconds = (elapsed - droplet.delay) / 1000;
-          if (seconds < 0 || seconds > 1.75) continue;
+          if (seconds < 0 || seconds > 1.45) continue;
           const x = droplet.x + droplet.vx * seconds;
           const y = droplet.y + droplet.vy * seconds + .5 * droplet.gravity * seconds * seconds;
           if (y > height * 1.12) continue;
-          const fade = 1 - clamp((seconds - 1.2) / .55);
+          const fade = 1 - clamp((seconds - .72) / .73);
+          const velocityY = droplet.vy + droplet.gravity * seconds;
+          const rotation = Math.atan2(velocityY, droplet.vx) + Math.PI / 2;
+          context.save();
+          context.translate(x, y);
+          context.rotate(rotation);
           context.beginPath();
-          context.ellipse(x, y, droplet.size, droplet.size * droplet.stretch, 0, 0, Math.PI * 2);
-          const dropGradient = context.createLinearGradient(x - droplet.size, y, x + droplet.size, y);
-          dropGradient.addColorStop(0, 'rgba(8,111,210,' + (.58 * droplet.opacity * fade) + ')');
-          dropGradient.addColorStop(.5, 'rgba(119,226,255,' + (.88 * droplet.opacity * fade) + ')');
-          dropGradient.addColorStop(1, 'rgba(233,255,255,' + (.72 * droplet.opacity * fade) + ')');
+          context.ellipse(0, 0, droplet.radius, droplet.radius * droplet.stretch, 0, 0, Math.PI * 2);
+          const dropGradient = context.createRadialGradient(
+            -droplet.radius * .32,
+            -droplet.radius * .52,
+            droplet.radius * .08,
+            0,
+            0,
+            droplet.radius * droplet.stretch);
+          dropGradient.addColorStop(0, 'rgba(250,255,255,' + (.92 * droplet.opacity * fade) + ')');
+          dropGradient.addColorStop(.26, 'rgba(150,232,255,' + (.8 * droplet.opacity * fade) + ')');
+          dropGradient.addColorStop(.76, 'rgba(38,153,224,' + (.52 * droplet.opacity * fade) + ')');
+          dropGradient.addColorStop(1, 'rgba(5,72,158,' + (.12 * droplet.opacity * fade) + ')');
           context.fillStyle = dropGradient;
+          context.fill();
+          context.restore();
+        }
+
+        const residueFade = 1 - clamp((elapsed - 2860) / 640);
+        for (const bead of lensBeads) {
+          const seconds = (elapsed - bead.delay) / 1000;
+          if (seconds < 0 || residueFade <= 0) continue;
+          const x = bead.x + Math.sin(seconds * 2.1 + bead.phase) * bead.drift;
+          const y = bead.y + bead.speed * seconds * seconds;
+          if (y > height * 1.08) continue;
+          const alpha = bead.opacity * Math.min(1, seconds * 4) * residueFade;
+          const beadGradient = context.createRadialGradient(
+            x - bead.radius * .3,
+            y - bead.radius * .42,
+            bead.radius * .08,
+            x,
+            y,
+            bead.radius * 1.12);
+          beadGradient.addColorStop(0, 'rgba(255,255,255,' + (.72 * alpha) + ')');
+          beadGradient.addColorStop(.2, 'rgba(184,239,255,' + (.52 * alpha) + ')');
+          beadGradient.addColorStop(.72, 'rgba(61,168,222,' + (.28 * alpha) + ')');
+          beadGradient.addColorStop(1, 'rgba(3,52,120,0)');
+          context.beginPath();
+          context.ellipse(x, y, bead.radius, bead.radius * (1.14 + Math.min(.8, seconds * .28)), 0, 0, Math.PI * 2);
+          context.fillStyle = beadGradient;
           context.fill();
         }
 
@@ -413,7 +423,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     async function refresh() {
       try {
-        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v3', { cache: 'no-store' });
+        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v4', { cache: 'no-store' });
         if (!response.ok) throw new Error('state unavailable');
         const state = await response.json();
         if (state.active === true && typeof state.assetToken === 'string') {
@@ -523,6 +533,25 @@ internal sealed class ByeollogOverlayService : IDisposable
 </body>
 </html>
 """);
+
+    private static readonly Lazy<byte[]> WaterRunoffBytes = new(
+        static () =>
+        {
+            using var stream = typeof(ByeollogOverlayService).Assembly
+                .GetManifestResourceStream(OverlayAssetCache.WaterRunoffResourceName);
+            if (stream is null) return [];
+            using var memory = new MemoryStream();
+            stream.CopyTo(memory);
+            var bytes = memory.ToArray();
+            var sha256 = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
+            return string.Equals(
+                    sha256,
+                    OverlayAssetCache.WaterRunoffContentSha256,
+                    StringComparison.Ordinal)
+                ? bytes
+                : [];
+        },
+        LazyThreadSafetyMode.ExecutionAndPublication);
 
     private readonly CollectorStorage _storage;
     private readonly OverlayAssetCache _assetCache;
@@ -1715,6 +1744,18 @@ internal sealed class ByeollogOverlayService : IDisposable
                 if (path == "/overlay")
                 {
                     await WriteResponseAsync(stream, 200, "text/html; charset=utf-8", OverlayHtml, headOnly, timeout.Token);
+                    return;
+                }
+                if (path == "/overlay/builtin/water-runoff-v2.png"
+                    && WaterRunoffBytes.Value.Length > 0)
+                {
+                    await WriteResponseAsync(
+                        stream,
+                        200,
+                        "image/png",
+                        WaterRunoffBytes.Value,
+                        headOnly,
+                        timeout.Token);
                     return;
                 }
                 if (path == "/overlay/state")

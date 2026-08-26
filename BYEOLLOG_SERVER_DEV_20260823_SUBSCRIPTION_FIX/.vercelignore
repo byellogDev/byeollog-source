@@ -6,7 +6,7 @@
 node_modules
 supabase/.temp
 agent-updates/releases/**/*.zip
-!agent-updates/releases/0.7.0.97/byeollog_agent_v07097_EARTHQUAKE_RELIABILITY_FLOWING_WATER_WIN_X64.zip
+!agent-updates/releases/0.7.0.98/byeollog_agent_v07098_PREMIUM_WATER_VFX_WIN_X64.zip
 api/native-roulette.js
 assets/native-roulette-settings.js
 **/__pycache__

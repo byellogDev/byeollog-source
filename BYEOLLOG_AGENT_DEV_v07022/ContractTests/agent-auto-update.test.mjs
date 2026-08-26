@@ -313,3 +313,18 @@ test("v97 release preparation is immutable and identifies earthquake reliability
   assert.match(notes, /크로스페이드/);
   assert.match(notes, /Canvas 애니메이션/);
 });
+
+test("v98 release preparation is immutable and identifies premium water VFX", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07098-AutoUpdate.ps1"),
+    source("RELEASE_v07098_PREMIUM_WATER_VFX_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7098/);
+  assert.match(build, /byeollog_agent_v07098_PREMIUM_WATER_VFX_WIN_X64/);
+  assert.match(build, /FileVersion -ne '0\.7\.0\.98'/);
+  assert.match(build, /New-ReleaseManifest\.ps1'\) -PackageRoot \$staging -Version '0\.7\.0\.98'/);
+  assert.match(build, /immutable-output-conflict/);
+  assert.match(notes, /고해상도 투명 물보라/);
+  assert.match(notes, /직선으로 내려오던 Canvas 물줄기를 전부 제거/);
+  assert.match(notes, /렌즈 굴절/);
+});
