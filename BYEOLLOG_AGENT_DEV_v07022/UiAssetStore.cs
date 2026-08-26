@@ -6,7 +6,7 @@ internal static class UiAssetStore
 {
     // A new directory is required whenever an embedded UI changes because
     // WriteResource intentionally preserves an existing versioned cache.
-    private const string UiVersion = "v0.7.0.106";
+    private const string UiVersion = "v0.7.0.107";
 
     internal static string Prepare()
     {

@@ -293,7 +293,7 @@ internal sealed class OverlayAssetCache
     internal const string WaterSplashContentSha256 = "6348579b7f309bb83e06d34d70e6db059f54c5d9824b6a9aaae2e6c4a179ea53";
     internal const string WaterRunoffContentSha256 = "d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee";
     internal const string WaterSplashMotionContentSha256 = "553531218503cf9d79963944900e82c6184eba87bf7e516e414a231b405f3775";
-    internal const string FireworksMotionContentSha256 = "bcdcac2dbe0073af9fb7ea0fd59e5c7107fe6a66e32be11eb6260110573f8b9c";
+    internal const string FireworksMotionContentSha256 = "2eeff05469c739f1a889897f9ab5f10bd24ad3baa3c659596cec469b107baca3";
     internal const string FireworksContentSha256 = "16c9c3a09100a48a3c9818efc91335d109d96ba985709e9b5a6439d3f37a1c57";
     internal const string EarthquakeAudioContentSha256 = "bc83d5c814fc3b98389e4fa41818cf01f581c01c0b2b39190967ba7169f2e6fe";
     private const string LegacyBuiltInResourceName = "HurogiCollector.Assets.byeollog_mic_off_overlay.svg";
@@ -310,7 +310,7 @@ internal sealed class OverlayAssetCache
     private const string WaterSplashResourceName = "HurogiCollector.Assets.byeollog_water_splash.png";
     internal const string WaterRunoffResourceName = "HurogiCollector.Assets.byeollog_water_runoff_v2.png";
     internal const string WaterSplashMotionResourceName = "HurogiCollector.Assets.byeollog_water_splash_flip_v4.webm";
-    internal const string FireworksMotionResourceName = "HurogiCollector.Assets.byeollog_photoreal_confetti_double_v5.webm";
+    internal const string FireworksMotionResourceName = "HurogiCollector.Assets.byeollog_photoreal_confetti_quad_v6.webm";
     private const string FireworksResourceName = "HurogiCollector.Assets.byeollog_fireworks.png";
     private const string EarthquakeAudioResourceName = "HurogiCollector.Assets.byeollog_earthquake_audio.svg";
     private const long DefaultCacheLimitBytes = 50L * 1024 * 1024;
