@@ -90,7 +90,7 @@ internal sealed class OverlayPresentationNotObservedException : IOException
 internal sealed class ByeollogOverlayService : IDisposable
 {
     internal const string MicrophoneOffAssetKey = TimedMuteContract.MicrophoneOffOverlayAssetKey;
-    internal const string DocumentRevision = "categorized-actions-v5";
+    internal const string DocumentRevision = "categorized-actions-v6";
     internal const int DefaultPort = 43_120;
     internal const int BrowserAudioStartTimeoutMs = 5_000;
     internal const int MaximumBrowserAudioPlaybackMs = 25_000;
@@ -124,7 +124,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     #flashbang-stage.visible.strong { animation: flashbang-strong-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
     #flashbang-asset { display: block; width: 100%; height: 100%; object-fit: cover; }
     #effect-stage { position:absolute; inset:0; width:100%; height:100%; opacity:0; pointer-events:none; overflow:hidden; isolation:isolate; }
-    #effect-stage.visible.water-splash { animation:water-splash-show 3500ms linear both; }
+    #effect-stage.visible.water-splash { animation:water-splash-show 1250ms linear both; }
     #effect-stage.visible.fireworks { animation:fireworks-show 5000ms ease-out both; }
     #effect-asset { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; }
     #water-runoff-asset { position:absolute; inset:-4%; display:none; width:108%; height:108%; object-fit:cover; opacity:0; z-index:3; }
@@ -132,22 +132,16 @@ internal sealed class ByeollogOverlayService : IDisposable
     #water-flow-canvas { position:absolute; inset:0; display:none; width:100%; height:100%; }
     #water-vfx-video { position:absolute; inset:0; display:none; width:100%; height:100%; object-fit:cover; z-index:4; }
     #effect-stage.water-splash #water-vfx-video { display:block; }
+    #effect-stage.water-splash.water-complete #water-vfx-video { display:none; }
     #effect-stage.water-splash #effect-asset,
     #effect-stage.water-splash #water-runoff-asset,
     #effect-stage.water-splash #water-refraction,
     #effect-stage.water-splash #water-flow-canvas { display:none; }
-    #effect-stage.water-splash #water-flow-canvas { display:block; }
-    #effect-stage.water-splash #water-runoff-asset,
-    #effect-stage.water-splash #water-refraction { display:block; }
-    #effect-stage.water-splash #effect-asset { z-index:2; transform-origin:48% 42%; animation:water-impact-burst 1850ms cubic-bezier(.13,.76,.2,1) both; }
-    #effect-stage.water-splash #water-runoff-asset { animation:water-runoff-settle 3200ms cubic-bezier(.16,.68,.22,1) 260ms both; }
-    #effect-stage.water-splash #water-refraction { animation:water-refraction-pulse 3500ms ease-out both; }
-    #effect-stage.water-splash #water-flow-canvas { z-index:4; }
     #effect-stage.fireworks #effect-asset { animation:fireworks-motion 5000ms cubic-bezier(.16,.78,.24,1) both; }
     @keyframes flashbang-soft-recover { 0%,8% { opacity:.68 } 35% { opacity:.50 } 68% { opacity:.20 } 100% { opacity:0 } }
     @keyframes flashbang-standard-recover { 0%,10% { opacity:.86 } 38% { opacity:.66 } 70% { opacity:.28 } 100% { opacity:0 } }
     @keyframes flashbang-strong-recover { 0%,13% { opacity:1 } 42% { opacity:.82 } 73% { opacity:.38 } 100% { opacity:0 } }
-    @keyframes water-splash-show { 0% {opacity:0} 3%,82% {opacity:1} 100% {opacity:0} }
+    @keyframes water-splash-show { 0% {opacity:0} 3%,88% {opacity:1} 100% {opacity:0} }
     @keyframes water-impact-burst { 0% {opacity:0;filter:blur(9px);transform:scale(.64) rotate(-2.5deg)} 8% {opacity:1;filter:blur(0);transform:scale(1.055) rotate(.35deg)} 22% {opacity:.96;transform:scale(1) rotate(0)} 55% {opacity:.56;filter:blur(.2px);transform:scale(1.018)} 100% {opacity:0;filter:blur(1.5px);transform:scale(1.07)} }
     @keyframes water-runoff-settle { 0% {opacity:0;clip-path:inset(0 0 86% 0);filter:blur(3px);transform:scale(1.025, .94)} 18% {opacity:.78;clip-path:inset(0 0 43% 0);filter:blur(.4px);transform:scale(1.01, .98)} 46% {opacity:.88;clip-path:inset(0);transform:scale(1,1.015)} 76% {opacity:.58;transform:scale(1.004,1.035)} 100% {opacity:0;filter:blur(1.2px);transform:scale(1.008,1.055)} }
     @keyframes water-refraction-pulse { 0% {opacity:0} 7% {opacity:.74} 34% {opacity:.36} 78% {opacity:.16} 100% {opacity:0} }
@@ -159,7 +153,7 @@ internal sealed class ByeollogOverlayService : IDisposable
   <img id="asset" alt="" draggable="false">
   <div id="raffle-stage"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div></section></div>
   <div id="flashbang-stage"><img id="flashbang-asset" alt="" draggable="false"></div>
-  <div id="effect-stage" data-document-revision="categorized-actions-v5"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><video id="water-vfx-video" muted playsinline preload="auto" src="/overlay/builtin/water-splash-v3.webm?v=11e75ca18fc41cc3becc1d4bf5ee21e7e1bbf4007bda6ee259c6d186bd3f4303"></video><img id="water-runoff-asset" alt="" draggable="false" src="/overlay/builtin/water-runoff-v2.png?v=d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee"><canvas id="water-flow-canvas"></canvas></div>
+  <div id="effect-stage" data-document-revision="categorized-actions-v6"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><video id="water-vfx-video" muted playsinline preload="auto" src="/overlay/builtin/water-splash-v4.webm?v=553531218503cf9d79963944900e82c6184eba87bf7e516e414a231b405f3775"></video><img id="water-runoff-asset" alt="" draggable="false" src="/overlay/builtin/water-runoff-v2.png?v=d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee"><canvas id="water-flow-canvas"></canvas></div>
   <script>
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
@@ -190,6 +184,7 @@ internal sealed class ByeollogOverlayService : IDisposable
       if (waterAnimationFrame) cancelAnimationFrame(waterAnimationFrame);
       waterAnimationFrame = 0;
       try { waterVfxVideo.pause(); waterVfxVideo.currentTime = 0; } catch {}
+      effectStage.classList.remove('water-complete');
       const context = waterFlowCanvas.getContext('2d');
       if (context) context.clearRect(0, 0, waterFlowCanvas.width, waterFlowCanvas.height);
     }
@@ -233,6 +228,8 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     function startWaterAnimation(identity) {
       stopWaterAnimation();
+      effectStage.classList.remove('water-complete');
+      waterVfxVideo.onended = () => effectStage.classList.add('water-complete');
       try {
         waterVfxVideo.currentTime = 0;
         void waterVfxVideo.play();
@@ -436,7 +433,7 @@ internal sealed class ByeollogOverlayService : IDisposable
     }
     async function refresh() {
       try {
-        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v5', { cache: 'no-store' });
+        const response = await fetch('/overlay/state?documentRevision=categorized-actions-v6', { cache: 'no-store' });
         if (!response.ok) throw new Error('state unavailable');
         const state = await response.json();
         if (state.active === true && typeof state.assetToken === 'string') {
@@ -1790,7 +1787,7 @@ internal sealed class ByeollogOverlayService : IDisposable
                         timeout.Token);
                     return;
                 }
-                if (path == "/overlay/builtin/water-splash-v3.webm"
+                if (path == "/overlay/builtin/water-splash-v4.webm"
                     && WaterSplashMotionBytes.Value.Length > 0)
                 {
                     await WriteResponseAsync(

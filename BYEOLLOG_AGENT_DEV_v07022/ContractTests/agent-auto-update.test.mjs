@@ -340,3 +340,15 @@ test("v99 release preparation is immutable and identifies FLIP water VFX", async
   assert.match(notes, /FLIP 유체 시뮬레이션/);
   assert.match(notes, /투명 VP9/);
 });
+
+test("v100 release preparation is immutable and trims persistent water residue", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07100-AutoUpdate.ps1"),
+    source("RELEASE_v07100_FRONT_IMPACT_WATER_VFX_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7100/);
+  assert.match(build, /byeollog_agent_v07100_FRONT_IMPACT_WATER_VFX_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.100'/);
+  assert.match(notes, /약 1\.17초/);
+  assert.match(notes, /마지막 프레임/);
+});

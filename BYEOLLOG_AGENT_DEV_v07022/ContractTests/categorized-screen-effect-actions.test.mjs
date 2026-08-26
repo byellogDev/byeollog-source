@@ -66,8 +66,8 @@ test("water and party popper package immutable transparent art and CC0 natural a
     ["byeollog_party_popper_natural.wav", "16f5f25be2dd82f1264cb6094256dc17bf97be10c8b20f3b7765cad00559a2c8"]
   ];
   const motion = [
-    "byeollog_water_splash_flip_v3.webm",
-    "11e75ca18fc41cc3becc1d4bf5ee21e7e1bbf4007bda6ee259c6d186bd3f4303"
+    "byeollog_water_splash_flip_v4.webm",
+    "553531218503cf9d79963944900e82c6184eba87bf7e516e414a231b405f3775"
   ];
   const [cache, project, adapter, overlay, factory, notices] = await Promise.all([
     text("OverlayAssetCache.cs"),
@@ -98,7 +98,7 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.ok(motionBytes.byteLength < 10 * 1024 * 1024, "water motion must remain below the built-in safety budget");
   assert.equal(createHash("sha256").update(motionBytes).digest("hex"), motion[1]);
   assert.match(cache, new RegExp(motion[1], "i"));
-  assert.match(project, /byeollog_water_splash_flip_v3\.webm/);
+  assert.match(project, /byeollog_water_splash_flip_v4\.webm/);
   assert.doesNotMatch(factory, /Math\.Sin|NextNoise|CreateWave/);
   for (const soundId of ["719551", "442773", "458398"])
     assert.match(notices, new RegExp(soundId));
@@ -108,13 +108,15 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.match(adapter, /FireworksDurationMs = 5_000/);
   assert.match(adapter, /ShowObservedAudioTransientAsync/);
   assert.match(adapter, /parameters\.EnumerateObject\(\)\.Count\(\) != 6/);
-  assert.match(overlay, /categorized-actions-v5/);
+  assert.match(overlay, /categorized-actions-v6/);
   assert.match(overlay, /<video id="water-vfx-video" muted playsinline preload="auto"/);
-  assert.match(overlay, /\/overlay\/builtin\/water-splash-v3\.webm/);
+  assert.match(overlay, /\/overlay\/builtin\/water-splash-v4\.webm/);
   assert.match(overlay, /WaterSplashMotionContentSha256/);
   assert.match(overlay, /"video\/webm"/);
   assert.match(overlay, /waterVfxVideo\.currentTime = 0/);
   assert.match(overlay, /waterVfxVideo\.play\(\)/);
+  assert.match(overlay, /waterVfxVideo\.onended = \(\) => effectStage\.classList\.add\('water-complete'\)/);
+  assert.match(overlay, /#effect-stage\.visible\.water-splash \{ animation:water-splash-show 1250ms/);
   assert.match(overlay, /#effect-stage\.water-splash #effect-asset,[\s\S]*#effect-stage\.water-splash #water-flow-canvas \{ display:none; \}/);
   assert.doesNotMatch(overlay, /streamCount|bezierCurveTo/);
   assert.doesNotMatch(overlay, /water-splash-motion[\s\S]*translateY\(25%\)/);
