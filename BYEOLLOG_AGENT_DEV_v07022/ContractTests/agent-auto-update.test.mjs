@@ -364,3 +364,15 @@ test("v101 release preparation is immutable and slows only the water animation",
   assert.match(notes, /0\.7배속/);
   assert.match(notes, /약 1\.67초/);
 });
+
+test("v102 release preparation is immutable and packages bodyless confetti motion", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07102-AutoUpdate.ps1"),
+    source("RELEASE_v07102_BODYLESS_CONFETTI_VFX_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7102/);
+  assert.match(build, /byeollog_agent_v07102_BODYLESS_CONFETTI_VFX_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.102'/);
+  assert.match(notes, /폭죽통과 발사기 몸통을 완전히 제거/);
+  assert.match(notes, /화면 아래까지 떨어져/);
+});

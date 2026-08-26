@@ -69,6 +69,10 @@ test("water and party popper package immutable transparent art and CC0 natural a
     "byeollog_water_splash_flip_v4.webm",
     "553531218503cf9d79963944900e82c6184eba87bf7e516e414a231b405f3775"
   ];
+  const fireworksMotion = [
+    "byeollog_bodyless_confetti_v1.webm",
+    "ba683b68b1da3b2e110b3bc29a9e5c2fedac6abf2416b808d0b74cf837b4bedd"
+  ];
   const [cache, project, adapter, overlay, factory, notices] = await Promise.all([
     text("OverlayAssetCache.cs"),
     text("HurogiCollector.csproj"),
@@ -99,6 +103,12 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.equal(createHash("sha256").update(motionBytes).digest("hex"), motion[1]);
   assert.match(cache, new RegExp(motion[1], "i"));
   assert.match(project, /byeollog_water_splash_flip_v4\.webm/);
+  const fireworksMotionBytes = await bytes(`Assets/${fireworksMotion[0]}`);
+  assert.equal(fireworksMotionBytes.subarray(0, 4).toString("hex"), "1a45dfa3", "bodyless confetti motion must be WebM");
+  assert.ok(fireworksMotionBytes.byteLength < 10 * 1024 * 1024, "bodyless confetti motion must remain below the built-in safety budget");
+  assert.equal(createHash("sha256").update(fireworksMotionBytes).digest("hex"), fireworksMotion[1]);
+  assert.match(cache, new RegExp(fireworksMotion[1], "i"));
+  assert.match(project, /byeollog_bodyless_confetti_v1\.webm/);
   assert.doesNotMatch(factory, /Math\.Sin|NextNoise|CreateWave/);
   for (const soundId of ["719551", "442773", "458398"])
     assert.match(notices, new RegExp(soundId));
@@ -108,7 +118,7 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.match(adapter, /FireworksDurationMs = 5_000/);
   assert.match(adapter, /ShowObservedAudioTransientAsync/);
   assert.match(adapter, /parameters\.EnumerateObject\(\)\.Count\(\) != 6/);
-  assert.match(overlay, /categorized-actions-v7/);
+  assert.match(overlay, /categorized-actions-v8/);
   assert.match(overlay, /<video id="water-vfx-video" muted playsinline preload="auto"/);
   assert.match(overlay, /\/overlay\/builtin\/water-splash-v4\.webm/);
   assert.match(overlay, /WaterSplashMotionContentSha256/);
@@ -123,6 +133,13 @@ test("water and party popper package immutable transparent art and CC0 natural a
   assert.doesNotMatch(overlay, /water-splash-motion[\s\S]*translateY\(25%\)/);
   assert.match(overlay, /#effect-stage\.visible\.water-splash/);
   assert.match(overlay, /#effect-stage\.visible\.fireworks/);
+  assert.match(overlay, /<video id="fireworks-vfx-video" muted playsinline preload="auto"/);
+  assert.match(overlay, /\/overlay\/builtin\/bodyless-confetti-v1\.webm/);
+  assert.match(overlay, /FireworksMotionContentSha256/);
+  assert.match(overlay, /startFireworksAnimation\(\)/);
+  assert.match(overlay, /fireworksVfxVideo\.currentTime = 0/);
+  assert.match(overlay, /fireworksVfxVideo\.play\(\)/);
+  assert.match(overlay, /#effect-stage\.fireworks #effect-asset \{ display:none; \}/);
   const inlineScript = overlay.match(/<script>([\s\S]*?)<\/script>/)?.[1];
   assert.ok(inlineScript, "overlay inline script is missing");
   assert.doesNotThrow(() => new Function(inlineScript));

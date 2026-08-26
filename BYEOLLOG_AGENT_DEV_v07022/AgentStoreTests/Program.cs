@@ -2376,13 +2376,21 @@ internal static class Program
         {
             _ = await http.GetStringAsync($"{service.OverlayUrl}/state");
             var waterMotion = await http.GetByteArrayAsync(
-                $"{service.OverlayUrl}/builtin/water-splash-v3.webm");
-            Equal(9_497_910, waterMotion.Length,
+                $"{service.OverlayUrl}/builtin/water-splash-v4.webm");
+            Equal(7_879_928, waterMotion.Length,
                 "the loopback overlay serves the complete built-in FLIP water motion");
             Equal(
                 OverlayAssetCache.WaterSplashMotionContentSha256,
                 OverlayAssetValidator.Sha256Hex(waterMotion),
                 "the served FLIP water motion retains its sealed digest");
+            var fireworksMotion = await http.GetByteArrayAsync(
+                $"{service.OverlayUrl}/builtin/bodyless-confetti-v1.webm");
+            Equal(1_231_173, fireworksMotion.Length,
+                "the loopback overlay serves the complete bodyless confetti motion");
+            Equal(
+                OverlayAssetCache.FireworksMotionContentSha256,
+                OverlayAssetValidator.Sha256Hex(fireworksMotion),
+                "the served bodyless confetti motion retains its sealed digest");
         }
         True(
             await browserReady,
