@@ -169,3 +169,13 @@ test('roulette editor preserves and accepts probability decimals through the ren
   const percent=new Function('ppm',percentBody);
   assert.deepEqual([1,10,100,1000,1250,10000,1000000].map(percent),['0.0001','0.001','0.01','0.1','0.125','1','100']);
 });
+
+test('roulette product rows are compact without repeated visible field labels',()=>{
+  const page=getProductDashboardHtml('test-nonce','roulette');
+  assert.doesNotMatch(page,/nameLabel\.textContent='상품명'/);
+  assert.doesNotMatch(page,/probLabel\.textContent='확률\(%\)'/);
+  assert.match(page,/name\.setAttribute\('aria-label',\(index\+1\)\+'번 상품명'\)/);
+  assert.match(page,/prob\.setAttribute\('aria-label',\(index\+1\)\+'번 확률\(%\)'\)/);
+  assert.match(page,/\.item\{align-items:center;padding:7px 9px/);
+  assert.match(page,/\.item \.field input\{height:36px/);
+});
