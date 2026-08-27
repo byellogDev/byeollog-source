@@ -194,3 +194,11 @@ test('roulette editor supports authenticated custom single and optional series i
   assert.match(admin,/img-src 'self' data: \$\{assetOrigin\}; connect-src 'self' \$\{assetOrigin\}/);
   assert.doesNotMatch(page,/SUPABASE_(?:SECRET|SERVICE_ROLE)/);
 });
+
+test('roulette choices render the actual reviewed preview instead of a generic color bar',()=>{
+  const page=getProductDashboardHtml('test-nonce','roulette');
+  assert.match(page,/preview\.className='asset-preview'/);
+  assert.match(page,/preview\.src=asset\.previewUrl/);
+  assert.match(page,/실제 룰렛 미리보기/);
+  assert.doesNotMatch(page,/asset-swatch/);
+});
