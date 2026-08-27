@@ -397,7 +397,7 @@ begin
     p_workspace_id,p_authorized_user_id,true);
   if p_draft is null or jsonb_typeof(p_draft)<>'object'
      or jsonb_typeof(p_draft->'items')<>'array'
-     or jsonb_array_length(p_draft->'items') not between 2 and 100
+     or jsonb_array_length(p_draft->'items') not between 2 and 200
      or char_length(btrim(p_draft->>'name')) not between 1 and 120
      or (p_draft->>'name')~'[[:cntrl:]]'
      or (p_draft->>'balloonsPerSpin')!~'^[0-9]+$'

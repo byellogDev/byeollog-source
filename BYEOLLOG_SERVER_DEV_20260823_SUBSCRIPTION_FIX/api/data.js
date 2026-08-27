@@ -10,6 +10,7 @@ const PUBLIC_RPC_OPERATIONS=Object.freeze({
   'public-workspace':'get_public_workspace',
   'public-bangsel':'get_public_bangsel'
 });
+const UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const VERIFIED_DEPLOYMENT_ASSETS=Object.freeze(Object.fromEntries(
   Object.entries(DEPLOYMENT_ASSETS).map(([name,asset])=>{
     const bytes=Buffer.from(asset.data.replace(/\s+/g,''),'base64');
@@ -95,6 +96,60 @@ async function servePublicRpc(req,res,operation){
   }
 }
 
+function publicRouletteViewerEnabled(){
+  return process.env.VIEWER_ROULETTE_PUBLIC_ENABLED==='true';
+}
+
+function toPublicRoulette(row){
+  const name=String(row?.roulette_name||'').trim();
+  const draft=row?.draft&&typeof row.draft==='object'&&!Array.isArray(row.draft)?row.draft:null;
+  const balloons=Number(draft?.balloonsPerSpin);
+  const rawItems=Array.isArray(draft?.items)?draft.items:[];
+  if(!name||name.length>120||!Number.isSafeInteger(balloons)||balloons<1||balloons>1000000||rawItems.length<2||rawItems.length>200)return null;
+  const items=[];
+  let total=0;
+  for(const raw of rawItems){
+    const resultText=String(raw?.resultText||'').trim();
+    const probabilityPpm=Number(raw?.probabilityPpm);
+    if(!resultText||resultText.length>200||!Number.isSafeInteger(probabilityPpm)||probabilityPpm<1||probabilityPpm>=1000000)return null;
+    total+=probabilityPpm;
+    items.push({resultText,probabilityPpm});
+  }
+  if(total!==1000000)return null;
+  return {rouletteName:name,balloonsPerSpin:balloons,items,updatedAt:row?.updated_at||null};
+}
+
+async function servePublicRoulette(req,res){
+  res.setHeader('Cache-Control','no-store');
+  res.setHeader('Content-Type','application/json; charset=utf-8');
+  if(!publicRouletteViewerEnabled())return res.status(404).json({message:'Not found'});
+  if(req.method!=='POST')return res.status(405).json({message:'Method not allowed'});
+  const parsed=parseJsonBody(req.body);
+  if(!parsed)return res.status(400).json({message:'Invalid JSON body'});
+  const workspace=String(parsed.p_workspace_slug||'').trim().toLowerCase();
+  if(!/^[a-z0-9][a-z0-9_-]{1,62}$/.test(workspace))return res.status(400).json({message:'Invalid workspace'});
+
+  const supabaseUrl=(process.env.SUPABASE_URL||'').replace(/\/+$/,'');
+  const secretKey=process.env.SUPABASE_SECRET_KEY||'';
+  const serviceRoleKey=process.env.SUPABASE_SERVICE_ROLE_KEY||'';
+  if(!supabaseUrl||!secretKey||!serviceRoleKey)return res.status(500).json({message:'Public data service is not configured'});
+  const headers={apikey:secretKey,Authorization:'Bearer '+serviceRoleKey,'Content-Type':'application/json'};
+  try{
+    const workspaceResponse=await fetch(`${supabaseUrl}/rest/v1/byeollog_workspaces?slug=eq.${encodeURIComponent(workspace)}&public_page_enabled=eq.true&select=id&limit=1`,{headers,cache:'no-store',signal:AbortSignal.timeout(10000)});
+    if(!workspaceResponse.ok)return res.status(workspaceResponse.status).json({message:'Public data query failed'});
+    const workspaceRows=await workspaceResponse.json();
+    const workspaceId=String(Array.isArray(workspaceRows)?workspaceRows[0]?.id||'':'');
+    if(!UUID_PATTERN.test(workspaceId))return res.status(200).json({enabled:true,roulettes:[]});
+    const draftResponse=await fetch(`${supabaseUrl}/rest/v1/byeollog_roulette_drafts?workspace_id=eq.${encodeURIComponent(workspaceId)}&public_visible=eq.true&select=roulette_name,draft,updated_at&order=updated_at.desc&limit=100`,{headers,cache:'no-store',signal:AbortSignal.timeout(10000)});
+    if(!draftResponse.ok)return res.status(draftResponse.status).json({message:'Public data query failed'});
+    const draftRows=await draftResponse.json();
+    const roulettes=(Array.isArray(draftRows)?draftRows:[]).map(toPublicRoulette).filter(Boolean);
+    return res.status(200).json({enabled:true,roulettes});
+  }catch{
+    return res.status(502).json({message:'Public data service is unavailable'});
+  }
+}
+
 function capabilityForMethod(method){
   if(method === 'GET') return 'data:read';
   if(method === 'POST' || method === 'PATCH') return 'data:write';
@@ -104,6 +159,7 @@ function capabilityForMethod(method){
 
 export default async function handler(req,res){
   if(req.query?.operation==='deployment-asset')return serveDeploymentAsset(req,res);
+  if(req.query?.operation==='public-roulette')return servePublicRoulette(req,res);
   if(PUBLIC_RPC_OPERATIONS[req.query?.operation])return servePublicRpc(req,res,req.query.operation);
   res.setHeader('Cache-Control','no-store, private');
   if(rejectMaintenanceWrite(req,res))return;

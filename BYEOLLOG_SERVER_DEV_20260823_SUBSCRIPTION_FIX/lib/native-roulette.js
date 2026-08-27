@@ -2,7 +2,10 @@ import crypto from 'node:crypto';
 import {NATIVE_ROULETTE_ASSET_BY_KEY} from './native-roulette-assets.js';
 
 export const NATIVE_ROULETTE_PROBABILITY_SCALE=1_000_000;
-export const NATIVE_ROULETTE_MAX_ITEMS=100;
+// Public Weflab roulettes in active use can exceed 100 entries (the verified
+// migration fixture has 109). Keep a bounded ceiling while allowing a lossless
+// user-directed import.
+export const NATIVE_ROULETTE_MAX_ITEMS=200;
 export const NATIVE_ROULETTE_MAX_SPINS=100;
 export const NATIVE_ROULETTE_TTS_KEY_DOMAIN='native-roulette-result-v1|';
 export const NATIVE_ROULETTE_SOUND_KEYS=Object.freeze(['roulette_spin_v1']);

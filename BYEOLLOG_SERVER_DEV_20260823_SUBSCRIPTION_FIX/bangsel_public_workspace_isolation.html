@@ -109,6 +109,18 @@ h1{margin:0 0 6px;font-size:28px}
   color:#93c5fd
 }
 .empty{padding:18px 0;color:#94a3b8}
+.viewer-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:16px}
+.viewer-tab{border:1px solid #334155;border-radius:11px;background:#111c33;color:#94a3b8;padding:11px 14px;font:inherit;font-weight:800;cursor:pointer}
+.viewer-tab.active{border-color:#60a5fa;background:#172554;color:#dbeafe}
+.roulette-grid{display:grid;gap:12px;margin-top:16px}
+.roulette-card{padding:16px;border:1px solid #2b3a57;border-radius:14px;background:#111c33}
+.roulette-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.roulette-head strong{font-size:18px}
+.roulette-price{white-space:nowrap;color:#93c5fd;font-size:13px;font-weight:800}
+.roulette-items{display:grid;gap:7px;margin-top:13px}
+.roulette-item{display:flex;justify-content:space-between;gap:12px;padding:8px 10px;border-radius:9px;background:rgba(255,255,255,.045)}
+.roulette-item span:last-child{white-space:nowrap;color:#bfdbfe;font-weight:800}
+[hidden]{display:none!important}
 .badge{
   display:inline-block;
   margin-left:8px;
@@ -136,16 +148,27 @@ h1{margin:0 0 6px;font-size:28px}
 </head>
 <body class="viewer-page">
 <div class="wrap">
-  <header class="viewer-brand"><a href="/" aria-label="별록 홈"><img class="brand-logo compact" src="/assets/byeollog_logo_dark.png" alt="별록 BYEOLLOG"></a><div class="viewer-heading"><h1>업보 현황 <span id="workspaceBadge" class="badge"></span></h1><div id="pageSubtitle" class="muted">닉네임을 검색해서 남은 업보를 확인하세요.</div></div></header>
+  <header class="viewer-brand"><a href="/" aria-label="별록 홈"><img class="brand-logo compact" src="/assets/byeollog_logo_dark.png" alt="별록 BYEOLLOG"></a><div class="viewer-heading"><h1><span id="pageTitle">업보 현황</span> <span id="workspaceBadge" class="badge"></span></h1><div id="pageSubtitle" class="muted">닉네임을 검색해서 남은 업보를 확인하세요.</div></div></header>
 
-  <div id="searchPanel" class="panel">
-    <input id="search" class="search" placeholder="별명 또는 SOOP ID 검색" autocomplete="off">
-    <div id="state" class="status">서버 연결 중...</div>
-  </div>
+  <nav id="viewerTabs" class="viewer-tabs" aria-label="시청자 공개 정보" hidden>
+    <button id="upboTab" class="viewer-tab active" type="button">업보</button>
+    <button id="rouletteTab" class="viewer-tab" type="button">룰렛 확률</button>
+  </nav>
 
-  <div id="list" style="margin-top:16px">
-    <div class="panel empty">목록을 불러오는 중입니다.</div>
-  </div>
+  <section id="upboView">
+    <div id="searchPanel" class="panel">
+      <input id="search" class="search" placeholder="별명 또는 SOOP ID 검색" autocomplete="off">
+      <div id="state" class="status">서버 연결 중...</div>
+    </div>
+
+    <div id="list" style="margin-top:16px">
+      <div class="panel empty">목록을 불러오는 중입니다.</div>
+    </div>
+  </section>
+
+  <section id="rouletteView" hidden>
+    <div id="rouletteList" class="roulette-grid"><div class="panel empty">공개된 룰렛을 불러오는 중입니다.</div></div>
+  </section>
 </div>
 
 <script>
@@ -156,6 +179,8 @@ const WORKSPACE_SLUG = (params.get('workspace') || pathWorkspace).trim().toLower
 const VALID_WORKSPACE = /^[a-z0-9][a-z0-9_-]{1,62}$/.test(WORKSPACE_SLUG);
 
 let records = [];
+let rouletteRecords = [];
+let rouletteLoaded = false;
 let workspaceChecked = false;
 let workspaceExists = false;
 const openFans = new Set();
@@ -173,6 +198,46 @@ function firstParagraph(text){
 
 function remaining(r){
   return Math.max(0, (+r.remaining || 0));
+}
+
+function formatProbability(ppm){
+  return (Number(ppm||0)/10000).toFixed(4).replace(/\.?0+$/,'')+'%';
+}
+
+function renderRoulettes(){
+  const target=$('rouletteList');
+  if(!rouletteRecords.length){
+    target.innerHTML='<div class="panel empty">현재 공개된 룰렛 확률표가 없습니다.</div>';
+    return;
+  }
+  target.innerHTML=rouletteRecords.map(roulette=>`<article class="roulette-card"><div class="roulette-head"><strong>${esc(roulette.rouletteName||'이름 없는 룰렛')}</strong><span class="roulette-price">1회 ${Number(roulette.balloonsPerSpin||0).toLocaleString()}개</span></div><div class="roulette-items">${(roulette.items||[]).map(item=>`<div class="roulette-item"><span>${esc(item.resultText||'상품')}</span><span>${formatProbability(item.probabilityPpm)}</span></div>`).join('')}</div></article>`).join('');
+}
+
+function switchViewerTab(view){
+  const roulette=view==='roulette';
+  $('upboView').hidden=roulette;
+  $('rouletteView').hidden=!roulette;
+  $('upboTab').classList.toggle('active',!roulette);
+  $('rouletteTab').classList.toggle('active',roulette);
+  $('pageTitle').textContent=roulette?'룰렛 확률':'업보 현황';
+  $('pageSubtitle').textContent=roulette?'룰렛별 상품과 당첨 확률을 확인하세요.':'별명 또는 SOOP ID로 검색해 남은 업보를 확인하세요.';
+}
+
+async function loadPublicRoulettes(){
+  if(rouletteLoaded)return;
+  try{
+    const response=await fetch('/api/data?operation=public-roulette',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({p_workspace_slug:WORKSPACE_SLUG}),cache:'no-store'
+    });
+    if(response.status===404)return;
+    const data=await response.json().catch(()=>null);
+    if(!response.ok||data?.enabled!==true)return;
+    rouletteRecords=Array.isArray(data.roulettes)?data.roulettes:[];
+    rouletteLoaded=true;
+    $('viewerTabs').hidden=false;
+    renderRoulettes();
+  }catch{}
 }
 
 async function loadData(){
@@ -243,6 +308,8 @@ async function loadData(){
       $('pageSubtitle').textContent = '별명 또는 SOOP ID로 검색해 남은 업보를 확인하세요.';
     }
 
+    await loadPublicRoulettes();
+
     const searchTerm = ($('search')?.value || '').trim() || null;
     const res = await fetch(
       '/api/data?operation=public-bangsel',
@@ -305,6 +372,8 @@ async function loadData(){
 }
 
 $('workspaceBadge').textContent = VALID_WORKSPACE ? '확인 중' : '주소 오류';
+$('upboTab').addEventListener('click',()=>switchViewerTab('upbo'));
+$('rouletteTab').addEventListener('click',()=>switchViewerTab('roulette'));
 
 function render(){
   const q = $('search').value.trim().toLowerCase();

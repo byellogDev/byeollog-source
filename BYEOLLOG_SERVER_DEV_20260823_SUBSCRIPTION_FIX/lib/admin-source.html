@@ -10,6 +10,7 @@
 button,input,textarea{font:inherit} button{cursor:pointer;border:1px solid #d8dee8;background:#fff;border-radius:8px;padding:8px 11px}
 button.primary{background:#2563eb;color:#fff;border-color:#2563eb} button.danger{color:#b42318;border-color:#f2b8b5}
 .wrap{max-width:1200px;margin:auto;padding:18px}.top,.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.top{justify-content:space-between}.topActions{display:flex;align-items:center;gap:10px}.logoutBtn{font-size:13px;padding:7px 10px}
+.productNav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:13px 0 16px}.productNav a{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border:1px solid #d8dee8;border-radius:13px;background:#fff;color:#526176;text-decoration:none;font-weight:900}.productNav a.active{background:#0f2748;border-color:#0f2748;color:#ffc44d;box-shadow:0 8px 20px rgba(15,39,72,.12)}body[data-theme="dark"] .productNav a{background:#111a2c;border-color:#26354f;color:#c5cfdd}body[data-theme="dark"] .productNav a.active{background:#26344f;color:#ffd66f;border-color:#354866}
 h1{margin:0;font-size:24px}.brandLink{display:inline-flex;align-items:center;color:#111827;text-decoration:none;font-weight:900;border-radius:9px;padding:4px 7px;margin-left:-7px;transition:.15s}.brandLink:hover{background:#eef2f7;color:#2563eb}.muted{color:#6b7280;font-size:13px}.status{font-weight:700}
 .toggleBtn{transition:background .15s,color .15s,border-color .15s,box-shadow .15s}.toggleBtn.active{background:#0f766e;color:#fff;border-color:#0f766e;box-shadow:0 0 0 2px #ccfbf1}.toggleBtn.active:hover{background:#0d665f;border-color:#0d665f}
 input,textarea{border:1px solid #d8dee8;border-radius:8px;padding:9px 10px;background:#fff}
@@ -281,6 +282,12 @@ body[data-theme="dark"] code{color:#ffd66f}
     </div>
   </div>
 
+  <nav class="productNav" aria-label="별록 대시보드">
+    <a href="/dashboard/roulette">◉ 룰렛</a>
+    <a href="/dashboard/actions">✦ 액션</a>
+    <a class="active" href="/dashboard">✓ 업보</a>
+  </nav>
+
   <div class="stats">
     <div class="stat"><span>팬</span><b id="statFans">0</b></div>
     <div class="stat"><span>전체 건</span><b id="statTotal">0</b></div>
@@ -305,7 +312,7 @@ body[data-theme="dark"] code{color:#ffd66f}
       <button id="sortLatestBtn" type="button" onclick="setSort('latest')">최신순</button>
       <button id="sortTypeBtn" type="button" onclick="setSort('type')">종류별 정렬</button>
     </div>
-    <input id="search" class="viewSearch" placeholder="팬 / 이벤트 / 업보종류 검색" oninput="render()">
+    <input id="search" class="viewSearch" placeholder="팬 / 룰렛명 / 업보종류 검색" oninput="render()">
   </div>
 
   <div id="typeWorkSummary" class="typeWorkSummary hidden" aria-live="polite"></div>
@@ -381,7 +388,7 @@ body[data-theme="dark"] code{color:#ffd66f}
 
   <div id="rouletteRecordBox" class="settings hidden">
     <div class="rouletteRecordToolbar">
-      <input id="rouletteRecordSearch" placeholder="닉네임 · SOOP ID · 이벤트 · 룰렛 결과 검색" oninput="renderRouletteRecords()">
+      <input id="rouletteRecordSearch" placeholder="닉네임 · SOOP ID · 룰렛명 · 룰렛 결과 검색" oninput="renderRouletteRecords()">
       <select id="rouletteRecordFilter" onchange="renderRouletteRecords()"><option value="all">전체 상태</option><option value="valid">유효</option><option value="voided">무효</option></select>
       <button onclick="loadRouletteRecords(true)">새로고침</button>
     </div>
@@ -487,7 +494,7 @@ body[data-theme="dark"] code{color:#ffd66f}
     <div class="recentCollectorBody">
       <div id="recentCollectorSummary" class="recentCollectorSummary"></div>
       <div class="recentCollectorTools">
-        <input id="recentCollectorSearch" placeholder="닉네임 · SOOP ID · 이벤트 · 룰렛 검색" oninput="renderRecentCollectorHistory()">
+        <input id="recentCollectorSearch" placeholder="닉네임 · SOOP ID · 룰렛명 · 룰렛 결과 검색" oninput="renderRecentCollectorHistory()">
         <select id="recentCollectorFilter" onchange="renderRecentCollectorHistory()">
           <option value="all">전체 처리상태</option><option value="processed">업보 처리</option><option value="ignored">비업보</option><option value="pending">처리 대기</option><option value="failed">실패</option>
         </select>
@@ -521,8 +528,8 @@ body[data-theme="dark"] code{color:#ffd66f}
 
     <div id="batchAfterAnalyze" class="hidden">
       <div class="batchSection">
-        <b>2. 풍선 개수별 이벤트 지정</b>
-        <div class="muted" style="margin-top:3px">이 매핑은 이번 일괄등록에만 적용됩니다. 이벤트명을 비워두면 해당 풍선 수의 후원은 전체 제외됩니다.</div>
+        <b>2. 풍선 개수별 룰렛명 지정</b>
+        <div class="muted" style="margin-top:3px">이 매핑은 이번 일괄등록에만 적용됩니다. 룰렛명을 비워두면 해당 풍선 수의 후원은 전체 제외됩니다.</div>
         <div id="batchEventMaps" class="batchGrid"></div>
       </div>
 
@@ -610,7 +617,7 @@ body[data-theme="dark"] code{color:#ffd66f}
     <div class="grid">
       <div class="field"><label>SOOP ID <span class="muted">(권장)</span></label><input id="fanSoopId" placeholder="예: hasn101"></div>
       <div class="field"><label>별명 / 표시명</label><input id="fan"></div>
-      <div class="field"><label>이벤트</label><input id="event"></div>
+      <div class="field"><label>룰렛명</label><input id="event"></div>
       <div class="field"><label>업보종류</label><input id="type" placeholder="직접 입력"></div>
       <div class="field"><label>총 수량</label><input id="totalQty" type="number" min="1" step="1" value="1"></div>
       <div class="field full"><label>코멘트 <span class="muted">(시청자 공개)</span></label><textarea id="publicComment" rows="2" placeholder="시청자용 업보 현황에 공개할 내용만 입력"></textarea></div>
@@ -1608,7 +1615,7 @@ function renderRecentCollectorHistory(){
   rows.sort((a,b)=>recentCollectorReceivedTs(b)-recentCollectorReceivedTs(a));
   if(st)st.textContent=`최근 500건 중 ${rows.length.toLocaleString()}건 표시 · 최신순`;
   if(!rows.length){list.innerHTML='<div class="muted" style="padding:22px;text-align:center">조건에 맞는 수신 기록이 없습니다.</div>';return}
-  list.innerHTML=`<table class="recentCollectorTable"><thead><tr><th>수신 시간</th><th>후원자</th><th>후원 정보</th><th>이벤트</th><th>룰렛 결과</th><th>후원종류</th><th>처리 상태</th><th>처리 내역</th></tr></thead><tbody>${rows.map(r=>{const rs=collectorResultList(r),si=recentCollectorStatusInfo(r),oc=recentCollectorOutcome(r),v=String(r.validation||''),time=String(r.donated_time_text||r.uploaded_at||'').replace('T',' ').replace(/\+.*$/,'').slice(0,19);return `<tr><td style="white-space:nowrap">${esc(time||'-')}</td><td><div class="recentCollectorNick">${esc(r.nickname||r.soop_id||'-')}</div>${r.soop_id&&r.nickname!==r.soop_id?`<div class="recentCollectorId">${esc(r.soop_id)}</div>`:''}</td><td class="recentCollectorBalloons">${esc(collectorAmountText(r))}</td><td>${esc(r.event_name||'-')}</td><td>${esc(rs.map(x=>x.result).join(' + ')||'-')}</td><td>${collectorDonationTypeHtml(r)}</td><td><span class="recentStatus ${si.key}">${esc(si.label)}</span></td><td><span class="recentOutcome ${oc.cls}"${r.process_error?` title="${esc(r.process_error)}"`:''}>${esc(oc.text)}</span></td></tr>`}).join('')}</tbody></table>`;
+  list.innerHTML=`<table class="recentCollectorTable"><thead><tr><th>수신 시간</th><th>후원자</th><th>후원 정보</th><th>룰렛명</th><th>룰렛 결과</th><th>후원종류</th><th>처리 상태</th><th>처리 내역</th></tr></thead><tbody>${rows.map(r=>{const rs=collectorResultList(r),si=recentCollectorStatusInfo(r),oc=recentCollectorOutcome(r),v=String(r.validation||''),time=String(r.donated_time_text||r.uploaded_at||'').replace('T',' ').replace(/\+.*$/,'').slice(0,19);return `<tr><td style="white-space:nowrap">${esc(time||'-')}</td><td><div class="recentCollectorNick">${esc(r.nickname||r.soop_id||'-')}</div>${r.soop_id&&r.nickname!==r.soop_id?`<div class="recentCollectorId">${esc(r.soop_id)}</div>`:''}</td><td class="recentCollectorBalloons">${esc(collectorAmountText(r))}</td><td>${esc(r.event_name||'-')}</td><td>${esc(rs.map(x=>x.result).join(' + ')||'-')}</td><td>${collectorDonationTypeHtml(r)}</td><td><span class="recentStatus ${si.key}">${esc(si.label)}</span></td><td><span class="recentOutcome ${oc.cls}"${r.process_error?` title="${esc(r.process_error)}"`:''}>${esc(oc.text)}</span></td></tr>`}).join('')}</tbody></table>`;
 }
 
 function toggleCollectorBox(){const box=$('collectorBox');box.classList.toggle('hidden');syncToggleButton('toggleCollectorBtn','collectorBox');if(!box.classList.contains('hidden'))loadCollectorInbox(false)}
@@ -1642,7 +1649,7 @@ function renderCollectorIgnored(){
   const sum=$('nonBangselSummary'),pv=$('nonBangselPreview');if(!sum||!pv)return;
   sum.innerHTML=`<span>보관 원본 ${collectorIgnoredRows.length.toLocaleString()}건</span><span>실제 삭제 아님</span>`;
   if(!collectorIgnoredRows.length){pv.innerHTML='<div class="muted" style="padding:10px">비업보로 보관된 데이터가 없습니다.</div>';return}
-  pv.innerHTML=`<table class="previewTable nonBangselTable"><thead><tr><th>시간</th><th>닉네임</th><th>풍선</th><th>이벤트</th><th>룰렛</th><th>현재 학습</th><th>작업</th></tr></thead><tbody>${collectorIgnoredRows.slice(0,300).map(r=>{const rs=collectorResultList(r),uid=String(r.source_uid||''),eu=encodeURIComponent(uid);const labels=rs.map(x=>collectorRuleFor(x.result).action==='include'?'업보':collectorRuleFor(x.result).action==='exclude'?'비업보':'미분류');const nick=String(r.nickname||r.soop_id||'');const ev=String(r.event_name||'-');const roul=String(rs.map(x=>x.result).join(' + ')||'-');const learn=String(labels.join(' + ')||'-');const tm=String(r.donated_time_text||'');return `<tr><td title="${esc(tm)}">${esc(tm)}</td><td title="${esc(nick)}">${esc(nick)}</td><td>${(+r.balloons||0).toLocaleString()}개</td><td title="${esc(ev)}">${esc(ev)}</td><td title="${esc(roul)}">${esc(roul)}</td><td title="${esc(learn)}">${esc(learn)}</td><td><button class="primary" style="padding:5px 8px;white-space:nowrap" onclick="convertIgnoredCollectorRowToBangsel('${eu}')">업보로 변경</button></td></tr>`}).join('')}</tbody></table>`;
+  pv.innerHTML=`<table class="previewTable nonBangselTable"><thead><tr><th>시간</th><th>닉네임</th><th>풍선</th><th>룰렛명</th><th>룰렛 결과</th><th>현재 학습</th><th>작업</th></tr></thead><tbody>${collectorIgnoredRows.slice(0,300).map(r=>{const rs=collectorResultList(r),uid=String(r.source_uid||''),eu=encodeURIComponent(uid);const labels=rs.map(x=>collectorRuleFor(x.result).action==='include'?'업보':collectorRuleFor(x.result).action==='exclude'?'비업보':'미분류');const nick=String(r.nickname||r.soop_id||'');const ev=String(r.event_name||'-');const roul=String(rs.map(x=>x.result).join(' + ')||'-');const learn=String(labels.join(' + ')||'-');const tm=String(r.donated_time_text||'');return `<tr><td title="${esc(tm)}">${esc(tm)}</td><td title="${esc(nick)}">${esc(nick)}</td><td>${(+r.balloons||0).toLocaleString()}개</td><td title="${esc(ev)}">${esc(ev)}</td><td title="${esc(roul)}">${esc(roul)}</td><td title="${esc(learn)}">${esc(learn)}</td><td><button class="primary" style="padding:5px 8px;white-space:nowrap" onclick="convertIgnoredCollectorRowToBangsel('${eu}')">업보로 변경</button></td></tr>`}).join('')}</tbody></table>`;
 }
 function renderCollectorInbox(){
   const subscriptions=collectorRows.filter(r=>collectorSubscriptionInfo(r).isSubscription).length;
@@ -1663,7 +1670,7 @@ function renderCollectorInbox(){
     $('collectorUnknownRules').innerHTML=`<div class="collectorUnknownPanel"><div class="collectorUnknownHead"><div><b>처음 보는 데이터 ${unknown.length}종류</b><div class="muted" style="margin-top:3px">처음 들어온 룰렛 결과만 여기에서 한 번 분류합니다. 같은 결과는 이후 자동으로 기억됩니다.</div></div><span class="collectorWarn">분류 필요</span></div><div class="collectorUnknownList">${items}</div></div>`;
   }else $('collectorUnknownRules').innerHTML='';
   if(!collectorRows.length){$('collectorPreview').innerHTML='<div class="muted" style="padding:10px">처리 대기 데이터가 없습니다.</div>';return}
-  $('collectorPreview').innerHTML=`<table class="previewTable"><thead><tr><th>시간</th><th>닉네임</th><th>후원 정보</th><th>이벤트</th><th>룰렛</th><th>후원종류</th><th>처리상태</th><th>작업</th></tr></thead><tbody>${collectorRows.slice(0,300).map(r=>{const rs=collectorResultList(r),known=rs.every(x=>collectorRuleFor(x.result).action!=='review'),v=String(r.validation||''),ps=String(r.process_status||''),uid=String(r.source_uid||''),eu=encodeURIComponent(uid),noRouletteReview=rs.length===0&&['short','over'].includes(v),subscription=collectorSubscriptionInfo(r).isSubscription;return `<tr><td>${esc(r.donated_time_text||'')}</td><td>${esc(r.nickname||r.soop_id||'')}</td><td>${esc(collectorAmountText(r))}</td><td>${esc(r.event_name||'-')}</td><td>${esc(rs.map(x=>x.result).join(' + ')||'-')}</td><td>${collectorDonationTypeHtml(r)}</td><td>${ps==='failed'?`<span class="collectorWarn" title="${esc(r.process_error||'')}">처리 실패</span>`:subscription?'<span class="collectorOk">구독 자동처리</span>':noRouletteReview?'<span class="collectorWarn">비업보 확인</span>':!r.event_name?'통계만':known?'<span class="collectorOk">처리 가능</span>':'<span class="collectorWarn">상단에서 분류</span>'}</td><td>${subscription?'<span class="muted">작업 없음</span>':ps==='failed'?`<button class="primary" style="padding:5px 8px" onclick="retryCollectorServerRow('${eu}')">서버 재처리</button>`:noRouletteReview?`<button style="padding:5px 8px" onclick="archiveCollectorRowAsNonBangsel('${eu}')">비업보 처리</button>`:known?`${rs.some(x=>collectorRuleFor(x.result).action==='include')?`<button class="primary" style="padding:5px 8px" onclick="registerCollectorRow('${eu}')">업보등록</button>`:`<button style="padding:5px 8px" onclick="registerCollectorRow('${eu}')">수신 처리</button>`} ${rs.length?`<button style="padding:5px 8px" onclick="openCollectorClassify('${eu}',true)">분류 수정</button>`:''}`:`<span class="muted" style="margin-right:6px">분류 대기</span>`} <button class="danger" style="padding:5px 8px" onclick="deleteCollectorRow('${eu}')">삭제</button></td></tr>`}).join('')}</tbody></table>`;
+  $('collectorPreview').innerHTML=`<table class="previewTable"><thead><tr><th>시간</th><th>닉네임</th><th>후원 정보</th><th>룰렛명</th><th>룰렛 결과</th><th>후원종류</th><th>처리상태</th><th>작업</th></tr></thead><tbody>${collectorRows.slice(0,300).map(r=>{const rs=collectorResultList(r),known=rs.every(x=>collectorRuleFor(x.result).action!=='review'),v=String(r.validation||''),ps=String(r.process_status||''),uid=String(r.source_uid||''),eu=encodeURIComponent(uid),noRouletteReview=rs.length===0&&['short','over'].includes(v),subscription=collectorSubscriptionInfo(r).isSubscription;return `<tr><td>${esc(r.donated_time_text||'')}</td><td>${esc(r.nickname||r.soop_id||'')}</td><td>${esc(collectorAmountText(r))}</td><td>${esc(r.event_name||'-')}</td><td>${esc(rs.map(x=>x.result).join(' + ')||'-')}</td><td>${collectorDonationTypeHtml(r)}</td><td>${ps==='failed'?`<span class="collectorWarn" title="${esc(r.process_error||'')}">처리 실패</span>`:subscription?'<span class="collectorOk">구독 자동처리</span>':noRouletteReview?'<span class="collectorWarn">비업보 확인</span>':!r.event_name?'통계만':known?'<span class="collectorOk">처리 가능</span>':'<span class="collectorWarn">상단에서 분류</span>'}</td><td>${subscription?'<span class="muted">작업 없음</span>':ps==='failed'?`<button class="primary" style="padding:5px 8px" onclick="retryCollectorServerRow('${eu}')">서버 재처리</button>`:noRouletteReview?`<button style="padding:5px 8px" onclick="archiveCollectorRowAsNonBangsel('${eu}')">비업보 처리</button>`:known?`${rs.some(x=>collectorRuleFor(x.result).action==='include')?`<button class="primary" style="padding:5px 8px" onclick="registerCollectorRow('${eu}')">업보등록</button>`:`<button style="padding:5px 8px" onclick="registerCollectorRow('${eu}')">수신 처리</button>`} ${rs.length?`<button style="padding:5px 8px" onclick="openCollectorClassify('${eu}',true)">분류 수정</button>`:''}`:`<span class="muted" style="margin-right:6px">분류 대기</span>`} <button class="danger" style="padding:5px 8px" onclick="deleteCollectorRow('${eu}')">삭제</button></td></tr>`}).join('')}</tbody></table>`;
 }
 async function classifyUnknownCollectorResult(encodedName,action){
   if(!requireLogin())return;
@@ -2117,7 +2124,7 @@ function analyzeBatch(){
 
   $('batchEventMaps').innerHTML=balloonCounts.map(n=>`
     <div class="batchMapRow">
-      <label>${n.toLocaleString()}개 → 이벤트명</label>
+      <label>${n.toLocaleString()}개 → 룰렛명</label>
       <input id="batchEvent_${n}" placeholder="비워두면 제외됩니다.">
     </div>`).join('');
 
@@ -2149,7 +2156,7 @@ function analyzeBatch(){
   }).join('');
 
   $('batchAfterAnalyze').classList.remove('hidden');
-  $('batchPreview').innerHTML='<div class="muted" style="padding:10px">이벤트명과 분류를 확인한 뒤 등록 미리보기를 눌러주세요.</div>';
+  $('batchPreview').innerHTML='<div class="muted" style="padding:10px">룰렛명과 분류를 확인한 뒤 등록 미리보기를 눌러주세요.</div>';
   $('batchSummary').innerHTML='';
   $('batchCommitBtn').disabled=true;
 }
@@ -2276,7 +2283,7 @@ function buildBatchPreview(){
   const activeResultNames=new Set(batchRecords.filter(rec=>!excludedBalloonCounts.has(rec.balloons)).flatMap(rec=>rec.results.map(x=>x.result)));
   const reviewResults=Object.entries(rules).filter(([name,v])=>activeResultNames.has(name)&&v.action==='review').map(([k])=>k);
   if(reviewResults.length){
-    return alert('이벤트명이 지정된 룰렛 중 미분류 결과가 있습니다. 등록 또는 제외를 지정해주세요.\n\n'+reviewResults.join('\n'));
+    return alert('룰렛명이 지정된 룰렛 중 미분류 결과가 있습니다. 등록 또는 제외를 지정해주세요.\n\n'+reviewResults.join('\n'));
   }
 
   const existingKeys=new Set([
@@ -2335,7 +2342,7 @@ function buildBatchPreview(){
   }
 
   $('batchPreview').innerHTML=`<table class="previewTable">
-    <thead><tr><th>상태</th><th>별명/최근닉</th><th>SOOP ID</th><th>날짜</th><th>풍선</th><th>이벤트</th><th>원 룰렛 결과</th><th>업보종류</th><th>묶음</th></tr></thead>
+    <thead><tr><th>상태</th><th>별명/최근닉</th><th>SOOP ID</th><th>날짜</th><th>풍선</th><th>룰렛명</th><th>원 룰렛 결과</th><th>업보종류</th><th>묶음</th></tr></thead>
     <tbody>${allRows.map(r=>{
       const p=fanProfiles[r.soop_id];
       const display=p?.alias||r.nickname;
@@ -2829,7 +2836,7 @@ function renderTypeWorkQueue(list,fileHtmlById){
       <td>${fileHtmlById.get(task.id)||''}</td>
       <td><button onclick="toggleComplete('${task.id}')">전체 완료</button><button onclick="openEdit('${task.id}')">수정</button></td>
     </tr>`).join('');
-    return `<div class="fanCard typeQueueCard"><div class="typeQueueHead"><div><div class="typeQueueName">${esc(type)}</div><div class="muted">팬 ${fans.toLocaleString()}명 · 작업 ${rows.length.toLocaleString()}건</div></div><div class="typeCutBadge"><strong>${cuts.toLocaleString()}</strong><span>촬영 컷</span></div></div><div class="fanBody"><div class="eventBlock"><table class="eventTaskTable typeQueueTable"><thead><tr><th>팬</th><th>이벤트</th><th>추가일</th><th>필요 촬영</th><th>코멘트 (공개)</th><th>메모 (비공개)</th><th>로컬 파일</th><th>작업</th></tr></thead><tbody>${body}</tbody></table></div></div></div>`;
+    return `<div class="fanCard typeQueueCard"><div class="typeQueueHead"><div><div class="typeQueueName">${esc(type)}</div><div class="muted">팬 ${fans.toLocaleString()}명 · 작업 ${rows.length.toLocaleString()}건</div></div><div class="typeCutBadge"><strong>${cuts.toLocaleString()}</strong><span>촬영 컷</span></div></div><div class="fanBody"><div class="eventBlock"><table class="eventTaskTable typeQueueTable"><thead><tr><th>팬</th><th>룰렛명</th><th>추가일</th><th>필요 촬영</th><th>코멘트 (공개)</th><th>메모 (비공개)</th><th>로컬 파일</th><th>작업</th></tr></thead><tbody>${body}</tbody></table></div></div></div>`;
   }).join('');
 }
 

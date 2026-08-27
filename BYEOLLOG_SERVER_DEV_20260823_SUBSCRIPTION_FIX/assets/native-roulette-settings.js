@@ -79,7 +79,7 @@
       detail.addEventListener('input',()=>updateItem(index,item.directUpbo?{upboEventName:detail.value}:{ttsText:detail.value}));
       const remove=document.createElement('button');remove.type='button';remove.textContent='삭제';remove.disabled=state.items.length<=2;
       remove.addEventListener('click',()=>{if(state.items.length<=2)return;state.items.splice(index,1);renderItems()});
-      const detailField=field(item.directUpbo?'업보 이벤트명':'미리 생성할 TTS 문구',detail);detailField.classList.add('tts-field');
+      const detailField=field(item.directUpbo?'업보 룰렛명':'미리 생성할 TTS 문구',detail);detailField.classList.add('tts-field');
       row.append(field('상품명',name),field('확률 (%)',probability),field('처리 방식',upboWrap),detailField,remove);
       if(item.directUpbo){const note=document.createElement('div');note.className='upbo-note';note.textContent='당첨 시 다른 절차를 모두 생략하고 업보로 바로 보냅니다. 상품명의 & 분리는 그대로 유지됩니다.';row.append(note)}
       list.append(row);

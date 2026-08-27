@@ -42,7 +42,8 @@ async function withPublicProxyEnvironment(fetchImpl,run){
   const originalValues={
     SUPABASE_URL:process.env.SUPABASE_URL,
     SUPABASE_SECRET_KEY:process.env.SUPABASE_SECRET_KEY,
-    SUPABASE_SERVICE_ROLE_KEY:process.env.SUPABASE_SERVICE_ROLE_KEY
+    SUPABASE_SERVICE_ROLE_KEY:process.env.SUPABASE_SERVICE_ROLE_KEY,
+    VIEWER_ROULETTE_PUBLIC_ENABLED:process.env.VIEWER_ROULETTE_PUBLIC_ENABLED
   };
   process.env.SUPABASE_URL='https://project.example.invalid';
   process.env.SUPABASE_SECRET_KEY='test-secret-key';
@@ -137,6 +138,42 @@ test('public data proxy does not disclose upstream error details',async()=>{
     assert.equal(res.statusCode,500);
     assert.deepEqual(res.body,{message:'Public data query failed'});
   });
+});
+
+test('public roulette viewer is concealed by default and exposes only probability fields when enabled',async()=>{
+  let fetchCalls=0;
+  await withPublicProxyEnvironment(async()=>{fetchCalls+=1;throw new Error('unexpected fetch')},async()=>{
+    delete process.env.VIEWER_ROULETTE_PUBLIC_ENABLED;
+    const res=createResponse();
+    await handler({method:'POST',query:{operation:'public-roulette'},body:{p_workspace_slug:'sample'}},res);
+    assert.equal(res.statusCode,404);
+  });
+  assert.equal(fetchCalls,0);
+
+  const requests=[];
+  await withPublicProxyEnvironment(async(url)=>{
+    requests.push(String(url));
+    if(requests.length===1)return new Response(JSON.stringify([{id:'10000000-0000-4000-8000-000000000001'}]),{status:200,headers:{'content-type':'application/json'}});
+    return new Response(JSON.stringify([{
+      roulette_name:'공개 룰렛',updated_at:'2026-08-27T00:00:00Z',
+      draft:{balloonsPerSpin:30,items:[
+        {resultText:'A',probabilityPpm:400000,directUpbo:true,ttsText:'secret'},
+        {resultText:'B',probabilityPpm:600000,directUpbo:false,ttsText:'secret'}
+      ],agentDeviceId:'private-device'}
+    }]),{status:200,headers:{'content-type':'application/json'}});
+  },async()=>{
+    process.env.VIEWER_ROULETTE_PUBLIC_ENABLED='true';
+    const res=createResponse();
+    await handler({method:'POST',query:{operation:'public-roulette'},body:{p_workspace_slug:'sample'}},res);
+    assert.equal(res.statusCode,200);
+    assert.deepEqual(res.body,{enabled:true,roulettes:[{
+      rouletteName:'공개 룰렛',balloonsPerSpin:30,
+      items:[{resultText:'A',probabilityPpm:400000},{resultText:'B',probabilityPpm:600000}],
+      updatedAt:'2026-08-27T00:00:00Z'
+    }]});
+  });
+  assert.match(requests[0],/byeollog_workspaces\?slug=eq\.sample&public_page_enabled=eq\.true/);
+  assert.match(requests[1],/byeollog_roulette_drafts\?workspace_id=eq\.10000000-0000-4000-8000-000000000001&public_visible=eq\.true/);
 });
 
 test('migration removes browser execution and adds explicit policies to all 27 tables',async()=>{

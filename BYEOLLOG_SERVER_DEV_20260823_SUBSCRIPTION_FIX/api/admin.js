@@ -8,6 +8,17 @@ import {removeStorageManifest} from '../lib/backup.js';
 import {rejectMaintenanceWrite} from '../lib/maintenance.js';
 import {getAgentRolloutHtml} from '../lib/agent-rollout-html.js';
 import {loadStableAgentRelease,sanitizeAgentRolloutSnapshot} from '../lib/agent-rollout.js';
+import {getProductDashboardHtml} from '../lib/product-dashboard-html.js';
+import {normalizeNativeRouletteDraft,NativeRouletteValidationError} from '../lib/native-roulette.js';
+import {NATIVE_ROULETTE_ASSETS,publicNativeRouletteAsset} from '../lib/native-roulette-assets.js';
+import {fetchWeflabPublicRoulette,WeflabPublicImportError,normalizeWeflabPublicUrl} from '../lib/weflab-public-roulette-import.js';
+
+const UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function bodyOf(req){
+  if(typeof req.body==='string'){try{return JSON.parse(req.body)}catch{return null}}
+  return req.body&&typeof req.body==='object'&&!Array.isArray(req.body)?req.body:{};
+}
 
 export function rewriteInlineEventHandlers(source){
   return String(source).replace(/\s(on(?:click|input|change))=(["'])([\s\S]*?)\2/g,(_all,eventName,quote,code)=>` data-bl-${eventName}=${quote}${code}${quote}`);
@@ -236,6 +247,127 @@ async function handleAgentRolloutPage(req,res){
   return res.status(200).send(getAgentRolloutHtml(nonce));
 }
 
+function publicRule(rule){
+  const conditions=Array.isArray(rule?.rule_conditions)?rule.rule_conditions:[];
+  const actions=Array.isArray(rule?.rule_actions)?rule.rule_actions:[];
+  return {
+    id:rule?.id,name:rule?.name,enabled:rule?.enabled===true,priority:rule?.priority,
+    versionNumber:rule?.version_number,createdAt:rule?.created_at,
+    conditions:conditions.map(item=>({position:item.position,path:item.path,operator:item.operator,value:item.value})),
+    actions:actions.map(item=>({position:item.position,actionType:item.action_type,executionTarget:item.execution_target,agentDeviceId:item.agent_device_id}))
+  };
+}
+
+function publicRouletteDraft(row){
+  return {
+    id:row.id,rouletteName:row.roulette_name,versionNumber:row.version_number,
+    draft:row.draft,publicVisible:row.public_visible===true,sourceKind:row.source_kind,sourceUrl:row.source_url,
+    sourceFingerprint:row.source_fingerprint,createdAt:row.created_at,updatedAt:row.updated_at
+  };
+}
+
+async function loadProductControlState(liveSession){
+  const workspaceId=await workspaceForSession(liveSession);
+  if(!workspaceId)throw Object.assign(new Error('workspace unavailable'),{status:403});
+  const filter=q(workspaceId);
+  const rulesPromise=sb('rules',`?workspace_id=eq.${filter}&superseded_at=is.null&select=id,name,enabled,priority,created_at,version_number,rule_conditions(position,path,operator,value),rule_actions(position,action_type,execution_target,agent_device_id)&order=created_at.desc&limit=100`,{signal:AbortSignal.timeout(12000)});
+  const draftsPromise=sb('byeollog_roulette_drafts',`?workspace_id=eq.${filter}&select=id,roulette_name,version_number,draft,public_visible,source_kind,source_url,source_fingerprint,created_at,updated_at&order=updated_at.desc&limit=100`,{signal:AbortSignal.timeout(12000)}).catch(error=>error?.status===404?[]:Promise.reject(error));
+  const devicesPromise=sb('rpc/list_agent_devices_v1','',{method:'POST',body:{p_workspace_id:workspaceId},signal:AbortSignal.timeout(12000)}).catch(()=>[]);
+  const [rules,drafts,devices]=await Promise.all([rulesPromise,draftsPromise,devicesPromise]);
+  return {
+    ok:true,
+    section:'control',
+    rules:(Array.isArray(rules)?rules:[]).map(publicRule),
+    rouletteDrafts:(Array.isArray(drafts)?drafts:[]).map(publicRouletteDraft),
+    agentDevices:Array.isArray(devices)?devices:[],
+    assets:NATIVE_ROULETTE_ASSETS.map(publicNativeRouletteAsset),
+    rouletteActivationAvailable:false,
+    actionRulesAlreadyServerBacked:true
+  };
+}
+
+async function handleProductControlState(req,res){
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('Content-Type','application/json; charset=utf-8');
+  if(req.method!=='GET')return res.status(405).json({message:'Method not allowed'});
+  const session=await requireCapabilityLive(req,res,'data:read');if(!session)return;
+  try{return res.status(200).json(await loadProductControlState(session))}
+  catch(error){
+    console.error('[product-control] bootstrap failed',{name:error?.name||'Error',status:error?.status||null});
+    return res.status(error?.status===403?403:502).json({message:'룰렛·액션 설정을 불러오지 못했습니다.'});
+  }
+}
+
+async function handleWeflabPublicImport(req,res){
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('Content-Type','application/json; charset=utf-8');
+  if(req.method!=='POST')return res.status(405).json({message:'Method not allowed'});
+  const session=await requireCapabilityLive(req,res,'data:write');if(!session)return;
+  const body=bodyOf(req);if(!body)return res.status(400).json({message:'Invalid JSON body'});
+  try{
+    const result=await fetchWeflabPublicRoulette(body.url);
+    return res.status(200).json({...result,requiresNewRouletteName:true});
+  }catch(error){
+    if(error instanceof WeflabPublicImportError)return res.status(error.status).json({message:error.message,code:error.code});
+    console.error('[weflab-public-import] failed',{name:error?.name||'Error'});
+    return res.status(502).json({message:'위플랩 공개 페이지를 불러오지 못했습니다.'});
+  }
+}
+
+async function handleRouletteDraft(req,res){
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('Content-Type','application/json; charset=utf-8');
+  const capability=req.method==='GET'?'data:read':req.method==='DELETE'?'data:delete':'data:write';
+  const session=await requireCapabilityLive(req,res,capability);if(!session)return;
+  const workspaceId=await workspaceForSession(session);if(!workspaceId)return res.status(403).json({message:'Workspace not resolved'});
+  if(req.method==='GET')return handleProductControlState(req,res);
+  if(rejectMaintenanceWrite(req,res))return;
+  const body=bodyOf(req);if(!body)return res.status(400).json({message:'Invalid JSON body'});
+  const requestedId=String(body.id||req.query?.id||'').trim().toLowerCase();
+  if(req.method==='DELETE'){
+    if(!UUID_PATTERN.test(requestedId))return res.status(400).json({message:'룰렛 초안 ID가 올바르지 않습니다.'});
+    const removed=await sb('byeollog_roulette_drafts',`?workspace_id=eq.${q(workspaceId)}&id=eq.${q(requestedId)}`,{method:'DELETE',prefer:'return=representation'});
+    if(!Array.isArray(removed)||removed.length!==1)return res.status(404).json({message:'룰렛 초안을 찾지 못했습니다.'});
+    return res.status(200).json({ok:true,id:requestedId});
+  }
+  if(req.method!=='POST'&&req.method!=='PATCH')return res.status(405).json({message:'Method not allowed'});
+  try{
+    const draft=normalizeNativeRouletteDraft(body.draft||body);
+    const rouletteName=String(body.rouletteName||draft.name||'').trim();
+    if(!rouletteName||rouletteName.length>120)return res.status(400).json({message:'룰렛명을 1~120자로 입력해주세요.'});
+    draft.name=rouletteName;
+    const sourceKind=body.sourceKind==='weflab_public'?'weflab_public':'manual';
+    const sourceUrl=sourceKind==='weflab_public'?normalizeWeflabPublicUrl(body.sourceUrl):null;
+    const sourceFingerprint=sourceKind==='weflab_public'?String(body.sourceFingerprint||'').trim().toLowerCase():null;
+    if(sourceKind==='weflab_public'&&!/^[0-9a-f]{64}$/.test(sourceFingerprint))return res.status(400).json({message:'가져온 룰렛 원본 확인값이 올바르지 않습니다.'});
+    if(requestedId){
+      if(!UUID_PATTERN.test(requestedId))return res.status(400).json({message:'룰렛 초안 ID가 올바르지 않습니다.'});
+      const expected=Number(body.expectedVersion);
+      if(!Number.isSafeInteger(expected)||expected<1)return res.status(400).json({message:'룰렛 초안 버전이 올바르지 않습니다.'});
+      const updated=await sb('byeollog_roulette_drafts',`?workspace_id=eq.${q(workspaceId)}&id=eq.${q(requestedId)}&version_number=eq.${expected}`,{method:'PATCH',body:{roulette_name:rouletteName,draft,public_visible:body.publicVisible===true,source_kind:sourceKind,source_url:sourceUrl,source_fingerprint:sourceFingerprint,version_number:expected+1,updated_at:new Date().toISOString()},prefer:'return=representation'});
+      if(!Array.isArray(updated)||updated.length!==1)return res.status(409).json({message:'다른 화면에서 룰렛이 변경되었습니다. 새로고침 후 다시 저장해주세요.'});
+      return res.status(200).json({ok:true,draft:publicRouletteDraft(updated[0])});
+    }
+    const inserted=await sb('byeollog_roulette_drafts','?select=*',{method:'POST',body:{workspace_id:workspaceId,roulette_name:rouletteName,draft,public_visible:body.publicVisible===true,source_kind:sourceKind,source_url:sourceUrl,source_fingerprint:sourceFingerprint,created_by_user_id:session.user_id||null},prefer:'return=representation'});
+    if(!Array.isArray(inserted)||inserted.length!==1)throw new Error('draft insert failed');
+    return res.status(201).json({ok:true,draft:publicRouletteDraft(inserted[0])});
+  }catch(error){
+    if(error instanceof NativeRouletteValidationError||error instanceof WeflabPublicImportError)return res.status(error.status).json({message:error.message,code:error.code});
+    console.error('[roulette-draft] save failed',{name:error?.name||'Error',status:error?.status||null});
+    return res.status(error?.status===404?503:500).json({message:error?.status===404?'룰렛 초안 저장소가 아직 준비되지 않았습니다.':'룰렛 초안을 저장하지 못했습니다.'});
+  }
+}
+
+async function handleProductControlPage(req,res,section){
+  const session=await requireCapabilityLive(req,res,'data:read');if(!session)return;
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('X-Frame-Options','DENY');res.setHeader('Referrer-Policy','no-referrer');
+  const nonce=crypto.randomBytes(18).toString('base64url');
+  res.setHeader('Content-Security-Policy',`default-src 'self'; script-src 'nonce-${nonce}'; script-src-attr 'none'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'`);
+  res.setHeader('Content-Type','text/html; charset=utf-8');
+  return res.status(200).send(getProductDashboardHtml(nonce,section));
+}
+
 export default async function handler(req,res){
   if(rejectMaintenanceWrite(req,res))return;
   const operation=String(req.query?.operation||'');
@@ -252,7 +384,11 @@ export default async function handler(req,res){
 
   if(operation==='dashboard-bootstrap')return handleDashboardBootstrap(req,res);
   if(operation==='agent-rollout-status')return handleAgentRolloutStatus(req,res);
+  if(operation==='product-control-state')return handleProductControlState(req,res);
+  if(operation==='weflab-public-import')return handleWeflabPublicImport(req,res);
+  if(operation==='roulette-draft')return handleRouletteDraft(req,res);
   if(String(req.query?.view||'')==='agent-rollout')return handleAgentRolloutPage(req,res);
+  if(['roulette','actions'].includes(String(req.query?.view||'')))return handleProductControlPage(req,res,String(req.query.view));
 
   if(operation==='context'){
     res.setHeader('Cache-Control','no-store, private');

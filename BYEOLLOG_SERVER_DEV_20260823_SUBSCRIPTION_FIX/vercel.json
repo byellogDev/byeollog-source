@@ -36,6 +36,14 @@
       "destination": "/api/login?operation=soop-callback"
     },
     {
+      "source": "/dashboard/roulette",
+      "destination": "/api/admin?view=roulette"
+    },
+    {
+      "source": "/dashboard/actions",
+      "destination": "/api/admin?view=actions"
+    },
+    {
       "source": "/dashboard",
       "destination": "/api/admin"
     },
