@@ -179,3 +179,18 @@ test('roulette product rows are compact without repeated visible field labels',(
   assert.match(page,/\.item\{align-items:center;padding:7px 9px/);
   assert.match(page,/\.item \.field input\{height:36px/);
 });
+
+test('roulette editor supports authenticated custom single and optional series images',async()=>{
+  const page=getProductDashboardHtml('test-nonce','roulette');
+  const admin=await source('../api/admin.js');
+  assert.match(page,/id="singleImageUpload"[^>]*image\/png,image\/jpeg,image\/webp,image\/gif/);
+  assert.match(page,/id="seriesImagePanel" class="upload-panel hidden"/);
+  assert.match(page,/연차 이미지를 별도로 지정하지 않으면 단차 이미지를 사용합니다\./);
+  assert.match(page,/request\('roulette-image-upload-ticket'/);
+  assert.match(page,/request\('roulette-image-confirm'/);
+  assert.match(page,/customSeriesImage:seriesEnabled\?state\.customSeriesImage:null/);
+  assert.match(admin,/operation==='roulette-image-upload-ticket'\|\|operation==='roulette-image-confirm'/);
+  assert.match(admin,/await verifyDraftCustomAssets\(workspaceId,draft\)/);
+  assert.match(admin,/img-src 'self' data: \$\{assetOrigin\}; connect-src 'self' \$\{assetOrigin\}/);
+  assert.doesNotMatch(page,/SUPABASE_(?:SECRET|SERVICE_ROLE)/);
+});

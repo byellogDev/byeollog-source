@@ -176,6 +176,23 @@ export function normalizeNativeRouletteDraft(input={}){
   };
 }
 
+export function normalizeRouletteCustomImageReference(input){
+  if(input===null||input===undefined)return null;
+  if(!input||typeof input!=='object'||Array.isArray(input)){
+    throw new NativeRouletteValidationError('사용자 이미지 정보가 올바르지 않습니다.');
+  }
+  const storagePath=requiredText(input.storagePath,260,'사용자 이미지 경로');
+  if(!/^workspaces\/[0-9a-f-]{36}\/(?:single|series)\/[0-9a-f-]{36}\.(?:png|jpg|webp|gif)$/.test(storagePath)){
+    throw new NativeRouletteValidationError('사용자 이미지 경로가 올바르지 않습니다.');
+  }
+  const mimeType=requiredChoice(input.mimeType,['image/png','image/jpeg','image/webp','image/gif'],'사용자 이미지 형식');
+  const byteSize=safeInteger(input.byteSize,1,12*1024*1024,'사용자 이미지 용량');
+  const width=safeInteger(input.width,1,4096,'사용자 이미지 가로 크기');
+  const height=safeInteger(input.height,1,4096,'사용자 이미지 세로 크기');
+  const sha256=requiredSha256(input.sha256,'사용자 이미지 확인값');
+  return {storagePath,mimeType,byteSize,width,height,sha256};
+}
+
 // Web product-control drafts deliberately omit PC routing and audio volume.
 // Those settings belong to the overlay control plane and are applied only when
 // the dormant roulette runtime is activated after SOOP approval.
@@ -204,6 +221,10 @@ export function normalizeNativeRouletteWebDraft(input={}){
   const seriesSpinCount=seriesEnabled
     ? safeInteger(input.seriesSpinCount,1,NATIVE_ROULETTE_MAX_SERIES_SPINS,'연차 룰렛 횟수')
     : null;
+  const customSingleImage=normalizeRouletteCustomImageReference(input.customSingleImage);
+  const customSeriesImage=seriesEnabled
+    ? normalizeRouletteCustomImageReference(input.customSeriesImage)
+    : null;
   const items=normalizeNativeRouletteItems(input,name);
   return {
     name,
@@ -214,6 +235,8 @@ export function normalizeNativeRouletteWebDraft(input={}){
     overlayAssetKey,
     overlayAssetSha256:overlayAsset.contentSha256,
     overlayAssetBytes:overlayAsset.byteSize,
+    customSingleImage,
+    customSeriesImage,
     followupChatTtsWindowSeconds,
     items
   };
