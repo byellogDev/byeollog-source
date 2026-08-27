@@ -10,6 +10,7 @@
   "scripts": {
     "validate:runtime": "node scripts/validate-runtime-config.mjs",
     "release:assets": "node tools/Publish-AgentReleaseAssets.mjs",
+    "test:roulette-reliability": "node tools/Simulate-NativeRouletteReliability.mjs --events 10000 --probability-spins 500000 --seed 8272026",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
