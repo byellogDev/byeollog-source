@@ -43,12 +43,22 @@ test('public Weflab importer separates amount tiers and preserves exact probabil
 test('control center keeps roulette, action and existing upbo navigation organic',async()=>{
   const roulettePage=getProductDashboardHtml('test-nonce','roulette');
   const actionPage=getProductDashboardHtml('test-nonce','actions');
+  const upboPage=await source('../lib/admin-source.html');
   for(const page of [roulettePage,actionPage]){
     assert.match(page,/\/dashboard\/roulette/);
     assert.match(page,/\/dashboard\/actions/);
     assert.match(page,/href="\/dashboard">✓ 업보/);
     assert.match(page,/룰렛명/);
+    assert.match(page,/class="dashboardHeader"/);
+    assert.match(page,/class="productNav dashboardNav"/);
+    assert.match(page,/id="myPageBtn"/);
+    assert.match(page,/id="themeToggleBtn"/);
+    assert.match(page,/id="logoutBtn"/);
+    assert.match(page,/byeollogAdminTheme/);
   }
+  assert.match(upboPage,/class="top brandBanner dashboardHeader"/);
+  assert.match(upboPage,/class="productNav dashboardNav"/);
+  assert.match(upboPage,/class="admin-page dashboard-page"/);
   assert.match(roulettePage,/requires|각 룰렛마다 새로 입력/);
   assert.match(roulettePage,/업보로 지정/);
   assert.match(roulettePage,/시청자 확률표 공개 예약/);
@@ -92,10 +102,16 @@ test('viewer roulette publication is opt-in twice and hidden by default',async()
 test('upbo dashboard keeps its default route and uses roulette naming',async()=>{
   const dashboard=await source('../lib/admin-source.html');
   const vercel=JSON.parse(await source('../vercel.json'));
-  assert.match(dashboard,/class="productNav"/);
+  assert.match(dashboard,/class="productNav dashboardNav"/);
   assert.match(dashboard,/팬 \/ 룰렛명 \/ 업보종류 검색/);
   assert.match(dashboard,/<label>룰렛명<\/label><input id="event">/);
   assert.ok(vercel.rewrites.some(item=>item.source==='/dashboard'&&item.destination==='/api/admin'));
   assert.ok(vercel.rewrites.some(item=>item.source==='/dashboard/roulette'&&item.destination==='/api/admin?view=roulette'));
   assert.ok(vercel.rewrites.some(item=>item.source==='/dashboard/actions'&&item.destination==='/api/admin?view=actions'));
+});
+
+test('all dashboard tabs share the action-style active color contract',async()=>{
+  const theme=await source('../assets/byeollog-theme.css');
+  assert.match(theme,/\.dashboard-page \.dashboardNav a\.active\{[^}]*background:#102746!important[^}]*color:#ffc44d!important/);
+  assert.match(theme,/\.dashboard-page\[data-theme="dark"\] \.dashboardNav a\.active\{[^}]*background:#26344f!important[^}]*color:#ffd66f!important/);
 });

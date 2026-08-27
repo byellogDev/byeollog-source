@@ -260,10 +260,10 @@ body[data-theme="dark"] code{color:#ffd66f}
 </style>
 <link rel="stylesheet" href="/assets/byeollog-theme.css">
 </head>
-<body class="admin-page">
+<body class="admin-page dashboard-page">
 <div class="wrap">
-  <div class="top brandBanner">
-    <a class="brandLink brandLockup" href="/dashboard" title="대시보드로 돌아가기" aria-label="별록 대시보드">
+  <div class="top brandBanner dashboardHeader">
+    <a class="brandLink brandLockup dashboardBrand" href="/dashboard" title="대시보드로 돌아가기" aria-label="별록 대시보드">
       <svg class="brandMark" viewBox="0 0 180 96" aria-hidden="true">
         <g fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
           <path d="M48 10 L60 35 L88 39 L68 58 L73 84 L48 71 L23 84 L28 58 L8 39 L36 35 Z"/>
@@ -273,16 +273,16 @@ body[data-theme="dark"] code{color:#ffd66f}
       </svg>
       <span class="brandWords"><strong>별록</strong><small>BYEOLLOG</small></span>
     </a>
-    <div class="topActions">
-      <span class="connectionDot" aria-hidden="true"></span>
-      <span id="connState" class="status">서버 연결 확인 중...</span>
-      <button type="button" class="logoutBtn" id="myPageBtn" onclick="openMyPage()" title="마이페이지">마이페이지</button>
-      <button id="themeToggleBtn" class="themeToggleBtn" type="button" onclick="toggleAdminTheme()" title="테마 전환" aria-label="테마 전환">☾</button>
-      <button class="logoutBtn" onclick="logoutAdmin()">로그아웃</button>
+    <div class="topActions dashboardHeaderActions">
+      <span class="connectionDot dashboardConnectionDot" aria-hidden="true"></span>
+      <span id="connState" class="status dashboardConnectionState">서버 연결 확인 중...</span>
+      <button type="button" class="logoutBtn dashboardHeaderButton" id="myPageBtn" onclick="openMyPage()" title="마이페이지">마이페이지</button>
+      <button id="themeToggleBtn" class="themeToggleBtn dashboardHeaderButton dashboardThemeButton" type="button" onclick="toggleAdminTheme()" title="테마 전환" aria-label="테마 전환">☾</button>
+      <button class="logoutBtn dashboardHeaderButton" onclick="logoutAdmin()">로그아웃</button>
     </div>
   </div>
 
-  <nav class="productNav" aria-label="별록 대시보드">
+  <nav class="productNav dashboardNav" aria-label="별록 대시보드">
     <a href="/dashboard/roulette">◉ 룰렛</a>
     <a href="/dashboard/actions">✦ 액션</a>
     <a class="active" href="/dashboard">✓ 업보</a>
