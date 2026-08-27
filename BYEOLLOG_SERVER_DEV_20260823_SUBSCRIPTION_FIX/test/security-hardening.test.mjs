@@ -95,6 +95,7 @@ test('public data proxy calls only the expected service-role RPC',async()=>{
     },res);
     assert.equal(res.statusCode,200);
     assert.match(String(res.body),/"slug":"sample"/);
+    assert.match(String(res.body),/"viewer_roulette_enabled":false/);
   });
   assert.equal(request.url,'https://project.example.invalid/rest/v1/rpc/get_public_workspace');
   assert.equal(request.options.method,'POST');

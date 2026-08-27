@@ -88,6 +88,17 @@ async function servePublicRpc(req,res,operation){
     if(!upstream.ok){
       return res.status(upstream.status).json({message:'Public data query failed'});
     }
+    if(operation==='public-workspace'){
+      let rows;
+      try{rows=text?JSON.parse(text):[]}
+      catch{return res.status(502).json({message:'Public data service is unavailable'})}
+      const safeRows=(Array.isArray(rows)?rows:[]).map(row=>({
+        ...row,viewer_roulette_enabled:publicRouletteViewerEnabled()
+      }));
+      res.status(upstream.status);
+      res.setHeader('Content-Type','application/json; charset=utf-8');
+      return res.send(JSON.stringify(safeRows));
+    }
     res.status(upstream.status);
     res.setHeader('Content-Type',upstream.headers.get('content-type')||'application/json; charset=utf-8');
     return res.send(text);

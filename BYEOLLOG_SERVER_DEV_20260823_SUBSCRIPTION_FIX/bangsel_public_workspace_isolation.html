@@ -306,9 +306,8 @@ async function loadData(){
       }
       $('searchPanel').style.display = '';
       $('pageSubtitle').textContent = '별명 또는 SOOP ID로 검색해 남은 업보를 확인하세요.';
+      if(workspace.viewer_roulette_enabled===true)void loadPublicRoulettes();
     }
-
-    await loadPublicRoulettes();
 
     const searchTerm = ($('search')?.value || '').trim() || null;
     const res = await fetch(

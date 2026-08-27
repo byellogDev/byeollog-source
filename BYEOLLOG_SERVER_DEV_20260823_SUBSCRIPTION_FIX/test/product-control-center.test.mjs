@@ -82,7 +82,9 @@ test('viewer roulette publication is opt-in twice and hidden by default',async()
   assert.match(viewer,/id="viewerTabs"[^>]*hidden/);
   assert.match(viewer,/id="rouletteView" hidden/);
   assert.match(viewer,/operation=public-roulette/);
+  assert.match(viewer,/workspace\.viewer_roulette_enabled===true/);
   assert.match(dataApi,/VIEWER_ROULETTE_PUBLIC_ENABLED==='true'/);
+  assert.match(dataApi,/viewer_roulette_enabled:publicRouletteViewerEnabled\(\)/);
   assert.match(dataApi,/public_visible=eq\.true/);
   assert.match(dataApi,/items\.push\(\{resultText,probabilityPpm\}\)/);
 });
