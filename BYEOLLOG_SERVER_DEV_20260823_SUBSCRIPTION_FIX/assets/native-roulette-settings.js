@@ -93,6 +93,7 @@
     byId('allowMultipleSpins').checked=profile.allowMultipleSpins===true;
     byId('soundVolume').value=String(profile.soundVolumePercent??80);
     byId('ttsVolume').value=String(profile.ttsVolumePercent??80);
+    byId('followupChatTtsWindow').value=String(profile.followupChatTtsWindowSeconds??10);
     state.selectedAssetKey=profile.overlayAssetKey||state.assets[0]?.key||'';
     state.items=Array.isArray(profile.items)&&profile.items.length?profile.items.map(item=>({...item})):defaultItems();
     const cache=profile.cache||{};text(byId('cacheTotal'),cache.total||0);text(byId('cacheReady'),cache.ready||0);text(byId('cachePending'),cache.pending||0);
@@ -123,6 +124,7 @@
         allowMultipleSpins:byId('allowMultipleSpins').checked,agentDeviceId:byId('agentDevice').value,
         overlayAssetKey:state.selectedAssetKey,soundKey:'roulette_spin_v1',
         soundVolumePercent:Number(byId('soundVolume').value),ttsVolumePercent:Number(byId('ttsVolume').value),
+        followupChatTtsWindowSeconds:Number(byId('followupChatTtsWindow').value),
         items:state.items.map(item=>({
           id:item.id||null,resultText:item.resultText,probabilityPpm:Number(item.probabilityPpm),directUpbo:item.directUpbo===true,
           upboEventName:item.directUpbo?(item.upboEventName||byId('rouletteName').value):null,

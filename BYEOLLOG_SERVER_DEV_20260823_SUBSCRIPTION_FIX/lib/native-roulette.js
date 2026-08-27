@@ -6,6 +6,9 @@ export const NATIVE_ROULETTE_MAX_ITEMS=100;
 export const NATIVE_ROULETTE_MAX_SPINS=100;
 export const NATIVE_ROULETTE_TTS_KEY_DOMAIN='native-roulette-result-v1|';
 export const NATIVE_ROULETTE_SOUND_KEYS=Object.freeze(['roulette_spin_v1']);
+export const NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS=10;
+export const NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS=60;
+export const NATIVE_ROULETTE_MAX_CHAT_TTS_CHARACTERS=300;
 
 export class NativeRouletteValidationError extends Error{
   constructor(message,code='invalid_native_roulette'){
@@ -89,6 +92,12 @@ export function normalizeNativeRouletteDraft(input={}){
   const soundKey=requiredChoice(input.soundKey||'roulette_spin_v1',NATIVE_ROULETTE_SOUND_KEYS,'효과음');
   const soundVolumePercent=safeInteger(input.soundVolumePercent??80,0,100,'효과음 음량');
   const ttsVolumePercent=safeInteger(input.ttsVolumePercent??80,0,100,'TTS 음량');
+  const followupChatTtsWindowSeconds=safeInteger(
+    input.followupChatTtsWindowSeconds??NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
+    0,
+    NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
+    '후원 후 첫 채팅 TTS 유효시간'
+  );
   const agentDeviceId=requiredText(input.agentDeviceId,64,'캐시 대상 PC');
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(agentDeviceId)){
     throw new NativeRouletteValidationError('캐시 대상 PC 식별값이 올바르지 않습니다.');
@@ -153,6 +162,7 @@ export function normalizeNativeRouletteDraft(input={}){
     soundKey,
     soundVolumePercent,
     ttsVolumePercent,
+    followupChatTtsWindowSeconds,
     items
   };
 }
@@ -190,6 +200,88 @@ export function normalizeSoopDonationEnvelope(input={}){
     throw new NativeRouletteValidationError('후원 시각이 올바르지 않습니다.');
   }
   return {eventId,actor:{id:actorId,name:actorName},amount,message,occurredAt:occurredAt.toISOString()};
+}
+
+export function normalizeSoopChatEnvelope(input={}){
+  const eventId=requiredText(input.eventId,200,'SOOP 채팅 이벤트 ID');
+  const actorId=requiredText(input.actor?.id,180,'채팅 작성자 SOOP ID').toLocaleLowerCase('en-US');
+  const actorName=boundedText(input.actor?.name,120)||actorId;
+  const message=requiredText(input.message,NATIVE_ROULETTE_MAX_CHAT_TTS_CHARACTERS,'채팅 메시지');
+  if(input.occurredAt===undefined||input.occurredAt===null||input.occurredAt===''){
+    throw new NativeRouletteValidationError('SOOP 채팅 시각이 필요합니다.');
+  }
+  const occurredAt=new Date(input.occurredAt);
+  if(!Number.isFinite(occurredAt.getTime())){
+    throw new NativeRouletteValidationError('채팅 시각이 올바르지 않습니다.');
+  }
+  return {eventId,actor:{id:actorId,name:actorName},message,occurredAt:occurredAt.toISOString()};
+}
+
+export function buildNativeRouletteSponsoredChatDispatch({
+  profile,donation,chat=null,sourceKind='followup_chat'
+}={}){
+  const kind=requiredChoice(sourceKind,['donation_message','followup_chat'],'후원 채팅 종류');
+  const donationEventId=requiredText(donation?.eventId,200,'SOOP 후원 이벤트 ID');
+  const actor={
+    id:requiredText(donation?.actor?.id,180,'후원자 SOOP ID').toLocaleLowerCase('en-US'),
+    name:boundedText(donation?.actor?.name,120)||String(donation?.actor?.id||'')
+  };
+  const donatedAt=new Date(donation?.occurredAt);
+  if(!Number.isFinite(donatedAt.getTime())){
+    throw new NativeRouletteValidationError('후원 시각이 올바르지 않습니다.');
+  }
+  const windowSeconds=safeInteger(
+    profile?.followupChatTtsWindowSeconds??NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
+    0,NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,'후원 후 첫 채팅 TTS 유효시간'
+  );
+  let message;
+  let chatEventId=null;
+  let chatOccurredAt=donatedAt;
+  let elapsedSeconds=0;
+  if(kind==='donation_message'){
+    message=requiredText(donation?.message,NATIVE_ROULETTE_MAX_CHAT_TTS_CHARACTERS,'후원 메시지');
+  }else{
+    if(windowSeconds===0){
+      throw new NativeRouletteValidationError('후원 후 첫 채팅 TTS가 꺼져 있습니다.');
+    }
+    chatEventId=requiredText(chat?.eventId,200,'SOOP 채팅 이벤트 ID');
+    const chatActorId=requiredText(chat?.actor?.id,180,'채팅 작성자 SOOP ID').toLocaleLowerCase('en-US');
+    if(chatActorId!==actor.id){
+      throw new NativeRouletteValidationError('후원자와 채팅 작성자가 다릅니다.');
+    }
+    message=requiredText(chat?.message,NATIVE_ROULETTE_MAX_CHAT_TTS_CHARACTERS,'채팅 메시지');
+    chatOccurredAt=new Date(chat?.occurredAt);
+    if(!Number.isFinite(chatOccurredAt.getTime())){
+      throw new NativeRouletteValidationError('채팅 시각이 올바르지 않습니다.');
+    }
+    const elapsedMilliseconds=chatOccurredAt.getTime()-donatedAt.getTime();
+    elapsedSeconds=Math.round(elapsedMilliseconds/1000);
+    if(elapsedMilliseconds<0||elapsedMilliseconds>windowSeconds*1000){
+      throw new NativeRouletteValidationError('채팅이 후원 TTS 유효시간을 벗어났습니다.','followup_chat_outside_window');
+    }
+  }
+  const displayText=kind==='followup_chat'?`[${elapsedSeconds}초전] ${actor.name} : ${message}`:message;
+  const ttsText=message;
+  return {
+    schemaVersion:'1.0',
+    kind:'donation_chat_tts',
+    sourceEventKey:kind==='followup_chat'
+      ?`soop-native-roulette-chat:${chatEventId}`
+      :`soop-native-roulette-chat:${donationEventId}:donation-message`,
+    donationEventId,
+    chatEventId,
+    sourceKind:kind,
+    actor,
+    amount:safeInteger(donation?.amount,1,1_000_000_000_000,'후원 별풍선'),
+    message,
+    displayText,
+    ttsText,
+    elapsedSeconds,
+    chatOccurredAt:chatOccurredAt.toISOString(),
+    playAfterDonationResults:true,
+    dynamicTts:true,
+    ttsVolumePercent:safeInteger(profile?.ttsVolumePercent,0,100,'TTS 음량')
+  };
 }
 
 export function buildNativeRouletteDispatch({profile,item,donation,spinIndex,sourceEventKey}){

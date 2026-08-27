@@ -66,6 +66,8 @@ create table byeollog_automation.native_roulette_revisions (
   sound_key text not null check (sound_key='roulette_spin_v1'),
   sound_volume_percent integer not null check (sound_volume_percent between 0 and 100),
   tts_volume_percent integer not null check (tts_volume_percent between 0 and 100),
+  followup_chat_tts_window_seconds integer not null default 10
+    check (followup_chat_tts_window_seconds between 0 and 60),
   created_by_user_id uuid not null,
   created_at timestamptz not null default clock_timestamp(),
   ready_at timestamptz,
@@ -235,11 +237,54 @@ create table byeollog_automation.native_roulette_spins (
 create index native_roulette_spin_item_revision_idx
   on byeollog_automation.native_roulette_spins(item_id,revision_id);
 
+create table byeollog_automation.native_roulette_chat_followups (
+  id uuid primary key default extensions.gen_random_uuid(),
+  workspace_id uuid not null references public.byeollog_workspaces(id) on delete cascade,
+  donation_id uuid not null unique,
+  actor_id text not null,
+  status text not null default 'pending'
+    check (status in ('pending','captured','superseded','expired')),
+  opens_at timestamptz not null,
+  expires_at timestamptz not null,
+  captured_chat_event_id text,
+  captured_message text,
+  captured_chat_occurred_at timestamptz,
+  elapsed_seconds integer,
+  created_at timestamptz not null default clock_timestamp(),
+  captured_at timestamptz,
+  unique(workspace_id,captured_chat_event_id),
+  foreign key(donation_id,workspace_id)
+    references byeollog_automation.native_roulette_donations(id,workspace_id) on delete cascade,
+  check (char_length(actor_id) between 1 and 180 and actor_id!~'[[:cntrl:]]'),
+  check (expires_at>=opens_at and expires_at<=opens_at+interval '60 seconds'),
+  check (captured_chat_event_id is null or
+    (char_length(captured_chat_event_id) between 1 and 200 and captured_chat_event_id!~'[[:cntrl:]]')),
+  check (captured_message is null or
+    (char_length(captured_message) between 1 and 300 and captured_message!~'[[:cntrl:]]')),
+  check (elapsed_seconds is null or elapsed_seconds between 0 and 60),
+  check (
+    (status='captured' and captured_chat_event_id is not null and captured_message is not null
+      and captured_chat_occurred_at is not null and elapsed_seconds is not null and captured_at is not null)
+    or
+    (status<>'captured' and captured_chat_event_id is null and captured_message is null
+      and captured_chat_occurred_at is null and elapsed_seconds is null and captured_at is null)
+  )
+);
+
+create index native_roulette_chat_followup_actor_pending_idx
+  on byeollog_automation.native_roulette_chat_followups(workspace_id,actor_id,opens_at desc)
+  where status='pending';
+create index native_roulette_chat_followup_expiry_idx
+  on byeollog_automation.native_roulette_chat_followups(workspace_id,expires_at)
+  where status='pending';
+
 create table byeollog_automation.native_roulette_dispatch_outbox (
   id uuid primary key default extensions.gen_random_uuid(),
   workspace_id uuid not null references public.byeollog_workspaces(id) on delete cascade,
-  spin_id uuid not null unique references byeollog_automation.native_roulette_spins(id) on delete cascade,
-  dispatch_kind text not null check (dispatch_kind in ('direct_upbo','automation_event')),
+  spin_id uuid unique references byeollog_automation.native_roulette_spins(id) on delete cascade,
+  donation_id uuid unique,
+  dispatch_kind text not null
+    check (dispatch_kind in ('direct_upbo','automation_event','donation_chat_tts')),
   payload jsonb not null check (jsonb_typeof(payload)='object'),
   status text not null default 'pending' check (status in ('pending','processing','succeeded','failed')),
   attempt_count integer not null default 0 check (attempt_count between 0 and 10),
@@ -247,7 +292,15 @@ create table byeollog_automation.native_roulette_dispatch_outbox (
   lease_expires_at timestamptz,
   last_error text,
   created_at timestamptz not null default clock_timestamp(),
+  expires_at timestamptz,
   processed_at timestamptz,
+  foreign key(donation_id,workspace_id)
+    references byeollog_automation.native_roulette_donations(id,workspace_id) on delete cascade,
+  check (
+    (dispatch_kind in ('direct_upbo','automation_event') and spin_id is not null and donation_id is null)
+    or (dispatch_kind='donation_chat_tts' and spin_id is null and donation_id is not null)
+  ),
+  check ((dispatch_kind='donation_chat_tts')=(expires_at is not null)),
   check ((status='processing')=(worker_id is not null and lease_expires_at is not null)),
   check (last_error is null or char_length(last_error)<=2000)
 );
@@ -262,7 +315,7 @@ begin
   foreach table_name in array array[
     'native_roulette_assets','native_roulette_profiles','native_roulette_revisions',
     'native_roulette_items','native_roulette_cache_requirements','native_roulette_donations',
-    'native_roulette_spins','native_roulette_dispatch_outbox'
+    'native_roulette_spins','native_roulette_chat_followups','native_roulette_dispatch_outbox'
   ] loop
     execute format('alter table byeollog_automation.%I enable row level security',table_name);
     execute format('create policy explicitly_deny_direct_client_access on byeollog_automation.%I for all to anon,authenticated using(false) with check(false)',table_name);
@@ -356,6 +409,8 @@ begin
      or (p_draft->>'soundVolumePercent')::integer not between 0 and 100
      or (p_draft->>'ttsVolumePercent')!~'^[0-9]+$'
      or (p_draft->>'ttsVolumePercent')::integer not between 0 and 100
+     or (p_draft->>'followupChatTtsWindowSeconds')!~'^[0-9]+$'
+     or (p_draft->>'followupChatTtsWindowSeconds')::integer not between 0 and 60
   then
     raise exception 'native roulette draft is invalid' using errcode='22023';
   end if;
@@ -393,13 +448,14 @@ begin
     id,profile_id,workspace_id,version_number,status,name,balloons_per_spin,
     allow_multiple_spins,selected_agent_device_id,overlay_asset_key,
     overlay_asset_sha256,overlay_asset_bytes,sound_key,sound_volume_percent,
-    tts_volume_percent,created_by_user_id)
+    tts_volume_percent,followup_chat_tts_window_seconds,created_by_user_id)
   values(
     v_revision_id,v_profile_id,p_workspace_id,v_version,'cache_pending',btrim(p_draft->>'name'),
     (p_draft->>'balloonsPerSpin')::integer,(p_draft->>'allowMultipleSpins')::boolean,
     v_device_id,v_asset.asset_key,v_asset.content_sha256,v_asset.byte_size,
     p_draft->>'soundKey',(p_draft->>'soundVolumePercent')::integer,
-    (p_draft->>'ttsVolumePercent')::integer,p_authorized_user_id);
+    (p_draft->>'ttsVolumePercent')::integer,
+    (p_draft->>'followupChatTtsWindowSeconds')::integer,p_authorized_user_id);
 
   for v_item in select value from jsonb_array_elements(p_draft->'items') loop
     if jsonb_typeof(v_item)<>'object'
@@ -534,7 +590,9 @@ begin
       'overlayAssetSha256',v_revision.overlay_asset_sha256,
       'overlayAssetBytes',v_revision.overlay_asset_bytes,
       'soundKey',v_revision.sound_key,'soundVolumePercent',v_revision.sound_volume_percent,
-      'ttsVolumePercent',v_revision.tts_volume_percent,'items',v_items,
+      'ttsVolumePercent',v_revision.tts_volume_percent,
+      'followupChatTtsWindowSeconds',v_revision.followup_chat_tts_window_seconds,
+      'items',v_items,
       'cache',jsonb_build_object('total',v_total,'ready',v_ready,'pending',v_total-v_ready,
         'readyForActivation',v_total>0 and v_total=v_ready)),
     'assets',v_assets,'agentDevices',v_devices,'activationAvailable',false,
@@ -763,6 +821,7 @@ declare
   v_existing byeollog_automation.native_roulette_donations%rowtype;
   v_item byeollog_automation.native_roulette_items%rowtype;
   v_spin_count integer;v_spin integer;v_sample integer;v_key text;v_payload jsonb;v_spin_id uuid;
+  v_has_presentation boolean:=false;v_chat_payload jsonb;v_message text;
 begin
   if p_workspace_id is null or char_length(btrim(p_event_id)) not between 1 and 200
      or p_event_id~'[[:cntrl:]]' or char_length(btrim(p_actor_id)) not between 1 and 180
@@ -823,6 +882,7 @@ begin
         'eventName',v_item.upbo_event_name,'outputTypes',to_jsonb(v_item.output_types),
         'quantity',1,'actor',jsonb_build_object('id',lower(btrim(p_actor_id)),'name',btrim(p_actor_name)));
     else
+      v_has_presentation:=true;
       v_payload:=jsonb_build_object(
         'schemaVersion','1.0','kind','automation_event','skipAutomation',false,
         'skipPresentation',false,
@@ -853,6 +913,27 @@ begin
     values(p_workspace_id,v_spin_id,
       case when v_item.direct_upbo then 'direct_upbo' else 'automation_event' end,v_payload);
   end loop;
+  v_message:=nullif(left(btrim(p_message),300),'');
+  if v_has_presentation and v_message is not null then
+    v_chat_payload:=jsonb_build_object(
+      'schemaVersion','1.0','kind','donation_chat_tts',
+      'sourceEventKey','soop-native-roulette-chat:'||btrim(p_event_id)||':donation-message',
+      'donationEventId',btrim(p_event_id),'chatEventId',null,'sourceKind','donation_message',
+      'actor',jsonb_build_object('id',lower(btrim(p_actor_id)),'name',btrim(p_actor_name)),
+      'amount',p_amount,'message',v_message,'displayText',v_message,'ttsText',v_message,
+      'elapsedSeconds',0,'chatOccurredAt',p_occurred_at,
+      'playAfterDonationResults',true,'dynamicTts',true,
+      'ttsVolumePercent',v_revision.tts_volume_percent);
+    insert into byeollog_automation.native_roulette_dispatch_outbox(
+      workspace_id,donation_id,dispatch_kind,payload,expires_at)
+    values(p_workspace_id,v_donation_id,'donation_chat_tts',v_chat_payload,
+      clock_timestamp()+interval '2 minutes');
+  elsif v_has_presentation and v_revision.followup_chat_tts_window_seconds>0 then
+    insert into byeollog_automation.native_roulette_chat_followups(
+      workspace_id,donation_id,actor_id,opens_at,expires_at)
+    values(p_workspace_id,v_donation_id,lower(btrim(p_actor_id)),p_occurred_at,
+      p_occurred_at+pg_catalog.make_interval(secs=>v_revision.followup_chat_tts_window_seconds));
+  end if;
   update byeollog_automation.native_roulette_donations
   set status='dispatched' where id=v_donation_id;
   return jsonb_build_object('duplicate',false,'donationId',v_donation_id,
@@ -866,6 +947,125 @@ revoke all on function public.ingest_native_roulette_soop_donation_v1(
   uuid,text,text,text,bigint,text,timestamptz) from public,anon,authenticated,service_role;
 grant execute on function public.ingest_native_roulette_soop_donation_v1(
   uuid,text,text,text,bigint,text,timestamptz) to service_role;
+
+create or replace function public.ingest_native_roulette_soop_chat_v1(
+  p_workspace_id uuid,
+  p_chat_event_id text,
+  p_actor_id text,
+  p_actor_name text,
+  p_message text,
+  p_occurred_at timestamptz)
+returns jsonb
+language plpgsql
+security definer
+set search_path=''
+set statement_timeout='5s'
+as $function$
+declare
+  v_followup byeollog_automation.native_roulette_chat_followups%rowtype;
+  v_donation byeollog_automation.native_roulette_donations%rowtype;
+  v_revision byeollog_automation.native_roulette_revisions%rowtype;
+  v_elapsed_seconds integer;v_payload jsonb;v_outbox_id uuid;
+begin
+  if p_workspace_id is null
+     or char_length(btrim(p_chat_event_id)) not between 1 and 200
+     or p_chat_event_id~'[[:cntrl:]]'
+     or char_length(btrim(p_actor_id)) not between 1 and 180
+     or p_actor_id~'[[:cntrl:]]'
+     or char_length(btrim(p_actor_name)) not between 1 and 120
+     or p_actor_name~'[[:cntrl:]]'
+     or char_length(btrim(p_message)) not between 1 and 300
+     or p_message~'[[:cntrl:]]'
+     or p_occurred_at is null
+     or p_occurred_at>clock_timestamp()+interval '2 minutes'
+     or p_occurred_at<clock_timestamp()-interval '2 minutes'
+  then raise exception 'native roulette SOOP chat is invalid' using errcode='22023'; end if;
+
+  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(
+    'native-roulette-chat:'||p_workspace_id::text||':'||lower(btrim(p_actor_id)),7302));
+  select followup.* into v_followup
+  from byeollog_automation.native_roulette_chat_followups followup
+  where followup.workspace_id=p_workspace_id
+    and followup.captured_chat_event_id=btrim(p_chat_event_id);
+  if found then
+    if v_followup.actor_id<>lower(btrim(p_actor_id))
+       or v_followup.captured_message<>btrim(p_message)
+       or v_followup.captured_chat_occurred_at<>p_occurred_at
+    then raise exception 'native roulette SOOP chat identity changed' using errcode='40001'; end if;
+    select outbox.id into v_outbox_id
+    from byeollog_automation.native_roulette_dispatch_outbox outbox
+    where outbox.donation_id=v_followup.donation_id
+      and outbox.dispatch_kind='donation_chat_tts';
+    return jsonb_build_object('duplicate',true,'matched',true,
+      'donationId',v_followup.donation_id,'dispatchId',v_outbox_id,
+      'elapsedSeconds',v_followup.elapsed_seconds);
+  end if;
+
+  update byeollog_automation.native_roulette_chat_followups followup
+  set status='expired'
+  where followup.workspace_id=p_workspace_id and followup.actor_id=lower(btrim(p_actor_id))
+    and followup.status='pending' and followup.expires_at<p_occurred_at;
+
+  select followup.* into v_followup
+  from byeollog_automation.native_roulette_chat_followups followup
+  where followup.workspace_id=p_workspace_id and followup.actor_id=lower(btrim(p_actor_id))
+    and followup.status='pending'
+    and p_occurred_at between followup.opens_at and followup.expires_at
+  order by followup.opens_at desc,followup.id desc
+  limit 1 for update;
+  if not found then
+    return jsonb_build_object('duplicate',false,'matched',false);
+  end if;
+
+  select donation.* into strict v_donation
+  from byeollog_automation.native_roulette_donations donation
+  where donation.id=v_followup.donation_id and donation.workspace_id=p_workspace_id;
+  select revision.* into strict v_revision
+  from byeollog_automation.native_roulette_revisions revision
+  where revision.id=v_donation.revision_id and revision.workspace_id=p_workspace_id;
+  v_elapsed_seconds:=round(extract(epoch from (p_occurred_at-v_donation.occurred_at)))::integer;
+  if v_elapsed_seconds not between 0 and v_revision.followup_chat_tts_window_seconds then
+    raise exception 'native roulette follow-up chat escaped its window' using errcode='22023';
+  end if;
+
+  update byeollog_automation.native_roulette_chat_followups followup
+  set status='superseded'
+  where followup.workspace_id=p_workspace_id and followup.actor_id=lower(btrim(p_actor_id))
+    and followup.status='pending' and followup.id<>v_followup.id
+    and followup.opens_at<=v_followup.opens_at;
+  update byeollog_automation.native_roulette_chat_followups followup
+  set status='captured',captured_chat_event_id=btrim(p_chat_event_id),
+    captured_message=btrim(p_message),captured_chat_occurred_at=p_occurred_at,
+    elapsed_seconds=v_elapsed_seconds,captured_at=clock_timestamp()
+  where followup.id=v_followup.id;
+
+  v_payload:=jsonb_build_object(
+    'schemaVersion','1.0','kind','donation_chat_tts',
+    'sourceEventKey','soop-native-roulette-chat:'||btrim(p_chat_event_id),
+    'donationEventId',v_donation.soop_event_id,'chatEventId',btrim(p_chat_event_id),
+    'sourceKind','followup_chat',
+    'actor',jsonb_build_object('id',v_donation.actor_id,'name',v_donation.actor_name),
+    'amount',v_donation.amount,'message',btrim(p_message),
+    'displayText','['||v_elapsed_seconds::text||'초전] '||v_donation.actor_name||' : '||btrim(p_message),
+    'ttsText',btrim(p_message),
+    'elapsedSeconds',v_elapsed_seconds,'chatOccurredAt',p_occurred_at,
+    'playAfterDonationResults',true,'dynamicTts',true,
+    'ttsVolumePercent',v_revision.tts_volume_percent);
+  insert into byeollog_automation.native_roulette_dispatch_outbox(
+    workspace_id,donation_id,dispatch_kind,payload,expires_at)
+  values(p_workspace_id,v_donation.id,'donation_chat_tts',v_payload,
+    clock_timestamp()+interval '2 minutes')
+  returning id into v_outbox_id;
+  return jsonb_build_object('duplicate',false,'matched',true,
+    'donationId',v_donation.id,'dispatchId',v_outbox_id,
+    'elapsedSeconds',v_elapsed_seconds,'displayText',v_payload->>'displayText');
+end
+$function$;
+
+revoke all on function public.ingest_native_roulette_soop_chat_v1(
+  uuid,text,text,text,text,timestamptz) from public,anon,authenticated,service_role;
+grant execute on function public.ingest_native_roulette_soop_chat_v1(
+  uuid,text,text,text,text,timestamptz) to service_role;
 
 create or replace function public.claim_native_roulette_dispatch_v1(
   p_workspace_id uuid,
@@ -890,6 +1090,11 @@ begin
     last_error='dispatch lease expired after final attempt',processed_at=clock_timestamp()
   where outbox.workspace_id=p_workspace_id and outbox.status='processing'
     and outbox.attempt_count>=10 and outbox.lease_expires_at<=clock_timestamp();
+  update byeollog_automation.native_roulette_dispatch_outbox outbox
+  set status='failed',worker_id=null,lease_expires_at=null,
+    last_error='live donation chat TTS expired before dispatch',processed_at=clock_timestamp()
+  where outbox.workspace_id=p_workspace_id and outbox.dispatch_kind='donation_chat_tts'
+    and outbox.status='pending' and outbox.expires_at<=clock_timestamp();
   return query
   with candidates as (
     select outbox.id
@@ -898,6 +1103,15 @@ begin
       and outbox.attempt_count<10
       and (outbox.status='pending'
         or (outbox.status='processing' and outbox.lease_expires_at<=clock_timestamp()))
+      and (outbox.expires_at is null or outbox.expires_at>clock_timestamp())
+      and (outbox.dispatch_kind<>'donation_chat_tts' or not exists(
+        select 1
+        from byeollog_automation.native_roulette_spins dependency_spin
+        join byeollog_automation.native_roulette_dispatch_outbox dependency
+          on dependency.spin_id=dependency_spin.id
+        where dependency_spin.donation_id=outbox.donation_id
+          and dependency.status in ('pending','processing')
+      ))
     order by outbox.created_at,outbox.id
     for update skip locked
     limit p_limit

@@ -9,6 +9,7 @@ agent-updates/releases/**/*.zip
 !agent-updates/releases/0.7.0.107/byeollog_agent_v07107_QUAD_PHOTOREAL_CONFETTI_FAST_VFX_WIN_X64.zip
 api/native-roulette.js
 assets/native-roulette-settings.js
+dormant-native-roulette-assets
 **/__pycache__
 *.log
 *.tmp

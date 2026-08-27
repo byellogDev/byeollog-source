@@ -3,7 +3,12 @@ import {workspaceForSession} from '../lib/workspace.js';
 import {sb} from '../lib/supabase-rest.js';
 import {rejectMaintenanceWrite} from '../lib/maintenance.js';
 import {getNativeRouletteSettingsHtml} from '../lib/native-roulette-settings-html.js';
-import {NativeRouletteValidationError,normalizeNativeRouletteDraft,normalizeSoopDonationEnvelope} from '../lib/native-roulette.js';
+import {
+  NativeRouletteValidationError,
+  normalizeNativeRouletteDraft,
+  normalizeSoopChatEnvelope,
+  normalizeSoopDonationEnvelope
+} from '../lib/native-roulette.js';
 import {NATIVE_ROULETTE_ASSETS,publicNativeRouletteAsset} from '../lib/native-roulette-assets.js';
 
 const UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -85,6 +90,39 @@ async function ingestSoopDonation(req,res){
   }
 }
 
+async function ingestSoopChat(req,res){
+  if(req.method!=='POST')return res.status(405).json({message:'Method not allowed'});
+  if(process.env.SOOP_CHAT_SDK_ENABLED!=='true'){
+    return res.status(503).json({message:'SOOP Chat SDK 연동이 아직 활성화되지 않았습니다.',code:'soop_chat_sdk_disabled'});
+  }
+  const expected=String(process.env.SOOP_CHAT_SDK_SECRET||'');
+  const supplied=String(req.headers['x-byeollog-soop-sdk-secret']||'');
+  if(expected.length<32||supplied.length<32||!safeEqual(expected,supplied)){
+    return res.status(401).json({message:'Unauthorized'});
+  }
+  if(rejectMaintenanceWrite(req,res))return;
+  const parsed=bodyOf(req);
+  if(!parsed)return res.status(400).json({message:'Invalid JSON body'});
+  const workspaceId=String(parsed.workspaceId||'').trim().toLowerCase();
+  if(!UUID_PATTERN.test(workspaceId))return res.status(400).json({message:'workspaceId is invalid'});
+  try{
+    const chat=normalizeSoopChatEnvelope(parsed);
+    const result=await sb('rpc/ingest_native_roulette_soop_chat_v1','',{
+      method:'POST',body:{
+        p_workspace_id:workspaceId,p_chat_event_id:chat.eventId,
+        p_actor_id:chat.actor.id,p_actor_name:chat.actor.name,
+        p_message:chat.message,p_occurred_at:chat.occurredAt
+      }
+    });
+    return res.status(200).json(result||{});
+  }catch(error){
+    if(error instanceof NativeRouletteValidationError){
+      return res.status(error.status).json({message:error.message,code:error.code});
+    }
+    return res.status(500).json({message:'SOOP 후원 후 첫 채팅 처리에 실패했습니다.'});
+  }
+}
+
 export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store, private');
   if(process.env.NATIVE_ROULETTE_ENABLED!=='true'){
@@ -105,5 +143,6 @@ export default async function handler(req,res){
   }
   if(operation==='settings')return settings(req,res);
   if(operation==='soop-donation')return ingestSoopDonation(req,res);
+  if(operation==='soop-chat')return ingestSoopChat(req,res);
   return res.status(404).json({message:'Not found'});
 }

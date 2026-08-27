@@ -53,7 +53,7 @@ select public.save_native_roulette_draft_v1(
     'overlayAssetKey','roulette_navy_gold_v1',
     'overlayAssetSha256','8856a770937a71a7ee6bac5e54f15ff14ed1bac1cad4d67e6f7c20ca9694ac38',
     'overlayAssetBytes',25698598,'soundKey','roulette_spin_v1',
-    'soundVolumePercent',75,'ttsVolumePercent',85,
+    'soundVolumePercent',75,'ttsVolumePercent',85,'followupChatTtsWindowSeconds',10,
     'items',jsonb_build_array(
       jsonb_build_object(
         'resultText','A 단컷 & 움짤','probabilityPpm',250000,'directUpbo',true,
@@ -89,6 +89,7 @@ begin
     '10000000-0000-4000-8000-000000000001','11000000-0000-4000-8000-000000000001');
   if v_settings#>>'{profile,status}'<>'cache_pending'
      or (v_settings#>>'{profile,cache,pending}')::integer<>2
+     or (v_settings#>>'{profile,followupChatTtsWindowSeconds}')::integer<>10
      or (v_settings->>'activationAvailable')::boolean then
     raise exception 'native roulette draft safety state mismatch';
   end if;
@@ -130,6 +131,65 @@ begin
 end
 $assert$;
 
+-- Harness-only activation and deterministic selection. The dormant migration itself
+-- intentionally exposes no activation RPC.
+update byeollog_automation.native_roulette_revisions
+set status='active',activated_at=clock_timestamp()
+where status='ready';
+update byeollog_automation.native_roulette_profiles profile
+set active_revision_id=profile.latest_revision_id;
+create or replace function byeollog_automation.native_roulette_sample_ppm_v1()
+returns integer language sql volatile set search_path='' as $$select 500000$$;
+revoke all on function byeollog_automation.native_roulette_sample_ppm_v1()
+  from public,anon,authenticated,service_role;
+
+set role service_role;
+select public.ingest_native_roulette_soop_donation_v1(
+  '10000000-0000-4000-8000-000000000001','event-followup','sejuari','로기랑지유니',
+  30,null,clock_timestamp()-interval '9.85 seconds');
+reset role;
+select public.ingest_native_roulette_soop_chat_v1(
+  '10000000-0000-4000-8000-000000000001','chat-followup','sejuari','로기랑지유니',
+  '딸깍',(select occurred_at+interval '9.85 seconds'
+    from byeollog_automation.native_roulette_donations where soop_event_id='event-followup'));
+
+do $followup$
+declare v_result record;v_chat record;
+begin
+  if (select status from byeollog_automation.native_roulette_chat_followups
+      where captured_chat_event_id='chat-followup')<>'captured' then
+    raise exception 'native roulette follow-up chat was not captured';
+  end if;
+  if (select elapsed_seconds from byeollog_automation.native_roulette_chat_followups
+      where captured_chat_event_id='chat-followup')<>10 then
+    raise exception 'native roulette follow-up chat rounding mismatch';
+  end if;
+  select * into strict v_result from public.claim_native_roulette_dispatch_v1(
+    '10000000-0000-4000-8000-000000000001','harness-worker',10,45);
+  if v_result.dispatch_kind<>'automation_event' then
+    raise exception 'donation chat escaped ahead of roulette result';
+  end if;
+  perform public.finish_native_roulette_dispatch_v1(
+    '10000000-0000-4000-8000-000000000001',v_result.dispatch_id,
+    'harness-worker',true,false,null);
+  select * into strict v_chat from public.claim_native_roulette_dispatch_v1(
+    '10000000-0000-4000-8000-000000000001','harness-worker',10,45);
+  if v_chat.dispatch_kind<>'donation_chat_tts'
+     or v_chat.payload->>'displayText'<>'[10초전] 로기랑지유니 : 딸깍'
+     or v_chat.payload->>'ttsText'<>'딸깍'
+  then raise exception 'native roulette follow-up chat dispatch mismatch'; end if;
+  perform public.finish_native_roulette_dispatch_v1(
+    '10000000-0000-4000-8000-000000000001',v_chat.dispatch_id,
+    'harness-worker',true,false,null);
+  if (public.ingest_native_roulette_soop_chat_v1(
+      '10000000-0000-4000-8000-000000000001','chat-followup','sejuari','로기랑지유니',
+      '딸깍',(select occurred_at+interval '9.85 seconds'
+        from byeollog_automation.native_roulette_donations where soop_event_id='event-followup'))
+      ->>'duplicate')::boolean is not true
+  then raise exception 'native roulette follow-up chat duplicate was not suppressed'; end if;
+end
+$followup$;
+
 delete from public.byeollog_workspaces
 where id='10000000-0000-4000-8000-000000000001';
 do $cleanup$
@@ -138,6 +198,8 @@ begin
      or exists(select 1 from byeollog_automation.native_roulette_revisions)
      or exists(select 1 from byeollog_automation.native_roulette_items)
      or exists(select 1 from byeollog_automation.native_roulette_cache_requirements)
+     or exists(select 1 from byeollog_automation.native_roulette_chat_followups)
+     or exists(select 1 from byeollog_automation.native_roulette_dispatch_outbox)
   then raise exception 'native roulette workspace cascade cleanup failed'; end if;
 end
 $cleanup$;
