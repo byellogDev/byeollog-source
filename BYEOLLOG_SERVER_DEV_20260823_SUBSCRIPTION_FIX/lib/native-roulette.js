@@ -7,6 +7,7 @@ export const NATIVE_ROULETTE_PROBABILITY_SCALE=1_000_000;
 // user-directed import.
 export const NATIVE_ROULETTE_MAX_ITEMS=200;
 export const NATIVE_ROULETTE_MAX_SPINS=100;
+export const NATIVE_ROULETTE_MAX_SERIES_SPINS=1_000;
 export const NATIVE_ROULETTE_TTS_KEY_DOMAIN='native-roulette-result-v1|';
 export const NATIVE_ROULETTE_SOUND_KEYS=Object.freeze(['roulette_spin_v1']);
 export const NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS=10;
@@ -83,32 +84,7 @@ export function splitDirectUpboOutputs(value){
   return outputs;
 }
 
-export function normalizeNativeRouletteDraft(input={}){
-  const name=requiredText(input.name,120,'룰렛 이름');
-  const balloonsPerSpin=safeInteger(input.balloonsPerSpin,1,1_000_000,'1회당 별풍선');
-  const overlayAssetKey=requiredChoice(
-    input.overlayAssetKey,
-    Object.keys(NATIVE_ROULETTE_ASSET_BY_KEY),
-    '룰렛 이미지'
-  );
-  const overlayAsset=NATIVE_ROULETTE_ASSET_BY_KEY[overlayAssetKey];
-  const soundKey=requiredChoice(input.soundKey||'roulette_spin_v1',NATIVE_ROULETTE_SOUND_KEYS,'효과음');
-  const soundVolumePercent=safeInteger(input.soundVolumePercent??80,0,100,'효과음 음량');
-  const ttsVolumePercent=safeInteger(input.ttsVolumePercent??80,0,100,'TTS 음량');
-  const followupChatTtsWindowSeconds=safeInteger(
-    input.followupChatTtsWindowSeconds??NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
-    0,
-    NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
-    '후원 후 첫 채팅 TTS 유효시간'
-  );
-  const agentDeviceId=requiredText(input.agentDeviceId,64,'캐시 대상 PC');
-  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(agentDeviceId)){
-    throw new NativeRouletteValidationError('캐시 대상 PC 식별값이 올바르지 않습니다.');
-  }
-  if(typeof input.allowMultipleSpins!=='boolean'){
-    throw new NativeRouletteValidationError('배수 후원 허용 여부가 필요합니다.');
-  }
-  const allowMultipleSpins=input.allowMultipleSpins;
+function normalizeNativeRouletteItems(input,name){
   if(!Array.isArray(input.items)||input.items.length<2||input.items.length>NATIVE_ROULETTE_MAX_ITEMS){
     throw new NativeRouletteValidationError(`상품은 2개 이상 ${NATIVE_ROULETTE_MAX_ITEMS}개 이하로 설정하세요.`);
   }
@@ -154,6 +130,36 @@ export function normalizeNativeRouletteDraft(input={}){
   if(total!==NATIVE_ROULETTE_PROBABILITY_SCALE){
     throw new NativeRouletteValidationError('전체 상품 확률의 합이 정확히 100%여야 합니다.','probability_total_mismatch');
   }
+  return items;
+}
+
+export function normalizeNativeRouletteDraft(input={}){
+  const name=requiredText(input.name,120,'룰렛 이름');
+  const balloonsPerSpin=safeInteger(input.balloonsPerSpin,1,1_000_000,'1회당 별풍선');
+  const overlayAssetKey=requiredChoice(
+    input.overlayAssetKey,
+    Object.keys(NATIVE_ROULETTE_ASSET_BY_KEY),
+    '룰렛 이미지'
+  );
+  const overlayAsset=NATIVE_ROULETTE_ASSET_BY_KEY[overlayAssetKey];
+  const soundKey=requiredChoice(input.soundKey||'roulette_spin_v1',NATIVE_ROULETTE_SOUND_KEYS,'효과음');
+  const soundVolumePercent=safeInteger(input.soundVolumePercent??80,0,100,'효과음 음량');
+  const ttsVolumePercent=safeInteger(input.ttsVolumePercent??80,0,100,'TTS 음량');
+  const followupChatTtsWindowSeconds=safeInteger(
+    input.followupChatTtsWindowSeconds??NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
+    0,
+    NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
+    '후원 후 첫 채팅 TTS 유효시간'
+  );
+  const agentDeviceId=requiredText(input.agentDeviceId,64,'캐시 대상 PC');
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(agentDeviceId)){
+    throw new NativeRouletteValidationError('캐시 대상 PC 식별값이 올바르지 않습니다.');
+  }
+  if(typeof input.allowMultipleSpins!=='boolean'){
+    throw new NativeRouletteValidationError('배수 후원 허용 여부가 필요합니다.');
+  }
+  const allowMultipleSpins=input.allowMultipleSpins;
+  const items=normalizeNativeRouletteItems(input,name);
   return {
     name,
     balloonsPerSpin,
@@ -165,6 +171,49 @@ export function normalizeNativeRouletteDraft(input={}){
     soundKey,
     soundVolumePercent,
     ttsVolumePercent,
+    followupChatTtsWindowSeconds,
+    items
+  };
+}
+
+// Web product-control drafts deliberately omit PC routing and audio volume.
+// Those settings belong to the overlay control plane and are applied only when
+// the dormant roulette runtime is activated after SOOP approval.
+export function normalizeNativeRouletteWebDraft(input={}){
+  const name=requiredText(input.name,120,'룰렛 이름');
+  const balloonsPerSpin=safeInteger(input.balloonsPerSpin,1,1_000_000,'1회당 별풍선');
+  const overlayAssetKey=requiredChoice(
+    input.overlayAssetKey,
+    Object.keys(NATIVE_ROULETTE_ASSET_BY_KEY),
+    '룰렛 이미지'
+  );
+  const overlayAsset=NATIVE_ROULETTE_ASSET_BY_KEY[overlayAssetKey];
+  const followupChatTtsWindowSeconds=safeInteger(
+    input.followupChatTtsWindowSeconds??NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
+    0,
+    NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
+    '후원 후 첫 채팅 TTS 유효시간'
+  );
+  if(input.seriesEnabled!==undefined&&typeof input.seriesEnabled!=='boolean'){
+    throw new NativeRouletteValidationError('연차 설정 여부가 올바르지 않습니다.');
+  }
+  const seriesEnabled=input.seriesEnabled===true;
+  const seriesBalloons=seriesEnabled
+    ? safeInteger(input.seriesBalloons,1,1_000_000,'연차 별풍선 개수')
+    : null;
+  const seriesSpinCount=seriesEnabled
+    ? safeInteger(input.seriesSpinCount,1,NATIVE_ROULETTE_MAX_SERIES_SPINS,'연차 룰렛 횟수')
+    : null;
+  const items=normalizeNativeRouletteItems(input,name);
+  return {
+    name,
+    balloonsPerSpin,
+    seriesEnabled,
+    seriesBalloons,
+    seriesSpinCount,
+    overlayAssetKey,
+    overlayAssetSha256:overlayAsset.contentSha256,
+    overlayAssetBytes:overlayAsset.byteSize,
     followupChatTtsWindowSeconds,
     items
   };

@@ -7,6 +7,7 @@ import {
   WeflabPublicImportError
 } from '../lib/weflab-public-roulette-import.js';
 import {getProductDashboardHtml} from '../lib/product-dashboard-html.js';
+import {normalizeNativeRouletteWebDraft,NativeRouletteValidationError} from '../lib/native-roulette.js';
 
 const source=relative=>readFile(new URL(relative,import.meta.url),'utf8');
 
@@ -59,7 +60,7 @@ test('control center keeps roulette, action and existing upbo navigation organic
   assert.match(upboPage,/class="top brandBanner dashboardHeader"/);
   assert.match(upboPage,/class="productNav dashboardNav"/);
   assert.match(upboPage,/class="admin-page dashboard-page"/);
-  assert.match(roulettePage,/requires|각 룰렛마다 새로 입력/);
+  assert.match(roulettePage,/열린 편집 화면에서 새 룰렛명을 입력/);
   assert.match(roulettePage,/업보로 지정/);
   assert.match(roulettePage,/시청자 확률표 공개 예약/);
   assert.match(actionPage,/기존 액션 규칙은 이미 서버에 저장/);
@@ -69,6 +70,48 @@ test('control center keeps roulette, action and existing upbo navigation organic
   assert.match(admin,/operation==='roulette-draft'/);
   assert.match(admin,/handleProductControlPage[\s\S]*style-src 'self' 'unsafe-inline'/);
   assert.doesNotMatch(admin,/service_role[^\n]+browser/i);
+});
+
+test('roulette import defers naming to editor and editor owns only roulette settings',()=>{
+  const page=getProductDashboardHtml('test-nonce','roulette');
+  assert.match(page,/초안으로 가져오기/);
+  assert.match(page,/button\.onclick=\(\)=>openEditor/);
+  assert.match(page,/id="rouletteName"/);
+  assert.doesNotMatch(page,/새 룰렛명 \(필수\)/);
+  for(const removed of ['agentDevice','soundVolume','ttsVolume','multipleSpins']){
+    assert.doesNotMatch(page,new RegExp(`id="${removed}"`));
+  }
+  assert.match(page,/id="seriesEnabled"/);
+  assert.match(page,/id="seriesBalloons"[^>]*disabled/);
+  assert.match(page,/id="seriesSpinCount"[^>]*disabled/);
+  assert.match(page,/function syncSeriesFields\(\)[^\n]*disabled=!enabled/);
+  assert.match(page,/PC 연결과 효과음·TTS 음량은 오버레이 페이지에서 공통 관리/);
+});
+
+test('web roulette draft validates optional series settings and strips overlay-owned values',()=>{
+  const base={
+    name:'테스트 룰렛',balloonsPerSpin:30,overlayAssetKey:'roulette_navy_gold_v1',
+    followupChatTtsWindowSeconds:10,
+    items:[
+      {resultText:'당첨',probabilityPpm:500000,directUpbo:false,ttsText:'당첨!'},
+      {resultText:'꽝',probabilityPpm:500000,directUpbo:false,ttsText:'꽝!'}
+    ],
+    agentDeviceId:'00000000-0000-4000-8000-000000000000',
+    soundVolumePercent:12,ttsVolumePercent:34,allowMultipleSpins:true
+  };
+  const disabled=normalizeNativeRouletteWebDraft({...base,seriesEnabled:false,seriesBalloons:999,seriesSpinCount:999});
+  assert.equal(disabled.seriesEnabled,false);
+  assert.equal(disabled.seriesBalloons,null);
+  assert.equal(disabled.seriesSpinCount,null);
+  for(const removed of ['agentDeviceId','soundVolumePercent','ttsVolumePercent','allowMultipleSpins']){
+    assert.equal(Object.hasOwn(disabled,removed),false);
+  }
+  const enabled=normalizeNativeRouletteWebDraft({...base,seriesEnabled:true,seriesBalloons:100,seriesSpinCount:4});
+  assert.deepEqual([enabled.seriesEnabled,enabled.seriesBalloons,enabled.seriesSpinCount],[true,100,4]);
+  assert.throws(
+    ()=>normalizeNativeRouletteWebDraft({...base,seriesEnabled:true,seriesBalloons:'',seriesSpinCount:4}),
+    NativeRouletteValidationError
+  );
 });
 
 test('draft migration is server-only, workspace indexed and RLS protected',async()=>{

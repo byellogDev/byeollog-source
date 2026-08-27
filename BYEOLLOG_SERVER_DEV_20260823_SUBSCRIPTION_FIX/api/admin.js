@@ -9,7 +9,7 @@ import {rejectMaintenanceWrite} from '../lib/maintenance.js';
 import {getAgentRolloutHtml} from '../lib/agent-rollout-html.js';
 import {loadStableAgentRelease,sanitizeAgentRolloutSnapshot} from '../lib/agent-rollout.js';
 import {getProductDashboardHtml} from '../lib/product-dashboard-html.js';
-import {normalizeNativeRouletteDraft,NativeRouletteValidationError} from '../lib/native-roulette.js';
+import {normalizeNativeRouletteWebDraft,NativeRouletteValidationError} from '../lib/native-roulette.js';
 import {NATIVE_ROULETTE_ASSETS,publicNativeRouletteAsset} from '../lib/native-roulette-assets.js';
 import {fetchWeflabPublicRoulette,WeflabPublicImportError,normalizeWeflabPublicUrl} from '../lib/weflab-public-roulette-import.js';
 
@@ -332,7 +332,7 @@ async function handleRouletteDraft(req,res){
   }
   if(req.method!=='POST'&&req.method!=='PATCH')return res.status(405).json({message:'Method not allowed'});
   try{
-    const draft=normalizeNativeRouletteDraft(body.draft||body);
+    const draft=normalizeNativeRouletteWebDraft(body.draft||body);
     const rouletteName=String(body.rouletteName||draft.name||'').trim();
     if(!rouletteName||rouletteName.length>120)return res.status(400).json({message:'룰렛명을 1~120자로 입력해주세요.'});
     draft.name=rouletteName;
