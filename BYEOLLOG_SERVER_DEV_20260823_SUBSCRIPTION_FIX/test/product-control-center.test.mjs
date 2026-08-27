@@ -116,3 +116,13 @@ test('all dashboard tabs share the action-style active color contract',async()=>
   assert.match(theme,/\.dashboard-page \.dashboardNav a\.active\{[^}]*background:#102746!important[^}]*color:#ffc44d!important/);
   assert.match(theme,/\.dashboard-page\[data-theme="dark"\] \.dashboardNav a\.active\{[^}]*background:#26344f!important[^}]*color:#ffd66f!important/);
 });
+
+test('roulette editor preserves and accepts probability decimals through the rendered template',()=>{
+  const page=getProductDashboardHtml('test-nonce','roulette');
+  assert.match(page,/function percent\(ppm\)\{[^\n]*replace\(\/\\\.\?0\+\$\//);
+  assert.match(page,/function ppm\(value\)\{[^\n]*match\(\/\^\(\\d\{1,3\}\)\(\?:\\\.\(\\d\{1,4\}\)\)\?\$\//);
+  const percentBody=page.match(/function percent\(ppm\)\{([^\n]+)\}/)?.[1];
+  assert.ok(percentBody);
+  const percent=new Function('ppm',percentBody);
+  assert.deepEqual([1,10,100,1000,1250,10000,1000000].map(percent),['0.0001','0.001','0.01','0.1','0.125','1','100']);
+});
