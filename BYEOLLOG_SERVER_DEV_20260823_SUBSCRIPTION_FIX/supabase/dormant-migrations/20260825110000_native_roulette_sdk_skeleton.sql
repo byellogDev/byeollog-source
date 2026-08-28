@@ -786,14 +786,20 @@ volatile
 security definer
 set search_path=''
 as $function$
-declare v_value numeric;declare v_limit numeric:=4294000000;
+declare
+  v_bytes bytea;
+  v_value bigint;
+  -- floor(2^32 / 1,000,000) * 1,000,000. Values above this limit
+  -- are rejected so every PPM slot has exactly 4,294 representations.
+  v_limit constant bigint:=4294000000;
 begin
   loop
-    v_value:=get_byte(extensions.gen_random_bytes(4),0)::numeric*16777216
-      +get_byte(extensions.gen_random_bytes(4),1)::numeric*65536
-      +get_byte(extensions.gen_random_bytes(4),2)::numeric*256
-      +get_byte(extensions.gen_random_bytes(4),3)::numeric;
-    if v_value<v_limit then return mod(v_value,1000000)::integer; end if;
+    v_bytes:=extensions.gen_random_bytes(4);
+    v_value:=get_byte(v_bytes,0)::bigint*16777216
+      +get_byte(v_bytes,1)::bigint*65536
+      +get_byte(v_bytes,2)::bigint*256
+      +get_byte(v_bytes,3)::bigint;
+    if v_value<v_limit then return (v_value%1000000)::integer; end if;
   end loop;
 end
 $function$;

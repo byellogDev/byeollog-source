@@ -72,6 +72,19 @@ test('manual raffle v2 pins round, draw and Agent snapshots and expires old loca
   assert.doesNotMatch(sql,/delete\s+from|truncate|drop\s+(?:table|schema)/i);
 });
 
+test('raffle winner sampling is seed-reproducible and rejection-sampled without modulo bias',async()=>{
+  const sql=await source('../supabase/migrations/20260828022116_harden_unbiased_random_sampling.sql');
+  assert.match(sql,/create or replace function byeollog_automation\.raffle_unbiased_index_v1/);
+  assert.match(sql,/v_range constant numeric:=1152921504606846976/);
+  assert.match(sql,/v_limit:=v_range-mod\(v_range,p_exclusive_upper::numeric\)/);
+  assert.match(sql,/v_value:=\('x'\|\|substr\(encode\(extensions\.digest\([\s\S]*'sha256'\),'hex'\),1,15\)\)::bit\(60\)::bigint/);
+  assert.match(sql,/for v_counter in 0\.\.127 loop[\s\S]*if v_value::numeric<v_limit then[\s\S]*return mod\(v_value,p_exclusive_upper\)\+1/);
+  assert.match(sql,/v_ordinal:=byeollog_automation\.raffle_unbiased_index_v1\(\s*v_draw\.random_seed,v_index,v_total\)/);
+  assert.doesNotMatch(sql,/v_draw\.random_seed\|\|'\|'\|v_index::text[\s\S]{0,180}% v_total/);
+  assert.match(sql,/revoke all on function byeollog_automation\.raffle_unbiased_index_v1[\s\S]*from public,anon,authenticated,service_role/);
+  assert.doesNotMatch(sql,/delete\s+from|truncate|drop\s+(?:table|schema|column)/i);
+});
+
 test('sealed raffle timestamp is added by a non-destructive recovery migration, not predeclared by the harness',async()=>{
   const [baseMigration,recoveryMigration,harness]=await Promise.all([
     source('../supabase/migrations/20260823103000_add_raffle_action.sql'),

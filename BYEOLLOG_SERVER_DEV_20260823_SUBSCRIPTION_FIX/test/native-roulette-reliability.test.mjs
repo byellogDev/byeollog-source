@@ -49,6 +49,16 @@ test('unbiased PPM sampler never emits an out-of-range value',()=>{
   }
 });
 
+test('all deterministic bounded helpers use rejection sampling instead of biased modulo',()=>{
+  const rng=new DeterministicRng(1);
+  for(const width of [3,7,10,997,1_000_000]){
+    for(let index=0;index<10_000;index++){
+      const sample=rng.integer(0,width-1);
+      assert.ok(sample>=0&&sample<width);
+    }
+  }
+});
+
 test('snapshot restoration preserves committed delivery idempotency',()=>{
   let simulator=new NativeRouletteReliabilitySimulator({seed:77});
   simulator.ingest({

@@ -219,6 +219,7 @@ do $$ begin
 end $$;
 
 \ir ../supabase/migrations/20260824160000_add_missing_raffle_sealed_at.sql
+\ir ../supabase/migrations/20260828022116_harden_unbiased_random_sampling.sql
 
 do $$ begin
   if not exists(
@@ -229,6 +230,35 @@ do $$ begin
       and data_type='timestamp with time zone')
   then
     raise exception 'sealed_at recovery migration did not repair raffle_rounds';
+  end if;
+end $$;
+
+-- 같은 seed/index/pool은 재현 가능해야 하고, 다양한 pool 크기에서 반환 순번은
+-- 항상 1..pool 범위여야 한다. helper ACL은 공개 호출을 허용하지 않는다.
+do $$
+declare
+  v_total integer;
+  v_first bigint;
+  v_second bigint;
+begin
+  for v_total in 1..10000 loop
+    v_first:=byeollog_automation.raffle_unbiased_index_v1(
+      repeat('ab',32),1,v_total);
+    if v_first not between 1 and v_total then
+      raise exception 'unbiased raffle sampler escaped its pool at %',v_total;
+    end if;
+  end loop;
+  v_first:=byeollog_automation.raffle_unbiased_index_v1(repeat('cd',32),37,999983);
+  v_second:=byeollog_automation.raffle_unbiased_index_v1(repeat('cd',32),37,999983);
+  if v_first<>v_second then
+    raise exception 'unbiased raffle sampler is not seed reproducible';
+  end if;
+  if pg_catalog.has_function_privilege(
+       'authenticated','byeollog_automation.raffle_unbiased_index_v1(text,integer,bigint)','EXECUTE')
+     or pg_catalog.has_function_privilege(
+       'service_role','byeollog_automation.raffle_unbiased_index_v1(text,integer,bigint)','EXECUTE')
+  then
+    raise exception 'unbiased raffle sampler privilege boundary mismatch';
   end if;
 end $$;
 

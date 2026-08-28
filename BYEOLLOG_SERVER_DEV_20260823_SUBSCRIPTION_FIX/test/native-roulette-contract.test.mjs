@@ -49,6 +49,18 @@ test('dormant migration is additive, private, service-role only, and intentional
   assert.match(sql,/activation_rpc_intentionally_absent/);
 });
 
+test('native roulette draws one cryptographic uint32 and rejects the biased tail',async()=>{
+  const sql=await source('../supabase/dormant-migrations/20260825110000_native_roulette_sdk_skeleton.sql');
+  const start=sql.indexOf('create or replace function byeollog_automation.native_roulette_sample_ppm_v1');
+  const end=sql.indexOf('revoke all on function byeollog_automation.native_roulette_sample_ppm_v1',start);
+  const body=sql.slice(start,end);
+  assert.ok(start>=0&&end>start);
+  assert.equal((body.match(/extensions\.gen_random_bytes\(4\)/g)||[]).length,1);
+  assert.match(body,/v_limit constant bigint:=4294000000/);
+  assert.match(body,/if v_value<v_limit then return \(v_value%1000000\)::integer/);
+  assert.doesNotMatch(body,/\brandom\s*\(|Math\.random/);
+});
+
 test('message-less donation follow-up chat is single-use, bounded, and queued after roulette results',async()=>{
   const sql=await source('../supabase/dormant-migrations/20260825110000_native_roulette_sdk_skeleton.sql');
   assert.match(sql,/followup_chat_tts_window_seconds integer not null default 10[\s\S]*between 0 and 60/);

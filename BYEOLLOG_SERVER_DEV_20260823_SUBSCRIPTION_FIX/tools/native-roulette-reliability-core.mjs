@@ -30,7 +30,12 @@ export class DeterministicRng{
   }
   integer(min,max){
     assert.ok(Number.isSafeInteger(min)&&Number.isSafeInteger(max)&&max>=min);
-    return min+(this.nextUint32()%(max-min+1));
+    const width=max-min+1;
+    assert.ok(width>=1&&width<=UINT32_RANGE);
+    const limit=Math.floor(UINT32_RANGE/width)*width;
+    let value;
+    do value=this.nextUint32();while(value>=limit);
+    return min+(value%width);
   }
   shuffle(values){
     for(let index=values.length-1;index>0;index--){
