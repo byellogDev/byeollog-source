@@ -14,7 +14,9 @@ const testDirectory=path.dirname(fileURLToPath(import.meta.url));
 test('simulator source is statically isolated from production and external I/O',()=>{
   const sourceFiles=[
     '../tools/native-roulette-reliability-core.mjs',
-    '../tools/Simulate-NativeRouletteReliability.mjs'
+    '../tools/Simulate-NativeRouletteReliability.mjs',
+    '../tools/native-roulette-readiness-lab.mjs',
+    '../tools/native-roulette-readiness-dashboard.mjs'
   ];
   const forbiddenPatterns=[
     /@supabase/i,

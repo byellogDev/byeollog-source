@@ -10,6 +10,11 @@ agent-updates/releases/**/*.zip
 api/native-roulette.js
 assets/native-roulette-settings.js
 dormant-native-roulette-assets
+tools/native-roulette-readiness-lab.mjs
+tools/native-roulette-readiness-dashboard.mjs
+tools/Run-NativeRouletteReadinessLab.mjs
+tools/Benchmark-NativeRouletteTtsEndpoint.mjs
+docs/NATIVE_ROULETTE_READINESS_LAB_20260828_KO.md
 **/__pycache__
 *.log
 *.tmp
