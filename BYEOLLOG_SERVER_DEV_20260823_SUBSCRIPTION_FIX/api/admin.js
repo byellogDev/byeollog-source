@@ -246,7 +246,7 @@ async function handleAgentRolloutPage(req,res){
   res.setHeader('X-Frame-Options','DENY');
   res.setHeader('Referrer-Policy','no-referrer');
   const nonce=crypto.randomBytes(18).toString('base64url');
-  res.setHeader('Content-Security-Policy',`default-src 'self'; script-src 'nonce-${nonce}'; script-src-attr 'none'; style-src 'unsafe-inline'; img-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'`);
+  res.setHeader('Content-Security-Policy',`default-src 'none'; script-src 'nonce-${nonce}'; script-src-attr 'none'; style-src 'nonce-${nonce}'; style-src-attr 'none'; img-src 'self'; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'self'`);
   res.setHeader('Content-Type','text/html; charset=utf-8');
   return res.status(200).send(getAgentRolloutHtml(nonce));
 }
@@ -415,7 +415,7 @@ async function handleProductControlPage(req,res,section){
   res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('X-Frame-Options','DENY');res.setHeader('Referrer-Policy','no-referrer');
   const nonce=crypto.randomBytes(18).toString('base64url');
   const assetOrigin=rouletteAssetOrigin();
-  res.setHeader('Content-Security-Policy',`default-src 'self'; script-src 'nonce-${nonce}'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: ${assetOrigin}; connect-src 'self' ${assetOrigin}; frame-ancestors 'none'; base-uri 'none'; form-action 'self'`);
+  res.setHeader('Content-Security-Policy',`default-src 'none'; script-src 'nonce-${nonce}'; script-src-attr 'none'; style-src 'self' 'nonce-${nonce}'; style-src-attr 'none'; img-src 'self' data: ${assetOrigin}; connect-src 'self' ${assetOrigin}; frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'self'`);
   res.setHeader('Content-Type','text/html; charset=utf-8');
   return res.status(200).send(getProductDashboardHtml(nonce,section));
 }
@@ -537,7 +537,7 @@ export default async function handler(req,res){
   const nonce=crypto.randomBytes(18).toString('base64url');
   res.setHeader(
     'Content-Security-Policy',
-    `default-src 'self'; script-src 'nonce-${nonce}'; script-src-elem 'nonce-${nonce}'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob: data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'`
+    `default-src 'none'; script-src 'nonce-${nonce}'; script-src-elem 'nonce-${nonce}'; script-src-attr 'none'; style-src 'self'; style-src-elem 'self' 'nonce-${nonce}'; style-src-attr 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob: data:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'self'`
   );
   res.setHeader('Content-Type','text/html; charset=utf-8');
   const decoded=Buffer.from(ADMIN_HTML_BASE64,'base64').toString('utf8');
@@ -546,6 +546,7 @@ export default async function handler(req,res){
     :'';
   const html=rewriteInlineEventHandlers(decoded)
     .replace(/<script(\s|>)/g,`<script nonce="${nonce}"$1`)
+    .replace(/<style(\s|>)/g,`<style nonce="${nonce}"$1`)
     .replace('</head>',`${bootstrapScript}</head>`);
   return res.status(200).send(html);
 }

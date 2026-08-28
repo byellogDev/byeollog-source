@@ -343,7 +343,10 @@ async function createDashboardHandoff(req){
     method:'PATCH',body:{last_seen_at:now.toISOString()}
   }).catch(()=>{});
 
-  return {status:200,body:{ok:true,mode:'dashboard_handoff',dashboard_url:`/login?handoff=${encodeURIComponent(code)}`,expires_at:expires}};
+  // Fragment values are not sent in the HTTP request line, CDN logs, or Referer.
+  // The login page consumes and removes it immediately; legacy query links remain
+  // accepted there only for a backwards-compatible transition.
+  return {status:200,body:{ok:true,mode:'dashboard_handoff',dashboard_url:`/login#handoff=${encodeURIComponent(code)}`,expires_at:expires}};
 }
 
 export default async function handler(req,res){

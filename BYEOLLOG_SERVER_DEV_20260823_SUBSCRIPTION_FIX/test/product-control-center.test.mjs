@@ -68,7 +68,8 @@ test('control center keeps roulette, action and existing upbo navigation organic
   assert.match(admin,/operation==='product-control-state'/);
   assert.match(admin,/operation==='weflab-public-import'/);
   assert.match(admin,/operation==='roulette-draft'/);
-  assert.match(admin,/handleProductControlPage[\s\S]*style-src 'self' 'unsafe-inline'/);
+  assert.match(admin,/handleProductControlPage[\s\S]*style-src 'self' 'nonce-\$\{nonce\}'/);
+  assert.match(admin,/handleProductControlPage[\s\S]*style-src-attr 'none'/);
   assert.doesNotMatch(admin,/service_role[^\n]+browser/i);
 });
 

@@ -5,6 +5,7 @@ import {handleSignup,handleSignupStatus} from '../lib/signup.js';
 import handlePassword from '../lib/password.js';
 import {isRateLimited, clientIp} from '../lib/rate-limit.js';
 import {rejectMaintenanceWrite} from '../lib/maintenance.js';
+import {isJsonRequest,isTrustedMutationOrigin} from '../lib/request-origin.js';
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function bodyOf(req){if(typeof req.body==='string'){try{return JSON.parse(req.body)}catch{return {}}}return req.body||{}}
@@ -133,7 +134,10 @@ export default async function handler(req,res){
   if(operation==='handoff'){
     try{
       const code=String(bodyOf(req).code||'').trim();
-      if(!code)return res.status(400).json({message:'대시보드 로그인 코드가 없습니다.'});
+      if(!isTrustedMutationOrigin(req))return res.status(403).json({message:'허용되지 않은 요청 출처입니다.'});
+      if(!isJsonRequest(req))return res.status(415).json({message:'JSON 요청만 사용할 수 있습니다.'});
+      if(!/^[A-Za-z0-9_-]{43}$/.test(code))return res.status(400).json({message:'대시보드 로그인 코드가 올바르지 않습니다.'});
+      if(await isRateLimited('handoff:ip:'+clientIp(req),{limit:30,windowMs:5*60*1000}))return res.status(429).json({message:'대시보드 로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.'});
       const now=new Date().toISOString();
       const codeHash=crypto.createHash('sha256').update(code).digest('hex');
       const rows=await sb(

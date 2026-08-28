@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import {requireSession,isPlatformAdmin,revalidateMembership,clearSessionCookie} from './auth.js';
 import {sb,supabaseConfig} from './supabase-rest.js';
 import {isRateLimited,clientIp} from './rate-limit.js';
+import {isJsonRequest,isTrustedMutationOrigin} from './request-origin.js';
 
 function bodyOf(req){if(typeof req.body==='string'){try{return JSON.parse(req.body)}catch{return {}}}return req.body||{}}
 function stationUrl(id){return id?`https://ch.sooplive.co.kr/${encodeURIComponent(id)}`:''}
@@ -15,6 +16,9 @@ function tokenHash(token){return crypto.createHash('sha256').update(String(token
 export async function handleSignup(req,res){
   res.setHeader('Cache-Control','no-store');
   if(req.method!=='POST')return res.status(405).json({message:'Method not allowed'});
+  if(!isTrustedMutationOrigin(req))return res.status(403).json({message:'허용되지 않은 요청 출처입니다.'});
+  if(!isJsonRequest(req))return res.status(415).json({message:'JSON 요청만 사용할 수 있습니다.'});
+  if(Number(req.headers?.['content-length']||0)>16*1024)return res.status(413).json({message:'가입 신청 내용이 너무 큽니다.'});
   if(await isRateLimited('signup:ip:'+clientIp(req),{limit:5,windowMs:10*60*1000}))return res.status(429).json({message:'가입 신청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.'});
 
   const b=bodyOf(req);
@@ -25,10 +29,11 @@ export async function handleSignup(req,res){
   const verificationAccount=String(b.verification_account||'').trim();
   const note=String(b.note||'').trim();
 
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return res.status(400).json({message:'올바른 이메일을 입력해주세요.'});
+  if(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return res.status(400).json({message:'올바른 이메일을 입력해주세요.'});
   if(await isRateLimited('signup:email:'+email,{limit:3,windowMs:10*60*1000}))return res.status(429).json({message:'이 이메일의 가입 신청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.'});
-  if(!streamerName||streamerName.length>80)return res.status(400).json({message:'스트리머명을 입력해주세요.'});
+  if(!streamerName||streamerName.length>80||/[\u0000-\u001f\u007f]/.test(streamerName))return res.status(400).json({message:'스트리머명을 입력해주세요.'});
   if(!soopId||!/^[a-z0-9_-]{2,40}$/.test(soopId))return res.status(400).json({message:'올바른 SOOP ID를 입력해주세요.'});
+  if(note.length>1000)return res.status(400).json({message:'관리자 전달 내용은 1,000자 이하로 입력해주세요.'});
   // 인증 채널/계정 폼 제거 — 선택값 없으면 빈 문자열 저장
 
   try{
