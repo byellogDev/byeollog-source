@@ -57,6 +57,28 @@ if(maintenance&&maintenance!=='write-blocked-v1'){
   errors.push('BYEOLLOG_MAINTENANCE_MODE: unknown mode');
 }
 
+const soopOauthEnabled=value('SOOP_OAUTH_ENABLED');
+if(soopOauthEnabled&&soopOauthEnabled!=='true'&&soopOauthEnabled!=='false'){
+  errors.push('SOOP_OAUTH_ENABLED: expected true or false');
+}
+if(soopOauthEnabled==='true'){
+  requireValue('SOOP_CLIENT_ID',16);
+  requireValue('SOOP_CLIENT_SECRET',24);
+  const soopRedirect=value('SOOP_REDIRECT_URI')||'https://byeollog.com/api/auth/soop/callback';
+  if(soopRedirect!=='https://byeollog.com/api/auth/soop/callback'){
+    errors.push('SOOP_REDIRECT_URI: must match the registered production callback');
+  }
+  const encryptionKey=requireValue('SOOP_TOKEN_ENCRYPTION_KEY',43);
+  let decodedKeyLength=0;
+  if(/^[0-9a-f]{64}$/i.test(encryptionKey))decodedKeyLength=32;
+  else{try{decodedKeyLength=Buffer.from(encryptionKey,'base64url').length}catch{decodedKeyLength=0}}
+  if(decodedKeyLength!==32)errors.push('SOOP_TOKEN_ENCRYPTION_KEY: expected exactly 32 encoded bytes');
+}
+
+if(value('SOOP_CHAT_SDK_ENABLED')==='true'&&soopOauthEnabled!=='true'){
+  errors.push('SOOP_CHAT_SDK_ENABLED: requires SOOP_OAUTH_ENABLED=true');
+}
+
 if(errors.length){
   console.error(`Runtime configuration invalid (${errors.length}):`);
   for(const error of errors)console.error(`- ${error}`);

@@ -32,8 +32,16 @@
       "destination": "/api/login?operation=inquiry"
     },
     {
+      "source": "/api/auth/soop/start",
+      "destination": "/api/login?operation=soop-start"
+    },
+    {
       "source": "/api/auth/soop/callback",
       "destination": "/api/login?operation=soop-callback"
+    },
+    {
+      "source": "/api/auth/soop/status",
+      "destination": "/api/login?operation=soop-status"
     },
     {
       "source": "/dashboard/roulette",

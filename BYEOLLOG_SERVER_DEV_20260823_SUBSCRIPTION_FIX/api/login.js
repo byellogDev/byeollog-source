@@ -6,6 +6,7 @@ import handlePassword from '../lib/password.js';
 import {isRateLimited, clientIp} from '../lib/rate-limit.js';
 import {rejectMaintenanceWrite} from '../lib/maintenance.js';
 import {isJsonRequest,isTrustedMutationOrigin} from '../lib/request-origin.js';
+import {handleSoopOAuthCallback,handleSoopOAuthStart,handleSoopOAuthStatus} from '../lib/soop-oauth.js';
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function bodyOf(req){if(typeof req.body==='string'){try{return JSON.parse(req.body)}catch{return {}}}return req.body||{}}
@@ -62,68 +63,13 @@ async function handleInquirySubmit(req,res){
   }
 }
 
-function soopCallbackPage({kind='ready'}={}){
-  const copy={
-    ready:{
-      title:'SOOP 연동 콜백이 준비되었습니다',
-      message:'이 주소는 SOOP 계정 연결 후 인증 결과를 받는 별록의 공식 콜백 URL입니다.'
-    },
-    received:{
-      title:'SOOP 인증 응답을 확인했습니다',
-      message:'개발자 연동 승인 후 실제 계정 연결 기능이 활성화됩니다.'
-    },
-    denied:{
-      title:'SOOP 계정 연결이 완료되지 않았습니다',
-      message:'SOOP 인증 화면에서 계정 연결을 다시 진행해주세요.'
-    }
-  }[kind]||null;
-  return `<!doctype html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>별록 | SOOP 인증 연결</title>
-  <style>
-    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#071a38;color:#f7f9ff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}.card{width:min(560px,100%);padding:34px;border:1px solid #29456d;border-radius:24px;background:#0b2144;box-shadow:0 20px 60px #0005}.eyebrow{margin:0 0 12px;color:#ffc44d;font-size:14px;font-weight:800;letter-spacing:.08em}.title{margin:0;font-size:clamp(26px,6vw,38px);line-height:1.2}.message{margin:18px 0 0;color:#c8d5eb;font-size:17px;line-height:1.7}.home{display:inline-block;margin-top:26px;color:#071a38;background:#ffc44d;padding:12px 18px;border-radius:12px;font-weight:800;text-decoration:none}
-  </style>
-</head>
-<body>
-  <main class="card">
-    <p class="eyebrow">BYEOLLOG × SOOP</p>
-    <h1 class="title">${copy.title}</h1>
-    <p class="message">${copy.message}</p>
-    <a class="home" href="/">별록 홈으로 돌아가기</a>
-  </main>
-</body>
-</html>`;
-}
-
-function handleSoopCallback(req,res){
-  res.setHeader('Cache-Control','no-store, private');
-  res.setHeader('Content-Type','text/html; charset=utf-8');
-  res.setHeader('Content-Security-Policy',"default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'");
-  res.setHeader('X-Content-Type-Options','nosniff');
-  res.setHeader('X-Frame-Options','DENY');
-  res.setHeader('Referrer-Policy','no-referrer');
-  res.setHeader('X-Robots-Tag','noindex, noarchive');
-  if(!['GET','HEAD'].includes(req.method)){
-    res.setHeader('Allow','GET, HEAD');
-    return res.status(405).send('Method not allowed');
-  }
-
-  // SOOP은 성공 시 authCode를 전달한다. 승인 전에는 값을 저장·기록·노출하지 않는다.
-  const denied=Boolean(String(req.query?.error||'').trim());
-  const received=Boolean(String(req.query?.authCode||'').trim());
-  const status=denied?400:200;
-  if(req.method==='HEAD')return res.status(status).end();
-  return res.status(status).send(soopCallbackPage({kind:denied?'denied':received?'received':'ready'}));
-}
-
 export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
   if(rejectMaintenanceWrite(req,res))return;
   const operation=String(req.query?.operation||'');
-  if(operation==='soop-callback')return handleSoopCallback(req,res);
+  if(operation==='soop-start')return handleSoopOAuthStart(req,res);
+  if(operation==='soop-callback')return handleSoopOAuthCallback(req,res);
+  if(operation==='soop-status')return handleSoopOAuthStatus(req,res);
   if(operation==='signup')return handleSignup(req,res);
   if(operation==='signup-status')return handleSignupStatus(req,res);
   if(operation==='inquiry')return handleInquirySubmit(req,res);

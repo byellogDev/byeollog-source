@@ -2,7 +2,7 @@
 
 ## 현재 상태
 
-이 소스는 SOOP Chat SDK 승인 전에 데이터·캐시·UI 계약을 먼저 고정한 비활성 뼈대다. 운영 DB, Vercel, Edge Function, TTS Docker, 배포 에이전트에는 적용하지 않았다. SQL은 일반 `supabase db push` 대상이 아닌 `supabase/dormant-migrations/20260825110000_native_roulette_sdk_skeleton.sql`에 보존한다. 승인 후에는 이 파일을 직접 실행하지 않고 당시 운영 migration 순서에 맞는 새 timestamp의 검토된 migration으로 복원한다. 이 SQL에는 활성화 RPC가 의도적으로 없으므로, 별도 승인 구현 전에는 룰렛을 실행할 수 없다.
+이 소스는 SOOP Chat SDK 승인 전에 데이터·캐시·UI 계약을 먼저 고정한 비활성 뼈대다. 2026-08-29 승인은 확인했지만 운영 DB, Edge Function, TTS Docker, 배포 에이전트에는 아직 적용하지 않았다. SQL은 일반 `supabase db push` 대상이 아닌 `supabase/dormant-migrations/20260825110000_native_roulette_sdk_skeleton.sql`에 보존한다. 활성화 시에는 이 파일을 직접 실행하지 않고 당시 운영 migration 순서에 맞는 새 timestamp의 검토된 migration으로 복원한다. 이 SQL에는 활성화 RPC가 의도적으로 없으므로, 별도 활성화 구현 전에는 룰렛을 실행할 수 없다.
 
 ## 확정 데이터 흐름
 
@@ -82,4 +82,4 @@ payload.result=<당첨 상품명>
 
 ## 이번 뼈대에서 의도적으로 남긴 작업
 
-SOOP 승인과 실제 SDK payload가 없으므로 payload adapter 및 실제 활성화는 만들지 않았다. WebP 게시, 에이전트 캐시 coordinator 연결, outbox 소비자 배포도 현재 서비스에 영향을 줄 수 있어 소스 계약까지만 준비했다. 이 세 작업은 승인 이후 한 묶음으로 구현·검증한다.
+SOOP 승인은 확인했지만 실제 방송 SDK payload와 재연결 표본이 없으므로 payload adapter 및 실제 활성화는 아직 만들지 않았다. OAuth 서버 교환·암호화 저장 계약만 추가했으며 WebP 게시, 에이전트 캐시 coordinator 연결, outbox 소비자 배포는 현재 서비스에 영향을 줄 수 있어 계속 대기한다. 이 작업은 실제 fixture와 Client Secret 배포 규칙을 확정한 뒤 묶어서 구현·검증한다.

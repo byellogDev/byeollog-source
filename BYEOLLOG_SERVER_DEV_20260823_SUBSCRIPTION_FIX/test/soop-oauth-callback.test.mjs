@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import handler from '../api/login.js';
 
+delete process.env.SOOP_OAUTH_ENABLED;
+
 function createResponse(){
   return {
     statusCode:200,
@@ -20,6 +22,14 @@ test('Vercel routes the registered SOOP redirect URL through the existing auth f
   assert.ok(config.rewrites.some(rule=>
     rule.source==='/api/auth/soop/callback'&&
     rule.destination==='/api/login?operation=soop-callback'
+  ));
+  assert.ok(config.rewrites.some(rule=>
+    rule.source==='/api/auth/soop/start'&&
+    rule.destination==='/api/login?operation=soop-start'
+  ));
+  assert.ok(config.rewrites.some(rule=>
+    rule.source==='/api/auth/soop/status'&&
+    rule.destination==='/api/login?operation=soop-status'
   ));
 });
 
