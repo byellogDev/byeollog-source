@@ -11,6 +11,8 @@
     "validate:runtime": "node scripts/validate-runtime-config.mjs",
     "release:assets": "node tools/Publish-AgentReleaseAssets.mjs",
     "lab:roulette": "node tools/Run-NativeRouletteReadinessLab.mjs",
+    "twin:roulette": "node tools/Run-NativeRouletteDigitalTwin.mjs",
+    "test:roulette-twin": "node tools/Run-NativeRouletteDigitalTwin.mjs --headless --runs 1000 --seed 20260828",
     "benchmark:roulette-tts-local": "node tools/Benchmark-NativeRouletteTtsEndpoint.mjs",
     "test:roulette-reliability": "node tools/Simulate-NativeRouletteReliability.mjs --events 10000 --probability-spins 500000 --seed 8272026",
     "test": "node --test test/*.test.mjs"
