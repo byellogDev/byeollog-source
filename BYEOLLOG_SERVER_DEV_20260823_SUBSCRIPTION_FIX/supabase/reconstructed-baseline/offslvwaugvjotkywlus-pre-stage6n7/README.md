@@ -1,10 +1,12 @@
-# Stage 6N7 이전 스키마 역분석 후보
+# Stage 6N7 이전 합성 bootstrap
 
-이 디렉터리는 운영 Supabase 프로젝트 `offslvwaugvjotkywlus`의 현재 카탈로그와 원격 79개 migration을 역대조해 만든 **재구성본**이다. 원본 `bangsel_v8_3_supabase_setup.sql`을 회수한 것이 아니다.
+이 DB는 작업 중 필요한 SQL을 그때그때 추가 적용하며 진화했으므로, 목표 시점 전체를 담은 단일 “원본 스키마 SQL”은 존재하지 않았다. `bangsel_v8_3_supabase_setup.sql`은 초기 단계의 한 SQL일 뿐 완성된 정본이 아니다.
+
+이 디렉터리는 운영 Supabase 프로젝트 `offslvwaugvjotkywlus`의 현재 카탈로그와 원격 79개 migration을 역대조해, 첫 원격 migration 직전의 누적 상태를 한 번에 재생할 수 있도록 만든 **합성·통합 bootstrap 스냅샷**이다. 목적은 존재하지 않는 원본 파일을 복원하는 것이 아니라 누적 운영 상태를 재현 가능한 기준선으로 고정하는 것이다.
 
 ## 파일
 
-- `reconstructed_pre_stage6n7_bootstrap.sql` — 첫 원격 migration 직전 상태를 만드는 후보 bootstrap
+- `reconstructed_pre_stage6n7_bootstrap.sql` — 첫 원격 migration 직전 누적 상태를 만드는 합성 bootstrap
 - `RECONSTRUCTION_AUDIT_KO.md` — 역산 근거, 확정/추정 항목, 남은 검증
 - `verify_reconstructed_baseline.ps1` — 구조·경계·reference 연결을 검사하는 읽기 전용 정적 검증기
 - `RECONSTRUCTED_SHA256SUMS.txt` — 줄바꿈을 LF로 고정한 SQL·Markdown 결과물의 SHA-256 목록

@@ -1,9 +1,14 @@
--- RECONSTRUCTED BOOTSTRAP — NOT THE RECOVERED ORIGINAL SOURCE.
+-- SYNTHETIC CONSOLIDATED BOOTSTRAP — NO SINGLE ORIGINAL SOURCE EXISTED.
 --
 -- Target state: immediately before remote migration
 --   20260814121415_p0_withdraw_transaction.sql
 -- Project: offslvwaugvjotkywlus
 -- Reconstructed: 2026-08-31 (Asia/Seoul)
+--
+-- Historical note:
+--   This database evolved through incrementally applied manual SQL changes.
+--   There was no one-shot master schema file for the target state. This file
+--   consolidates that cumulative state into a reproducible bootstrap snapshot.
 --
 -- Evidence:
 --   1. read-only catalog extraction from the operating Supabase project;

@@ -4,11 +4,12 @@
 - 대상 프로젝트: `offslvwaugvjotkywlus`
 - 목표 시점: `20260814121415_p0_withdraw_transaction.sql` 적용 직전
 - 운영 DB 변경: 없음
-- 결과물 성격: 원본이 아닌 재구성 후보 v1
+- 역사적 전제: 필요한 SQL을 작업 시점마다 증분 적용했으며, 목표 상태 전체를 담은 단일 원본은 없었음
+- 결과물 성격: 누적 운영 상태를 고정한 합성·통합 bootstrap v1
 
 ## 결론
 
-현재 운영 스키마와 원격 79개 migration의 정방향 DDL을 대조해, 첫 원격 migration 직전에 필요했던 17개 public 테이블과 Stage 6N7 필수 RPC를 `reconstructed_pre_stage6n7_bootstrap.sql`에 재구성했다.
+현재 운영 스키마와 원격 79개 migration의 정방향 DDL을 대조해, 첫 원격 migration 직전에 필요했던 17개 public 테이블과 Stage 6N7 필수 RPC를 `reconstructed_pre_stage6n7_bootstrap.sql`에 통합했다. 이는 과거의 단일 원본 파일을 복원한 것이 아니라, 여러 차례 수동 적용으로 형성된 시점 상태를 재생 가능한 하나의 bootstrap으로 합성한 것이다.
 
 핵심 역산은 비교적 명확하다. 원격 체인에서 이 17개 기존 테이블의 컬럼을 변경하는 파일은 `20260814130058_p1_p2_account_security.sql`뿐이다. 따라서 현재 운영 정의에서 그 파일이 추가한 다음 항목을 제거하면 첫 migration 직전의 테이블 열 경계가 나온다.
 
@@ -30,12 +31,12 @@
 | updated-at 트리거 4개 | 재구성 반영 | 중간~높음 | 운영 trigger/function 정의와 원격 체인의 기존 테이블 비변경 확인 |
 | 공개 RPC 본문 | 현재 본문을 반영 | 중간~높음 | 운영 `pg_get_functiondef`; 원격 체인에는 본문 교체가 없고 보안 속성만 후속 변경 |
 | 공개 RPC `SECURITY DEFINER` | 역산 반영 | 높음 | Stage 6N8 설명과 `20260823011107`이 명시적으로 `SECURITY INVOKER`로 변경 |
-| ACL | 최소 경계로 재구성 | 중간 | 현재 ACL과 Stage 6N8/후속 grant·revoke 이력; 원래의 전체 ACL 원문은 미회수 |
+| ACL | 최소 경계로 재구성 | 중간 | 현재 ACL과 Stage 6N8/후속 grant·revoke 이력; 당시 누적 ACL을 만든 개별 SQL 원문은 모두 보존되지 않음 |
 | 주석과 과거에 삭제된 객체 | 미복원 가능 | 낮음/불명 | 현재 카탈로그와 정방향 migration만으로는 삭제 전 원문을 증명할 수 없음 |
 
 ## 재생 경계
 
-후보 bootstrap의 완료 상태는 다음 조건을 만족하도록 설계했다.
+합성 bootstrap의 완료 상태는 다음 조건을 만족하도록 설계했다.
 
 - 17개 baseline 테이블이 모두 존재한다.
 - 17개 테이블에 RLS가 켜져 있다.
@@ -64,7 +65,7 @@
 - 재생 결과와 운영 스키마의 구조 diff
 - RPC/RLS/권한/트리거/인덱스 동작 및 애플리케이션 smoke test
 
-현재 호스트에서는 Docker 실행 파일을 찾지 못했고, `npx supabase`도 sandbox 밖 npm cache 접근이 막혀 로컬 shadow DB 검증을 실행하지 못했다. 이 제약 때문에 이 파일은 아직 canonical migration이 아니다.
+현재 호스트에서는 Docker 실행 파일을 찾지 못했고, `npx supabase`도 sandbox 밖 npm cache 접근이 막혀 로컬 shadow DB 검증을 실행하지 못했다. 이 제약 때문에 이 합성 기준선은 아직 canonical migration이 아니다.
 
 ## 다음 안전 절차
 
