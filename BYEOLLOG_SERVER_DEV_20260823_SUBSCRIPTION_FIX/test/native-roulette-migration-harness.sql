@@ -145,11 +145,11 @@ revoke all on function byeollog_automation.native_roulette_sample_ppm_v1()
 
 set role service_role;
 select public.ingest_native_roulette_soop_donation_v1(
-  '10000000-0000-4000-8000-000000000001','event-followup','sejuari','로기랑지유니',
+  '10000000-0000-4000-8000-000000000001','event-followup','viewer_example','테스트 시청자',
   30,null,clock_timestamp()-interval '9.85 seconds');
 reset role;
 select public.ingest_native_roulette_soop_chat_v1(
-  '10000000-0000-4000-8000-000000000001','chat-followup','sejuari','로기랑지유니',
+  '10000000-0000-4000-8000-000000000001','chat-followup','viewer_example','테스트 시청자',
   '딸깍',(select occurred_at+interval '9.85 seconds'
     from byeollog_automation.native_roulette_donations where soop_event_id='event-followup'));
 
@@ -175,14 +175,14 @@ begin
   select * into strict v_chat from public.claim_native_roulette_dispatch_v1(
     '10000000-0000-4000-8000-000000000001','harness-worker',10,45);
   if v_chat.dispatch_kind<>'donation_chat_tts'
-     or v_chat.payload->>'displayText'<>'[10초전] 로기랑지유니 : 딸깍'
+     or v_chat.payload->>'displayText'<>'[10초전] 테스트 시청자 : 딸깍'
      or v_chat.payload->>'ttsText'<>'딸깍'
   then raise exception 'native roulette follow-up chat dispatch mismatch'; end if;
   perform public.finish_native_roulette_dispatch_v1(
     '10000000-0000-4000-8000-000000000001',v_chat.dispatch_id,
     'harness-worker',true,false,null);
   if (public.ingest_native_roulette_soop_chat_v1(
-      '10000000-0000-4000-8000-000000000001','chat-followup','sejuari','로기랑지유니',
+      '10000000-0000-4000-8000-000000000001','chat-followup','viewer_example','테스트 시청자',
       '딸깍',(select occurred_at+interval '9.85 seconds'
         from byeollog_automation.native_roulette_donations where soop_event_id='event-followup'))
       ->>'duplicate')::boolean is not true

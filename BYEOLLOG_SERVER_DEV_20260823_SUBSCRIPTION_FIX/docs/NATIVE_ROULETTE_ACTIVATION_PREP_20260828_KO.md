@@ -2,7 +2,7 @@
 
 ## 범위
 
-SOOP Chat SDK 승인 통보를 2026-08-29 확인했고 **자체 룰렛 활성화 준비만** 수행한다. 이번 체크포인트에서는 운영 DB migration, Agent 업데이트 배포, 기능 플래그 변경, 위플랩 이전·제거를 하지 않는다.
+SOOP Chat SDK 승인 통보를 2026-08-29 확인했고 **자체 룰렛 활성화 준비만** 수행한다. 운영 DB에는 실행 RPC가 없는 dormant 스키마와 관측 스키마까지만 설치했다. Agent 업데이트, 실행 기능 플래그 변경, 위플랩 이전·제거는 하지 않는다.
 
 ## 승인 직후 OAuth 준비
 
@@ -11,7 +11,8 @@ SOOP Chat SDK 승인 통보를 2026-08-29 확인했고 **자체 룰렛 활성화
 - Client Secret은 브라우저·Agent로 전달하지 않고 서버 전용 환경변수에서 토큰 교환에만 사용한다.
 - 접근·갱신 토큰은 AES-256-GCM으로 애플리케이션 암호화한 뒤 server-only 테이블에 저장하도록 준비했다.
 - 저장 SQL은 `20260828160441_add_soop_oauth_connections.sql` dormant migration이며 운영 DB에 적용하지 않았다.
-- `SOOP_OAUTH_ENABLED` 기본 OFF, `SOOP_CHAT_SDK_ENABLED` 및 `NATIVE_ROULETTE_ENABLED`도 계속 OFF다.
+- `SOOP_OAUTH_ENABLED`는 운영에서 ON이며 계정 연결·자동 토큰 갱신이 검증됐다.
+- `SOOP_CHAT_SDK_ENABLED` 및 `NATIVE_ROULETTE_ENABLED`는 계속 OFF다.
 - 상세 활성화·롤백 순서는 `docs/SOOP_OAUTH_ACTIVATION_RUNBOOK_20260829_KO.md`를 따른다.
 
 ## 이번에 고정한 계약
@@ -43,7 +44,7 @@ SOOP Chat SDK 승인 통보를 2026-08-29 확인했고 **자체 룰렛 활성화
 
 ### 3. 수신 실행 경계
 
-Vercel 함수 한도를 늘리지 않는다. 별도 `native-roulette-runtime` Supabase Edge Function 후보를 사용한다.
+Vercel 함수 한도를 늘리지 않는다. 기존 `api/login.js` 함수의 secret-protected SOOP gateway operation을 사용하고, Supabase Edge Function 후보는 배포하지 않은 fallback으로 남긴다.
 
 - `NATIVE_ROULETTE_ENABLED=true`
 - `SOOP_CHAT_SDK_ENABLED=true`
@@ -68,7 +69,7 @@ npm run audit:roulette-activation
    - 공식 배포 SDK에서 `MESSAGE`, `BALLOON_GIFTED` 필드 계약은 확인했다.
    - 실제 방송에서 후원, 일반 채팅, 재연결 재전송 payload를 비식별 JSON으로 보존한다.
    - API Key·Secret·OAuth 토큰·실사용자 ID는 fixture에 넣지 않는다.
-   - Client Secret을 다중 사용자 Agent에 노출하지 않는 공식 접속 방식과 실제 재연결 규약은 SOOP 1:1 문의로 확정한다.
+   - Client Secret은 스트리머 Agent가 아니라 별도 서버 게이트웨이에만 둔다.
 2. **3초 immutable 룰렛 자산 7종**
    - 현재 원본은 4.8초 `staged` 상태다.
    - 3초 버전으로 재인코딩하고 실제 OBS 재생 시간, 해시, 바이트 크기를 고정한 뒤 게시한다.
@@ -80,7 +81,7 @@ npm run audit:roulette-activation
 
 ## DB 활성화 후보에 반영할 사항
 
-예전 dormant skeleton은 워크스페이스당 룰렛 1개와 배수 후원을 전제로 하므로 그대로 운영 migration으로 승격하지 않는다.
+기존 dormant skeleton은 실행 RPC가 없는 상태로 운영 DB에 설치됐다. 활성화에는 사용하지 않으며, 여러 웹 룰렛과 단차·연차 모델을 반영한 후속 revision/activation migration을 별도로 만든다.
 
 - `byeollog_roulette_drafts` 여러 개를 각각 불변 revision으로 승격
 - 단차·연차 trigger를 별도 행으로 저장
@@ -98,9 +99,11 @@ npm run audit:roulette-activation
 ## 운영 불변 조건
 
 - 현재 `.vercelignore`의 네이티브 룰렛 제외 규칙 유지
-- dormant SQL을 `supabase/migrations`로 이동하지 않음
+- dormant SQL을 일반 migration chain으로 이동하지 않음
 - Edge Function 배포 없음
 - Agent release/업데이트 feed 변경 없음
 - 두 기능 플래그 OFF
 - 활성화 RPC 없음
 - 기존 위플랩·업보·액션 경로 변경 없음
+- `byeollog_soop_runtime_controls`: 모든 워크스페이스 `gateway_enabled=false`, `native_roulette_enabled=false`
+- 대시보드 가상 후원 점검은 계산·관측만 수행하며 Agent/OBS/outbox에 기록하지 않음

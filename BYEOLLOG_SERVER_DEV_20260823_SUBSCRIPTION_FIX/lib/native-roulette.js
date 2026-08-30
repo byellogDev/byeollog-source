@@ -10,9 +10,16 @@ export const NATIVE_ROULETTE_MAX_SPINS=100;
 export const NATIVE_ROULETTE_MAX_SERIES_SPINS=1_000;
 export const NATIVE_ROULETTE_TTS_KEY_DOMAIN='native-roulette-result-v1|';
 export const NATIVE_ROULETTE_SOUND_KEYS=Object.freeze(['roulette_spin_v1']);
-export const NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS=10;
-export const NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS=60;
+// Follow-up chat is a playback grace period, not a streamer preference. Keep
+// it identical across saved drafts, active services and OBS clients so a stale
+// draft can never hold the common overlay longer than the product contract.
+export const NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS=15;
+export const NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS=15;
 export const NATIVE_ROULETTE_MAX_CHAT_TTS_CHARACTERS=300;
+export const NATIVE_ROULETTE_TRIGGER_KINDS=Object.freeze(['single','series']);
+export const SOOP_DONATION_TYPE_LABELS=Object.freeze(['별풍선','대결미션','도전미션']);
+export const NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES=20;
+export const NATIVE_ROULETTE_MAX_RESULT_CODE_POINTS=200;
 
 export class NativeRouletteValidationError extends Error{
   constructor(message,code='invalid_native_roulette'){
@@ -25,6 +32,31 @@ export class NativeRouletteValidationError extends Error{
 
 function boundedText(value,max){
   return String(value??'').replace(/[\u0000-\u001f\u007f]/g,' ').trim().slice(0,max);
+}
+
+export function unicodeGraphemes(value){
+  const text=String(value??'');
+  try{
+    return [...new Intl.Segmenter('ko',{granularity:'grapheme'}).segment(text)].map(part=>part.segment);
+  }catch{
+    return [...text];
+  }
+}
+
+export function unicodeGraphemeCount(value){
+  return unicodeGraphemes(value).length;
+}
+
+function requiredGraphemeText(value,max,label){
+  const text=String(value??'').replace(/[\u0000-\u001f\u007f]/g,' ').trim().normalize('NFC');
+  if(!text)throw new NativeRouletteValidationError(`${label}을(를) 입력하세요.`);
+  if([...text].length>NATIVE_ROULETTE_MAX_RESULT_CODE_POINTS){
+    throw new NativeRouletteValidationError(`${label} 입력 내용이 너무 깁니다.`,'native_roulette_text_too_large');
+  }
+  if(unicodeGraphemeCount(text)>max){
+    throw new NativeRouletteValidationError(`${label}은(는) ${max}자 이내로 입력하세요.`,'native_roulette_text_too_long');
+  }
+  return text;
 }
 
 function requiredText(value,max,label){
@@ -54,7 +86,7 @@ function requiredSha256(value,label){
 }
 
 export function nativeRouletteTtsVoiceKey(value){
-  const text=requiredText(value,160,'TTS 문구');
+  const text=requiredGraphemeText(value,NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES,'TTS 문구');
   return crypto.createHash('sha256').update(NATIVE_ROULETTE_TTS_KEY_DOMAIN+text,'utf8').digest('hex');
 }
 
@@ -76,9 +108,9 @@ export function probabilityPpmToPercent(value){
 }
 
 export function splitDirectUpboOutputs(value){
-  const text=requiredText(value,200,'상품명');
+  const text=requiredGraphemeText(value,NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES,'상품명');
   const outputs=text.split(/\s*&\s*/).map(item=>item.trim()).filter(Boolean);
-  if(!outputs.length||outputs.length>20||outputs.some(item=>item.length>120)){
+  if(!outputs.length||outputs.length>20){
     throw new NativeRouletteValidationError('업보 상품의 & 분리 결과가 올바르지 않습니다.');
   }
   return outputs;
@@ -92,7 +124,11 @@ function normalizeNativeRouletteItems(input,name){
   const seen=new Set();
   let total=0;
   const items=input.items.map((item,index)=>{
-    const resultText=requiredText(item?.resultText,200,`${index+1}번 상품명`);
+    const resultText=requiredGraphemeText(
+      item?.resultText,
+      NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES,
+      `${index+1}번 상품명`
+    );
     const identity=resultText.toLocaleLowerCase('ko-KR');
     if(seen.has(identity))throw new NativeRouletteValidationError('같은 상품명을 두 번 사용할 수 없습니다.');
     seen.add(identity);
@@ -110,9 +146,7 @@ function normalizeNativeRouletteItems(input,name){
       ? boundedText(item?.upboEventName,120)||name
       : null;
     const outputTypes=directUpbo?splitDirectUpboOutputs(resultText):[];
-    const ttsText=directUpbo
-      ? null
-      : boundedText(item?.ttsText,160)||`${resultText}, 당첨!`;
+    const ttsText=directUpbo?null:resultText;
     const ttsVoiceKey=ttsText?nativeRouletteTtsVoiceKey(ttsText):null;
     total+=probabilityPpm;
     return {
@@ -145,12 +179,7 @@ export function normalizeNativeRouletteDraft(input={}){
   const soundKey=requiredChoice(input.soundKey||'roulette_spin_v1',NATIVE_ROULETTE_SOUND_KEYS,'효과음');
   const soundVolumePercent=safeInteger(input.soundVolumePercent??80,0,100,'효과음 음량');
   const ttsVolumePercent=safeInteger(input.ttsVolumePercent??80,0,100,'TTS 음량');
-  const followupChatTtsWindowSeconds=safeInteger(
-    input.followupChatTtsWindowSeconds??NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
-    0,
-    NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
-    '후원 후 첫 채팅 TTS 유효시간'
-  );
+  const followupChatTtsWindowSeconds=NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS;
   const agentDeviceId=requiredText(input.agentDeviceId,64,'캐시 대상 PC');
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(agentDeviceId)){
     throw new NativeRouletteValidationError('캐시 대상 PC 식별값이 올바르지 않습니다.');
@@ -205,12 +234,7 @@ export function normalizeNativeRouletteWebDraft(input={}){
     '룰렛 이미지'
   );
   const overlayAsset=NATIVE_ROULETTE_ASSET_BY_KEY[overlayAssetKey];
-  const followupChatTtsWindowSeconds=safeInteger(
-    input.followupChatTtsWindowSeconds??NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
-    0,
-    NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
-    '후원 후 첫 채팅 TTS 유효시간'
-  );
+  const followupChatTtsWindowSeconds=NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS;
   if(input.seriesEnabled!==undefined&&typeof input.seriesEnabled!=='boolean'){
     throw new NativeRouletteValidationError('연차 설정 여부가 올바르지 않습니다.');
   }
@@ -221,6 +245,12 @@ export function normalizeNativeRouletteWebDraft(input={}){
   const seriesSpinCount=seriesEnabled
     ? safeInteger(input.seriesSpinCount,1,NATIVE_ROULETTE_MAX_SERIES_SPINS,'연차 룰렛 횟수')
     : null;
+  if(seriesEnabled&&seriesBalloons===balloonsPerSpin){
+    throw new NativeRouletteValidationError(
+      '단차와 연차의 별풍선 개수는 서로 달라야 합니다.',
+      'ambiguous_roulette_trigger'
+    );
+  }
   const customSingleImage=normalizeRouletteCustomImageReference(input.customSingleImage);
   const customSeriesImage=seriesEnabled
     ? normalizeRouletteCustomImageReference(input.customSeriesImage)
@@ -239,6 +269,82 @@ export function normalizeNativeRouletteWebDraft(input={}){
     customSeriesImage,
     followupChatTtsWindowSeconds,
     items
+  };
+}
+
+// The web draft owns content while the overlay control plane owns the target
+// Agent and audio levels.  Activation joins the two only after both sides have
+// been validated, so saving content can never accidentally make it executable.
+export function normalizeNativeRouletteOverlayRuntime(input={}){
+  const agentDeviceId=requiredText(input.agentDeviceId,64,'실행 대상 PC');
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(agentDeviceId)){
+    throw new NativeRouletteValidationError('실행 대상 PC 식별값이 올바르지 않습니다.');
+  }
+  return {
+    agentDeviceId:agentDeviceId.toLowerCase(),
+    soundKey:requiredChoice(input.soundKey||'roulette_spin_v1',NATIVE_ROULETTE_SOUND_KEYS,'효과음'),
+    soundVolumePercent:safeInteger(input.soundVolumePercent??80,0,100,'효과음 음량'),
+    ttsVolumePercent:safeInteger(input.ttsVolumePercent??80,0,100,'TTS 음량')
+  };
+}
+
+function activationImage(draft,kind){
+  const custom=kind==='series'
+    ? draft.customSeriesImage||draft.customSingleImage
+    : draft.customSingleImage;
+  if(custom)return {source:'custom',...custom};
+  return {
+    source:'catalog',
+    assetKey:draft.overlayAssetKey,
+    sha256:draft.overlayAssetSha256,
+    byteSize:draft.overlayAssetBytes
+  };
+}
+
+export function normalizeNativeRouletteActivation(input={}){
+  const draft=normalizeNativeRouletteWebDraft(input.draft||{});
+  const overlay=normalizeNativeRouletteOverlayRuntime(input.overlay||{});
+  const triggers=[{
+    kind:'single',
+    balloons:draft.balloonsPerSpin,
+    spinCount:1,
+    image:activationImage(draft,'single')
+  }];
+  if(draft.seriesEnabled){
+    triggers.push({
+      kind:'series',
+      balloons:draft.seriesBalloons,
+      spinCount:draft.seriesSpinCount,
+      image:activationImage(draft,'series')
+    });
+  }
+  return {
+    schemaVersion:2,
+    ...draft,
+    ...overlay,
+    triggers
+  };
+}
+
+// Native roulette v2 intentionally has no implicit multiplier rule.  A
+// donation activates only one explicitly configured single/series trigger.
+export function nativeRouletteSpinPlan(amount,activation){
+  const donation=safeInteger(amount,1,1_000_000_000_000,'후원 별풍선');
+  const triggers=Array.isArray(activation?.triggers)?activation.triggers:[];
+  const matched=triggers.filter(trigger=>trigger?.balloons===donation);
+  if(matched.length===0)return null;
+  if(matched.length!==1){
+    throw new NativeRouletteValidationError(
+      '같은 별풍선 개수에 여러 룰렛 발동 조건이 연결되어 있습니다.',
+      'ambiguous_roulette_trigger'
+    );
+  }
+  const trigger=matched[0];
+  return {
+    kind:requiredChoice(trigger.kind,NATIVE_ROULETTE_TRIGGER_KINDS,'룰렛 발동 종류'),
+    balloons:donation,
+    spinCount:safeInteger(trigger.spinCount,1,NATIVE_ROULETTE_MAX_SERIES_SPINS,'룰렛 횟수'),
+    image:trigger.image
   };
 }
 
@@ -266,6 +372,9 @@ export function normalizeSoopDonationEnvelope(input={}){
   const actorId=requiredText(input.actor?.id,180,'후원자 SOOP ID').toLocaleLowerCase('en-US');
   const actorName=boundedText(input.actor?.name,120)||actorId;
   const amount=safeInteger(input.amount,1,1_000_000_000_000,'후원 별풍선');
+  const donationTypeLabel=requiredChoice(
+    input.donationTypeLabel??'별풍선',SOOP_DONATION_TYPE_LABELS,'SOOP 후원 종류'
+  );
   const message=boundedText(input.message,1000)||null;
   if(input.occurredAt===undefined||input.occurredAt===null||input.occurredAt===''){
     throw new NativeRouletteValidationError('SOOP 후원 시각이 필요합니다.');
@@ -274,7 +383,31 @@ export function normalizeSoopDonationEnvelope(input={}){
   if(!Number.isFinite(occurredAt.getTime())){
     throw new NativeRouletteValidationError('후원 시각이 올바르지 않습니다.');
   }
-  return {eventId,actor:{id:actorId,name:actorName},amount,message,occurredAt:occurredAt.toISOString()};
+  return {eventId,actor:{id:actorId,name:actorName},amount,donationTypeLabel,message,
+    ceremonyImageUrl:normalizeSoopCeremonyImageUrl(input.ceremonyImageUrl??input.imageUrl),
+    occurredAt:occurredAt.toISOString()};
+}
+
+const SOOP_CEREMONY_HOSTS=Object.freeze(['sooplive.com','afreecatv.com','afreecatvcdn.com']);
+export function normalizeSoopCeremonyImageUrl(value){
+  const raw=String(value??'').trim();
+  if(!raw||raw.length>2048)return null;
+  try{
+    // The Chat SDK has historically returned both absolute and protocol-relative
+    // ceremony URLs.  Upgrade allow-listed HTTP variants to HTTPS before the
+    // strict URL check so an otherwise valid SOOP image is not discarded.
+    const candidate=raw.startsWith('//')
+      ?'https:'+raw
+      :raw.startsWith('/')
+        ?new URL(raw,'https://res.sooplive.com').href
+        :raw.replace(/^http:\/\//i,'https://');
+    const url=new URL(candidate);
+    const hostname=url.hostname.toLowerCase();
+    if(url.protocol!=='https:'||url.username||url.password||url.port)return null;
+    if(!SOOP_CEREMONY_HOSTS.some(root=>hostname===root||hostname.endsWith('.'+root)))return null;
+    url.hash='';
+    return url.href;
+  }catch{return null}
 }
 
 export function normalizeSoopChatEnvelope(input={}){
@@ -305,10 +438,7 @@ export function buildNativeRouletteSponsoredChatDispatch({
   if(!Number.isFinite(donatedAt.getTime())){
     throw new NativeRouletteValidationError('후원 시각이 올바르지 않습니다.');
   }
-  const windowSeconds=safeInteger(
-    profile?.followupChatTtsWindowSeconds??NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,
-    0,NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS,'후원 후 첫 채팅 TTS 유효시간'
-  );
+  const windowSeconds=NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS;
   let message;
   let chatEventId=null;
   let chatOccurredAt=donatedAt;
@@ -360,7 +490,7 @@ export function buildNativeRouletteSponsoredChatDispatch({
 }
 
 export function buildNativeRouletteDispatch({profile,item,donation,spinIndex,sourceEventKey}){
-  const resultText=requiredText(item?.resultText,200,'룰렛 결과');
+  const resultText=requiredGraphemeText(item?.resultText,NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES,'룰렛 결과');
   const eventKey=requiredText(sourceEventKey,240,'결과 이벤트 ID');
   const actor={
     id:requiredText(donation?.actor?.id,180,'후원자 SOOP ID'),
@@ -392,7 +522,7 @@ export function buildNativeRouletteDispatch({profile,item,donation,spinIndex,sou
       overlayAssetSha256:requiredSha256(profile?.overlayAssetSha256,'룰렛 이미지 해시'),
       soundKey:requiredText(profile?.soundKey,64,'효과음'),
       soundVolumePercent:safeInteger(profile?.soundVolumePercent,0,100,'효과음 음량'),
-      ttsText:requiredText(item?.ttsText,160,'TTS 문구'),
+      ttsText:requiredGraphemeText(item?.ttsText,NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES,'TTS 문구'),
       ttsVoiceKey:requiredSha256(item?.ttsVoiceKey,'TTS 캐시 키'),
       ttsVolumePercent:safeInteger(profile?.ttsVolumePercent,0,100,'TTS 음량')
     },

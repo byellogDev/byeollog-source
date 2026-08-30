@@ -14,10 +14,20 @@
     "twin:roulette": "node tools/Run-NativeRouletteDigitalTwin.mjs",
     "test:roulette-twin": "node tools/Run-NativeRouletteDigitalTwin.mjs --headless --runs 1000 --seed 20260828",
     "benchmark:roulette-tts-local": "node tools/Benchmark-NativeRouletteTtsEndpoint.mjs",
+    "audit:tts-path": "node tools/Audit-CurrentTtsPath.mjs",
+    "benchmark:tts:selftest": "node tools/Benchmark-TtsCandidates.mjs --self-test --iterations 3 --warmups 1 --concurrency 2",
+    "benchmark:tts:google": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/Run-GoogleChirpTtsBenchmark.ps1",
     "test:roulette-reliability": "node tools/Simulate-NativeRouletteReliability.mjs --events 10000 --probability-spins 500000 --seed 8272026",
+    "audit:roulette-activation": "node tools/Audit-NativeRouletteActivationPrep.mjs",
+    "gateway:soop": "node services/soop-chat-gateway/index.mjs",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "2.57.4"
+    "@google-cloud/text-to-speech": "7.0.0",
+    "@supabase/supabase-js": "2.57.4",
+    "@vercel/functions": "3.4.3",
+    "google-auth-library": "11.0.2",
+    "sharp": "0.35.4",
+    "ws": "8.21.0"
   }
 }

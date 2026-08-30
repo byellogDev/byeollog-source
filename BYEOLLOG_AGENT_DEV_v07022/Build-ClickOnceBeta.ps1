@@ -19,7 +19,7 @@ param(
     [string]$TimestampUrl,
 
     [ValidatePattern('^\d+\.\d+\.\d+\.\d+$')]
-    [string]$Version = '0.7.0.107',
+    [string]$Version = '0.7.0.110',
 
     [string]$OutputDirectory = (Join-Path $PSScriptRoot 'dist\clickonce')
 )

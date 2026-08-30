@@ -40,7 +40,7 @@ test('dashboard executes beside the Tokyo database and embeds first-paint data',
 });
 
 test('dashboard renders before maintenance and lazily reads local file blobs',()=>{
-  assert.match(decoded,/await loadServer\(\);\s*scheduleDashboardMaintenance\(\);\s*void loadPlatformAdminCapability\(\)/);
+  assert.match(decoded,/await loadServer\(\);\s*await consumeSoopNavigationNotice\(\);\s*scheduleDashboardMaintenance\(\);\s*void loadPlatformAdminCapability\(\)/);
   assert.match(decoded,/requestIdleCallback\(start,\{timeout:1200\}\)/);
   assert.match(decoded,/visibleIds\.map\(id=>\[id,cachedFileCell\(id\)\]\)/);
   assert.doesNotMatch(decoded,/visibleIds\.map\(async id=>\[id,await fileCell\(id\)\]\)/);

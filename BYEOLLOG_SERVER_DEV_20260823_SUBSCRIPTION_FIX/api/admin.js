@@ -16,6 +16,19 @@ import {
   RouletteAssetError,createRouletteAssetUploadTicket,verifyRouletteAssetUpload,
   rouletteAssetPublicUrl,rouletteAssetOrigin,rouletteAssetPaths,removeRouletteAssets
 } from '../lib/roulette-custom-assets.js';
+import {
+  SignatureBalloonValidationError,normalizeSignatureBalloonInput,
+  signatureBalloonAssetPaths,SIGNATURE_BALLOON_MAX_ITEMS
+} from '../lib/signature-balloon-registry.js';
+import {
+  createSignatureAssetUploadTicket,verifySignatureAssetUpload,
+  deriveSignatureWallpaperAsset,hydrateSignatureAssetPreview,hydrateSignatureAssetPreviews,removeSignatureAssets
+} from '../lib/signature-balloon-assets.js';
+import {isJsonRequest,isTrustedMutationOrigin} from '../lib/request-origin.js';
+import {refreshSoopConnection} from '../lib/soop-oauth.js';
+import {createRouletteServiceOverlayToken,rouletteOverlayUrl} from '../lib/soop-roulette-service.js';
+import {normalizeSoopSdkRelayEnvelope,SOOP_SDK_RELAY_SCHEMA_VERSION} from '../lib/soop-sdk-relay.js';
+import {ingestNormalizedSoopDonation} from '../lib/soop-gateway-api.js';
 
 const UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -311,6 +324,150 @@ async function removeDraftAssetsBestEffort(paths,context){
   catch(error){console.error('[roulette-image] cleanup failed',{context,name:error?.name||'Error',status:error?.status||null})}
 }
 
+async function publicSignatureBalloon(row,workspaceId){
+  const [pcImage,mobileImage,wallpaperImage]=await Promise.all([
+    hydrateSignatureAssetPreview(workspaceId,row.pc_image,'pc'),
+    hydrateSignatureAssetPreview(workspaceId,row.mobile_image,'mobile'),
+    row.wallpaper_image?hydrateSignatureAssetPreview(workspaceId,row.wallpaper_image,'wallpaper'):Promise.resolve(null)
+  ]);
+  return {
+    id:row.id,balloonCount:row.balloon_count,displayName:row.display_name,
+    pcImage,mobileImage,wallpaperImage,versionNumber:row.version_number,
+    createdAt:row.created_at,updatedAt:row.updated_at
+  };
+}
+
+async function publicSignatureBalloons(rows,workspaceId){
+  const source=Array.isArray(rows)?rows:[];
+  const previews=await hydrateSignatureAssetPreviews(workspaceId,source.flatMap(row=>[
+    {kind:'pc',reference:row.pc_image},{kind:'mobile',reference:row.mobile_image},
+    ...(row.wallpaper_image?[{kind:'wallpaper',reference:row.wallpaper_image}]:[])
+  ]));
+  let cursor=0;
+  return source.map(row=>{
+    const pcImage=previews[cursor++],mobileImage=previews[cursor++];
+    const wallpaperImage=row.wallpaper_image?previews[cursor++]:null;
+    return {
+      id:row.id,balloonCount:row.balloon_count,displayName:row.display_name,
+      pcImage,mobileImage,wallpaperImage,versionNumber:row.version_number,
+      createdAt:row.created_at,updatedAt:row.updated_at
+    };
+  });
+}
+
+async function backfillMissingSignatureWallpapers(rows,workspaceId){
+  const source=Array.isArray(rows)?rows:[];
+  const pending=source.filter(row=>!row.wallpaper_image&&row.pc_image).slice(0,4);
+  await Promise.all(pending.map(async row=>{
+    let reference=null;
+    try{
+      const derived=await deriveSignatureWallpaperAsset(workspaceId,row.pc_image);
+      const {previewUrl:_previewUrl,...safeReference}=derived;
+      reference=safeReference;
+      const updated=await sb('byeollog_signature_balloons',`?workspace_id=eq.${q(workspaceId)}&id=eq.${q(row.id)}&wallpaper_image=is.null`,{
+        method:'PATCH',prefer:'return=representation',body:{wallpaper_image:reference}
+      });
+      if(Array.isArray(updated)&&updated.length===1)row.wallpaper_image=reference;
+      else await removeSignatureAssetsBestEffort([reference.storagePath],'wallpaper-backfill-race');
+    }catch(error){
+      if(reference?.storagePath)await removeSignatureAssetsBestEffort([reference.storagePath],'wallpaper-backfill-failed');
+      console.error('[signature-balloon] wallpaper backfill failed',{name:error?.name||'Error',status:error?.status||null});
+    }
+  }));
+  return source;
+}
+
+async function removeSignatureAssetsBestEffort(paths,context){
+  try{await removeSignatureAssets(paths)}
+  catch(error){console.error('[signature-balloon] asset cleanup failed',{context,name:error?.name||'Error',status:error?.status||null})}
+}
+
+async function handleSignatureAsset(req,res,operation){
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('Content-Type','application/json; charset=utf-8');
+  if(req.method!=='POST')return res.status(405).json({message:'Method not allowed'});
+  const session=await requireCapabilityLive(req,res,'data:write');if(!session)return;
+  if(!requireSafeJsonMutation(req,res))return;
+  const workspaceId=await workspaceForSession(session);if(!workspaceId)return res.status(403).json({message:'Workspace not resolved'});
+  const body=bodyOf(req);if(!body)return res.status(400).json({message:'Invalid JSON body'});
+  try{
+    if(operation==='signature-image-upload-ticket')return res.status(200).json(await createSignatureAssetUploadTicket(workspaceId,body));
+    const image=await verifySignatureAssetUpload(workspaceId,body.path,body.kind);
+    return res.status(200).json({ok:true,image});
+  }catch(error){
+    if(error instanceof SignatureBalloonValidationError)return res.status(error.status||400).json({message:error.message,code:error.code});
+    console.error('[signature-balloon] image operation failed',{operation,name:error?.name||'Error',status:error?.status||null});
+    return res.status(502).json({message:'시그풍 이미지를 처리하지 못했습니다.'});
+  }
+}
+
+async function verifySignatureBalloonAssets(workspaceId,normalized){
+  const [pcImage,mobileImage]=await Promise.all([
+    verifySignatureAssetUpload(workspaceId,normalized.pcImage.storagePath,'pc'),
+    verifySignatureAssetUpload(workspaceId,normalized.mobileImage.storagePath,'mobile')
+  ]);
+  const {previewUrl:_pcPreview,...pcReference}=pcImage;
+  const {previewUrl:_mobilePreview,...mobileReference}=mobileImage;
+  const wallpaperImage=await deriveSignatureWallpaperAsset(workspaceId,pcReference);
+  const wallpaperReference=Object.fromEntries(Object.entries(wallpaperImage).filter(([key])=>key!=='previewUrl'));
+  return {...normalized,pcImage:pcReference,mobileImage:mobileReference,wallpaperImage:wallpaperReference};
+}
+
+async function handleSignatureBalloonRegistry(req,res){
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('Content-Type','application/json; charset=utf-8');
+  const capability=req.method==='GET'?'data:read':req.method==='DELETE'?'data:delete':'data:write';
+  const session=await requireCapabilityLive(req,res,capability);if(!session)return;
+  const workspaceId=await workspaceForSession(session);if(!workspaceId)return res.status(403).json({message:'Workspace not resolved'});
+  if(req.method==='GET'){
+    try{
+      const rows=await sb('byeollog_signature_balloons',`?workspace_id=eq.${q(workspaceId)}&select=id,balloon_count,display_name,pc_image,mobile_image,wallpaper_image,version_number,created_at,updated_at&order=balloon_count.asc&limit=${SIGNATURE_BALLOON_MAX_ITEMS}`);
+      await backfillMissingSignatureWallpapers(rows,workspaceId);
+      return res.status(200).json({ok:true,items:await publicSignatureBalloons(rows,workspaceId)});
+    }catch(error){
+      console.error('[signature-balloon] registry load failed',{name:error?.name||'Error',status:error?.status||null});
+      return res.status(error?.status===404?503:502).json({message:error?.status===404?'시그풍 등록 저장소가 아직 준비되지 않았습니다.':'시그풍 목록을 불러오지 못했습니다.'});
+    }
+  }
+  if(req.method!=='POST'&&req.method!=='PATCH'&&req.method!=='DELETE')return res.status(405).json({message:'Method not allowed'});
+  if(rejectMaintenanceWrite(req,res))return;
+  if(!requireSafeJsonMutation(req,res))return;
+  const body=bodyOf(req);if(!body)return res.status(400).json({message:'Invalid JSON body'});
+  const requestedId=String(body.id||req.query?.id||'').trim().toLowerCase();
+  try{
+    if(req.method==='DELETE'){
+      if(!UUID_PATTERN.test(requestedId))throw new SignatureBalloonValidationError('시그풍 ID가 올바르지 않습니다.');
+      const removed=await sb('byeollog_signature_balloons',`?workspace_id=eq.${q(workspaceId)}&id=eq.${q(requestedId)}`,{method:'DELETE',prefer:'return=representation'});
+      if(!Array.isArray(removed)||removed.length!==1)return res.status(404).json({message:'시그풍을 찾지 못했습니다.'});
+      await removeSignatureAssetsBestEffort(signatureBalloonAssetPaths({pcImage:removed[0].pc_image,mobileImage:removed[0].mobile_image,wallpaperImage:removed[0].wallpaper_image}),'delete');
+      return res.status(200).json({ok:true,id:requestedId});
+    }
+    const normalized=await verifySignatureBalloonAssets(workspaceId,normalizeSignatureBalloonInput(body,workspaceId));
+    if(req.method==='PATCH'){
+      if(!UUID_PATTERN.test(requestedId))throw new SignatureBalloonValidationError('시그풍 ID가 올바르지 않습니다.');
+      const expected=Number(body.expectedVersion);
+      if(!Number.isSafeInteger(expected)||expected<1)throw new SignatureBalloonValidationError('시그풍 버전이 올바르지 않습니다.');
+      const previous=await sb('byeollog_signature_balloons',`?workspace_id=eq.${q(workspaceId)}&id=eq.${q(requestedId)}&version_number=eq.${expected}&select=pc_image,mobile_image,wallpaper_image&limit=1`);
+      if(!Array.isArray(previous)||previous.length!==1)return res.status(409).json({message:'다른 화면에서 시그풍이 변경되었습니다. 새로고침 후 다시 저장해주세요.'});
+      const updated=await sb('byeollog_signature_balloons',`?workspace_id=eq.${q(workspaceId)}&id=eq.${q(requestedId)}&version_number=eq.${expected}`,{method:'PATCH',prefer:'return=representation',body:{balloon_count:normalized.balloonCount,display_name:normalized.displayName,pc_image:normalized.pcImage,mobile_image:normalized.mobileImage,wallpaper_image:normalized.wallpaperImage,version_number:expected+1,updated_at:new Date().toISOString()}});
+      if(!Array.isArray(updated)||updated.length!==1)return res.status(409).json({message:'다른 화면에서 시그풍이 변경되었습니다. 새로고침 후 다시 저장해주세요.'});
+      const retained=new Set(signatureBalloonAssetPaths(normalized));
+      await removeSignatureAssetsBestEffort(signatureBalloonAssetPaths({pcImage:previous[0].pc_image,mobileImage:previous[0].mobile_image,wallpaperImage:previous[0].wallpaper_image}).filter(path=>!retained.has(path)),'replace');
+      return res.status(200).json({ok:true,item:await publicSignatureBalloon(updated[0],workspaceId)});
+    }
+    const existing=await sb('byeollog_signature_balloons',`?workspace_id=eq.${q(workspaceId)}&select=id&limit=${SIGNATURE_BALLOON_MAX_ITEMS}`);
+    if(Array.isArray(existing)&&existing.length>=SIGNATURE_BALLOON_MAX_ITEMS)return res.status(409).json({message:`시그풍은 최대 ${SIGNATURE_BALLOON_MAX_ITEMS}개까지 등록할 수 있습니다.`});
+    const inserted=await sb('byeollog_signature_balloons','?select=*',{method:'POST',prefer:'return=representation',body:{workspace_id:workspaceId,balloon_count:normalized.balloonCount,display_name:normalized.displayName,pc_image:normalized.pcImage,mobile_image:normalized.mobileImage,wallpaper_image:normalized.wallpaperImage,created_by_user_id:session.user_id||null}});
+    if(!Array.isArray(inserted)||inserted.length!==1)throw new Error('signature balloon insert failed');
+    return res.status(201).json({ok:true,item:await publicSignatureBalloon(inserted[0],workspaceId)});
+  }catch(error){
+    if(error instanceof SignatureBalloonValidationError)return res.status(error.status||400).json({message:error.message,code:error.code});
+    if(error?.code==='23505')return res.status(409).json({message:'이미 같은 별풍선 개수로 등록된 시그풍이 있습니다.'});
+    console.error('[signature-balloon] registry mutation failed',{method:req.method,name:error?.name||'Error',status:error?.status||null,code:error?.code||null});
+    return res.status(error?.status===404?503:500).json({message:error?.status===404?'시그풍 등록 저장소가 아직 준비되지 않았습니다.':'시그풍을 저장하지 못했습니다.'});
+  }
+}
+
 async function loadProductControlState(liveSession){
   const workspaceId=await workspaceForSession(liveSession);
   if(!workspaceId)throw Object.assign(new Error('workspace unavailable'),{status:403});
@@ -326,7 +483,7 @@ async function loadProductControlState(liveSession){
     rouletteDrafts:(Array.isArray(drafts)?drafts:[]).map(publicRouletteDraft),
     agentDevices:Array.isArray(devices)?devices:[],
     assets:NATIVE_ROULETTE_ASSETS.map(publicNativeRouletteAsset),
-    rouletteActivationAvailable:false,
+    rouletteActivationAvailable:true,
     actionRulesAlreadyServerBacked:true
   };
 }
@@ -341,6 +498,173 @@ async function handleProductControlState(req,res){
     console.error('[product-control] bootstrap failed',{name:error?.name||'Error',status:error?.status||null});
     return res.status(error?.status===403?403:502).json({message:'룰렛·액션 설정을 불러오지 못했습니다.'});
   }
+}
+
+function firstRow(value){return Array.isArray(value)?value[0]||null:null}
+function ageMilliseconds(value,now=Date.now()){
+  const parsed=Date.parse(value||'');
+  return Number.isFinite(parsed)?Math.max(0,now-parsed):null;
+}
+
+async function loadSoopRuntimeStatus(liveSession){
+  const workspaceId=await workspaceForSession(liveSession);
+  if(!workspaceId)throw Object.assign(new Error('workspace unavailable'),{status:403});
+  const filter=q(workspaceId);
+  const [connectionRows,controlRows,gatewayRows,serviceRows,observationRows,incidentRows]=await Promise.all([
+    sb('byeollog_soop_connections',`?workspace_id=eq.${filter}&select=status,access_token_expires_at,refreshed_at,last_error_code,updated_at&limit=1`),
+    sb('byeollog_soop_runtime_controls',`?workspace_id=eq.${filter}&select=gateway_enabled,native_roulette_enabled,live_diagnostics_enabled,updated_at&limit=1`),
+    sb('byeollog_soop_gateway_sessions',`?workspace_id=eq.${filter}&select=state,generation,reconnect_count,last_sequence,chat_number,token_expires_at,connected_at,last_event_at,heartbeat_at,last_error_code,updated_at&limit=1`),
+    sb('byeollog_native_roulette_services',`?workspace_id=eq.${filter}&select=active_draft_id,active_draft_version,state,service_revision,overlay_token_version,sound_volume_percent,tts_volume_percent,activated_at,paused_at,updated_at&limit=1`).catch(error=>error?.status===404?[]:Promise.reject(error)),
+    sb('byeollog_soop_event_observations',`?workspace_id=eq.${filter}&select=event_type,provider_occurred_at,gateway_received_at,server_received_at,normalized_at,roulette_committed_at,overlay_queued_at,tts_queued_at,action_queued_at,deduplicated,outcome,details&order=server_received_at.desc&limit=20`),
+    sb('byeollog_soop_gateway_incidents',`?workspace_id=eq.${filter}&resolved_at=is.null&select=id,kind,opened_at,last_observed_at,last_heartbeat_at,last_reported_state&order=opened_at.desc&limit=1`).catch(error=>error?.status===404?[]:Promise.reject(error)),
+  ]);
+  const connection=firstRow(connectionRows),control=firstRow(controlRows),gateway=firstRow(gatewayRows),service=firstRow(serviceRows);
+  const heartbeatAgeMs=ageMilliseconds(gateway?.heartbeat_at);
+  const gatewayFresh=heartbeatAgeMs!==null&&heartbeatAgeMs<=45_000;
+  return {
+    ok:true,
+    connection:{
+      connected:connection?.status==='connected',status:connection?.status||'not_connected',
+      tokenExpiresAt:connection?.access_token_expires_at||null,refreshedAt:connection?.refreshed_at||null,
+      lastErrorCode:connection?.last_error_code||null
+    },
+    control:{
+      gatewayEnabled:control?.gateway_enabled===true,nativeRouletteEnabled:control?.native_roulette_enabled===true,
+      liveDiagnosticsEnabled:control?.live_diagnostics_enabled!==false
+    },
+    service:service?{
+      active:service.state==='active',state:service.state,activeDraftId:service.active_draft_id,
+      activeDraftVersion:service.active_draft_version,serviceRevision:service.service_revision,
+      soundVolumePercent:service.sound_volume_percent,ttsVolumePercent:service.tts_volume_percent,
+      activatedAt:service.activated_at,pausedAt:service.paused_at,updatedAt:service.updated_at
+    }:{active:false,state:'not_configured',activeDraftId:null,activeDraftVersion:null,serviceRevision:0},
+    gateway:gateway?{
+      state:gatewayFresh?gateway.state:'stale',reportedState:gateway.state,fresh:gatewayFresh,heartbeatAgeMs,
+      generation:gateway.generation,reconnectCount:gateway.reconnect_count,lastSequence:gateway.last_sequence,
+      chatNumber:gateway.chat_number,connectedAt:gateway.connected_at,lastEventAt:gateway.last_event_at,
+      heartbeatAt:gateway.heartbeat_at,lastErrorCode:gateway.last_error_code
+    }:{state:'not_started',reportedState:null,fresh:false,heartbeatAgeMs:null},
+    incident:firstRow(incidentRows)?{
+      active:true,kind:firstRow(incidentRows).kind,openedAt:firstRow(incidentRows).opened_at,
+      lastObservedAt:firstRow(incidentRows).last_observed_at,lastHeartbeatAt:firstRow(incidentRows).last_heartbeat_at,
+      lastReportedState:firstRow(incidentRows).last_reported_state
+    }:{active:false},
+    observations:Array.isArray(observationRows)?observationRows:[]
+  };
+}
+
+async function handleNativeRouletteService(req,res){
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('Content-Type','application/json; charset=utf-8');
+  if(req.method!=='POST')return res.status(405).json({message:'Method not allowed'});
+  if(!requireSafeJsonMutation(req,res))return;
+  const session=await requireCapabilityLive(req,res,'roulette:configure');if(!session)return;
+  const workspaceId=await workspaceForSession(session);if(!workspaceId)return res.status(403).json({message:'워크스페이스를 확인할 수 없습니다.'});
+  const body=bodyOf(req);if(!body)return res.status(400).json({message:'Invalid JSON body'});
+  const action=String(body.action||'').trim();
+  try{
+    if(action==='pause'){
+      const result=await sb('rpc/pause_native_roulette_service_v2','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id}});
+      return res.status(200).json({ok:true,active:false,result,message:'룰렛 운영을 일시정지했습니다.'});
+    }
+    if(action==='rotate-overlay'){
+      const version=await sb('rpc/rotate_native_roulette_overlay_token_v2','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id}});
+      const token=createRouletteServiceOverlayToken(workspaceId,String(version).replace(/^"|"$/g,''));
+      return res.status(200).json({ok:true,overlayUrl:rouletteOverlayUrl(token),message:'기존 오버레이 주소를 폐기하고 새 주소를 발급했습니다.'});
+    }
+    if(action==='overlay-url'){
+      const rows=await sb('byeollog_native_roulette_services',`?workspace_id=eq.${q(workspaceId)}&select=state,overlay_token_version&limit=1`);
+      const service=firstRow(rows);
+      if(!service)return res.status(409).json({message:'먼저 방송에 적용할 룰렛을 선택해주세요.'});
+      const token=createRouletteServiceOverlayToken(workspaceId,service.overlay_token_version);
+      return res.status(200).json({ok:true,active:service.state==='active',overlayUrl:rouletteOverlayUrl(token)});
+    }
+    if(action==='donation-test'){
+      const amount=Number(body.amount);
+      const message=String(body.message??'').trim();
+      if(!Number.isSafeInteger(amount)||amount<1||amount>1_000_000){
+        return res.status(400).json({message:'테스트 별풍선 개수는 1~1,000,000 사이의 정수로 입력해주세요.'});
+      }
+      if(message.length>120||/[\u0000-\u001f\u007f]/.test(message)){
+        return res.status(400).json({message:'후원 멘트는 줄바꿈 없이 120자까지 입력할 수 있습니다.'});
+      }
+      const occurredAt=new Date().toISOString();
+      const eventId=`overlay-test:${crypto.randomUUID()}`;
+      const rawEvent={eventId,actor:{id:'byeollog-overlay-test',name:'후원 테스트'},
+        amount,message:message||null,imageUrl:null,occurredAt};
+      const relay=normalizeSoopSdkRelayEnvelope({
+        schemaVersion:SOOP_SDK_RELAY_SCHEMA_VERSION,provider:'soop',eventType:'donation',
+        event:rawEvent,receivedAt:occurredAt,
+        connection:{id:`dashboard-test:${workspaceId}`,sequence:Date.now(),reconnectCount:0},
+        rawPayloadSha256:crypto.createHash('sha256').update(JSON.stringify(rawEvent),'utf8').digest('hex')
+      });
+      const {resultRow}=await ingestNormalizedSoopDonation(workspaceId,relay,{testMode:true});
+      const spinCount=Math.max(0,Math.trunc(Number(resultRow.spinCount)||0));
+      const presentationCount=Math.max(0,Math.trunc(Number(resultRow.presentationCount)||0));
+      const ttsQueued=resultRow.ttsQueued===true;
+      const queued=resultRow.queued===true||presentationCount>0||ttsQueued;
+      return res.status(200).json({
+        ok:true,testMode:true,queued,spinCount,presentationCount,ttsQueued,
+        dataIsolation:resultRow.dataIsolation,
+        message:queued
+          ?'후원 테스트를 공통 OBS 오버레이에 전송했습니다.'
+          :message
+            ?'후원 멘트를 TTS 대기열에 넣지 못했습니다.'
+            :'입력한 별풍선 개수에 표시할 이미지나 읽을 후원 멘트가 없습니다.'
+      });
+    }
+    if(action!=='activate')return res.status(400).json({message:'룰렛 운영 요청이 올바르지 않습니다.'});
+    const draftId=String(body.draftId||'').trim().toLowerCase();
+    if(!UUID_PATTERN.test(draftId))return res.status(400).json({message:'방송에 적용할 룰렛을 선택해주세요.'});
+    const filter=q(workspaceId);
+    const [connections,drafts]=await Promise.all([
+      sb('byeollog_soop_connections',`?workspace_id=eq.${filter}&status=eq.connected&select=workspace_id&limit=1`),
+      sb('byeollog_roulette_drafts',`?workspace_id=eq.${filter}&id=eq.${q(draftId)}&select=id,roulette_name,version_number,draft&limit=1`)
+    ]);
+    if(!firstRow(connections))return res.status(409).json({message:'먼저 이 스트리머의 SOOP 계정을 연결해주세요.',code:'soop_connection_required'});
+    const stored=firstRow(drafts);if(!stored)return res.status(404).json({message:'선택한 룰렛을 찾지 못했습니다.'});
+    const snapshot=normalizeNativeRouletteWebDraft(stored.draft);
+    await refreshSoopConnection(workspaceId,{force:false});
+    const activated=await sb('rpc/activate_native_roulette_service_v2','',{method:'POST',body:{
+      p_workspace_id:workspaceId,p_authorized_user_id:session.user_id,p_draft_id:draftId,
+      p_snapshot:snapshot,p_sound_volume_percent:Math.max(0,Math.min(100,Math.trunc(Number(body.soundVolumePercent??80)))),
+      p_tts_volume_percent:Math.max(0,Math.min(100,Math.trunc(Number(body.ttsVolumePercent??80))))
+    }});
+    const tokenVersion=activated?.overlayTokenVersion||activated?.overlay_token_version;
+    const token=createRouletteServiceOverlayToken(workspaceId,tokenVersion);
+    return res.status(200).json({ok:true,active:true,draftId,rouletteName:stored.roulette_name,
+      serviceRevision:activated?.serviceRevision||activated?.service_revision,
+      overlayUrl:rouletteOverlayUrl(token),
+      message:'이 룰렛을 방송에 적용했습니다.'});
+  }catch(error){
+    if(error instanceof NativeRouletteValidationError)return res.status(error.status||400).json({message:error.message,code:error.code});
+    if(action==='donation-test'&&error?.code==='P0001'){
+      return res.status(429).json({message:'후원 테스트를 너무 빠르게 반복했습니다. 잠시 후 다시 시도해주세요.',code:'donation_test_rate_limited'});
+    }
+    if(action==='donation-test'&&error?.code==='55000'){
+      return res.status(409).json({message:'먼저 방송에 적용할 룰렛을 선택해주세요.',code:'active_roulette_required'});
+    }
+    console.error('[native-roulette-service] operation failed',{action,code:error?.code||'native_roulette_service_failed',status:error?.status||null});
+    return res.status(error?.status===404?409:502).json({message:error?.status===404?'SOOP 연결을 다시 확인해주세요.':'룰렛 운영 상태를 변경하지 못했습니다.',code:error?.code||'native_roulette_service_failed'});
+  }
+}
+
+async function handleSoopRuntimeStatus(req,res){
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('Content-Type','application/json; charset=utf-8');
+  if(req.method!=='GET')return res.status(405).json({message:'Method not allowed'});
+  const session=await requireCapabilityLive(req,res,'roulette:configure');if(!session)return;
+  try{return res.status(200).json(await loadSoopRuntimeStatus(session))}
+  catch(error){
+    console.error('[soop-runtime-status] failed',{name:error?.name||'Error',status:error?.status||null});
+    return res.status(error?.status===403?403:502).json({message:'SOOP 실시간 경로 상태를 불러오지 못했습니다.'});
+  }
+}
+
+function requireSafeJsonMutation(req,res){
+  if(!isTrustedMutationOrigin(req))return res.status(403).json({message:'허용되지 않은 요청 출처입니다.'}),false;
+  if(!isJsonRequest(req))return res.status(415).json({message:'JSON 요청만 사용할 수 있습니다.'}),false;
+  return true;
 }
 
 async function handleWeflabPublicImport(req,res){
@@ -371,6 +695,10 @@ async function handleRouletteDraft(req,res){
   const requestedId=String(body.id||req.query?.id||'').trim().toLowerCase();
   if(req.method==='DELETE'){
     if(!UUID_PATTERN.test(requestedId))return res.status(400).json({message:'룰렛 초안 ID가 올바르지 않습니다.'});
+    const active=await sb('byeollog_native_roulette_services',`?workspace_id=eq.${q(workspaceId)}&active_draft_id=eq.${q(requestedId)}&select=state&limit=1`).catch(error=>error?.status===404?[]:Promise.reject(error));
+    const service=firstRow(active);
+    if(service?.state==='active')return res.status(409).json({message:'방송 적용 중인 룰렛은 삭제할 수 없습니다. 다른 룰렛을 적용하거나 먼저 일시정지해주세요.'});
+    if(service)await sb('byeollog_native_roulette_services',`?workspace_id=eq.${q(workspaceId)}&active_draft_id=eq.${q(requestedId)}&state=eq.paused`,{method:'PATCH',body:{active_draft_id:null,active_draft_version:null,activation_snapshot:null,updated_at:new Date().toISOString()}});
     const removed=await sb('byeollog_roulette_drafts',`?workspace_id=eq.${q(workspaceId)}&id=eq.${q(requestedId)}`,{method:'DELETE',prefer:'return=representation'});
     if(!Array.isArray(removed)||removed.length!==1)return res.status(404).json({message:'룰렛 초안을 찾지 못했습니다.'});
     await removeDraftAssetsBestEffort(rouletteAssetPaths(removed[0]?.draft),'delete');
@@ -437,11 +765,15 @@ export default async function handler(req,res){
   if(operation==='dashboard-bootstrap')return handleDashboardBootstrap(req,res);
   if(operation==='agent-rollout-status')return handleAgentRolloutStatus(req,res);
   if(operation==='product-control-state')return handleProductControlState(req,res);
+  if(operation==='soop-runtime-status')return handleSoopRuntimeStatus(req,res);
+  if(operation==='native-roulette-service')return handleNativeRouletteService(req,res);
   if(operation==='weflab-public-import')return handleWeflabPublicImport(req,res);
   if(operation==='roulette-image-upload-ticket'||operation==='roulette-image-confirm')return handleRouletteAsset(req,res,operation);
   if(operation==='roulette-draft')return handleRouletteDraft(req,res);
+  if(operation==='signature-image-upload-ticket'||operation==='signature-image-confirm')return handleSignatureAsset(req,res,operation);
+  if(operation==='signature-balloon-registry')return handleSignatureBalloonRegistry(req,res);
   if(String(req.query?.view||'')==='agent-rollout')return handleAgentRolloutPage(req,res);
-  if(['roulette','actions'].includes(String(req.query?.view||'')))return handleProductControlPage(req,res,String(req.query.view));
+  if(['roulette','actions','signatures'].includes(String(req.query?.view||'')))return handleProductControlPage(req,res,String(req.query.view));
 
   if(operation==='context'){
     res.setHeader('Cache-Control','no-store, private');

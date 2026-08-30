@@ -71,7 +71,7 @@ function addEvent(timeline,scenarioId,atMs,kind,title,detail='',data={}){
 
 function resultFor(rng,preferred=null){
   if(preferred)return preferred;
-  return ['관측계정A 용돈','윙크','아봉 10초','사랑해','다음 보상 2배'][rng.integer(0,4)];
+  return ['테스트 용돈','윙크','아봉 10초','사랑해','다음 보상 2배'][rng.integer(0,4)];
 }
 
 function rouletteEvents({timeline,scenarioId,rng,startMs,spinIndex=0,result=null,assetKey,action='채팅창 효과'}){
@@ -145,7 +145,7 @@ function buildScenarioTimeline(scenarioId,seed){
     addEvent(timeline,scenarioId,2_450,'overlay.recovered','오버레이 재생 위치 복구','처음부터 다시 돌리지 않고 남은 810ms를 이어서 재생합니다.',{replayed:false,resumed:true,remainingMs:810,duplicateVisibleExecution:false});
   }else if(scenarioId==='tts-failure'){
     addEvent(timeline,scenarioId,120,'soop.donation','테스트 시청자 · 별풍선 30개','주 TTS 장애를 주입합니다.',{amount:30});
-    rouletteEvents({timeline,scenarioId,rng,startMs:220,assetKey:asset.key,result:'관측계정A 용돈'});
+    rouletteEvents({timeline,scenarioId,rng,startMs:220,assetKey:asset.key,result:'테스트 용돈'});
     const resultTts=timeline.find(item=>item.kind==='tts.result');
     timeline.splice(timeline.indexOf(resultTts),1);
     addEvent(timeline,scenarioId,3_300,'tts.fallback','로컬 비상 음성 전환','주 TTS 실패 후 200ms 안에 로컬 엔진을 사용했습니다.',{primaryFailed:true,fallback:'os_local'});
@@ -217,7 +217,7 @@ export function runNativeRouletteTwinCampaign({runsPerScenario=100,seed=20260828
     schemaVersion:1,mode:'local-digital-twin-campaign',seed,runsPerScenario,runs,timelineEvents,
     passed:failures.length===0,failures,perScenario,
     safety:{networkRequests:false,databaseWrites:false,productionDispatch:false},
-    assetContract:{count:NATIVE_ROULETTE_ASSETS.length,allStaged:NATIVE_ROULETTE_ASSETS.every(item=>item.deliveryStatus==='staged')}
+    assetContract:{count:NATIVE_ROULETTE_ASSETS.length,allPublished:NATIVE_ROULETTE_ASSETS.every(item=>item.deliveryStatus==='published')}
   };
 }
 

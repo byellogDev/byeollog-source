@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "language": "ko-KR",
+  "constraints": {"source":"SOOP chat","maximumCharacters":120},
+  "cases": [
+    {
+      "id": "short",
+      "category": "short_chat",
+      "displayText": "딸깍",
+      "ttsText": "딸깍"
+    },
+    {
+      "id": "normal",
+      "category": "donation_message",
+      "displayText": "오늘 방송 정말 재미있어요. 다음 룰렛에서는 꼭 좋은 결과가 나오길 응원할게요!",
+      "ttsText": "오늘 방송 정말 재미있어요. 다음 룰렛에서는 꼭 좋은 결과가 나오길 응원할게요!"
+    },
+    {
+      "id": "max_120",
+      "category": "maximum_chat",
+      "displayText": "오늘 방송 정말 재미있게 보고 있어요. 룰렛 결과가 나온 뒤 음성도 바로 들려서 흐름이 자연스럽네요. 채팅이 몰릴 때도 끊기지 않고 순서대로 재생되는지 궁금합니다. 다음 룰렛에서는 꼭 원하는 결과가 나오길 응원할게요",
+      "ttsText": "오늘 방송 정말 재미있게 보고 있어요. 룰렛 결과가 나온 뒤 음성도 바로 들려서 흐름이 자연스럽네요. 채팅이 몰릴 때도 끊기지 않고 순서대로 재생되는지 궁금합니다. 다음 룰렛에서는 꼭 원하는 결과가 나오길 응원할게요"
+    }
+  ]
+}

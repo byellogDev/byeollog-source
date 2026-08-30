@@ -41,6 +41,17 @@ test('public Weflab importer separates amount tiers and preserves exact probabil
   assert.match(result.sourceFingerprint,/^[0-9a-f]{64}$/);
 });
 
+test('public Weflab importer rejects product names over the 20 grapheme contract',()=>{
+  const tooLong='가나다라마바사아자차카타파하거너더러머버보';
+  const html=`<div id="setup_alert_list" name="item_roulette_donation" type="donation">
+    ${roulette('33',[[tooLong,'50'],['정상 상품','50']])}
+  </div>`;
+  assert.throws(
+    ()=>parseWeflabPublicRouletteHtml(html,{sourceUrl:'https://weflab.com/user/Abc_123-x'}),
+    error=>error?.code==='weflab_item_invalid'&&/20자 이내/.test(error.message)
+  );
+});
+
 test('control center keeps roulette, action and existing upbo navigation organic',async()=>{
   const roulettePage=getProductDashboardHtml('test-nonce','roulette');
   const actionPage=getProductDashboardHtml('test-nonce','actions');
@@ -59,6 +70,7 @@ test('control center keeps roulette, action and existing upbo navigation organic
   }
   assert.match(upboPage,/class="top brandBanner dashboardHeader"/);
   assert.match(upboPage,/class="productNav dashboardNav"/);
+  assert.match(upboPage,/href="\/dashboard\/overlay">▣ 오버레이/);
   assert.match(upboPage,/class="admin-page dashboard-page"/);
   assert.match(roulettePage,/열린 편집 화면에서 새 룰렛명을 입력/);
   assert.match(roulettePage,/업보로 지정/);
@@ -73,20 +85,46 @@ test('control center keeps roulette, action and existing upbo navigation organic
   assert.doesNotMatch(admin,/service_role[^\n]+browser/i);
 });
 
+test('dashboard uses ultrawide space through 21:9 while preserving compact breakpoints',async()=>{
+  const signatures=getProductDashboardHtml('test-nonce','signatures');
+  const theme=await source('../assets/byeollog-theme.css');
+  assert.match(signatures,/class="dashboard-page product-page"/);
+  assert.match(signatures,/\.shell\{width:min\(calc\(100% - 32px\),2160px\);max-width:none/);
+  assert.match(signatures,/\.signature-grid\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(signatures,/@media\(max-width:1100px\)\{\.signature-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(theme,/\.admin-page \.wrap\{width:min\(calc\(100% - 32px\),2160px\)!important;max-width:none!important/);
+  assert.match(theme,/\.dashboard-page \.dashboardNav\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)!important/);
+  assert.match(theme,/@media\(max-width:820px\)[^{]*\{[^}]*\.dashboard-page \.dashboardHeader[\s\S]*\.dashboard-page \.dashboardNav\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important/);
+});
+
+test('all dashboard tabs expose SOOP connect only while disconnected and manage it in My Page',async()=>{
+  const product=getProductDashboardHtml('test-nonce','roulette');
+  const upbo=await source('../lib/admin-source.html');
+  for(const page of [product,upbo]){
+    assert.match(page,/id="soopConnectBtn"[^>]*hidden[^>]*href="\/api\/auth\/soop\/start"/);
+    assert.match(page,/id="soopAccountState"/);
+    assert.match(page,/id="soopManageConnect"[^>]*href="\/api\/auth\/soop\/start"/);
+    assert.match(page,/id="soopDisconnectBtn"/);
+    assert.match(page,/\/api\/auth\/soop\/status/);
+    assert.match(page,/\/api\/auth\/soop\/disconnect/);
+    assert.match(page,/classList\.toggle\('hidden',connected\|\|!available\)/);
+  }
+});
+
 test('roulette import defers naming to editor and editor owns only roulette settings',()=>{
   const page=getProductDashboardHtml('test-nonce','roulette');
-  assert.match(page,/초안으로 가져오기/);
+  assert.match(page,/룰렛으로 가져오기/);
   assert.match(page,/button\.onclick=\(\)=>openEditor/);
   assert.match(page,/id="rouletteName"/);
   assert.doesNotMatch(page,/새 룰렛명 \(필수\)/);
-  for(const removed of ['agentDevice','soundVolume','ttsVolume','multipleSpins']){
+  for(const removed of ['agentDevice','soundVolume','ttsVolume','multipleSpins','followupWindow']){
     assert.doesNotMatch(page,new RegExp(`id="${removed}"`));
   }
   assert.match(page,/id="seriesEnabled"/);
   assert.match(page,/id="seriesBalloons"[^>]*disabled/);
   assert.match(page,/id="seriesSpinCount"[^>]*disabled/);
   assert.match(page,/function syncSeriesFields\(\)[^\n]*disabled=!enabled/);
-  assert.match(page,/PC 연결과 효과음·TTS 음량은 오버레이 페이지에서 공통 관리/);
+  assert.match(page,/화면 위치와 크기는 OBS의 브라우저 소스에서 직접 조절/);
 });
 
 test('web roulette draft validates optional series settings and strips overlay-owned values',()=>{
@@ -175,7 +213,13 @@ test('roulette product rows are compact without repeated visible field labels',(
   const page=getProductDashboardHtml('test-nonce','roulette');
   assert.doesNotMatch(page,/nameLabel\.textContent='상품명'/);
   assert.doesNotMatch(page,/probLabel\.textContent='확률\(%\)'/);
-  assert.match(page,/name\.setAttribute\('aria-label',\(index\+1\)\+'번 상품명'\)/);
+  assert.match(page,/name\.setAttribute\('aria-label',\(index\+1\)\+'번 상품명 · 최대 20자'\)/);
+  assert.match(page,/name\.placeholder='상품명 \(최대 20자\)'/);
+  assert.match(page,/if\(clamp\)value=limitGraphemes\(value,20\)/);
+  assert.match(page,/event\.isComposing/);
+  assert.match(page,/name\.oncompositionend/);
+  assert.match(page,/firstProductNameIssue\(\)/);
+  assert.match(page,/aria-invalid/);
   assert.match(page,/prob\.setAttribute\('aria-label',\(index\+1\)\+'번 확률\(%\)'\)/);
   assert.match(page,/\.item\{align-items:center;padding:7px 9px/);
   assert.match(page,/\.item \.field input\{height:36px/);
@@ -202,4 +246,67 @@ test('roulette choices render the actual reviewed preview instead of a generic c
   assert.match(page,/preview\.src=asset\.previewUrl/);
   assert.match(page,/실제 룰렛 미리보기/);
   assert.doesNotMatch(page,/asset-swatch/);
+});
+
+test('roulette dashboard exposes production activation and OBS controls without test systems',async()=>{
+  const page=getProductDashboardHtml('test-nonce','roulette');
+  const admin=await source('../api/admin.js');
+  for(const label of ['1 · SOOP 계정','2 · 실시간 연결','3 · 방송 상태','4 · 방송 적용본'])assert.match(page,new RegExp(label.replace('·','\\·')));
+  assert.match(page,/id="copyOverlayBtn"/);
+  assert.match(page,/id="pauseRouletteBtn"/);
+  assert.match(page,/id="rotateOverlayBtn"/);
+  assert.match(page,/id="donationTestToggleBtn"/);
+  assert.match(page,/id="donationTestPreset"/);
+  assert.match(page,/id="donationTestAmount"[^>]*min="1"[^>]*max="1000000"/);
+  assert.match(page,/id="donationTestMessage" maxlength="120"/);
+  assert.match(page,/id="runDonationTestBtn"/);
+  assert.match(page,/일반풍·등록 시그풍·룰렛 후원/);
+  assert.match(page,/통계, 업보, 액션, 풍벽지 기록에 반영되지 않습니다/);
+  assert.match(page,/ordinaryDonationTestAmount/);
+  assert.match(page,/request\('signature-balloon-registry'\)/);
+  assert.match(page,/후원 멘트를 TTS로 읽습니다/);
+  assert.match(page,/action:'donation-test',amount,message/);
+  assert.match(page,/\$\('donationTestToggleBtn'\)\.disabled=!active/);
+  assert.match(page,/공통 OBS 주소 복사/);
+  assert.match(page,/룰렛·시그풍 공통 OBS 브라우저 소스 주소/);
+  assert.doesNotMatch(page,/href="\/dashboard\/overlay"|preview-overlay-part|update-overlay-part-layout/);
+  assert.match(page,/request\('soop-runtime-status'/);
+  assert.match(page,/request\('native-roulette-service'/);
+  assert.doesNotMatch(page,/syntheticE2eBtn|liveDiagnosticBtn|실험 오버레이|가상 후원/);
+  assert.match(admin,/activate_native_roulette_service_v2/);
+  assert.match(admin,/pause_native_roulette_service_v2/);
+  assert.match(admin,/rotate_native_roulette_overlay_token_v2/);
+  assert.match(admin,/action==='donation-test'/);
+  assert.match(admin,/normalizeSoopSdkRelayEnvelope/);
+  assert.match(admin,/ingestNormalizedSoopDonation\(workspaceId,relay,\{testMode:true\}\)/);
+  assert.match(admin,/id:'byeollog-overlay-test',name:'후원 테스트'/);
+  assert.doesNotMatch(admin,/update_overlay_part_layout_v1|request_overlay_part_preview_v1/);
+  assert.match(admin,/operation==='soop-runtime-status'/);
+  assert.match(admin,/operation==='native-roulette-service'/);
+  assert.doesNotMatch(admin,/operation==='soop-live-diagnostic'|operation==='soop-synthetic-e2e'|handleSoopRouletteExperiment/);
+  const scripts=[...page.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(match=>match[1]);
+  assert.ok(scripts.length>0);
+  for(const script of scripts)assert.doesNotThrow(()=>new Function(script));
+});
+
+test('signature registration and common OBS source replace web overlay placement',async()=>{
+  const signatures=getProductDashboardHtml('test-nonce','signatures');
+  const roulette=getProductDashboardHtml('test-nonce','roulette');
+  const routes=await source('../vercel.json');
+  assert.match(signatures,/<title>별록 시그풍<\/title>/);
+  assert.match(signatures,/href="\/dashboard\/signatures">✹ 시그풍<\/a>/);
+  assert.match(signatures,/id="signatureBalloonCount"/);
+  assert.match(signatures,/id="signaturePcUpload"/);
+  assert.match(signatures,/id="signatureMobileUpload"/);
+  assert.match(signatures,/id="signatureWallpaperPreview"/);
+  assert.match(signatures,/풍벽지용 이미지[\s\S]*자동 생성/);
+  assert.doesNotMatch(signatures,/id="signatureWallpaperUpload"/);
+  assert.match(signatures,/등록한 시그풍이 가장 먼저 사용되고[\s\S]*SOOP이 이벤트로 전달한 이미지[\s\S]*SOOP 공식 기본 이미지[\s\S]*임의 이미지를 생성하지 않습니다/);
+  assert.doesNotMatch(signatures,/별록 기본 이미지가 표시/);
+  assert.match(roulette,/460×450/);
+  assert.match(roulette,/후원 종류 강조 영역과 최대 120자 후원 멘트를 수용하는 고정 경계/);
+  assert.doesNotMatch(signatures+roulette,/href="\/dashboard\/overlay"|id="overlayLayoutCanvas"|update-overlay-part-layout|preview-overlay-part/);
+  assert.match(routes,/"source": "\/dashboard\/overlay"[\s\S]{0,100}"destination": "\/api\/admin\?view=roulette"/);
+  const scripts=[...signatures.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(match=>match[1]);
+  for(const script of scripts)assert.doesNotThrow(()=>new Function(script));
 });

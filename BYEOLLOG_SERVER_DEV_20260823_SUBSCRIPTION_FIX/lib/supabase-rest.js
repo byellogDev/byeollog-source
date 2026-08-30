@@ -23,7 +23,7 @@ export async function sb(table,path='',opt={}){
   try{data=text?JSON.parse(text):null}catch{data=text}
   if(!res.ok){
     const err=new Error((data&&data.message)||String(data)||`Supabase HTTP ${res.status}`);
-    err.status=res.status; err.detail=data; throw err;
+    err.status=res.status; err.code=data&&typeof data==='object'?data.code:null; err.detail=data; throw err;
   }
   return data;
 }

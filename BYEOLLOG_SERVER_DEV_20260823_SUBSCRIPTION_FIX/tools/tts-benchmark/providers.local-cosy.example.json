@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "cosyvoice3_local",
+      "label": "현행 로컬 CosyVoice 3 완성 WAV",
+      "kind": "byeollog-cosy-wav-v1",
+      "endpoint": "http://127.0.0.1:8080/v1/raffle-winner",
+      "secretEnv": "BYEOLLOG_TTS_SHARED_SECRET",
+      "maxBytes": 2097152,
+      "metadata": {
+        "streaming": false,
+        "purpose": "current-quality-and-latency-baseline"
+      }
+    }
+  ]
+}

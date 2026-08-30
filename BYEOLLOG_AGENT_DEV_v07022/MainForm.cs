@@ -118,6 +118,7 @@ public sealed class MainForm : Form
     private readonly AdaptiveWindowController _adaptiveWindow;
 
     private bool _collecting;
+    private int _automaticCollectionStartAttempted;
     private bool _webReady;
     private bool _uiReady;
     private bool _preserveCollectionDuringCollectorWebInitialization;
@@ -125,6 +126,7 @@ public sealed class MainForm : Form
     private bool _weflabLoginNoticeShown;
     private bool _weflabReconnectPending;
     private bool _weflabRecoveryInProgress;
+    private bool _weflabRecoveryUserTakeover;
     private readonly WeflabRecoveryDecisionGate _weflabRecoveryGate = new();
     private TaskCompletionSource<bool>? _weflabRecoverySignal;
     private readonly CancellationTokenSource _weflabRecoveryLifetime = new();
@@ -202,7 +204,7 @@ public sealed class MainForm : Form
             _ttsHealthTimer.Start();
             _ = RefreshTtsRelayHealthAsync();
             await InitWebAsync();
-            await RestoreWeflabSessionAsync();
+            await StartCollectionAfterLoginAsync();
             _retryUploadTimer.Start();
             _vNextDevRetryTimer.Start();
             await FlushPendingDiagnosticsAsync();
@@ -2715,9 +2717,9 @@ public sealed class MainForm : Form
 
         if (!_preserveCollectionDuringCollectorWebInitialization)
         {
-            // 앱 재실행 시에는 절대 자동수집을 재개하지 않습니다. 다만 실행 중인
-            // 세션의 WebView만 복구할 때는 이 초기화 경로를 함께 사용하므로,
-            // 그 경우에는 사용자가 시작한 수집 상태를 그대로 보존합니다.
+            // 로그인 완료 전 WebView 사전 준비 단계에서는 수집 상태를 켜지 않습니다.
+            // 로그인 성공 직후 StartCollectionAfterLoginAsync가 새 세션을 정확히 한 번
+            // 만들며, 실행 중 WebView 복구 때는 기존 수집 상태를 그대로 보존합니다.
             _collecting = false;
             _collectorStatus.Text = "● OFF";
             _collectorStatus.ForeColor = (_darkMode ? Color.FromArgb(248, 250, 252) : Color.FromArgb(15, 23, 42));
@@ -2809,6 +2811,39 @@ public sealed class MainForm : Form
     private Task RestoreWeflabSessionAsync() =>
         BeginStoredWeflabAuthenticationAsync("앱 시작");
 
+    private async Task StartCollectionAfterLoginAsync()
+    {
+        // 메인 창의 Shown은 별록 로그인이 성공한 뒤에만 실행됩니다. 한 프로세스에서
+        // 중복 UI 신호가 오더라도 수집 세션은 정확히 한 번만 자동 시작합니다.
+        if (Interlocked.Exchange(ref _automaticCollectionStartAttempted, 1) != 0) return;
+
+        if (_storage.Session?.Active == true)
+        {
+            _collecting = true;
+            await RestoreWeflabSessionAsync();
+            return;
+        }
+
+        try
+        {
+            // 로그인에 시간이 걸린 동안 들어온 후원도 다음 수집에서 제외되지 않도록
+            // DateTimePicker의 분 단위 값 대신 프로그램 실행 순간을 그대로 사용합니다.
+            SetStartPickers(_programStartedAtLocal);
+            await StartBroadcastSessionAsync(
+                startLocalOverride: _programStartedAtLocal,
+                restoreStoredWeflabSessionSilently: true);
+            _storage.Log("별록 로그인 완료 · 위플랩 수집 자동 시작");
+            _ = ShowUiToastAsync("로그인과 함께 후원 수집을 자동으로 시작했습니다.");
+        }
+        catch (Exception ex)
+        {
+            // 세션 저장과 WebView 연결은 서로 독립적입니다. 자동 시작 경계에서 예외가
+            // 나더라도 로그인된 메인 화면은 유지하고 기존 수동 복구 경로를 남깁니다.
+            _storage.Log("로그인 직후 수집 자동 시작 실패: " + ex);
+            await RestoreWeflabSessionAsync();
+        }
+    }
+
     private Task BeginStoredWeflabAuthenticationAsync(string reason)
     {
         if (!_webReady || _web.CoreWebView2 is null) return Task.CompletedTask;
@@ -2830,10 +2865,12 @@ public sealed class MainForm : Form
         return Task.CompletedTask;
     }
 
-    private async Task StartBroadcastSessionAsync()
+    private async Task StartBroadcastSessionAsync(
+        DateTime? startLocalOverride = null,
+        bool restoreStoredWeflabSessionSilently = false)
     {
         if (_storage.Session?.Active == true) return;
-        var startLocal = GetSelectedStartLocal();
+        var startLocal = startLocalOverride ?? GetSelectedStartLocal();
         if (startLocal > DateTime.Now.AddMinutes(1)) { MessageBox.Show("수집 시작 시각이 현재보다 미래입니다."); return; }
         var s = _storage.StartSession(startLocal);
         _collecting = true;
@@ -2844,7 +2881,12 @@ public sealed class MainForm : Form
         ScheduleRealtimeUpload(); // 세션 시작 시 미전송 데이터가 있으면 즉시 자동 전송 예약
         UpdateTrayStatus();
         if (!_webReady) return;
-        if (_web.Source is null) await OpenWeflabAsync(true); else await InjectCollectorAsync();
+        if (restoreStoredWeflabSessionSilently)
+            await BeginStoredWeflabAuthenticationAsync("별록 로그인 직후 자동 수집");
+        else if (_web.Source is null)
+            await OpenWeflabAsync(true);
+        else
+            await InjectCollectorAsync();
         _storage.Log($"방송 수집 시작: {s.StartLocal:yyyy-MM-dd HH:mm:ss} · 룰렛 규칙 {_storage.LoadSessionRules(s.Id).Count}개 · 고정 규칙 {_storage.LoadSessionFixedRules(s.Id).Count}개");
     }
 
@@ -2890,7 +2932,19 @@ public sealed class MainForm : Form
     private async Task OpenWeflabAsync(bool showBrowser)
     {
         if (!_webReady) return;
-        if (showBrowser) ShowBrowser();
+        if (showBrowser)
+        {
+            // 사용자가 복구 카드를 눌렀다면 자동 시도가 로그인 WebView를 다시
+            // 만들지 않게 즉시 양보합니다. 현재 대기는 false 결과로 깨우고,
+            // 이후 성공 신호가 올 때까지 같은 로그인 안내를 중복 표시하지 않습니다.
+            if (!_weflabConnected)
+            {
+                _weflabRecoveryUserTakeover = true;
+                _weflabLoginNoticeShown = true;
+                _weflabRecoverySignal?.TrySetResult(false);
+            }
+            ShowBrowser();
+        }
         _web.Source = new Uri("https://weflab.com/");
         SetWeflabConnection(false);
         _storage.Log("Weflab 페이지 열기");
@@ -3127,6 +3181,7 @@ public sealed class MainForm : Form
         var recovered = _weflabReconnectPending;
         _weflabReconnectPending = false;
         _weflabLoginNoticeShown = false;
+        _weflabRecoveryUserTakeover = false;
         if (recovered)
         {
             _storage.Log("Weflab 재로그인 완료 · 실제 후원 API 검증 및 수집 자동 재연결");
@@ -3148,11 +3203,19 @@ public sealed class MainForm : Form
         if (!_weflabReconnectPending) return;
         if (_weflabLoginNoticeShown) return;
 
+        // 복구 시도가 이미 새 페이지를 확인하고 있는데 명시적인 nologin/API 실패가
+        // 도착했다면 고정 타임아웃을 끝까지 기다릴 이유가 없습니다. 현재 시도를 즉시
+        // 실패로 완료해 다음 단계 또는 사용자 로그인 화면으로 진행합니다.
+        if (_weflabRecoveryInProgress)
+        {
+            _weflabRecoverySignal?.TrySetResult(false);
+            return;
+        }
+
         // 페이지 이동·일시 네트워크 오류를 실제 만료로 오인하지 않도록 실제 후원
         // API 실패가 연속된 두 신호인지 확인합니다. 로그인 후보 신호는 실패 횟수를
-        // 초기화하지 않습니다. 복구 중 들어오는 추가
-        // 신호는 같은 복구 작업에 합치므로 WebView를 여러 번 만들지 않습니다.
-        if (_weflabRecoveryInProgress || !_weflabRecoveryGate.Observe(WeflabHealthSignal.ApiFailure)) return;
+        // 초기화하지 않습니다.
+        if (!_weflabRecoveryGate.Observe(WeflabHealthSignal.ApiFailure)) return;
 
         var recovered = await TryRecoverWeflabSessionWithoutUserAsync(detail);
         if (recovered || _weflabConnected || IsDisposed || Disposing || !_collecting || _storage.Session?.Active != true)
@@ -3177,6 +3240,7 @@ public sealed class MainForm : Form
             return false;
 
         _weflabRecoveryInProgress = true;
+        _weflabRecoveryUserTakeover = false;
         _storage.Log(
             "Weflab 로그인 세션 만료 감지 · 사용자 개입 없는 자동 복구 시작" +
             (string.IsNullOrWhiteSpace(detail) ? "" : " · " + detail));
@@ -3192,7 +3256,7 @@ public sealed class MainForm : Form
                     restartCollectorWebView: false))
                 return true;
 
-            if (!_collecting || _storage.Session?.Active != true)
+            if (_weflabRecoveryUserTakeover || !_collecting || _storage.Session?.Active != true)
                 return false;
 
             // 2차는 별록 전체가 아니라 수집 전용 WebView2만 새로 만듭니다.

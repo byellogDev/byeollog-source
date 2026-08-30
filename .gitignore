@@ -90,3 +90,4 @@ tmp/
 /.deploy_*/
 /.obsolete_*/
 /output/
+**/output/

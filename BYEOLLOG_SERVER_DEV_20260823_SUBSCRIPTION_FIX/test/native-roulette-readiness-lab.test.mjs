@@ -67,11 +67,11 @@ test('exact window boundary is accepted while one millisecond late chat is rejec
   const base=Date.parse('2026-08-28T00:00:00.000Z');
   const accepted=new SyntheticSoopCorrelationLab();
   accepted.ingest(donation(),base);
-  accepted.ingest(chat({occurredAt:'2026-08-28T00:00:10.000Z'}),base+10_000);
+  accepted.ingest(chat({occurredAt:'2026-08-28T00:00:15.000Z'}),base+15_000);
   assert.equal(accepted.finish(base+30_000).stats.followupsCaptured,1);
   const rejected=new SyntheticSoopCorrelationLab();
   rejected.ingest(donation(),base);
-  rejected.ingest(chat({occurredAt:'2026-08-28T00:00:10.001Z'}),base+10_001);
+  rejected.ingest(chat({occurredAt:'2026-08-28T00:00:15.001Z'}),base+15_001);
   const result=rejected.finish(base+30_000);
   assert.equal(result.stats.followupsCaptured,0);
   assert.ok(result.stats.outsideWindow>=1);

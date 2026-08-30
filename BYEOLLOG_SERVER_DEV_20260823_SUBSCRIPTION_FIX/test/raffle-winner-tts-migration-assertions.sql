@@ -19,7 +19,7 @@ begin
   ) values
   (
     v_draw,v_workspace,'local_agent',v_device,'raffle.overlay',
-    '{"kind":"draw_result","winners":[{"actorName":"로기랑지유니"},{"actorName":"gahdh"}]}',
+    '{"kind":"draw_result","winners":[{"actorName":"테스트 당첨자 A"},{"actorName":"테스트 당첨자 B"}]}',
     'running',2,'agent:worker-1',clock_timestamp()+interval '5 minutes'
   ),
   (
@@ -31,7 +31,7 @@ begin
   select action_params->'winners'->0->>'voiceKey'
   into strict v_bound_key
   from byeollog_automation.executions where id=v_draw;
-  if v_bound_key<>byeollog_automation.raffle_winner_voice_key_v1('로기랑지유니') then
+  if v_bound_key<>byeollog_automation.raffle_winner_voice_key_v1('테스트 당첨자 A') then
     raise exception 'draw execution was not bound to its exact winner voice key';
   end if;
 
@@ -42,10 +42,10 @@ begin
     '50000000-0000-4000-8000-000000000001',
     'agent_runtime','runtime-v1','db-v1'
   );
-  if v_actor<>'로기랑지유니'
+  if v_actor<>'테스트 당첨자 A'
      or v_voice_key<>encode(
        extensions.digest(
-         pg_catalog.convert_to('raffle-winner-voice-v1|로기랑지유니','UTF8'),
+         pg_catalog.convert_to('raffle-winner-voice-v1|테스트 당첨자 A','UTF8'),
          'sha256'
        ),
        'hex'

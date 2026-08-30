@@ -49,11 +49,26 @@ function Write-StartupStatus {
     Move-Item -LiteralPath $tempPath -Destination $statusPath -Force
 }
 
+function Get-DockerCommandPath {
+    $command = Get-Command docker.exe -ErrorAction SilentlyContinue
+    if ($null -ne $command -and (Test-Path -LiteralPath $command.Source -PathType Leaf)) {
+        return $command.Source
+    }
+    $candidates = @(
+        (Join-Path $env:ProgramFiles "Docker\Docker\resources\bin\docker.exe"),
+        (Join-Path ${env:ProgramFiles(x86)} "Docker\Docker\resources\bin\docker.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\DockerDesktop\resources\bin\docker.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\Docker\Docker\resources\bin\docker.exe")
+    ) | Where-Object { $_ -and (Test-Path -LiteralPath $_ -PathType Leaf) }
+    return $candidates | Select-Object -First 1
+}
+
 function Test-DockerReady {
     try {
-        $dockerCommand = Get-Command docker.exe -ErrorAction Stop
+        $dockerCommandPath = Get-DockerCommandPath
+        if ([string]::IsNullOrWhiteSpace($dockerCommandPath)) { return $false }
         $startInfo = New-Object Diagnostics.ProcessStartInfo
-        $startInfo.FileName = $dockerCommand.Source
+        $startInfo.FileName = $dockerCommandPath
         $startInfo.Arguments = 'info --format "{{.ServerVersion}}"'
         $startInfo.UseShellExecute = $false
         $startInfo.CreateNoWindow = $true
@@ -76,11 +91,19 @@ function Test-DockerReady {
 }
 
 function Start-DockerDesktopIfNeeded {
+    $dockerCommandPath = Get-DockerCommandPath
+    if (-not [string]::IsNullOrWhiteSpace($dockerCommandPath)) {
+        $dockerDirectory = Split-Path -Parent $dockerCommandPath
+        if (($env:PATH -split ';') -notcontains $dockerDirectory) {
+            $env:PATH = "$dockerDirectory;$env:PATH"
+        }
+    }
     if (Test-DockerReady) { return }
 
     $candidates = @(
         (Join-Path $env:ProgramFiles "Docker\Docker\Docker Desktop.exe"),
         (Join-Path ${env:ProgramFiles(x86)} "Docker\Docker\Docker Desktop.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\DockerDesktop\Docker Desktop.exe"),
         (Join-Path $env:LOCALAPPDATA "Programs\Docker\Docker\Docker Desktop.exe")
     ) | Where-Object { $_ -and (Test-Path -LiteralPath $_ -PathType Leaf) }
 
@@ -134,6 +157,11 @@ try {
     Write-StartupStatus -Healthy $false -Stage "starting" -Message "Local TTS startup is in progress."
     Start-DockerDesktopIfNeeded
 
+    $dockerCommandPath = Get-DockerCommandPath
+    if ([string]::IsNullOrWhiteSpace($dockerCommandPath)) {
+        throw "Docker command was not found"
+    }
+
     $dockerDeadline = [DateTimeOffset]::UtcNow.AddSeconds($DockerWaitSeconds)
     while (-not (Test-DockerReady)) {
         if ([DateTimeOffset]::UtcNow -ge $dockerDeadline) {
@@ -143,16 +171,16 @@ try {
     }
     Write-StartupLog "Docker engine is ready."
 
-    $containerId = (& docker container ls -a --filter "name=^/$ContainerName$" --format '{{.ID}}' 2>$null | Select-Object -First 1)
+    $containerId = (& $dockerCommandPath container ls -a --filter "name=^/$ContainerName$" --format '{{.ID}}' 2>$null | Select-Object -First 1)
     if ([string]::IsNullOrWhiteSpace($containerId)) {
         throw "TTS container '$ContainerName' is not installed"
     }
 
-    $running = (& docker inspect --format '{{.State.Running}}' $ContainerName 2>$null | Select-Object -First 1)
+    $running = (& $dockerCommandPath inspect --format '{{.State.Running}}' $ContainerName 2>$null | Select-Object -First 1)
     if ($running -notin @("true", "false")) { throw "TTS container state could not be read" }
     if ($running -ne "true") {
         Write-StartupLog "Starting TTS container."
-        & docker start $ContainerName | Out-Null
+        & $dockerCommandPath start $ContainerName | Out-Null
         if ($LASTEXITCODE -ne 0) { throw "TTS container failed to start" }
     }
 

@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import {readFile} from 'node:fs/promises';
 import {createSessionToken,setSessionCookie} from '../lib/auth.js';
 import {sb} from '../lib/supabase-rest.js';
 import {handleSignup,handleSignupStatus} from '../lib/signup.js';
@@ -6,9 +7,14 @@ import handlePassword from '../lib/password.js';
 import {isRateLimited, clientIp} from '../lib/rate-limit.js';
 import {rejectMaintenanceWrite} from '../lib/maintenance.js';
 import {isJsonRequest,isTrustedMutationOrigin} from '../lib/request-origin.js';
-import {handleSoopOAuthCallback,handleSoopOAuthStart,handleSoopOAuthStatus} from '../lib/soop-oauth.js';
+import {handleSoopOAuthCallback,handleSoopOAuthDiagnose,handleSoopOAuthDisconnect,handleSoopOAuthStart,handleSoopOAuthStatus} from '../lib/soop-oauth.js';
+import {handleSoopGatewayIngress} from '../lib/soop-gateway-api.js';
+import {claimOverlayTtsSynthesis,claimRouletteOverlayCommand,finishOverlayTtsSynthesis,finishRouletteOverlayCommand,getRouletteServiceOverlayHtml,peekRouletteOverlayFollowup,touchRouletteOverlayClient,verifyOverlayTtsAuthorization,verifyRouletteServiceOverlayToken} from '../lib/soop-roulette-service.js';
+import {MANAGED_TTS_AUDIO_FRAME,MANAGED_TTS_END_FRAME,MANAGED_TTS_ERROR_FRAME,MANAGED_TTS_SAMPLE_RATE,managedOverlayTtsRuntime,managedTtsFrame} from '../lib/managed-overlay-tts.js';
+import {rouletteAssetOrigin} from '../lib/roulette-custom-assets.js';
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function bodyOf(req){if(typeof req.body==='string'){try{return JSON.parse(req.body)}catch{return {}}}return req.body||{}}
 
 async function betaLogin(id,password,requestedWorkspace){
@@ -63,6 +69,127 @@ async function handleInquirySubmit(req,res){
   }
 }
 
+function bearer(req){
+  const match=String(req.headers?.authorization||'').match(/^Bearer\s+([^\s]+)$/i);
+  return match?.[1]||'';
+}
+
+async function handleSoopRouletteOverlayPage(req,res){
+  if(req.method!=='GET')return res.status(405).json({message:'Method not allowed'});
+  const nonce=crypto.randomBytes(18).toString('base64url');
+  let assetOrigin='';
+  try{assetOrigin=rouletteAssetOrigin()}catch{}
+  const assetSource=assetOrigin?` ${assetOrigin}`:'';
+  res.setHeader('Content-Type','text/html; charset=utf-8');
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('Content-Security-Policy',`default-src 'none'; script-src 'nonce-${nonce}'; script-src-attr 'none'; style-src 'nonce-${nonce}'; style-src-attr 'none'; img-src 'self' data:${assetSource} https://sooplive.com https://*.sooplive.com https://afreecatv.com https://*.afreecatv.com https://afreecatvcdn.com https://*.afreecatvcdn.com; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`);
+  res.setHeader('X-Robots-Tag','noindex, noarchive');
+  return res.status(200).send(getRouletteServiceOverlayHtml(nonce));
+}
+
+async function handleSoopRouletteOverlayPoll(req,res){
+  if(!['GET','POST'].includes(req.method))return res.status(405).json({message:'Method not allowed'});
+  const payload=verifyRouletteServiceOverlayToken(bearer(req));
+  if(!payload)return res.status(401).json({message:'오버레이 주소가 올바르지 않습니다.'});
+  const clientId=String(req.headers?.['x-byeollog-overlay-client']||'').trim();
+  if(!/^[A-Za-z0-9._:-]{8,180}$/.test(clientId))return res.status(400).json({message:'오버레이 실행 식별값이 올바르지 않습니다.'});
+  try{
+    if(req.method==='POST'){
+      if(!isJsonRequest(req))return res.status(415).json({message:'JSON 요청만 사용할 수 있습니다.'});
+      const body=bodyOf(req);
+      if(body.action==='heartbeat'||body.heartbeat===true){
+        const heartbeat=await touchRouletteOverlayClient(payload,clientId);
+        if(heartbeat.invalid||!heartbeat.touched)return res.status(409).json({message:'오버레이가 일시정지되었거나 주소가 변경되었습니다.'});
+        return res.status(200).json({ok:true});
+      }
+      if(body.action==='peek'){
+        const eventId=String(body.eventId||'').trim().toLowerCase();
+        if(!UUID.test(eventId))return res.status(400).json({message:'후원 이벤트 식별값이 올바르지 않습니다.'});
+        const peeked=await peekRouletteOverlayFollowup(payload,clientId,eventId);
+        if(peeked.invalid)return res.status(409).json({message:'룰렛이 일시정지되었거나 오버레이 주소가 변경되었습니다.'});
+        return res.status(200).json({ok:true,peek:peeked.peek});
+      }
+      const commandId=String(body.commandId||'').trim().toLowerCase();
+      if((body.action&&body.action!=='ack')||!UUID.test(commandId)||typeof body.succeeded!=='boolean')return res.status(400).json({message:'오버레이 완료 정보가 올바르지 않습니다.'});
+      const completed=await finishRouletteOverlayCommand(payload,clientId,commandId,body.succeeded,body.error);
+      if(completed.invalid)return res.status(409).json({message:'룰렛이 일시정지되었거나 오버레이 주소가 변경되었습니다.'});
+      return res.status(200).json({ok:true,result:completed.result});
+    }
+    const preferredHeader=String(req.headers?.['x-byeollog-overlay-preferred-event']||'').trim().toLowerCase();
+    if(preferredHeader&&!UUID.test(preferredHeader))return res.status(400).json({message:'선호 후원 이벤트 식별값이 올바르지 않습니다.'});
+    const claimed=await claimRouletteOverlayCommand(payload,clientId,{preferredEventId:preferredHeader||null});
+    if(claimed.invalid)return res.status(409).json({message:'룰렛이 일시정지되었거나 오버레이 주소가 변경되었습니다.'});
+    return res.status(200).json({ok:true,clientVersion:claimed.clientVersion,command:claimed.command});
+  }catch(error){
+    console.error('[soop-roulette-overlay] poll failed',{code:error?.code||'overlay_poll_failed'});
+    if(error?.code==='55P03')return res.status(423).json({message:'다른 OBS 브라우저 소스가 이 룰렛을 사용 중입니다.'});
+    if(error?.code==='55000')return res.status(409).json({message:'룰렛이 일시정지되었거나 오버레이 주소가 변경되었습니다.'});
+    return res.status(503).json({message:'오버레이 이벤트를 잠시 불러오지 못했습니다.'});
+  }
+}
+
+async function handleSoopRouletteOverlayTts(req,res){
+  if(req.method!=='POST')return res.status(405).json({message:'Method not allowed'});
+  if(!isJsonRequest(req))return res.status(415).json({message:'JSON 요청만 사용할 수 있습니다.'});
+  const overlayPayload=verifyRouletteServiceOverlayToken(bearer(req));
+  if(!overlayPayload)return res.status(401).json({message:'오버레이 주소가 올바르지 않습니다.'});
+  const clientId=String(req.headers?.['x-byeollog-overlay-client']||'').trim();
+  if(!/^[A-Za-z0-9._:-]{8,180}$/.test(clientId))return res.status(400).json({message:'오버레이 실행 식별값이 올바르지 않습니다.'});
+  const body=bodyOf(req),text=String(body.text||'').trim(),authorization=String(body.authorization||'');
+  const ttsPayload=verifyOverlayTtsAuthorization(authorization,text);
+  if(!ttsPayload||ttsPayload.wid!==overlayPayload.wid||ttsPayload.cid!==clientId||ttsPayload.oid!==String(body.commandId||'').trim().toLowerCase())return res.status(403).json({message:'TTS 실행 권한이 올바르지 않습니다.'});
+  let runtime;
+  try{runtime=managedOverlayTtsRuntime()}catch(error){return res.status(503).json({message:'고품질 TTS를 준비하지 못했습니다.',code:String(error?.code||'managed_tts_unavailable')})}
+  if(await isRateLimited(`overlay-tts:workspace:${ttsPayload.wid}`,{limit:240,windowMs:60_000}))return res.status(429).json({message:'TTS 요청이 잠시 많습니다.'});
+  let claim;
+  try{claim=await claimOverlayTtsSynthesis(ttsPayload)}catch(error){
+    console.error('[managed-overlay-tts] claim failed',{code:error?.code||'tts_claim_failed'});
+    return res.status(error?.code==='55000'?409:503).json({message:'TTS 실행 순서를 확인하지 못했습니다.'});
+  }
+  if(!claim?.allowed||!claim?.request_id)return res.status(409).json({message:'이미 처리했거나 처리 중인 TTS입니다.'});
+
+  const controller=new AbortController();let responseClosed=false,firstAudioAt=null,audioBytes=0,provider='google';
+  res.on?.('close',()=>{responseClosed=true;if(!res.writableEnded)controller.abort(new Error('overlay response closed'))});
+  res.statusCode=200;
+  res.setHeader('Content-Type',`application/x-byeollog-pcm; rate=${MANAGED_TTS_SAMPLE_RATE}; channels=1`);
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('X-Content-Type-Options','nosniff');
+  res.setHeader('X-Accel-Buffering','no');
+  res.setHeader('Content-Encoding','identity');
+  res.flushHeaders?.();
+  const startedAt=performance.now();
+  try{
+    const result=await runtime.synthesize({text,signal:controller.signal,onAudioChunk:(chunk,selectedProvider)=>{
+      if(responseClosed)return;
+      provider=selectedProvider||provider;if(firstAudioAt===null)firstAudioAt=performance.now();audioBytes+=chunk.length;
+      res.write(managedTtsFrame(MANAGED_TTS_AUDIO_FRAME,chunk));
+    }});
+    provider=result.provider||provider;
+    const metrics={succeeded:true,provider,firstAudioMs:Math.max(0,Math.round((firstAudioAt||performance.now())-startedAt)),totalMs:Math.max(0,Math.round(performance.now()-startedAt)),audioBytes};
+    await finishOverlayTtsSynthesis(ttsPayload,claim.request_id,metrics).catch(error=>console.error('[managed-overlay-tts] completion record failed',{code:error?.code||'tts_completion_failed'}));
+    if(!responseClosed){res.write(managedTtsFrame(MANAGED_TTS_END_FRAME));res.end()}
+  }catch(error){
+    provider=error?.provider==='cartesia'?'cartesia':'google';
+    const errorCode=String(error?.code||'managed_tts_failed').replace(/[^a-z0-9_:-]/gi,'_').slice(0,80)||'managed_tts_failed';
+    await finishOverlayTtsSynthesis(ttsPayload,claim.request_id,{succeeded:false,provider,errorCode}).catch(recordError=>console.error('[managed-overlay-tts] failure record failed',{code:recordError?.code||'tts_failure_record_failed'}));
+    console.error('[managed-overlay-tts] synthesis failed',{provider,code:errorCode,partial:audioBytes>0});
+    if(!responseClosed){res.write(managedTtsFrame(MANAGED_TTS_ERROR_FRAME,Buffer.from(JSON.stringify({code:errorCode,partial:audioBytes>0}),'utf8')));res.end()}
+  }
+}
+
+async function handleSoopRouletteOverlaySound(req,res){
+  if(req.method!=='GET')return res.status(405).json({message:'Method not allowed'});
+  try{
+    const audio=await readFile(new URL('../assets/audio/roulette-spin-v1.wav',import.meta.url));
+    res.setHeader('Content-Type','audio/wav');
+    res.setHeader('Content-Length',String(audio.byteLength));
+    res.setHeader('Cache-Control','public, max-age=31536000, immutable');
+    return res.status(200).send(audio);
+  }catch{
+    return res.status(404).json({message:'Not found'});
+  }
+}
+
 export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
   if(rejectMaintenanceWrite(req,res))return;
@@ -70,6 +197,13 @@ export default async function handler(req,res){
   if(operation==='soop-start')return handleSoopOAuthStart(req,res);
   if(operation==='soop-callback')return handleSoopOAuthCallback(req,res);
   if(operation==='soop-status')return handleSoopOAuthStatus(req,res);
+  if(operation==='soop-diagnose')return handleSoopOAuthDiagnose(req,res);
+  if(operation==='soop-disconnect')return handleSoopOAuthDisconnect(req,res);
+  if(operation==='soop-gateway')return handleSoopGatewayIngress(req,res);
+  if(operation==='soop-roulette-overlay-page')return handleSoopRouletteOverlayPage(req,res);
+  if(operation==='soop-roulette-overlay-poll')return handleSoopRouletteOverlayPoll(req,res);
+  if(operation==='soop-roulette-overlay-sound')return handleSoopRouletteOverlaySound(req,res);
+  if(operation==='soop-roulette-overlay-tts')return handleSoopRouletteOverlayTts(req,res);
   if(operation==='signup')return handleSignup(req,res);
   if(operation==='signup-status')return handleSignupStatus(req,res);
   if(operation==='inquiry')return handleInquirySubmit(req,res);

@@ -36,6 +36,9 @@ test("startup survives a stopped Docker engine and periodically repairs the full
   assert.match(startLocal, /Diagnostics\.ProcessStartInfo/);
   assert.match(startLocal, /RedirectStandardError\s*=\s*\$true/);
   assert.match(startLocal, /catch\s*\{\s*return \$false\s*\}/);
+  assert.match(startLocal, /Programs\\DockerDesktop\\Docker Desktop\.exe/);
+  assert.match(startLocal, /Programs\\DockerDesktop\\resources\\bin\\docker\.exe/);
+  assert.match(startLocal, /Get-DockerCommandPath/);
   assert.match(startLocal, /Get-HealthyRelaySnapshot/);
   assert.match(startLocal, /Stable TTS relay is already healthy; refresh skipped\./);
   assert.match(install, /New-ScheduledTaskTrigger -AtLogOn/);

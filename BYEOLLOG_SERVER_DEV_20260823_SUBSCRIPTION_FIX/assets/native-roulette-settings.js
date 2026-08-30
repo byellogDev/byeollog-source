@@ -9,9 +9,35 @@
     roulette_pastel_powder_blue_peach_v1:['#a9cde7','#f2b391'],
     roulette_pastel_lavender_butter_v1:['#aa9bc5','#eadb8d']
   };
+  const MAX_PRODUCT_NAME_GRAPHEMES=20;
   const state={assets:[],devices:[],selectedAssetKey:'',items:[],profile:null};
   const byId=id=>document.getElementById(id);
   const text=(element,value)=>{element.textContent=String(value??'')};
+  const graphemes=value=>{
+    const source=String(value??'');
+    if(typeof Intl?.Segmenter==='function'){
+      return Array.from(new Intl.Segmenter('ko',{granularity:'grapheme'}).segment(source),part=>part.segment);
+    }
+    const result=[];
+    let joinNext=false;
+    for(const character of Array.from(source)){
+      const codePoint=character.codePointAt(0);
+      const combining=/\p{Mark}/u.test(character)||codePoint===0xfe0e||codePoint===0xfe0f||(codePoint>=0x1f3fb&&codePoint<=0x1f3ff);
+      const regional=codePoint>=0x1f1e6&&codePoint<=0x1f1ff;
+      const previous=result[result.length-1]||'';
+      const previousCodePoints=Array.from(previous);
+      const previousIsSingleRegional=previousCodePoints.length===1&&previousCodePoints[0].codePointAt(0)>=0x1f1e6&&previousCodePoints[0].codePointAt(0)<=0x1f1ff;
+      if(result.length&&(combining||joinNext||character==='\u200d'||(regional&&previousIsSingleRegional))){
+        result[result.length-1]+=character;
+      }else{
+        result.push(character);
+      }
+      joinNext=character==='\u200d';
+    }
+    return result;
+  };
+  const graphemeCount=value=>graphemes(value).length;
+  const limitGraphemes=(value,max)=>graphemes(value).slice(0,max).join('');
   const field=(labelText,input)=>{
     const wrapper=document.createElement('div');wrapper.className='field';
     const label=document.createElement('label');label.textContent=labelText;
@@ -64,12 +90,24 @@
     const list=byId('itemList');list.replaceChildren();
     state.items.forEach((item,index)=>{
       const row=document.createElement('div');row.className='item';
-      const name=input('text',item.resultText);name.maxLength=200;name.placeholder='당첨 상품명';
-      name.addEventListener('input',()=>{
+      const name=input('text',item.resultText);name.placeholder='당첨 상품명 (최대 20자)';
+      name.setAttribute('aria-label',`${index+1}번 상품명 · 최대 20자`);
+      name.dataset.maxGraphemes=String(MAX_PRODUCT_NAME_GRAPHEMES);
+      let composing=false;
+      const updateName=()=>{
+        const entered=name.value;
+        const limited=limitGraphemes(entered,MAX_PRODUCT_NAME_GRAPHEMES);
+        if(entered!==limited){
+          name.value=limited;
+          setStatus(`상품명은 최대 ${MAX_PRODUCT_NAME_GRAPHEMES}자까지 입력할 수 있습니다.`,'error');
+        }
         const previous=state.items[index].resultText;
         const automatic=state.items[index].ttsText===`${previous}, 당첨!`;
         updateItem(index,{resultText:name.value,ttsText:automatic?`${name.value}, 당첨!`:state.items[index].ttsText});
-      });
+      };
+      name.addEventListener('compositionstart',()=>{composing=true});
+      name.addEventListener('compositionend',()=>{composing=false;updateName()});
+      name.addEventListener('input',event=>{if(composing||event.isComposing)return;updateName()});
       const probability=input('text',percentText(item.probabilityPpm));probability.inputMode='decimal';
       probability.addEventListener('change',()=>{try{updateItem(index,{probabilityPpm:ppmFromPercent(probability.value)})}catch(error){setStatus(error.message,'error');probability.value=percentText(state.items[index].probabilityPpm)}});
       const upbo=document.createElement('input');upbo.type='checkbox';upbo.checked=item.directUpbo;
@@ -93,7 +131,6 @@
     byId('allowMultipleSpins').checked=profile.allowMultipleSpins===true;
     byId('soundVolume').value=String(profile.soundVolumePercent??80);
     byId('ttsVolume').value=String(profile.ttsVolumePercent??80);
-    byId('followupChatTtsWindow').value=String(profile.followupChatTtsWindowSeconds??10);
     state.selectedAssetKey=profile.overlayAssetKey||state.assets[0]?.key||'';
     state.items=Array.isArray(profile.items)&&profile.items.length?profile.items.map(item=>({...item})):defaultItems();
     const cache=profile.cache||{};text(byId('cacheTotal'),cache.total||0);text(byId('cacheReady'),cache.ready||0);text(byId('cachePending'),cache.pending||0);
@@ -118,13 +155,17 @@
     try{
       if(!byId('agentDevice').value)throw new Error('캐시할 스트리머 PC를 선택하세요.');
       if(!state.selectedAssetKey)throw new Error('오버레이 WebP를 선택하세요.');
+      state.items.forEach((item,index)=>{
+        if(graphemeCount(item.resultText)>MAX_PRODUCT_NAME_GRAPHEMES){
+          throw new Error(`${index+1}번 상품명은 최대 ${MAX_PRODUCT_NAME_GRAPHEMES}자까지 입력할 수 있습니다.`);
+        }
+      });
       const total=state.items.reduce((sum,item)=>sum+Number(item.probabilityPpm||0),0);if(total!==1000000)throw new Error('전체 상품 확률의 합을 정확히 100%로 맞춰주세요.');
       const payload={
         name:byId('rouletteName').value,balloonsPerSpin:Number(byId('balloonsPerSpin').value),
         allowMultipleSpins:byId('allowMultipleSpins').checked,agentDeviceId:byId('agentDevice').value,
         overlayAssetKey:state.selectedAssetKey,soundKey:'roulette_spin_v1',
         soundVolumePercent:Number(byId('soundVolume').value),ttsVolumePercent:Number(byId('ttsVolume').value),
-        followupChatTtsWindowSeconds:Number(byId('followupChatTtsWindow').value),
         items:state.items.map(item=>({
           id:item.id||null,resultText:item.resultText,probabilityPpm:Number(item.probabilityPpm),directUpbo:item.directUpbo===true,
           upboEventName:item.directUpbo?(item.upboEventName||byId('rouletteName').value):null,

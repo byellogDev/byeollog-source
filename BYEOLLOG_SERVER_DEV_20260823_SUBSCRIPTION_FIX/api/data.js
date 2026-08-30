@@ -3,6 +3,11 @@ import {requireCapabilityLive} from '../lib/auth.js';
 import {DEPLOYMENT_ASSETS} from '../lib/deployment-assets.js';
 import {workspaceForSession,addWorkspaceFilter,withWorkspaceBody,WORKSPACE_TABLES} from '../lib/workspace.js';
 import {rejectMaintenanceWrite} from '../lib/maintenance.js';
+import {
+  NATIVE_ROULETTE_MAX_RESULT_CODE_POINTS,
+  NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES,
+  unicodeGraphemeCount
+} from '../lib/native-roulette.js';
 
 const TABLES=new Set([...WORKSPACE_TABLES]);
 const METHODS=new Set(['GET','POST','PATCH','DELETE']);
@@ -120,9 +125,9 @@ function toPublicRoulette(row){
   const items=[];
   let total=0;
   for(const raw of rawItems){
-    const resultText=String(raw?.resultText||'').trim();
+    const resultText=String(raw?.resultText||'').trim().normalize('NFC');
     const probabilityPpm=Number(raw?.probabilityPpm);
-    if(!resultText||resultText.length>200||!Number.isSafeInteger(probabilityPpm)||probabilityPpm<1||probabilityPpm>=1000000)return null;
+    if(!resultText||unicodeGraphemeCount(resultText)>NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES||[...resultText].length>NATIVE_ROULETTE_MAX_RESULT_CODE_POINTS||!Number.isSafeInteger(probabilityPpm)||probabilityPpm<1||probabilityPpm>=1000000)return null;
     total+=probabilityPpm;
     items.push({resultText,probabilityPpm});
   }

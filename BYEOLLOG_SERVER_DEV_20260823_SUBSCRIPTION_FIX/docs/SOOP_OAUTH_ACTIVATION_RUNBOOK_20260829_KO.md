@@ -3,9 +3,9 @@
 ## 현재 상태
 
 - SOOP Developers 등록 Redirect URL과 동일한 `/api/auth/soop/callback`을 사용한다.
-- 운영 기본값은 `SOOP_OAUTH_ENABLED=false`다.
+- 운영은 `SOOP_OAUTH_ENABLED=true`이며 실제 스트리머 계정 연결이 완료됐다.
 - 기존 위플랩/Collector/Agent/룰렛 실행 경로에는 접근하지 않는다.
-- 토큰 저장 SQL은 `supabase/dormant-migrations`에만 있으며 운영 DB에 적용하지 않았다.
+- 토큰 저장 SQL은 운영 DB에 적용됐고 연결·자가진단·자동 refresh를 검증했다.
 - Client Secret과 SOOP 토큰은 브라우저 응답, URL, 로그, 저장소에 기록하지 않는다.
 
 ## 준비된 서버 경로
@@ -41,16 +41,13 @@ SOOP_TOKEN_ENCRYPTION_KEY=<32 random bytes encoded as base64url or 64 hex chars>
 [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32)).TrimEnd('=').Replace('+','-').Replace('/','_')
 ```
 
-## 활성화 순서
+## 완료된 활성화 순서
 
-1. 운영 Supabase 스키마와 migration history를 다시 확인한다.
-2. dormant SQL을 그대로 실행하지 않고 `supabase migration new`로 새 운영 timestamp를 만든 뒤 내용을 검토해 복원한다.
-3. 격리 DB에서 RLS·권한·upsert·삭제 동작을 검증한다.
-4. Vercel Production에 위 환경변수를 등록하되 `SOOP_OAUTH_ENABLED=false`를 유지한다.
-5. 배포 후 기존 콜백 readiness, 로그인, Collector, Agent 업데이트 경로 회귀검사를 수행한다.
-6. 별록 관리자 계정 한 명으로만 `SOOP_OAUTH_ENABLED=true` 테스트 배포를 수행한다.
-7. 동의 → 콜백 → 암호화 저장 → 강제 만료 → refresh 회전을 검증한다.
-8. 실제 Chat SDK payload와 재연결 규격을 확정한 뒤 자체 룰렛 플래그를 별도로 연다.
+1. 운영 Supabase 토큰 스키마, RLS, 권한을 확인했다.
+2. Vercel Production에 OAuth 환경변수를 Sensitive/Config로 분리 등록했다.
+3. 동의 → 콜백 → 암호화 저장 → status → refresh 자가진단을 검증했다.
+4. 일시적인 SOOP 오류는 연결을 해제하지 않고, 명시적인 400/401/403 refresh 거부만 재연결 필요로 판정한다.
+5. 채팅 게이트웨이와 자체 룰렛은 OAuth와 별도 플래그로 계속 잠겨 있다.
 
 ## 남은 공식 확인 사항
 

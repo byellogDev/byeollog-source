@@ -21,8 +21,8 @@ export class RouletteAssetError extends Error{
   }
 }
 
-function env(name){
-  const value=process.env[name]||'';
+function env(name,environment=process.env){
+  const value=environment[name]||'';
   if(!value)throw new RouletteAssetError('이미지 저장소가 아직 준비되지 않았습니다.',503,'roulette_asset_storage_unavailable');
   return value;
 }
@@ -79,8 +79,8 @@ async function ensureBucket(client){
   }
 }
 
-export function rouletteAssetPublicUrl(path){
-  const root=env('SUPABASE_URL').replace(/\/+$/,'');
+export function rouletteAssetPublicUrl(path,environment=process.env){
+  const root=env('SUPABASE_URL',environment).replace(/\/+$/,'');
   const encoded=String(path||'').split('/').map(encodeURIComponent).join('/');
   return `${root}/storage/v1/object/public/${ROULETTE_ASSET_BUCKET}/${encoded}`;
 }

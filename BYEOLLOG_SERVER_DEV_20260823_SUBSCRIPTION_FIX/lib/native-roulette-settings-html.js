@@ -15,7 +15,6 @@ export function getNativeRouletteSettingsHtml(){
 <label class="inline full"><input id="allowMultipleSpins" type="checkbox" checked> 배수 후원 시 여러 번 추첨</label>
 <div class="field"><label for="soundVolume">효과음 음량 <span id="soundVolumeText">80%</span></label><input id="soundVolume" type="range" min="0" max="100" value="80"></div>
 <div class="field"><label for="ttsVolume">결과 TTS 음량 <span id="ttsVolumeText">80%</span></label><input id="ttsVolume" type="range" min="0" max="100" value="80"></div>
-<div class="field full"><label for="followupChatTtsWindow">후원 후 첫 채팅 TTS 유효시간</label><input id="followupChatTtsWindow" type="number" min="0" max="60" value="10"><div class="muted">후원 메시지가 비어 있으면 같은 후원자의 첫 채팅을 이 시간 안에서 한 번만 읽습니다. 0초는 후속 채팅 TTS를 끕니다.</div></div>
 </div></section>
 <section class="card"><h2>오버레이 WebP 선택</h2><div id="assetList" class="assets"></div><div class="muted" style="margin-top:10px">최종 clean-edge WebP 7종 · 1920×1080 · 91프레임 · 4.8초</div></section>
 <section class="card items-card"><div class="items-head"><div><h2 style="margin-bottom:4px">상품과 확률</h2><div class="muted">전체 확률은 정확히 100%여야 합니다.</div></div><button id="addItem" class="button secondary" type="button">＋ 상품 추가</button></div><div id="itemList" class="items"></div><div id="probabilityStatus" class="status"></div></section>

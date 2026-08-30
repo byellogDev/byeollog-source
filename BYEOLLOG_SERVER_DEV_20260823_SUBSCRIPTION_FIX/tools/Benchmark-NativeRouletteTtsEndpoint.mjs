@@ -45,7 +45,7 @@ const healthResponse=await fetch(healthUrl,{signal:AbortSignal.timeout(Math.min(
 const health=await healthResponse.json().catch(()=>({}));
 if(!healthResponse.ok||health.healthy!==true)throw new Error('로컬 TTS가 준비되지 않았습니다.');
 
-const prompts=['관측계정A 용돈, 당첨!','아봉 십 초, 당첨!','다음 보상 두 배, 당첨!'];
+const prompts=['테스트 용돈, 당첨!','아봉 십 초, 당첨!','다음 보상 두 배, 당첨!'];
 const results=[];let failures=0;let requestIndex=0;
 async function request(text,measured){
   const key=voiceKey(text);const started=performance.now();

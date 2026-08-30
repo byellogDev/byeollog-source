@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import {clearSessionCookie,requireCapabilityLive,revalidateMembership,safeEqual} from './auth.js';
+import {isJsonRequest,isTrustedMutationOrigin} from './request-origin.js';
 import {sb} from './supabase-rest.js';
 
 const SOOP_OPENAPI_ORIGIN='https://openapi.sooplive.com';
@@ -133,6 +134,10 @@ function clearAttemptCookie(res){
   setAttemptCookie(res,'',0);
 }
 
+function oauthAttemptId(attempt){
+  return attempt?.nonce?crypto.createHash('sha256').update(String(attempt.nonce)).digest('hex').slice(0,12):null;
+}
+
 export function encryptSoopToken(value,{env=process.env,key}={}){
   const secret=key||parseEncryptionKey(env);
   if(!Buffer.isBuffer(secret)||secret.length!==32)throw new SoopOAuthError('Invalid SOOP token encryption key','soop_encryption_key_invalid',503);
@@ -187,7 +192,9 @@ export async function requestSoopTokens(parameters,{env=process.env,fetchImpl=fe
   }finally{if(timer)clearTimeout(timer)}
   const data=await response.json().catch(()=>({}));
   if(!response.ok||!data?.access_token){
-    throw new SoopOAuthError('SOOP 토큰 발급에 실패했습니다.','soop_token_exchange_failed',502);
+    const error=new SoopOAuthError('SOOP 토큰 발급에 실패했습니다.','soop_token_exchange_failed',502);
+    error.upstreamStatus=response.status;
+    throw error;
   }
   return {
     accessToken:String(data.access_token),
@@ -239,11 +246,25 @@ export async function refreshSoopConnection(workspaceId,{env=process.env,fetchIm
     });
     return {accessToken:tokens.accessToken,expiresAt:saved?.access_token_expires_at||null,refreshed:true};
   }catch(error){
+    const upstreamStatus=Number(error?.upstreamStatus||0);
+    const reauthorizationRequired=error?.code==='soop_token_exchange_failed'&&[400,401,403].includes(upstreamStatus);
     await sbImpl('byeollog_soop_connections',`?workspace_id=eq.${encodeURIComponent(workspaceId)}`,{
-      method:'PATCH',body:{status:'reauthorization_required',last_error_code:error?.code||'soop_refresh_failed',updated_at:now.toISOString()}
+      method:'PATCH',body:{
+        ...(reauthorizationRequired?{status:'reauthorization_required'}:{}),
+        last_error_code:error?.code||'soop_refresh_failed',updated_at:now.toISOString()
+      }
     }).catch(()=>{});
     throw error;
   }
+}
+
+function soopTokenStatus(expiresAt,{now=Date.now()}={}){
+  const instant=Date.parse(expiresAt||'');
+  if(!Number.isFinite(instant))return 'unknown';
+  const remaining=instant-now;
+  if(remaining<=0)return 'expired';
+  if(remaining<=120_000)return 'refresh_required';
+  return 'valid';
 }
 
 function callbackPage(kind='ready'){
@@ -253,6 +274,7 @@ function callbackPage(kind='ready'){
     connected:{title:'SOOP 계정 연결이 완료되었습니다',message:'별록 룰렛 설정 화면으로 돌아가 연결 상태를 확인해주세요.'},
     denied:{title:'SOOP 계정 연결이 완료되지 않았습니다',message:'SOOP 인증 화면에서 계정 연결을 다시 진행해주세요.'},
     invalid:{title:'SOOP 인증 요청을 확인할 수 없습니다',message:'별록 대시보드에서 SOOP 연결을 처음부터 다시 시작해주세요.'},
+    temporary:{title:'로그인 상태 확인이 잠시 지연되고 있습니다',message:'별록 로그인은 유지되어 있습니다. 잠시 후 대시보드에서 SOOP 계정 연결을 다시 눌러주세요.'},
     failed:{title:'SOOP 계정 연결 중 오류가 발생했습니다',message:'잠시 후 별록 대시보드에서 다시 시도해주세요.'}
   }[kind]||null;
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>별록 | SOOP 인증 연결</title><style>:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#071a38;color:#f7f9ff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}.card{width:min(560px,100%);padding:34px;border:1px solid #29456d;border-radius:24px;background:#0b2144;box-shadow:0 20px 60px #0005}.eyebrow{margin:0 0 12px;color:#ffc44d;font-size:14px;font-weight:800;letter-spacing:.08em}.title{margin:0;font-size:clamp(26px,6vw,38px);line-height:1.2}.message{margin:18px 0 0;color:#c8d5eb;font-size:17px;line-height:1.7}.home{display:inline-block;margin-top:26px;color:#071a38;background:#ffc44d;padding:12px 18px;border-radius:12px;font-weight:800;text-decoration:none}</style></head><body><main class="card"><p class="eyebrow">BYEOLLOG × SOOP</p><h1 class="title">${copy.title}</h1><p class="message">${copy.message}</p><a class="home" href="/dashboard/roulette">룰렛 설정으로 돌아가기</a></main></body></html>`;
@@ -277,7 +299,11 @@ export async function handleSoopOAuthStart(req,res,{env=process.env,resolveSessi
   try{config=getSoopOAuthConfig(env)}catch(error){
     return res.status(error?.status||503).json({message:'SOOP 계정 연결 설정이 아직 완료되지 않았습니다.',code:error?.code||'soop_oauth_config_invalid'});
   }
-  const session=await resolveSession(req,res,'roulette:configure');
+  const session=await resolveSession(req,res,'roulette:configure',{
+    navigation:true,
+    loginPath:'/login?expired=1',
+    retryPath:'/dashboard?soop=retry'
+  });
   if(!session)return;
   const attempt=createSoopOAuthAttempt(session,{env});
   setAttemptCookie(res,attempt.token,attempt.expiresIn);
@@ -287,6 +313,10 @@ export async function handleSoopOAuthStart(req,res,{env=process.env,resolveSessi
   // Current SOOP SDK docs do not guarantee state echoing. The signed Lax cookie
   // remains authoritative; state is validated when SOOP returns it.
   url.searchParams.set('state',attempt.state);
+  console.info('[soop-oauth] authorization redirect issued',{
+    attempt_id:oauthAttemptId({nonce:attempt.state}),
+    mode:session.mode||'beta'
+  });
   res.setHeader('Location',url.toString());
   return res.status(302).end();
 }
@@ -298,7 +328,14 @@ export async function handleSoopOAuthCallback(req,res,{env=process.env,fetchImpl
     return res.status(405).send('Method not allowed');
   }
   const denied=Boolean(String(req.query?.error||'').trim());
-  const authCode=String(req.query?.authCode||'').trim();
+  const documentedAuthCode=String(req.query?.authCode||'').trim();
+  const exampleCode=String(req.query?.code||'').trim();
+  if(documentedAuthCode&&exampleCode&&!safeEqual(documentedAuthCode,exampleCode)){
+    clearAttemptCookie(res);
+    return res.status(400).send(callbackPage('invalid'));
+  }
+  const authCode=documentedAuthCode||exampleCode;
+  const codeParameter=documentedAuthCode?'authCode':exampleCode?'code':'none';
   const enabled=envText(env,'SOOP_OAUTH_ENABLED')==='true';
   if(!enabled){
     const status=denied?400:200;
@@ -311,24 +348,61 @@ export async function handleSoopOAuthCallback(req,res,{env=process.env,fetchImpl
 
   let attempt;
   try{attempt=verifySoopOAuthAttempt(cookiesOf(req)[ATTEMPT_COOKIE],{env})}catch{attempt=null}
+  console.info('[soop-oauth] callback received',{
+    attempt_id:oauthAttemptId(attempt),
+    attempt_valid:Boolean(attempt),
+    code_parameter:codeParameter,
+    state_present:Boolean(String(req.query?.state||'').trim()),
+    denied
+  });
   if(!attempt){clearAttemptCookie(res);return res.status(400).send(callbackPage('invalid'))}
   const returnedState=String(req.query?.state||'').trim();
   if(returnedState&&!safeEqual(returnedState,attempt.nonce)){
     clearAttemptCookie(res);
     return res.status(400).send(callbackPage('invalid'));
   }
-  const session=await revalidateSession({mode:'beta',user_id:attempt.user_id,workspace_id:attempt.workspace_id,role:'viewer'});
+  let session;
+  try{session=await revalidateSession({mode:'beta',user_id:attempt.user_id,workspace_id:attempt.workspace_id,role:'viewer'})}
+  catch(error){
+    console.error('[soop-oauth] callback membership revalidation unavailable',{
+      code:error?.code||'session_revalidation_unavailable',
+      upstream_status:error?.cause?.status||null
+    });
+    clearAttemptCookie(res);
+    return res.status(503).send(callbackPage('temporary'));
+  }
   if(!session||session.user_id!==attempt.user_id||session.workspace_id!==attempt.workspace_id){
     clearAttemptCookie(res);
     clearSessionCookie(res);
     return res.status(401).send(callbackPage('invalid'));
   }
+  let tokens;
   try{
-    const tokens=await requestSoopTokens({grant_type:'authorization_code',code:authCode},{env,fetchImpl});
+    tokens=await requestSoopTokens({grant_type:'authorization_code',code:authCode},{env,fetchImpl});
+  }catch(error){
+    console.error('[soop-oauth] token exchange failed',{
+      attempt_id:oauthAttemptId(attempt),
+      code:error?.code||'soop_token_exchange_failed',
+      upstream_status:error?.upstreamStatus||null
+    });
+    clearAttemptCookie(res);
+    return res.status(502).send(callbackPage('failed'));
+  }
+  try{
     await saveSoopConnection({workspaceId:attempt.workspace_id,userId:attempt.user_id,tokens,env,sbImpl});
+    console.info('[soop-oauth] connection stored',{
+      attempt_id:oauthAttemptId(attempt),
+      expires_in:tokens.expiresIn||null,
+      refresh_token_present:Boolean(tokens.refreshToken)
+    });
     clearAttemptCookie(res);
     return res.status(200).send(callbackPage('connected'));
-  }catch{
+  }catch(error){
+    console.error('[soop-oauth] connection storage failed',{
+      attempt_id:oauthAttemptId(attempt),
+      code:error?.code||'soop_connection_storage_failed',
+      upstream_status:error?.status||null
+    });
     clearAttemptCookie(res);
     return res.status(502).send(callbackPage('failed'));
   }
@@ -342,17 +416,84 @@ export async function handleSoopOAuthStatus(req,res,{env=process.env,resolveSess
   const readiness=getSoopOAuthReadiness(env);
   if(!readiness.enabled)return res.status(200).json({...readiness,connected:false});
   if(!readiness.configured)return res.status(503).json({...readiness,connected:false,status:'configuration_required'});
-  const rows=await sbImpl('byeollog_soop_connections',`?select=status,connected_at,refreshed_at,access_token_expires_at,last_error_code&workspace_id=eq.${encodeURIComponent(session.workspace_id)}&limit=1`);
+  let rows;
+  try{rows=await sbImpl('byeollog_soop_connections',`?select=status,connected_at,refreshed_at,access_token_expires_at,last_error_code&workspace_id=eq.${encodeURIComponent(session.workspace_id)}&limit=1`)}
+  catch(error){
+    console.error('[soop-oauth] connection status lookup failed',{upstream_status:error?.status||null});
+    return res.status(502).json({message:'SOOP 연결 상태를 잠시 확인하지 못했습니다.',code:'soop_status_lookup_failed',retryable:true});
+  }
   const row=Array.isArray(rows)?rows[0]:null;
+  const connected=row?.status==='connected';
   return res.status(200).json({
     ...readiness,
-    connected:row?.status==='connected',
+    connected,
     status:row?.status||'not_connected',
     connectedAt:row?.connected_at||null,
     refreshedAt:row?.refreshed_at||null,
     expiresAt:row?.access_token_expires_at||null,
-    errorCode:row?.last_error_code||null
+    errorCode:row?.last_error_code||null,
+    tokenStatus:connected?soopTokenStatus(row?.access_token_expires_at):'not_connected',
+    chatStatus:connected?'waiting_for_live_verification':'not_ready',
+    liveVerificationRequired:connected
   });
+}
+
+export async function handleSoopOAuthDiagnose(req,res,{
+  env=process.env,resolveSession=requireCapabilityLive,refreshConnection=refreshSoopConnection
+}={}){
+  res.setHeader('Cache-Control','no-store, private');
+  if(req.method!=='POST')return res.status(405).json({message:'Method not allowed'});
+  if(!isTrustedMutationOrigin(req))return res.status(403).json({message:'허용되지 않은 요청 출처입니다.'});
+  if(!isJsonRequest(req))return res.status(415).json({message:'JSON 요청만 사용할 수 있습니다.'});
+  const readiness=getSoopOAuthReadiness(env);
+  if(!readiness.enabled||!readiness.configured){
+    return res.status(503).json({...readiness,connected:false,status:'configuration_required'});
+  }
+  const session=await resolveSession(req,res,'roulette:configure');
+  if(!session)return;
+  const checkedAt=new Date().toISOString();
+  try{
+    const result=await refreshConnection(session.workspace_id,{env});
+    console.info('[soop-oauth] connection self-check completed',{
+      refreshed:result?.refreshed===true,
+      expires_at_present:Boolean(result?.expiresAt)
+    });
+    return res.status(200).json({
+      ok:true,connected:true,status:'connected',
+      tokenStatus:result?.refreshed?'refreshed':'valid',
+      refreshed:result?.refreshed===true,
+      expiresAt:result?.expiresAt||null,
+      chatStatus:'waiting_for_live_verification',
+      liveVerificationRequired:true,
+      checkedAt
+    });
+  }catch(error){
+    const missing=error?.code==='soop_connection_missing';
+    const reauthorization=error?.code==='soop_token_exchange_failed'&&[400,401,403].includes(Number(error?.upstreamStatus||0));
+    console.error('[soop-oauth] connection self-check failed',{
+      code:error?.code||'soop_diagnose_failed',
+      upstream_status:error?.upstreamStatus||null,
+      retryable:!missing&&!reauthorization
+    });
+    if(missing)return res.status(404).json({ok:false,connected:false,status:'not_connected',tokenStatus:'not_connected',chatStatus:'not_ready'});
+    if(reauthorization)return res.status(409).json({ok:false,connected:false,status:'reauthorization_required',tokenStatus:'reauthorization_required',chatStatus:'not_ready',message:'SOOP 계정을 다시 연결해주세요.'});
+    return res.status(503).json({
+      ok:false,connected:true,status:'temporarily_unavailable',tokenStatus:'check_failed',
+      chatStatus:'waiting_for_live_verification',liveVerificationRequired:true,retryable:true,
+      message:'SOOP 인증 서버 상태를 잠시 확인하지 못했습니다. 기존 연결은 유지됩니다.'
+    });
+  }
+}
+
+export async function handleSoopOAuthDisconnect(req,res,{resolveSession=requireCapabilityLive,sbImpl=sb}={}){
+  res.setHeader('Cache-Control','no-store, private');
+  if(req.method!=='POST')return res.status(405).json({message:'Method not allowed'});
+  if(!isTrustedMutationOrigin(req))return res.status(403).json({message:'허용되지 않은 요청 출처입니다.'});
+  if(!isJsonRequest(req))return res.status(415).json({message:'JSON 요청만 사용할 수 있습니다.'});
+  const session=await resolveSession(req,res,'roulette:configure');
+  if(!session)return;
+  await sbImpl('byeollog_soop_connections',`?workspace_id=eq.${encodeURIComponent(session.workspace_id)}`,{method:'DELETE'});
+  return res.status(200).json({ok:true,connected:false,status:'not_connected'});
 }
 
 export {ATTEMPT_COOKIE,DEFAULT_REDIRECT_URI};

@@ -147,11 +147,25 @@ test('disabled SDK request returns before any database or session dependency is 
 test('settings UI exposes all requested controls but no activation control',async()=>{
   const html=await source('../lib/native-roulette-settings-html.js');
   const js=await source('../assets/native-roulette-settings.js');
-  for(const label of ['업보 직행','오버레이 WebP 선택','효과음 음량','결과 TTS 음량','후원 후 첫 채팅 TTS 유효시간','초안 저장 및 TTS 준비']){
+  for(const label of ['업보 직행','오버레이 WebP 선택','효과음 음량','결과 TTS 음량','초안 저장 및 TTS 준비']){
     assert.match(html,new RegExp(label));
   }
   assert.match(html,/승인 전 활성화 불가/);
   assert.match(html,/disabled/);
   assert.match(js,/directUpbo/);assert.match(js,/ttsText/);assert.match(js,/overlayAssetKey/);
-  assert.match(js,/followupChatTtsWindowSeconds/);
+  assert.doesNotMatch(html,/followupChatTtsWindow/);
+  assert.doesNotMatch(js,/followupChatTtsWindowSeconds/);
+});
+
+test('legacy settings UI enforces the 20-grapheme product contract without breaking IME composition',async()=>{
+  const js=await source('../assets/native-roulette-settings.js');
+  assert.match(js,/const MAX_PRODUCT_NAME_GRAPHEMES=20/);
+  assert.match(js,/new Intl\.Segmenter\('ko',\{granularity:'grapheme'\}\)/);
+  assert.match(js,/limitGraphemes\(entered,MAX_PRODUCT_NAME_GRAPHEMES\)/);
+  assert.match(js,/addEventListener\('compositionstart'/);
+  assert.match(js,/addEventListener\('compositionend'/);
+  assert.match(js,/if\(composing\|\|event\.isComposing\)return/);
+  assert.match(js,/graphemeCount\(item\.resultText\)>MAX_PRODUCT_NAME_GRAPHEMES/);
+  assert.doesNotMatch(js,/name\.maxLength\s*=/);
+  assert.doesNotMatch(js,/maxlength=["']20["']/i);
 });

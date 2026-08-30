@@ -1,6 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "regions": ["hnd1"],
+  "functions": {
+    "api/login.js": {
+      "maxDuration": 60
+    }
+  },
   "cleanUrls": true,
   "rewrites": [
     {
@@ -44,12 +49,48 @@
       "destination": "/api/login?operation=soop-status"
     },
     {
+      "source": "/api/auth/soop/diagnose",
+      "destination": "/api/login?operation=soop-diagnose"
+    },
+    {
+      "source": "/api/auth/soop/gateway",
+      "destination": "/api/login?operation=soop-gateway"
+    },
+    {
+      "source": "/api/auth/soop/roulette-overlay/poll",
+      "destination": "/api/login?operation=soop-roulette-overlay-poll"
+    },
+    {
+      "source": "/api/auth/soop/roulette-overlay/sound",
+      "destination": "/api/login?operation=soop-roulette-overlay-sound"
+    },
+    {
+      "source": "/api/auth/soop/roulette-overlay/tts",
+      "destination": "/api/login?operation=soop-roulette-overlay-tts"
+    },
+    {
+      "source": "/overlay/soop-roulette",
+      "destination": "/api/login?operation=soop-roulette-overlay-page"
+    },
+    {
+      "source": "/api/auth/soop/disconnect",
+      "destination": "/api/login?operation=soop-disconnect"
+    },
+    {
       "source": "/dashboard/roulette",
       "destination": "/api/admin?view=roulette"
     },
     {
       "source": "/dashboard/actions",
       "destination": "/api/admin?view=actions"
+    },
+    {
+      "source": "/dashboard/signatures",
+      "destination": "/api/admin?view=signatures"
+    },
+    {
+      "source": "/dashboard/overlay",
+      "destination": "/api/admin?view=roulette"
     },
     {
       "source": "/dashboard",
@@ -60,12 +101,15 @@
       "destination": "/api/admin?view=agent-rollout"
     },
     {
-      "source": "/roulette-settings",
-      "destination": "/api/native-roulette?view=settings"
-    },
-    {
       "source": "/u/:workspace",
       "destination": "/bangsel_public_workspace_isolation"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/agent-updates/releases/:version/:filename([^/]+\\.zip)",
+      "destination": "https://github.com/byellogDev/byeollog-releases/releases/download/agent-v:version/:filename",
+      "permanent": false
     }
   ],
   "headers": [

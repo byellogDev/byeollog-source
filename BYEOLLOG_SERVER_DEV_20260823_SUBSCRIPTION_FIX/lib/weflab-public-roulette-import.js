@@ -1,4 +1,9 @@
 import crypto from 'node:crypto';
+import {
+  NATIVE_ROULETTE_MAX_RESULT_CODE_POINTS,
+  NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES,
+  unicodeGraphemeCount
+} from './native-roulette.js';
 
 const PUBLIC_URL=/^\/user\/([A-Za-z0-9_-]{6,80})$/;
 const MAX_HTML_BYTES=2*1024*1024;
@@ -77,14 +82,20 @@ export function parseWeflabPublicRouletteHtml(html,{sourceUrl=''}={}){
     }
     const seen=new Set();let total=0;
     const items=itemBlocks.map((itemBlock,itemIndex)=>{
-      const resultText=classValue(itemBlock,'input_roulette_name');
+      const resultText=classValue(itemBlock,'input_roulette_name').normalize('NFC');
       const type=classValue(itemBlock,'select_roulette_type')||'텍스트';
       const probabilityPpm=probabilityToPpm(classValue(itemBlock,'input_roulette_percent'));
-      if(!resultText||resultText.length>200)throw new WeflabPublicImportError(`${itemIndex+1}번 상품명을 확인해주세요.`,'weflab_item_invalid',422);
+      if(!resultText||unicodeGraphemeCount(resultText)>NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES||[...resultText].length>NATIVE_ROULETTE_MAX_RESULT_CODE_POINTS){
+        throw new WeflabPublicImportError(
+          `별풍선 ${balloonsPerSpin}개 룰렛의 ${itemIndex+1}번 상품명은 ${NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES}자 이내여야 합니다.`,
+          'weflab_item_invalid',
+          422
+        );
+      }
       const identity=resultText.toLocaleLowerCase('ko-KR');
       if(seen.has(identity))throw new WeflabPublicImportError('같은 상품명이 중복되어 있습니다.','weflab_item_duplicate',422);
       seen.add(identity);total+=probabilityPpm;
-      return {resultText,probabilityPpm,sourceType:type,directUpbo:false,ttsText:`${resultText}, 당첨!`};
+      return {resultText,probabilityPpm,sourceType:type,directUpbo:false,ttsText:resultText};
     });
     if(total!==1000000)throw new WeflabPublicImportError(`별풍선 ${balloonsPerSpin}개 룰렛의 확률 합계가 100%가 아닙니다.`,'weflab_probability_total',422);
     groups.push({sourceIndex:index,balloonsPerSpin,items});

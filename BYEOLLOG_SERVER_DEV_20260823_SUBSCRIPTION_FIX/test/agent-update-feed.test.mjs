@@ -6,8 +6,8 @@ import test from "node:test";
 const keyId = "rsa3072-cc1fb719f3a63774";
 const modulus = "xh6UD7hSfTLd9lWkerCb3yrGY9hAur3s8maFJYlcdsCZu-YSUsGkKFonG8RPHXDeabmXXrsAAxl9oacxFdtfpxq0zAvyWXbv7VdKB9izi0kooBAPTs1kUe87pcbvTunj_7uPfTolcnT7wC5mlzoxlZQ8H-dyCWha1bKwOJYIgEPPbSqx-1lc8baeO4PTUZ3Cl_jCVX1VlqgKLFvaPjTOLiUtS6e4Wyv1S9r83N7EdHA8xiSKc89e-GEUHJzWjKdgCfmGPtNN4JJHH-6j-_npmSEdQb8SQ9_Bj3N2ETiM-hBL4mJko9mXyNCZG9ZlY5U1kPk9DBnmb2biNuF7xvhJ2UjpdxBeFJ20DJgtWCM30o_x8mNVViGEErvEIlmZKatPShB-ExAhrpx9cJRoccWtpMjvbejLbv6gKehfYhZ-Xc0q6e3_D-_MWGcCiVNYhBidoHB8TCvsSwza0_-ZmB1z6hBrKnJIVksUYTvOZzcNeqPmC7vah0USWrMyua_mQpxh";
 const exponent = "AQAB";
-const expectedVersion = "0.7.0.107";
-const expectedPackageName = "byeollog_agent_v07107_QUAD_PHOTOREAL_CONFETTI_FAST_VFX_WIN_X64.zip";
+const expectedVersion = "0.7.0.110";
+const expectedPackageName = "byeollog_agent_v07110_PRESERVE_WEFLAB_RECOVERY_WINDOW_WIN_X64.zip";
 
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 
@@ -44,7 +44,7 @@ test("stable Windows Agent update feed is pinned, signed, and matches its immuta
   assert.equal(payload.channel, "stable");
   assert.equal(payload.platform, "win-x64");
   assert.equal(payload.version, expectedVersion);
-  assert.equal(payload.releaseSequence, 7107);
+  assert.equal(payload.releaseSequence, 7110);
   assert.equal(payload.minimumUpdaterProtocol, 1);
   assert.equal(payload.mandatory, false);
   assert.ok(Date.parse(payload.expiresAtUtc) > Date.parse(payload.publishedAtUtc));
@@ -92,13 +92,15 @@ test("stable Windows Agent update feed is pinned, signed, and matches its immuta
   }, Buffer.from(envelope.signature.value, "base64")), false);
 });
 
-test("the current stable package is a direct static compatibility bridge for pre-v85 updaters", async () => {
+test("the current stable package uses the pinned GitHub Release compatibility bridge", async () => {
   const ignore = await readFile(new URL("../.vercelignore", import.meta.url), "utf8");
-  const ignored = ignore.indexOf("agent-updates/releases/**/*.zip");
-  const allowed = ignore.indexOf(`!agent-updates/releases/${expectedVersion}/${expectedPackageName}`);
-  assert.ok(ignored >= 0 && allowed > ignored);
+  assert.match(ignore, /^downloads\s*$/m);
+  assert.match(ignore, /^agent-updates\/releases\s*$/m);
+  assert.doesNotMatch(ignore, /^!agent-updates\/releases\//m);
 
   const vercel = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
-  assert.equal((vercel.redirects || []).some((route) =>
-    String(route.source || "").includes("/agent-updates/releases/")), false);
+  assert.ok((vercel.redirects || []).some((route) =>
+    route.source === "/agent-updates/releases/:version/:filename([^/]+\\.zip)" &&
+    route.destination === "https://github.com/byellogDev/byeollog-releases/releases/download/agent-v:version/:filename" &&
+    route.permanent === false));
 });

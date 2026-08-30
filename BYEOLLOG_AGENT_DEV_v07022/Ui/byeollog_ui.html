@@ -234,9 +234,9 @@
     document.querySelector('#start').textContent=mainState.collecting?'■ 수집 중지':'▶ 수집 시작';
     const recovering=!!mainState.weflabRecovering;
     const weflab=document.querySelector('#weflabRow');weflab.classList.toggle('warn',!mainState.weflabConnected);
-    document.querySelector('#weflabValue').textContent=mainState.weflabConnected?'연결 완료':recovering?'자동 복구 중':'연결 필요';
-    document.querySelector('#weflabMeta').textContent=mainState.weflabConnected?'연결됨':recovering?'잠시만 기다려주세요':'로그인 열기 ›';
-    document.querySelector('#weflabRow').setAttribute('aria-label',mainState.weflabConnected?'위플랩 연결 화면 열기':recovering?'위플랩 연결 자동 복구 중':'위플랩 로그인 열기');
+    document.querySelector('#weflabValue').textContent=mainState.weflabConnected?'연결 완료':recovering?'자동 확인 중':'연결 필요';
+    document.querySelector('#weflabMeta').textContent=mainState.weflabConnected?'연결됨':recovering?'지금 로그인하기 ›':'로그인 열기 ›';
+    document.querySelector('#weflabRow').setAttribute('aria-label',mainState.weflabConnected?'위플랩 연결 화면 열기':recovering?'위플랩 자동 확인 중 · 지금 로그인하기':'위플랩 로그인 열기');
     document.querySelector('#uploadValue').textContent=mainState.uploadStatus||'정상 동작 중';
     document.querySelector('#uploadMeta').textContent=`대기 ${Number(mainState.pending||0).toLocaleString()}건`;
     const serverConnected=!!mainState.serverConnected;

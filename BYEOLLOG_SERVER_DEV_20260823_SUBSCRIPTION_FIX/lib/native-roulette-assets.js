@@ -87,9 +87,20 @@ export const NATIVE_ROULETTE_ASSETS=Object.freeze([
   heightPx:1080,
   frameCount:91,
   durationMs:4800,
-  deliveryStatus:'staged',
+  presentationDurationMs:3000,
+  deliveryStatus:'published',
+  publishedPath:`assets/native-roulette/${asset.contentSha256}.webp`,
   sourceRelativePath:`output/roulette_overlay/color_animations_clean_edge/${asset.fileName}`
 })));
+
+export const NATIVE_ROULETTE_ASSET_BUCKET='byeollog-native-roulette-assets';
+
+export function nativeRouletteAssetPublicUrl(asset,env=process.env){
+  const root=String(env.SUPABASE_URL||'').trim().replace(/\/+$/,'');
+  if(!root||!asset?.publishedPath)return asset?.previewUrl||'';
+  const path=asset.publishedPath.split('/').map(encodeURIComponent).join('/');
+  return `${root}/storage/v1/object/public/${NATIVE_ROULETTE_ASSET_BUCKET}/${path}`;
+}
 
 export const NATIVE_ROULETTE_ASSET_BY_KEY=Object.freeze(Object.fromEntries(
   NATIVE_ROULETTE_ASSETS.map(asset=>[asset.key,asset])
@@ -107,6 +118,7 @@ export function publicNativeRouletteAsset(asset){
     heightPx:asset.heightPx,
     frameCount:asset.frameCount,
     durationMs:asset.durationMs,
+    presentationDurationMs:asset.presentationDurationMs,
     deliveryStatus:asset.deliveryStatus,
     swatch:[...asset.swatch]
   };

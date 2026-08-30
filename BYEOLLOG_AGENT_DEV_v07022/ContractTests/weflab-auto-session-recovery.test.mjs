@@ -25,7 +25,8 @@ test("Weflab expiry first attempts silent profile recovery and only then asks th
     "manual login UI must remain a fallback after silent recovery");
 
   assert.match(ui, /weflabRecovering/);
-  assert.match(ui, /자동 복구 중/);
+  assert.match(ui, /자동 확인 중/);
+  assert.match(ui, /지금 로그인하기/);
 });
 
 test("hard Weflab recovery recreates only the collector WebView and preserves the active session", async () => {
@@ -43,9 +44,11 @@ test("hard Weflab recovery recreates only the collector WebView and preserves th
 test("Weflab recovery is single-flight, bounded, and cancelled with the window", async () => {
   const main = await readFile(new URL("MainForm.cs", root), "utf8");
 
-  assert.match(main, /if \(_weflabRecoveryInProgress \|\| !_weflabRecoveryGate\.Observe\(WeflabHealthSignal\.ApiFailure\)\) return/);
-  assert.match(main, /TimeSpan\.FromSeconds\(30\)/);
-  assert.match(main, /TimeSpan\.FromSeconds\(60\)/);
+  assert.match(main, /if \(_weflabRecoveryInProgress\)[\s\S]*?_weflabRecoverySignal\?\.TrySetResult\(false\)/);
+  assert.match(main, /attempt: 1,[\s\S]*?timeout: TimeSpan\.FromSeconds\(30\)/);
+  assert.match(main, /attempt: 2,[\s\S]*?timeout: TimeSpan\.FromSeconds\(60\)/);
+  assert.match(main, /_weflabRecoveryUserTakeover \|\| !_collecting/);
+  assert.match(main, /_weflabRecoverySignal\?\.TrySetResult\(false\);[\s\S]*?ShowBrowser\(\)/);
   assert.match(main, /Task\.WhenAny\(signal\.Task, timeoutTask\)/);
   assert.match(main, /var recovered = completed == signal\.Task && await signal\.Task/);
   assert.match(main, /_weflabRecoveryLifetime\.Cancel\(\)/);

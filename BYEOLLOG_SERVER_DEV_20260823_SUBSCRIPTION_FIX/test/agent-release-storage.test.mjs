@@ -5,7 +5,7 @@ import test from "node:test";
 const readJson = async (path) => JSON.parse(await readFile(new URL(path, import.meta.url), "utf8"));
 const readText = async (path) => readFile(new URL(path, import.meta.url), "utf8");
 
-test("GitHub release storage keeps one direct stable-package exception for legacy updaters", async () => {
+test("GitHub release storage keeps Vercel deployments free of release binaries", async () => {
   const [storage, vercel, ignore, publisher, signedFeed] = await Promise.all([
     readJson("../agent-updates/release-asset-storage.json"),
     readJson("../vercel.json"),
@@ -21,7 +21,8 @@ test("GitHub release storage keeps one direct stable-package exception for legac
   assert.equal(storage.allowOverwrite, false);
   assert.equal(storage.onlineRetention, "all");
   assert.equal(storage.historicalArchive, "local-release-tree");
-  assert.match(ignore, /^agent-updates\/releases\/\*\*\/\*\.zip\s*$/m);
+  assert.match(ignore, /^agent-updates\/releases\s*$/m);
+  assert.match(ignore, /^downloads\s*$/m);
 
   const payload = JSON.parse(Buffer.from(signedFeed.payload, "base64").toString("utf8"));
   assert.match(payload.package.url, /^https:\/\/byeollog\.com\/agent-updates\/releases\//);
@@ -29,12 +30,13 @@ test("GitHub release storage keeps one direct stable-package exception for legac
 
   const packagePath = new URL(payload.package.url).pathname.slice(1);
   const ignoreLines = ignore.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  const genericIndex = ignoreLines.indexOf("agent-updates/releases/**/*.zip");
-  const bootstrapIndex = ignoreLines.indexOf(`!${packagePath}`);
-  assert.ok(genericIndex >= 0 && bootstrapIndex > genericIndex);
-  assert.equal(ignoreLines.filter((line) => line.startsWith("!agent-updates/releases/")).length, 1);
-  assert.equal((vercel.redirects || []).some(({ source }) =>
-    source === "/agent-updates/releases/:version/:filename([^/]+\\.zip)"), false);
+  assert.equal(packagePath, `agent-updates/releases/0.7.0.110/byeollog_agent_v07110_PRESERVE_WEFLAB_RECOVERY_WINDOW_WIN_X64.zip`);
+  assert.equal(ignoreLines.includes("agent-updates/releases"), true);
+  assert.equal(ignoreLines.some((line) => line.startsWith("!agent-updates/releases/")), false);
+  assert.ok((vercel.redirects || []).some(({ source, destination, permanent }) =>
+    source === "/agent-updates/releases/:version/:filename([^/]+\\.zip)" &&
+    destination === "https://github.com/byellogDev/byeollog-releases/releases/download/agent-v:version/:filename" &&
+    permanent === false));
   assert.ok(vercel.headers.some(({ source }) =>
     source === "/agent-updates/releases/:version/:filename([^/]+\\.zip)"));
 

@@ -149,55 +149,107 @@ export function requireCapability(req, res, capability){
   return null;
 }
 
-/** H-05: 쿠키 세션의 멤버십/기기 상태를 DB에서 재확인 */
-export async function revalidateMembership(session){
-  if(!session) return null;
-  if(session.mode==='collector_handoff'){
-    if(!session.collector_device_id || !session.workspace_id) return null;
-    try{
-      const rows=await sb(
-        'byeollog_collector_devices',
-        `?select=id,workspace_id,status&id=eq.${encodeURIComponent(session.collector_device_id)}`+
-        `&workspace_id=eq.${encodeURIComponent(session.workspace_id)}&status=eq.active&limit=1`
-      );
-      const device=Array.isArray(rows)?rows[0]:null;
-      if(!device || device.workspace_id!==session.workspace_id) return null;
-      const workspaces=await sb(
-        'byeollog_workspaces',
-        `?select=id,status&id=eq.${encodeURIComponent(session.workspace_id)}&status=eq.active&limit=1`
-      );
-      if(!Array.isArray(workspaces)||workspaces[0]?.id!==session.workspace_id) return null;
-      return session;
-    }catch{ return null; }
-  }
-
-  if(!session.user_id || !session.workspace_id) return null;
-  try{
-    const rows=await sb(
-      'byeollog_workspace_members',
-      `?select=role,workspace_id&user_id=eq.${encodeURIComponent(session.user_id)}&workspace_id=eq.${encodeURIComponent(session.workspace_id)}&limit=1`
-    );
-    const m=Array.isArray(rows)?rows[0]:null;
-    if(!m) return null;
-    const ws=await sb(
-      'byeollog_workspaces',
-      `?select=id,status&id=eq.${encodeURIComponent(session.workspace_id)}&status=eq.active&limit=1`
-    );
-    if(!Array.isArray(ws)||!ws[0]) return null;
-    return {...session, role:normalizeRole(m.role)};
-  }catch{
-    return null;
+export class MembershipRevalidationUnavailableError extends Error{
+  constructor(cause){
+    super('Membership revalidation is temporarily unavailable',{cause});
+    this.name='MembershipRevalidationUnavailableError';
+    this.code='session_revalidation_unavailable';
+    this.status=503;
   }
 }
 
-/** H-05: capability + 멤버십 재검증 */
-export async function requireCapabilityLive(req, res, capability){
-  const session = requireSession(req, res);
+function isRetryableMembershipError(error){
+  const status=Number(error?.status||0);
+  return !status||status===408||status===429||status>=500;
+}
+
+async function membershipQuery(sbImpl,table,path,retryDelayMs){
+  let lastError;
+  for(let attempt=0;attempt<2;attempt++){
+    try{return await sbImpl(table,path)}
+    catch(error){
+      lastError=error;
+      if(attempt===1||!isRetryableMembershipError(error))break;
+      if(retryDelayMs>0)await new Promise(resolve=>setTimeout(resolve,retryDelayMs));
+    }
+  }
+  throw new MembershipRevalidationUnavailableError(lastError);
+}
+
+/** H-05: 쿠키 세션의 멤버십/기기 상태를 DB에서 재확인 */
+export async function revalidateMembership(session,{sbImpl=sb,retryDelayMs=40}={}){
   if(!session) return null;
-  const live = await revalidateMembership(session);
+  if(session.mode==='collector_handoff'){
+    if(!session.collector_device_id || !session.workspace_id) return null;
+    const rows=await membershipQuery(
+      sbImpl,'byeollog_collector_devices',
+      `?select=id,workspace_id,status&id=eq.${encodeURIComponent(session.collector_device_id)}`+
+      `&workspace_id=eq.${encodeURIComponent(session.workspace_id)}&status=eq.active&limit=1`,retryDelayMs
+    );
+    const device=Array.isArray(rows)?rows[0]:null;
+    if(!device || device.workspace_id!==session.workspace_id) return null;
+    const workspaces=await membershipQuery(
+      sbImpl,'byeollog_workspaces',
+      `?select=id,status&id=eq.${encodeURIComponent(session.workspace_id)}&status=eq.active&limit=1`,retryDelayMs
+    );
+    if(!Array.isArray(workspaces)||workspaces[0]?.id!==session.workspace_id) return null;
+    return session;
+  }
+
+  if(!session.user_id || !session.workspace_id) return null;
+  const rows=await membershipQuery(
+    sbImpl,'byeollog_workspace_members',
+    `?select=role,workspace_id&user_id=eq.${encodeURIComponent(session.user_id)}&workspace_id=eq.${encodeURIComponent(session.workspace_id)}&limit=1`,retryDelayMs
+  );
+  const m=Array.isArray(rows)?rows[0]:null;
+  if(!m) return null;
+  const ws=await membershipQuery(
+    sbImpl,'byeollog_workspaces',
+    `?select=id,status&id=eq.${encodeURIComponent(session.workspace_id)}&status=eq.active&limit=1`,retryDelayMs
+  );
+  if(!Array.isArray(ws)||!ws[0]) return null;
+  return {...session, role:normalizeRole(m.role)};
+}
+
+/** H-05: capability + 멤버십 재검증 */
+export async function requireCapabilityLive(req, res, capability, options={}){
+  const session = getSession(req);
+  if(!session){
+    if(options.navigation){
+      res.setHeader('Cache-Control','no-store, private');
+      res.setHeader('Location',options.loginPath||'/login?expired=1');
+      res.status(303).end();
+    }else res.status(401).json({message:'Unauthorized'});
+    return null;
+  }
+  let live;
+  try{live=await (options.revalidateSession||revalidateMembership)(session)}
+  catch(error){
+    console.error('[auth-live] membership revalidation unavailable',{
+      code:error?.code||'session_revalidation_unavailable',
+      upstream_status:error?.cause?.status||null,
+      capability,
+      mode:session.mode||'unknown'
+    });
+    if(options.navigation){
+      res.setHeader('Cache-Control','no-store, private');
+      res.setHeader('Location',options.retryPath||'/dashboard?soop=retry');
+      res.status(303).end();
+    }else{
+      res.status(503).json({
+        message:'로그인 상태 확인이 일시적으로 지연되고 있습니다. 잠시 후 다시 시도해주세요.',
+        code:'session_revalidation_unavailable',
+        retryable:true
+      });
+    }
+    return null;
+  }
   if(!live){
     clearSessionCookie(res);
-    res.status(401).json({message:'세션이 만료되었거나 권한이 변경되었습니다. 다시 로그인해주세요.'});
+    if(options.navigation){
+      res.setHeader('Location',options.loginPath||'/login?expired=1');
+      res.status(303).end();
+    }else res.status(401).json({message:'세션이 만료되었거나 권한이 변경되었습니다. 다시 로그인해주세요.'});
     return null;
   }
   if(!hasCapability(live, capability)){

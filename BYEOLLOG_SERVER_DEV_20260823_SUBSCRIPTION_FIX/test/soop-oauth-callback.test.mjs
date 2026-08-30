@@ -31,6 +31,10 @@ test('Vercel routes the registered SOOP redirect URL through the existing auth f
     rule.source==='/api/auth/soop/status'&&
     rule.destination==='/api/login?operation=soop-status'
   ));
+  assert.ok(config.rewrites.some(rule=>
+    rule.source==='/api/auth/soop/disconnect'&&
+    rule.destination==='/api/login?operation=soop-disconnect'
+  ));
 });
 
 test('SOOP callback readiness probe returns a secure no-store page',async()=>{

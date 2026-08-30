@@ -76,7 +76,7 @@ test('campaign stress run is deterministic and production isolated',()=>{
   assert.equal(first.runs,1_000);
   assert.equal(first.failures.length,0);
   assert.equal(first.assetContract.count,7);
-  assert.equal(first.assetContract.allStaged,true);
+  assert.equal(first.assetContract.allPublished,true);
   assert.deepEqual(first.safety,{networkRequests:false,databaseWrites:false,productionDispatch:false});
 });
 
