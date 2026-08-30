@@ -171,6 +171,12 @@ for (const file of files) {
   }
 }
 
+if (!strictReferenceOnly) {
+  await applyTransition(
+    path.join(replayDir, 'transitions', '20260830050000_align_shadow_acl_with_production.sql'),
+  )
+}
+
 const catalogFingerprintSql = String.raw`
 with
 tables as (

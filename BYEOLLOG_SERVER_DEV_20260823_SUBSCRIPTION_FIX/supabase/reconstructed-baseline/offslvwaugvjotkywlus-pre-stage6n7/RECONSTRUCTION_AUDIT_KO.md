@@ -5,7 +5,7 @@
 - 목표 시점: `20260814121415_p0_withdraw_transaction.sql` 적용 직전
 - 운영 DB 변경: 없음
 - 역사적 전제: 필요한 SQL을 작업 시점마다 증분 적용했으며, 목표 상태 전체를 담은 단일 원본은 없었음
-- 결과물 성격: 누적 운영 상태를 고정한 합성·통합 bootstrap v2 + shadow replay
+- 결과물 성격: 누적 운영 상태를 고정한 합성·통합 bootstrap v2 + PGlite 및 실제 Supabase shadow replay
 
 ## 결론
 
@@ -73,6 +73,14 @@ PGlite 재생 결과와 운영 읽기 전용 카탈로그의 비교 가능한 �
 
 함수 비교에서는 Supabase 플랫폼 event trigger용 `public.rls_auto_enable()`만 양쪽 비교에서 제외했다. PGlite가 `information_schema.table_constraints`를 중복 노출해 제약조건 전체 fingerprint는 신뢰 가능한 비교 대상에서 제외했다. 다만 모든 후속 DDL과 검증 migration이 끝까지 통과했으므로 참조되는 제약·열·타입의 실행 가능성은 확인됐다.
 
+## 실제 Supabase 로컬 재생 결과
+
+2026-08-31에 Podman Engine 6.0.2와 Supabase CLI 2.116.0을 사용해 운영과 같은 PostgreSQL 17.6 기반의 빈 로컬 스택을 구성했다. 합성 bootstrap, 원격 79개, canary fixture, 누락된 dormant/local 전환, 최종 shadow ACL 정렬을 89개 migration으로 배치하고 `supabase db reset --local`을 수행한 결과 전부 통과했다.
+
+실제 PostgreSQL 카탈로그에서 relations, columns, constraints, function metadata/ACL, indexes, policies, relation ACL, triggers, types의 개수와 정렬 fingerprint가 운영 읽기 전용 조회와 정확히 일치했다. `pg_cron`, `pg_net`, `pgcrypto`, `supabase_vault` 버전과 heartbeat cron job도 일치했다. 함수 원문 158개 중 bootstrap 9개는 공백·대소문자·말미 세미콜론·명시적 `ASC` 같은 저장 텍스트 차이만 남았고, 함수 metadata와 ACL 및 후속 함수 149개의 원문은 일치했다.
+
+Auth signup/session/user, Storage bucket/object 왕복, service-role DB 트랜잭션, 주요 HTTP health, Supabase security/performance advisor, 서버 298개 테스트, 에이전트 634개 assertion과 Release build까지 통과했다. Vector 로그 수집기만 Podman의 named-pipe API와 컨테이너의 Docker TCP API 기대가 맞지 않아 unhealthy이며, 안전하지 않은 무인증 `0.0.0.0:2375` 노출은 하지 않았다. 자세한 수치와 제한은 `FULL_SUPABASE_REPLAY_AUDIT_20260831_KO.md`에 고정했다.
+
 ## 현재 검증 상태
 
 통과:
@@ -86,25 +94,25 @@ PGlite 재생 결과와 운영 읽기 전용 카탈로그의 비교 가능한 �
 - PGlite 0.5.8에서 보충 이력 포함 80단계 전체 재생
 - 운영과 tables, columns, functions, indexes, policies, triggers의 개수 및 fingerprint 일치
 - 원격 reference-only 체인의 최초 실패 재현
+- PostgreSQL 17.6/Supabase 로컬에서 89개 migration 전체 재생
+- 제약조건과 객체·함수·관계 ACL을 포함한 운영 카탈로그 fingerprint 일치
+- 실제 `pg_cron`/`pg_net` 확장 버전과 heartbeat cron job 일치
+- Auth·Storage·주요 HTTP health와 service-role DB smoke test
+- 서버 `298/298`, 에이전트 `634 assertions`, 에이전트 Release build 경고·오류 0
+- Supabase security/performance advisor 이슈 0
 
-미완료:
+확인된 제한/후속 검토:
 
-- Docker 기반 빈 로컬 Supabase에서 전체 재생
-- 실제 `pg_cron`/`pg_net` 확장 동작 검증
-- 제약조건 및 ACL의 전체 Supabase 카탈로그 diff
-- Auth·Realtime·Storage와 서버·에이전트 애플리케이션 smoke test
-
-현재 호스트에는 Docker Desktop과 PostgreSQL CLI가 없어 전체 Supabase 로컬 스택을 실행할 수 없었다. 대신 격리된 PGlite 엔진에서 DDL 재생과 비교 가능한 카탈로그 역대조를 완료했다. `pg_cron`과 `pg_net`은 PGlite가 제공하지 않아 최소 호환 객체로 대체했다. 이 제약 때문에 합성 기준선은 아직 canonical migration이 아니다.
+- Vector analytics 로그 수집기는 Podman named pipe와 Docker TCP endpoint 불일치로 unhealthy다. DB/Auth/Storage/REST/Edge/Studio 검증에는 영향을 주지 않았지만 로그 ingestion은 미검증이다.
+- DB lint의 오류 2건은 이미 후속 버전으로 대체되고 공개 ACL이 회수된 내부 함수 `save_guided_rule_v5_impl`, `save_guided_rule_v6_impl`의 모호한 `rule_id` 참조다. 역분석 범위를 넘어 임의 수정하지 않았다.
+- 합성 기준선의 canonical migration 승격은 별도 검토와 승인 사항이다.
 
 ## 다음 안전 절차
 
-1. Docker와 Supabase CLI가 사용 가능한 격리 환경을 준비한다.
-2. `shadow-replay/replay.mjs`의 resolved-history 순서를 그대로 새 임시 Supabase workdir에 옮긴다.
-3. 첫 migration으로 이 bootstrap을 두고, canary 사용자는 실제 로컬 Auth 경로로 만든 뒤 exact UUID fixture를 구성한다.
-4. reference 79개와 문서화된 dormant/local 전환을 같은 지점에 배치한다.
-5. `supabase db reset --local`로 빈 DB 전체 재생을 수행한다.
-6. 운영 DB는 계속 읽기 전용으로 유지한 채 schema-only dump를 얻어 최종 구조 diff를 만든다.
-7. 차이가 있으면 합성 bootstrap 또는 shadow 전환 기록만 수정하고 같은 과정을 반복한다.
-8. 무차이와 테스트 통과 후 별도 검토를 거쳐 canonical 체인 승격 여부를 결정한다.
+1. 운영 DB는 계속 읽기 전용으로 유지한다.
+2. 재검증이 필요하면 `shadow-replay/replay.mjs`와 `FULL_SUPABASE_REPLAY_AUDIT_20260831_KO.md`의 resolved-history 순서를 새 임시 Supabase workdir에 옮긴다.
+3. `supabase db reset --local`과 카탈로그 비교를 다시 수행한다.
+4. Vector 로그 ingestion이 필수인 경우에만 인증·접근 제한이 있는 Podman API 연결 방식을 별도로 설계한다.
+5. 무차이와 테스트 통과 후 별도 검토를 거쳐 canonical 체인 승격 여부를 결정한다.
 
 연결된 운영 프로젝트에서 `db reset`, `migration repair`, `db push`를 실행하는 것은 이 검증 절차가 아니다.

@@ -27,7 +27,8 @@ npm run replay -- --strict-reference-only
 - `20260829030000_add_ephemeral_soop_roulette_overlay_experiment.sql` — promotion migration보다 뒤 번호라 필요한 시점에 선적용 후 원래 위치에서 멱등 재적용
 - `20260829193604_add_live_roulette_followup_card.sql`
 - `20260829200648_keep_followup_chat_open_during_series.sql`
+- 최종 shadow ACL parity 전환 — 현재 로컬 Supabase의 자동 노출 default privilege를 운영의 읽기 전용 ACL과 일치시킴
 
-PGlite가 `pg_cron`과 `pg_net` 확장을 제공하지 않으므로 이 두 확장의 생성문만 제거하고, migration 파싱·DDL 재생에 필요한 최소 객체를 prelude에서 제공한다. 따라서 이 결과는 전체 Supabase 로컬 스택의 확장 동작, Auth, Realtime, Storage, Edge Functions, 애플리케이션 smoke test를 대신하지 않는다.
+PGlite가 `pg_cron`과 `pg_net` 확장을 제공하지 않으므로 이 두 확장의 생성문만 제거하고, migration 파싱·DDL 재생에 필요한 최소 객체를 prelude에서 제공한다. 전체 Supabase 로컬 스택 검증은 상위 디렉터리의 `FULL_SUPABASE_REPLAY_AUDIT_20260831_KO.md`에서 별도로 완료했다.
 
 PGlite의 `information_schema.table_constraints`가 동일 제약을 중복 노출하는 현상이 있어 제약조건 전체 fingerprint는 비교 대상에서 제외했다. 그 밖의 테이블·열·함수·인덱스·RLS policy·trigger fingerprint는 운영 읽기 전용 카탈로그와 비교한다.

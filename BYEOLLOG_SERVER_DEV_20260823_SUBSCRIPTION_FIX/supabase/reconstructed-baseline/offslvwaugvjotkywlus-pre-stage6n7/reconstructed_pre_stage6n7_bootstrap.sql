@@ -237,8 +237,8 @@ create table public.bangsel_fans (
   updated_at timestamptz default now() not null,
   workspace_id uuid not null,
   constraint bangsel_fans_pkey primary key (workspace_id,soop_id),
-  constraint bangsel_fans_alias_nonempty check (length(btrim(alias)) > 0),
-  constraint bangsel_fans_soop_id_nonempty check (length(btrim(soop_id)) > 0),
+  constraint bangsel_fans_alias_nonempty check (length(trim(both from alias)) > 0),
+  constraint bangsel_fans_soop_id_nonempty check (length(trim(both from soop_id)) > 0),
   constraint bangsel_fans_workspace_id_fkey
     foreign key (workspace_id) references public.byeollog_workspaces(id)
 );
