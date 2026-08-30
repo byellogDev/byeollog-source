@@ -30,3 +30,7 @@ PROJECT_HANDOFF_20260825_NEXT_CHAT/*.txt text eol=lf
 *.mp3 binary
 *.zip binary
 *.exe binary
+
+# Preserve fetched Supabase migration-history references byte-for-byte so the
+# accompanying SHA-256 manifest remains valid across checkout platforms.
+BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/reference-migrations/**/migrations/*.sql -text whitespace=cr-at-eol

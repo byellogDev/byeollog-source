@@ -12,6 +12,18 @@
 
 권장 방향은 **원격 이력을 변경하지 않고, 원격 버전과 원문을 기준으로 로컬 정본 체인을 새로 구성하는 것**이다. 그 뒤 빈 shadow DB에서 전체 재생을 검증하고, 마지막에만 `db push --dry-run`으로 무변경임을 확인한다.
 
+## 2026-08-30 후속 진행 결과
+
+- 원격 79개 migration을 `supabase/reference-migrations/offslvwaugvjotkywlus-20260830/migrations`에 격리해 보존했다.
+- fetch 임시 원본과 reference의 SHA-256을 전수 대조해 79/79 일치를 확인했다.
+- 격리된 Supabase workdir의 `migration list`에서 로컬/원격 79개 버전이 모두 같은 행에 놓이는 것을 확인했다.
+- 활성 `supabase/migrations` 59개는 이동·삭제·덮어쓰기하지 않았다.
+- 자동 비교 자료와 체크섬은 reference 디렉터리의 CSV, JSON, `REMOTE_SHA256SUMS.txt`에 기록했다.
+- 저장소에는 Stage 6N7 이전 전체 bootstrap이 없으며, 원격 `20260814130048_stage6n7_existing_schema_baseline.sql`도 빈 DB용 bootstrap이 아니라고 명시한다.
+- Docker Desktop 프로세스는 시작됐지만 Linux 엔진 API가 준비되지 않아 로컬 shadow DB 실행은 중단했다. bootstrap 결손이 별도로 확인됐으므로 엔진 재시도를 반복하지 않았다.
+
+현재 reference는 **원격 이력의 정본 사본**이지만 **빈 DB 재생 가능한 bootstrap 체인**은 아니다. 이 차이를 해결하기 전에는 활성 migration 교체나 실제 push를 진행하지 않는다.
+
 ## 조사 결과
 
 | 구분 | 개수 | 판정 |

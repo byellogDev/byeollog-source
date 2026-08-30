@@ -1,0 +1,25 @@
+{
+  "projectRef": "offslvwaugvjotkywlus",
+  "snapshotDate": "20260830",
+  "supabaseCliVersion": "2.116.0",
+  "generatedAtUtc": "2026-08-30T14:15:20.4929948Z",
+  "activeMigrationCount": 59,
+  "remoteReferenceMigrationCount": 79,
+  "remoteUniqueVersionCount": 79,
+  "mappedRemoteMigrationCount": 55,
+  "remoteOnlyMigrationCount": 24,
+  "classificationCounts": {
+    "cross_name_exact_sql": 3,
+    "exact_identity_and_sql": 10,
+    "exact_identity_comments_only": 4,
+    "local_only_or_superseded": 4,
+    "same_name_comments_only": 1,
+    "same_name_sql_drift": 2,
+    "same_name_timestamp_only": 35
+  },
+  "replayReadiness": {
+    "status": "blocked_missing_pre_stage6n7_bootstrap",
+    "evidenceFile": "migrations/20260814130048_stage6n7_existing_schema_baseline.sql",
+    "evidence": "The remote history explicitly says this is not a bootstrap file for an empty database."
+  }
+}
