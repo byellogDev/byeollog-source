@@ -5,11 +5,11 @@
 - 목표 시점: `20260814121415_p0_withdraw_transaction.sql` 적용 직전
 - 운영 DB 변경: 없음
 - 역사적 전제: 필요한 SQL을 작업 시점마다 증분 적용했으며, 목표 상태 전체를 담은 단일 원본은 없었음
-- 결과물 성격: 누적 운영 상태를 고정한 합성·통합 bootstrap v1
+- 결과물 성격: 누적 운영 상태를 고정한 합성·통합 bootstrap v2 + shadow replay
 
 ## 결론
 
-현재 운영 스키마와 원격 79개 migration의 정방향 DDL을 대조해, 첫 원격 migration 직전에 필요했던 17개 public 테이블과 Stage 6N7 필수 RPC를 `reconstructed_pre_stage6n7_bootstrap.sql`에 통합했다. 이는 과거의 단일 원본 파일을 복원한 것이 아니라, 여러 차례 수동 적용으로 형성된 시점 상태를 재생 가능한 하나의 bootstrap으로 합성한 것이다.
+현재 운영 스키마와 원격 79개 migration의 정방향 DDL을 대조해, 첫 원격 migration 직전에 필요했던 17개 public 테이블과 Stage 6N7 필수 RPC를 `reconstructed_pre_stage6n7_bootstrap.sql`에 통합했다. 운영에 존재하지만 후속 원격 이력에는 생성문이 없는 초기 수동 RPC 2개도 운영 본문과 ACL을 읽기 전용으로 확인해 추가했다. 이는 과거의 단일 원본 파일을 복원한 것이 아니라, 여러 차례 수동 적용으로 형성된 시점 상태를 재생 가능한 하나의 bootstrap으로 합성한 것이다.
 
 핵심 역산은 비교적 명확하다. 원격 체인에서 이 17개 기존 테이블의 컬럼을 변경하는 파일은 `20260814130058_p1_p2_account_security.sql`뿐이다. 따라서 현재 운영 정의에서 그 파일이 추가한 다음 항목을 제거하면 첫 migration 직전의 테이블 열 경계가 나온다.
 
@@ -47,6 +47,32 @@
 - Stage 6N8가 추가할 9개 열은 bootstrap에 미리 들어 있지 않다.
 - 후속 `20260823011107_harden_public_rpc_and_rls.sql`가 생성하는 명시적 deny policy는 bootstrap에 미리 만들지 않는다.
 
+## shadow replay 결과
+
+PGlite 0.5.8의 인메모리 PostgreSQL 엔진에 Supabase 역할·Auth·Vault 최소 prelude를 만들고 다음을 순차 적용했다.
+
+1. 합성 bootstrap
+2. 보존된 원격 migration 79개
+3. exact G3A canary shadow fixture
+4. 원격 이력에서 누락된 dormant seal 제거 전환
+5. 시간상 선행했지만 dormant/local에만 보존된 migration 5개
+6. promotion이 후속 번호의 컬럼을 먼저 참조하는 순서 역전 1건의 선적용
+
+결과는 `PASS 80/80`이다. 원격 79개만 재생하는 strict 모드는 7번째 단계 `20260819165539_offsl_g3a_rc2_compat_surface.sql`에서 `G3A_COMPAT03: exact canary membership is unavailable`로 실패한다. 즉, 원격 보존본만으로는 깨끗한 DB 재생 체인이 아니다.
+
+PGlite 재생 결과와 운영 읽기 전용 카탈로그의 비교 가능한 객체 지문은 정확히 일치했다.
+
+| 객체 | 개수 | MD5 fingerprint |
+|---|---:|---|
+| tables | 68 | `291d87736bd45d8c2ecabedc9d05553d` |
+| columns | 735 | `8435cd9107ca6b22c1c2eb5e5a82e8dc` |
+| functions | 158 | `ca4e373d303bf4e56c9a1713014b7211` |
+| indexes | 216 | `6223079b579adca12865c0f9ce143627` |
+| policies | 67 | `8cc25d0d4b673c33724dc9602f7699ee` |
+| triggers | 17 | `af58b15b1ee49f7a9340b1665e1d19db` |
+
+함수 비교에서는 Supabase 플랫폼 event trigger용 `public.rls_auto_enable()`만 양쪽 비교에서 제외했다. PGlite가 `information_schema.table_constraints`를 중복 노출해 제약조건 전체 fingerprint는 신뢰 가능한 비교 대상에서 제외했다. 다만 모든 후속 DDL과 검증 migration이 끝까지 통과했으므로 참조되는 제약·열·타입의 실행 가능성은 확인됐다.
+
 ## 현재 검증 상태
 
 통과:
@@ -57,24 +83,28 @@
 - bootstrap의 173개 열과 운영 열에서 Stage 6N8 추가분을 뺀 173개 열의 대칭 차집합 0건
 - bootstrap 정적 경계 검사
 - reference migration 79개 존재와 첫 네 파일 순서 검사
+- PGlite 0.5.8에서 보충 이력 포함 80단계 전체 재생
+- 운영과 tables, columns, functions, indexes, policies, triggers의 개수 및 fingerprint 일치
+- 원격 reference-only 체인의 최초 실패 재현
 
 미완료:
 
-- 실제 PostgreSQL parser/engine에서 bootstrap 단독 실행
-- 빈 로컬 Supabase에서 bootstrap + 원격 79개 전체 재생
-- 재생 결과와 운영 스키마의 구조 diff
-- RPC/RLS/권한/트리거/인덱스 동작 및 애플리케이션 smoke test
+- Docker 기반 빈 로컬 Supabase에서 전체 재생
+- 실제 `pg_cron`/`pg_net` 확장 동작 검증
+- 제약조건 및 ACL의 전체 Supabase 카탈로그 diff
+- Auth·Realtime·Storage와 서버·에이전트 애플리케이션 smoke test
 
-현재 호스트에서는 Docker 실행 파일을 찾지 못했고, `npx supabase`도 sandbox 밖 npm cache 접근이 막혀 로컬 shadow DB 검증을 실행하지 못했다. 이 제약 때문에 이 합성 기준선은 아직 canonical migration이 아니다.
+현재 호스트에는 Docker Desktop과 PostgreSQL CLI가 없어 전체 Supabase 로컬 스택을 실행할 수 없었다. 대신 격리된 PGlite 엔진에서 DDL 재생과 비교 가능한 카탈로그 역대조를 완료했다. `pg_cron`과 `pg_net`은 PGlite가 제공하지 않아 최소 호환 객체로 대체했다. 이 제약 때문에 합성 기준선은 아직 canonical migration이 아니다.
 
 ## 다음 안전 절차
 
 1. Docker와 Supabase CLI가 사용 가능한 격리 환경을 준비한다.
-2. 새 임시 Supabase workdir의 첫 migration으로 이 bootstrap의 복사본을 둔다.
-3. 그 뒤에 reference 79개를 원격 버전 그대로 배치한다.
-4. `supabase db reset --local`로 빈 DB 전체 재생을 수행한다.
-5. 운영 DB는 계속 읽기 전용으로 유지한 채 schema-only dump를 얻어 최종 구조 diff를 만든다.
-6. 차이가 있으면 bootstrap만 수정하고 같은 과정을 반복한다.
-7. 무차이와 테스트 통과 후 별도 검토를 거쳐 canonical 체인 승격 여부를 결정한다.
+2. `shadow-replay/replay.mjs`의 resolved-history 순서를 그대로 새 임시 Supabase workdir에 옮긴다.
+3. 첫 migration으로 이 bootstrap을 두고, canary 사용자는 실제 로컬 Auth 경로로 만든 뒤 exact UUID fixture를 구성한다.
+4. reference 79개와 문서화된 dormant/local 전환을 같은 지점에 배치한다.
+5. `supabase db reset --local`로 빈 DB 전체 재생을 수행한다.
+6. 운영 DB는 계속 읽기 전용으로 유지한 채 schema-only dump를 얻어 최종 구조 diff를 만든다.
+7. 차이가 있으면 합성 bootstrap 또는 shadow 전환 기록만 수정하고 같은 과정을 반복한다.
+8. 무차이와 테스트 통과 후 별도 검토를 거쳐 canonical 체인 승격 여부를 결정한다.
 
 연결된 운영 프로젝트에서 `db reset`, `migration repair`, `db push`를 실행하는 것은 이 검증 절차가 아니다.

@@ -593,6 +593,151 @@ as $$
   order by t.fan,t.event,t.type,t.created_at;
 $$;
 
+create or replace function public.byeollog_bind_workspace_owner(
+  p_email text,
+  p_workspace_slug text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public,auth
+as $$
+declare
+  v_user uuid;
+  v_workspace uuid;
+begin
+  select id into v_user
+  from auth.users
+  where lower(email)=lower(btrim(p_email))
+  limit 1;
+  if v_user is null then
+    raise exception 'Supabase Auth user not found: %',p_email;
+  end if;
+
+  select id into v_workspace
+  from public.byeollog_workspaces
+  where slug=p_workspace_slug
+  limit 1;
+  if v_workspace is null then
+    raise exception 'Workspace not found: %',p_workspace_slug;
+  end if;
+
+  update public.byeollog_workspaces
+  set owner_user_id=v_user,updated_at=now()
+  where id=v_workspace;
+  insert into public.byeollog_workspace_members(workspace_id,user_id,role)
+  values(v_workspace,v_user,'owner')
+  on conflict(workspace_id,user_id) do update set role='owner';
+
+  return jsonb_build_object('ok',true,'user_id',v_user,'workspace_id',v_workspace);
+end;
+$$;
+
+create or replace function public.bangsel_void_roulette_ws(
+  p_workspace_id uuid,
+  p_source_uid text,
+  p_reason text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_prefix text := 'weflab:'||p_source_uid||'|';
+  v_removed integer:=0;
+  v_tasks integer:=0;
+  v_old_count integer;
+  v_new_count integer;
+  v_rest text;
+  v_remaining_key text;
+  v_deleted integer;
+  rec record;
+begin
+  if p_workspace_id is null then raise exception 'workspace_id is required'; end if;
+  if p_source_uid is null or btrim(p_source_uid)='' then raise exception 'source_uid is required'; end if;
+  if exists(
+    select 1 from public.bangsel_roulette_invalidations
+    where workspace_id=p_workspace_id and source_uid=p_source_uid
+  ) then
+    return jsonb_build_object('ok',true,'already_voided',true,'removed_links',0,'affected_tasks',0);
+  end if;
+  if not exists(
+    select 1 from public.bangsel_collector_staging
+    where workspace_id=p_workspace_id and source_uid=p_source_uid
+  ) then
+    raise exception 'Collector source not found';
+  end if;
+  if exists(
+    select 1
+    from public.bangsel_task_import_items i
+    join public.bangsel_tasks t on t.id=i.task_id
+    where i.workspace_id=p_workspace_id
+      and t.workspace_id=p_workspace_id
+      and left(i.source_event_key,length(v_prefix))=v_prefix
+      and coalesce(t.done_qty,0)>0
+  ) then
+    raise exception '완료 처리된 업보가 연결되어 있어 룰렛을 무효화할 수 없습니다.';
+  end if;
+
+  for rec in
+    select i.task_id,count(*)::integer remove_count
+    from public.bangsel_task_import_items i
+    where i.workspace_id=p_workspace_id
+      and left(i.source_event_key,length(v_prefix))=v_prefix
+    group by i.task_id
+  loop
+    select
+      coalesce((regexp_match(coalesce(t.memo,''),'^\s*([0-9]+)\s*장'))[1]::integer,1),
+      btrim(regexp_replace(coalesce(t.memo,''),'^\s*[0-9]+\s*장\s*(\r?\n)?',''))
+    into v_old_count,v_rest
+    from public.bangsel_tasks t
+    where t.id=rec.task_id and t.workspace_id=p_workspace_id
+    for update;
+    if not found then continue; end if;
+
+    v_new_count:=greatest(0,v_old_count-rec.remove_count);
+    delete from public.bangsel_task_import_items i
+    where i.workspace_id=p_workspace_id
+      and i.task_id=rec.task_id
+      and left(i.source_event_key,length(v_prefix))=v_prefix;
+    get diagnostics v_deleted=row_count;
+    v_removed:=v_removed+v_deleted;
+
+    select i.source_event_key into v_remaining_key
+    from public.bangsel_task_import_items i
+    where i.workspace_id=p_workspace_id and i.task_id=rec.task_id
+    order by i.created_at nulls last,i.source_event_key
+    limit 1;
+    if v_new_count<=0 and v_remaining_key is null and exists(
+      select 1 from public.bangsel_tasks t
+      where t.id=rec.task_id and t.workspace_id=p_workspace_id
+        and t.source='weflab_roulette_grouped'
+    ) then
+      delete from public.bangsel_tasks
+      where id=rec.task_id and workspace_id=p_workspace_id;
+    else
+      update public.bangsel_tasks
+      set memo=greatest(1,v_new_count)::text||'장'||
+          case when coalesce(v_rest,'')<>'' then E'\n'||v_rest else '' end,
+          source_event_key=case
+            when left(coalesce(source_event_key,''),length(v_prefix))=v_prefix
+              then v_remaining_key
+            else source_event_key
+          end
+      where id=rec.task_id and workspace_id=p_workspace_id;
+    end if;
+    v_tasks:=v_tasks+1;
+  end loop;
+
+  insert into public.bangsel_roulette_invalidations(workspace_id,source_uid,reason)
+  values(p_workspace_id,p_source_uid,nullif(btrim(coalesce(p_reason,'')),''));
+  return jsonb_build_object(
+    'ok',true,'already_voided',false,'removed_links',v_removed,'affected_tasks',v_tasks
+  );
+end;
+$$;
+
 create or replace function public.byeollog_approve_signup_application(
   p_application_id uuid,
   p_reviewer uuid default null
@@ -719,6 +864,14 @@ revoke all on function public.get_public_workspace(text) from public,anon,authen
 grant execute on function public.get_public_workspace(text) to anon,authenticated,service_role;
 revoke all on function public.get_public_bangsel(text,text) from public,anon,authenticated;
 grant execute on function public.get_public_bangsel(text,text) to anon,authenticated,service_role;
+revoke all on function public.byeollog_bind_workspace_owner(text,text)
+  from public,anon,authenticated;
+grant execute on function public.byeollog_bind_workspace_owner(text,text)
+  to service_role;
+revoke all on function public.bangsel_void_roulette_ws(uuid,text,text)
+  from public,anon,authenticated;
+grant execute on function public.bangsel_void_roulette_ws(uuid,text,text)
+  to service_role;
 revoke all on function public.byeollog_approve_signup_application(uuid,uuid)
   from public,anon,authenticated;
 grant execute on function public.byeollog_approve_signup_application(uuid,uuid)

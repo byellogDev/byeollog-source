@@ -1,0 +1,12 @@
+{
+  "name": "byeollog-supabase-shadow-replay",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "replay": "node replay.mjs"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "0.5.8"
+  }
+}

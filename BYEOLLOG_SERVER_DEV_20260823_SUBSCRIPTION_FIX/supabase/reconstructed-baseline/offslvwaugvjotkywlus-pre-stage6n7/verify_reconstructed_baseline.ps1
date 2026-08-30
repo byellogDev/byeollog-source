@@ -43,6 +43,7 @@ if ($createTableCount -ne $expectedTables.Count) {
 
 $requiredFunctions = @(
   'get_public_workspace','get_public_bangsel','byeollog_approve_signup_application',
+  'byeollog_bind_workspace_owner','bangsel_void_roulette_ws',
   'set_updated_at','set_fan_station_updated_at','set_bangsel_fans_updated_at',
   'set_bangsel_roulette_rules_updated_at'
 )
