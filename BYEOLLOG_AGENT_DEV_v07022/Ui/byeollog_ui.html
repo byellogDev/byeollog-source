@@ -50,7 +50,7 @@
       <div class="main-card health"><div class="health-row warn clickable" id="weflabRow" role="button" tabindex="0" aria-label="위플랩 로그인 열기"><span class="health-icon">W</span><div><div class="health-name">Weflab</div><div class="health-value" id="weflabValue">연결 필요</div></div><span class="health-meta" id="weflabMeta">로그인 열기 ›</span></div><div class="health-row"><span class="health-icon">A</span><div><div class="health-name">자동 업로드</div><div class="health-value" id="uploadValue">정상 동작 중</div></div><span class="health-meta" id="uploadMeta">대기 0건</span></div><div class="health-row" id="serverRow"><span class="health-icon">S</span><div><div class="health-name">별록 서버</div><div class="health-value" id="serverValue">연결됨</div></div><span class="health-meta" id="serverMeta">방금 확인</span></div><div class="health-row" id="ttsRow"><span class="health-icon">T</span><div><div class="health-name">TTS 서버</div><div class="health-value" id="ttsValue">확인 중</div></div><span class="health-meta" id="ttsMeta">연결 상태 확인</span></div></div>
     </section>
     <section class="main-stats"><div class="main-stat"><span>이번 세션 후원</span><strong id="statDonations">0건</strong></div><div class="main-stat"><span>수집 별풍선</span><strong id="statBalloons">0개</strong></div><div class="main-stat"><span>룰렛 결과</span><strong id="statRoulette">0건</strong></div></section>
-    <section class="quick-actions"><button class="quick" id="dashboard"><i>↗</i><b>대시보드 바로가기</b><small>로그인된 별록 대시보드 열기</small></button><button class="quick" data-open="rules"><i>⚙</i><b>업보 규칙 설정</b><small>후원 결과별 업보 수집 규칙 관리</small></button><button class="quick" data-open="collection"><i>☷</i><b>수집 목록 보기</b><small>수집 및 학습 필요 항목 확인</small></button><button class="quick danger" id="exit"><i>⏻</i><b>프로그램 종료</b><small>수집을 마치고 안전하게 종료</small></button></section>
+    <section class="quick-actions"><button class="quick" id="dashboard"><i>↗</i><b>대시보드 바로가기</b><small>로그인된 별록 대시보드 열기</small></button><button class="quick" data-open="rules"><i>⚙</i><b>업보 규칙 설정</b><small>후원 결과별 업보 수집 규칙 관리</small></button><button class="quick" id="wallpaperShortcut"><i>▦</i><b>별록 풍벽지</b><small>OBS 전용 풍벽지 주소와 배치 안내</small></button><button class="quick danger" id="exit"><i>⏻</i><b>프로그램 종료</b><small>수집을 마치고 안전하게 종료</small></button></section>
     <footer class="main-footer" id="mainFooter"><span>별을 기록하다, 별록.</span><span><i></i><span id="footerStatus">마지막 자동 전송 없음 · 대기 0건</span></span></footer>
   </main>
   <div class="workspace hidden" id="workspace">
@@ -203,6 +203,7 @@
   });
   document.querySelector('#saveRules').onclick=()=>post('saveRules');
   document.querySelector('#automationNav').onclick=()=>post('openAutomationSettings');
+  document.querySelector('#wallpaperShortcut').onclick=()=>post('openAutomationSettings',{view:'wallpaper'});
   document.querySelector('#cancelRules').onclick=()=>post('cancelRules');
   ['#rouletteBalloons','#rouletteSpins','#rouletteEvent'].forEach(selector=>document.querySelector(selector).addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();document.querySelector('#addRoulette').click()}}));
   ['#fixedBalloons','#fixedEvent','#fixedType','#fixedQuantity'].forEach(selector=>document.querySelector(selector).addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();document.querySelector('#addFixed').click()}}));

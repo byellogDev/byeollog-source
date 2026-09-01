@@ -36,6 +36,9 @@ test('Collector handoff is short-lived, one-use, fragment transported, and scrub
   assert.match(loginApi,/used_at=is\.null/);
   assert.match(loginApi,/prefer:'return=representation'/);
   assert.match(loginApi,/expires_at=gt\./);
+  assert.match(loginApi,/select=id,workspace_id,status,created_by_user_id/);
+  assert.match(loginApi,/user_id:device\.created_by_user_id/);
+  assert.match(loginApi,/role:membership\.role/);
 });
 
 test('public mutations reject browser cross-site origins without breaking native clients',()=>{

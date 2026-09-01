@@ -436,3 +436,365 @@ test("v107 release preparation is immutable and doubles photoreal confetti at 1.
   assert.match(notes, /108개에서 216개/);
   assert.match(notes, /1\.2배/);
 });
+
+test("v111 release preparation is immutable and packages the single OBS wallpaper layer", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07111-AutoUpdate.ps1"),
+    source("RELEASE_v07111_SINGLE_OVERLAY_WALLPAPER_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7111/);
+  assert.match(build, /byeollog_agent_v07111_SINGLE_OVERLAY_WALLPAPER_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.111'/);
+  assert.match(notes, /기존 OBS 주소 하나/);
+  assert.match(notes, /풍벽지보다 항상 위/);
+});
+
+test("v112 refreshes the existing OBS local overlay once after Agent startup", async () => {
+  const [build, notes, agent] = await Promise.all([
+    source("Build-v07112-AutoUpdate.ps1"),
+    source("RELEASE_v07112_OBS_REFRESH_FIX_KO.txt"),
+    source("VNextLocalAgent.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7112/);
+  assert.match(build, /byeollog_agent_v07112_OBS_REFRESH_FIX_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.112'/);
+  assert.match(notes, /한 번만 캐시 없이 새로고침/);
+  assert.match(agent, /RefreshOverlayBrowserSourceAfterStartupAsync\(cancellationToken\)/);
+  assert.match(agent, /Interlocked\.Exchange\(ref _startupOverlayRefreshPending, 0\)/);
+});
+
+test("v113 renders the Agent wallpaper with the restored web visual language", async () => {
+  const [build, notes, overlay] = await Promise.all([
+    source("Build-v07113-AutoUpdate.ps1"),
+    source("RELEASE_v07113_WEB_WALLPAPER_VISUAL_PARITY_KO.txt"),
+    source("ByeollogOverlayService.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7113/);
+  assert.match(build, /byeollog_agent_v07113_WEB_WALLPAPER_VISUAL_PARITY_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.113'/);
+  assert.match(notes, /이전 웹 풍벽지 디자인/);
+  assert.match(overlay, /"Noto Sans KR",Pretendard,"Malgun Gothic",sans-serif/);
+  assert.match(overlay, /--label-size/);
+});
+
+test("v114 stacks merged donation amounts as one continuous amount-time ordered group", async () => {
+  const [build, notes, overlay] = await Promise.all([
+    source("Build-v07114-AutoUpdate.ps1"),
+    source("RELEASE_v07114_MERGED_WALLPAPER_CONTINUOUS_STACK_KO.txt"),
+    source("ByeollogOverlayService.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7114/);
+  assert.match(build, /byeollog_agent_v07114_MERGED_WALLPAPER_CONTINUOUS_STACK_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.114'/);
+  assert.match(notes, /하나의 동일 그룹/);
+  assert.match(notes, /별풍선 개수 오름차순/);
+  assert.doesNotMatch(overlay, /function wallpaperRuns/);
+  assert.match(overlay, /const cards = group\.tiles\.map\(\(tile, index\) =>/);
+});
+
+test("v115 keeps every wallpaper donation label above every wallpaper image", async () => {
+  const [build, notes, overlay] = await Promise.all([
+    source("Build-v07115-AutoUpdate.ps1"),
+    source("RELEASE_v07115_WALLPAPER_LABEL_LAYER_PRIORITY_KO.txt"),
+    source("ByeollogOverlayService.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7115/);
+  assert.match(build, /byeollog_agent_v07115_WALLPAPER_LABEL_LAYER_PRIORITY_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.115'/);
+  assert.match(notes, /후원정보.*이미지/);
+  assert.match(overlay, /\.wallpaper-tile img[^}]*z-index:1/);
+  assert.match(overlay, /\.wallpaper-meta[^}]*z-index:1000/);
+  assert.match(overlay, /node\.style\.zIndex = 'auto'/);
+});
+
+test("v116 clips the native login window to the same rounded shell as the main window", async () => {
+  const [build, notes, login] = await Promise.all([
+    source("Build-v07116-AutoUpdate.ps1"),
+    source("RELEASE_v07116_LOGIN_WINDOW_ROUNDED_CORNERS_KO.txt"),
+    source("CollectorLoginWebForm.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7116/);
+  assert.match(build, /byeollog_agent_v07116_LOGIN_WINDOW_ROUNDED_CORNERS_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.116'/);
+  assert.match(notes, /실제 Windows 창 영역/);
+  assert.match(notes, /24px/);
+  assert.match(login, /ApplyRoundedRegion\(24\);/);
+  assert.match(login, /Resize \+= \(_, _\) => ApplyRoundedRegion\(24\);/);
+});
+
+test("v117 separates action and wallpaper overlays and exposes the Agent guide", async () => {
+  const [build, notes, service, ui] = await Promise.all([
+    source("Build-v07117-AutoUpdate.ps1"),
+    source("RELEASE_v07117_SPLIT_ACTION_WALLPAPER_OVERLAY_KO.txt"),
+    source("ByeollogOverlayService.cs"),
+    source("Ui/agent_automation.html")
+  ]);
+  assert.match(build, /\$releaseSequence = 7117/);
+  assert.match(build, /byeollog_agent_v07117_SPLIT_ACTION_WALLPAPER_OVERLAY_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.117'/);
+  assert.match(notes, /액션 OBS 주소.*액션만/);
+  assert.match(service, /WallpaperOverlayUrl/);
+  assert.match(ui, /id="wallpaperNav"/);
+  assert.match(ui, /풍벽지는 액션 아래/);
+});
+
+test("v118 seals the split-overlay guide layout fix", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07118-AutoUpdate.ps1"),
+    source("RELEASE_v07118_SPLIT_ACTION_WALLPAPER_GUIDE_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7118/);
+  assert.match(build, /byeollog_agent_v07118_SPLIT_ACTION_WALLPAPER_GUIDE_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.118'/);
+  assert.match(notes, /창 아래에서 잘리지 않도록/);
+});
+
+test("v119 replaces idle polling with private Realtime wake hints", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07119-AutoUpdate.ps1"),
+    source("RELEASE_v07119_REALTIME_WAKE_TRAFFIC_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7119/);
+  assert.match(build, /byeollog_agent_v07119_REALTIME_WAKE_TRAFFIC_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.119'/);
+  assert.match(notes, /Realtime/);
+  assert.match(notes, /30초/);
+  assert.match(notes, /2초/);
+});
+
+test("v120 coalesces only background status and asset traffic", async () => {
+  const [build, notes] = await Promise.all([
+    source("Build-v07120-AutoUpdate.ps1"),
+    source("RELEASE_v07120_BACKGROUND_TRAFFIC_KO.txt")
+  ]);
+  assert.match(build, /\$releaseSequence = 7120/);
+  assert.match(build, /byeollog_agent_v07120_BACKGROUND_TRAFFIC_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.120'/);
+  assert.match(notes, /Realtime 즉시 깨우기/);
+  assert.match(notes, /30초 안전 claim/);
+  assert.match(notes, /5분/);
+  assert.match(notes, /15분/);
+});
+
+test("v121 makes Realtime authoritative and retains only bounded recovery polling", async () => {
+  const [build, notes, agent] = await Promise.all([
+    source("Build-v07121-AutoUpdate.ps1"),
+    source("RELEASE_v07121_EVENT_DRIVEN_RECOVERY_KO.txt"),
+    source("VNextLocalAgent.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7121/);
+  assert.match(build, /byeollog_agent_v07121_EVENT_DRIVEN_RECOVERY_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.121'/);
+  assert.match(notes, /Realtime 신호를 받는 즉시 claim/);
+  assert.match(notes, /10분 누락 복구/);
+  assert.match(notes, /2초 안전 claim/);
+  assert.match(agent, /RealtimeConnectedRecoveryInterval = TimeSpan\.FromSeconds\(30\)/);
+  assert.match(agent, /RealtimeDisconnectedClaimFallback = TimeSpan\.FromSeconds\(2\)/);
+});
+
+test("v122 preserves every wallpaper wake until its snapshot is applied", async () => {
+  const [build, notes, agent, tracker] = await Promise.all([
+    source("Build-v07122-AutoUpdate.ps1"),
+    source("RELEASE_v07122_WALLPAPER_WAKE_RECOVERY_KO.txt"),
+    source("VNextLocalAgent.cs"),
+    source("WallpaperOverlayState.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7122/);
+  assert.match(build, /byeollog_agent_v07122_WALLPAPER_WAKE_RECOVERY_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.122'/);
+  assert.match(notes, /풍벽지 변경 세대/);
+  assert.match(notes, /5초 주기 제한을 우회/);
+  assert.match(agent, /_wallpaperRequests\.Pending/);
+  assert.match(agent, /CompleteThrough\(requestGeneration\)/);
+  assert.match(tracker, /class WallpaperSyncRequestTracker/);
+});
+
+test("v123 detects actual SOOP image bytes and keeps the last complete OBS snapshot", async () => {
+  const [build, notes, wallpaper] = await Promise.all([
+    source("Build-v07123-AutoUpdate.ps1"),
+    source("RELEASE_v07123_WALLPAPER_IMAGE_FORMAT_FIX_KO.txt"),
+    source("WallpaperOverlayState.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7123/);
+  assert.match(build, /byeollog_agent_v07123_WALLPAPER_IMAGE_FORMAT_FIX_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.123'/);
+  assert.match(notes, /파일 서명/);
+  assert.match(notes, /기존 OBS 화면/);
+  assert.match(wallpaper, /DetectAndValidateImageBytes/);
+  assert.match(wallpaper, /previousByKey\[imageKey\] = token/);
+  assert.doesNotMatch(wallpaper, /tile\["imageUrl"\] = null;\s*\}\s*catch/);
+});
+
+test("v124 automatically reclaims incomplete wallpaper snapshots left by older Agents", async () => {
+  const [build, notes, wallpaper] = await Promise.all([
+    source("Build-v07124-AutoUpdate.ps1"),
+    source("RELEASE_v07124_WALLPAPER_IMAGE_SELF_HEAL_KO.txt"),
+    source("WallpaperOverlayState.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7124/);
+  assert.match(build, /byeollog_agent_v07124_WALLPAPER_IMAGE_SELF_HEAL_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.124'/);
+  assert.match(notes, /전체 스냅샷을 자동으로 다시 받아 복구/);
+  assert.match(wallpaper, /StateNeedsAssetRepair/);
+  assert.match(wallpaper, /_revision = StateNeedsAssetRepair\(document\.RootElement\) \? 0 : value/);
+});
+
+test("v125 renders image-free subscription month wallpaper cards without touching the action hot path", async () => {
+  const [build, notes, overlay, wallpaper] = await Promise.all([
+    source("Build-v07125-AutoUpdate.ps1"),
+    source("RELEASE_v07125_WALLPAPER_SUBSCRIPTION_CARDS_KO.txt"),
+    source("ByeollogOverlayService.cs"),
+    source("WallpaperOverlayState.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7125/);
+  assert.match(build, /byeollog_agent_v07125_WALLPAPER_SUBSCRIPTION_CARDS_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.125'/);
+  assert.match(notes, /n개월 구독/);
+  assert.match(notes, /이미지.*내려받지 않/);
+  assert.match(overlay, /displayKind === 'subscription'/);
+  assert.match(overlay, /개월 구독/);
+  assert.match(overlay, /\.wallpaper-tile\.text-only/);
+  assert.match(wallpaper, /if \(imageKey is null\) \{ tile\["imageUrl"\] = null; continue; \}/);
+});
+
+test("v126 restores subscription label size parity without changing wallpaper data flow", async () => {
+  const [build, notes, overlay] = await Promise.all([
+    source("Build-v07126-AutoUpdate.ps1"),
+    source("RELEASE_v07126_WALLPAPER_SUBSCRIPTION_FONT_PARITY_KO.txt"),
+    source("ByeollogOverlayService.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7126/);
+  assert.match(build, /byeollog_agent_v07126_WALLPAPER_SUBSCRIPTION_FONT_PARITY_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.126'/);
+  assert.match(notes, /일반 후원정보 카드와 비슷한 시각 크기/);
+  assert.match(overlay, /\.wallpaper-tile\.text-only \.wallpaper-meta[^}]*42cqh/);
+});
+
+test("v127 renders and locally caches SOOP official subscription wallpaper images", async () => {
+  const [build, notes, overlay, wallpaper] = await Promise.all([
+    source("Build-v07127-AutoUpdate.ps1"),
+    source("RELEASE_v07127_WALLPAPER_SUBSCRIPTION_OFFICIAL_IMAGE_KO.txt"),
+    source("ByeollogOverlayService.cs"),
+    source("WallpaperOverlayState.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7127/);
+  assert.match(build, /byeollog_agent_v07127_WALLPAPER_SUBSCRIPTION_OFFICIAL_IMAGE_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.127'/);
+  assert.match(notes, /SOOP 구독 이벤트가 제공하는 공식 구독 이미지/);
+  assert.match(notes, /최초 1회 로컬 캐시/);
+  assert.match(overlay, /card\.displayKind === 'subscription' && !\(typeof card\.imageUrl === 'string' && card\.imageUrl\)/);
+  assert.match(wallpaper, /CacheRemoteImageAsync\(remoteUrl, tile, cancellationToken\)/);
+  assert.match(wallpaper, /HostMatches\(host, "sooplive\.com"\)/);
+});
+
+test("v128 restores reference two-line cards, strict OBS bounds, and compact fallback", async () => {
+  const [build, notes, overlay] = await Promise.all([
+    source("Build-v07128-AutoUpdate.ps1"),
+    source("RELEASE_v07128_WALLPAPER_REFERENCE_CARD_UNIFORM_WIDTH_KO.txt"),
+    source("ByeollogOverlayService.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7128/);
+  assert.match(build, /byeollog_agent_v07128_WALLPAPER_REFERENCE_CARD_UNIFORM_WIDTH_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.128'/);
+  assert.match(notes, /후원자명.*두 줄 카드/);
+  assert.match(notes, /극단적으로 작아진 카드만 한 줄/);
+  assert.match(overlay, /wallpaper-meta-name/);
+  assert.match(overlay, /info:'별풍선 ' \+ amount \+ '개'/);
+  assert.match(overlay, /card\.width < 150 \|\| card\.height < 160/);
+  assert.match(overlay, /layout\.x >= 0 && layout\.y >= 0/);
+  assert.doesNotMatch(overlay, /Math\.max\(-160|2080 - x/);
+});
+
+test("v129 removes the middle dot from compact wallpaper card labels", async () => {
+  const [build, notes, overlay] = await Promise.all([
+    source("Build-v07129-AutoUpdate.ps1"),
+    source("RELEASE_v07129_WALLPAPER_COMPACT_LABEL_SPACING_KO.txt"),
+    source("ByeollogOverlayService.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7129/);
+  assert.match(build, /byeollog_agent_v07129_WALLPAPER_COMPACT_LABEL_SPACING_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.129'/);
+  assert.match(notes, /가운데 점 없이 공백 한 칸/);
+  assert.match(overlay, /compact:actor \+ ' ' \+ amount \+ '개'/);
+  assert.match(overlay, /compact:actor \+ ' ' \+ amount \+ '개월'/);
+  assert.match(overlay, /compact:'도전미션 ' \+ amount \+ '개'/);
+  assert.doesNotMatch(overlay, /compact:[^;}]*·/);
+});
+
+test("v131 removes wallpaper seams and syncs new cards independently from action slots", async () => {
+  const [build, notes, overlay, agent, client] = await Promise.all([
+    source("Build-v07131-AutoUpdate.ps1"),
+    source("RELEASE_v07131_WALLPAPER_SIZE_RULES_NO_SHADOW_KO.txt"),
+    source("ByeollogOverlayService.cs"),
+    source("VNextLocalAgent.cs"),
+    source("VNextDevelopmentClient.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7131/);
+  assert.match(build, /byeollog_agent_v07131_WALLPAPER_SIZE_RULES_NO_SHADOW_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.131'/);
+  assert.match(notes, /외부 그림자.*어두운 이음선/);
+  assert.match(overlay, /\.wallpaper-tile img[^}]*filter:none/);
+  assert.match(overlay, /\.wallpaper-meta[^}]*filter:none/);
+  assert.match(overlay, /setTimeout\(refreshWallpaper, 100\)/);
+  assert.match(agent, /ScheduleDirectWallpaperSync\(requestGeneration/);
+  assert.match(agent, /_wallpaperFetchGate/);
+  assert.match(client, /operation = "wallpaper"/);
+  assert.match(client, /GetWallpaperSnapshotAsync/);
+});
+
+test("wallpaper transfer compaction is negotiated and expands before the OBS renderer", async () => {
+  const [build, notes, client, wallpaper] = await Promise.all([
+    source("Build-v07132-AutoUpdate.ps1"),
+    source("RELEASE_v07132_WALLPAPER_SNAPSHOT_COMPACTION_KO.txt"),
+    source("VNextDevelopmentClient.cs"),
+    source("WallpaperOverlayState.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7132/);
+  assert.match(build, /byeollog_agent_v07132_WALLPAPER_SNAPSHOT_COMPACTION_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.132'/);
+  assert.match(notes, /한 번만 전송/);
+  assert.match(notes, /액션 claim.*변경하지 않았/);
+  assert.match(client, /WallpaperSchemaVersion = 2/);
+  assert.match(client, /wallpaperSchemaVersion = WallpaperSchemaVersion/g);
+  assert.match(client, /schemaVersion is not \(1 or 2\)/);
+  assert.match(wallpaper, /if \(schemaVersion == 2\) ExpandCompactState\(root\)/);
+  assert.match(wallpaper, /root\["schemaVersion"\] = 1/);
+  assert.match(wallpaper, /previousByKey\.TryGetValue/);
+});
+
+test("v133 moves only non-critical sync traffic off Edge and preserves action leasing", async () => {
+  const [build, notes, client, agent, mapper] = await Promise.all([
+    source("Build-v07133-AutoUpdate.ps1"),
+    source("RELEASE_v07133_DIRECT_SYNC_TRAFFIC_KO.txt"),
+    source("VNextDevelopmentClient.cs"),
+    source("VNextLocalAgent.cs"),
+    source("AgentWallpaperSnapshotMapper.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7133/);
+  assert.match(build, /byeollog_agent_v07133_DIRECT_SYNC_TRAFFIC_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.133'/);
+  assert.match(notes, /액션.*lease/);
+  assert.match(notes, /기존 2초 복구 claim/);
+  assert.match(client, /g3a_agent_direct_report_v1/);
+  assert.match(client, /g3a_agent_direct_pending_v1/);
+  assert.match(client, /g3a_agent_direct_wallpaper_snapshot_v1/);
+  assert.match(agent, /DeviceStatusInterval = TimeSpan\.FromMinutes\(4\)/);
+  assert.match(agent, /RealtimeDisconnectedClaimFallback = TimeSpan\.FromSeconds\(2\)/);
+  assert.match(agent, /RequestExecutionClaim/);
+  assert.match(mapper, /class AgentWallpaperSnapshotMapper/);
+});
+
+test("v134 bounds silent Realtime wake recovery without delaying the hot path", async () => {
+  const [build, notes, agent] = await Promise.all([
+    source("Build-v07134-AutoUpdate.ps1"),
+    source("RELEASE_v07134_REALTIME_RECOVERY_KO.txt"),
+    source("VNextLocalAgent.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7134/);
+  assert.match(build, /byeollog_agent_v07134_REALTIME_RECOVERY_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.134'/);
+  assert.match(notes, /30초 이내/);
+  assert.match(notes, /즉시 실행/);
+  assert.match(agent, /RealtimeConnectedRecoveryInterval = TimeSpan\.FromSeconds\(30\)/);
+  assert.match(agent, /RealtimeDisconnectedClaimFallback = TimeSpan\.FromSeconds\(2\)/);
+});

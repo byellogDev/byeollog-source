@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>별록 대시보드</title>
+<title>별록 업보</title>
 <link rel="icon" type="image/png" href="/assets/byeollog_app_icon.png">
 <link rel="apple-touch-icon" href="/assets/byeollog_app_icon.png">
 <style>
@@ -285,8 +285,9 @@ body[data-theme="dark"] code{color:#ffd66f}
 
   <nav class="productNav dashboardNav" aria-label="별록 대시보드">
     <a href="/dashboard/roulette">◉ 룰렛</a>
+    <a href="/dashboard/signatures">✹ 시그풍</a>
+    <a href="/dashboard/wallpaper">▦ 풍벽지</a>
     <a href="/dashboard/actions">✦ 액션</a>
-    <a href="/dashboard/overlay">▣ 오버레이</a>
     <a class="active" href="/dashboard">✓ 업보</a>
   </nav>
 
@@ -3575,7 +3576,7 @@ function hidePreview(){const p=$('preview');p.style.display='none';p.innerHTML='
 
 login();
 
-window.addEventListener('DOMContentLoaded',()=>{document.title='Dashboard';syncToggleButton('toggleBatchBtn','batchBox');syncToggleButton('toggleDonationStatsBtn','donationStatsBox');syncToggleButton('toggleCollectorBtn','collectorBox');syncToggleButton('toggleNonBangselBtn','nonBangselBox');syncToggleButton('toggleUserBtn','userBox');syncToggleButton('toggleBackupBtn','backupBox')});
+window.addEventListener('DOMContentLoaded',()=>{syncToggleButton('toggleBatchBtn','batchBox');syncToggleButton('toggleDonationStatsBtn','donationStatsBox');syncToggleButton('toggleCollectorBtn','collectorBox');syncToggleButton('toggleNonBangselBtn','nonBangselBox');syncToggleButton('toggleUserBtn','userBox');syncToggleButton('toggleBackupBtn','backupBox')});
 </script>
 
 <script>

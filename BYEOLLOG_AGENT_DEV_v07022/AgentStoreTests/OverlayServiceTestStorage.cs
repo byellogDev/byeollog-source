@@ -4,6 +4,15 @@ namespace HurogiCollector;
 // 실제 Agent 프로젝트에서는 production CollectorStorage가 사용됩니다.
 internal sealed class CollectorStorage
 {
+    public CollectorStorage(string? rootPath = null)
+    {
+        RootPath = rootPath is null
+            ? Path.Combine(Path.GetTempPath(), "byeollog-overlay-tests", Guid.NewGuid().ToString("N"))
+            : Path.GetFullPath(rootPath);
+    }
+
+    public string RootPath { get; }
+
     public void Log(string message)
     {
     }

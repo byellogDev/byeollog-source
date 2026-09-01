@@ -67,13 +67,28 @@ internal sealed class VNextLocalAgent : IDisposable
             _wake();
         }
     }
-    private static readonly TimeSpan DeviceStatusInterval = TimeSpan.FromSeconds(30);
+    // Realtime is the hot path. The durable execution queue and local ACK outbox
+    // remain authoritative; these intervals are only liveness/recovery fences.
+    // A connected Agent therefore does not poll continuously while idle.
+    // The authoritative claim RPC requires an exact capability report newer
+    // than five minutes. Four minutes leaves clock/network margin while this
+    // heartbeat now travels through the low-cost direct PostgREST path.
+    private static readonly TimeSpan DeviceStatusInterval = TimeSpan.FromMinutes(4);
+    private static readonly TimeSpan OverlayAssetSyncInterval = TimeSpan.FromHours(6);
+    // A missed Realtime wake must not leave a live donation/action dormant.
+    // This is a lightweight authoritative pending probe, not a full claim or
+    // asset poll; normal Realtime delivery still executes immediately.
+    private static readonly TimeSpan RealtimeConnectedRecoveryInterval = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan RealtimeDisconnectedClaimFallback = TimeSpan.FromSeconds(2);
+    private static readonly TimeSpan WallpaperSyncInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan DeviceSecretRotationInterval = TimeSpan.FromDays(90);
     private readonly VNextDevelopmentClient _client;
+    private readonly VNextRealtimeWakeListener _wakeListener;
     private readonly CollectorStorage _collectorStorage;
     private readonly VNextAgentStore _store;
     private readonly ObsActionAdapter _obsActions;
     private readonly OverlayAssetCache _overlayAssets;
+    private readonly WallpaperOverlayState _wallpaper;
     private readonly ByeollogOverlayService _overlay;
     private readonly TimedMuteActionAdapter _timedMuteActions;
     private readonly RaffleOverlayActionAdapter _raffleOverlayActions;
@@ -90,25 +105,36 @@ internal sealed class VNextLocalAgent : IDisposable
     private readonly SemaphoreSlim _wakeSignal = new(0, 1);
     private readonly SemaphoreSlim _registrationGate = new(1, 1);
     private readonly SemaphoreSlim _overlayAssetSyncGate = new(1, 1);
+    private readonly SemaphoreSlim _wallpaperFetchGate = new(1, 1);
+    private readonly SemaphoreSlim _wallpaperSyncGate = new(1, 1);
     private readonly SemaphoreSlim _outboxFlushGate = new(1, 1);
     private readonly SemaphoreSlim _executionSlots = new(MaximumConcurrentExecutions, MaximumConcurrentExecutions);
     private readonly SemaphoreSlim _raffleSpeechPrewarmGate = new(1, 1);
+    private readonly WallpaperSyncRequestTracker _wallpaperRequests = new();
     private readonly object _executionGate = new();
     private readonly HashSet<Task> _inflightExecutions = [];
     private readonly object _statusGate = new();
     private Task? _loop;
+    private DateTimeOffset _nextWallpaperSyncAtUtc = DateTimeOffset.MinValue;
     private VNextLocalAgentStatus _status = new(false, false, "중지됨", 0, 0, true, 0, null, "");
     private bool _disposed;
     private bool _deviceRegistered;
     private DateTimeOffset? _lastDeviceStatusAt;
+    private int _startupOverlayRefreshPending = 1;
     private DateTimeOffset _nextOverlayAssetSyncAt = DateTimeOffset.MinValue;
     private DateTimeOffset _nextDeviceStatusAt = DateTimeOffset.MinValue;
     private int _resourcesDisposed;
+    private int _executionClaimRequested = 1;
 
     public VNextLocalAgent(VNextDevelopmentClient client, CollectorStorage collectorStorage)
     {
         _client = client;
         _collectorStorage = collectorStorage;
+        _wakeListener = new VNextRealtimeWakeListener(
+            client.GetRealtimeCredentialsAsync,
+            RequestExecutionClaim,
+            RequestWallpaperSync,
+            collectorStorage.Log);
         var databasePath = Path.Combine(collectorStorage.RootPath, "vnext_agent.sqlite");
         _store = new VNextAgentStore(databasePath);
         try
@@ -123,7 +149,12 @@ internal sealed class VNextLocalAgent : IDisposable
             _overlayAssets = new OverlayAssetCache(
                 Path.Combine(collectorStorage.RootPath, "overlay-assets"),
                 collectorStorage.Log);
-            _overlay = new ByeollogOverlayService(collectorStorage, _overlayAssets);
+            _wallpaper = new WallpaperOverlayState(
+                collectorStorage.RootPath,
+                collectorStorage.Log,
+                handler: null,
+                authenticatedDownloader: _client.DownloadAuthenticatedWallpaperImageAsync);
+            _overlay = new ByeollogOverlayService(collectorStorage, _overlayAssets, _wallpaper);
             _overlay.TryStart();
             _timedMuteActions = new TimedMuteActionAdapter(collectorStorage, _overlay);
             _raffleWinnerSpeechCache = new RaffleWinnerSpeechCache(
@@ -286,6 +317,7 @@ internal sealed class VNextLocalAgent : IDisposable
         }
         catch
         {
+            _wakeListener.Dispose();
             _store.Dispose();
             throw;
         }
@@ -297,11 +329,34 @@ internal sealed class VNextLocalAgent : IDisposable
 
     public string DeviceId => _deviceId;
     public string OverlayUrl => _overlay.OverlayUrl;
+    public string WallpaperOverlayUrl => _overlay.WallpaperOverlayUrl;
 
     public bool OverlayAvailable => _overlay.IsRunning;
     public OverlayAssetCacheStatus OverlayAssetStatus => _overlayAssets.Status();
     public IReadOnlyList<VNextOverlayAssetDescriptor> PackagedOverlayImages() =>
         _overlayAssets.PackagedImageDescriptors();
+
+    public async Task<(int ActionSources, int WallpaperSources)> RefreshObsOverlaySourcesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        var settings = _collectorStorage.LoadObsSettings();
+        if (!settings.Enabled)
+            throw new InvalidOperationException(
+                "OBS 연결 설정을 먼저 켜야 별록 오버레이 소스를 자동 확인할 수 있습니다.");
+
+        var actionSources = await ObsActionAdapter.RefreshOverlayBrowserSourcesAsync(
+            settings,
+            _overlay.OverlayUrl,
+            cancellationToken);
+        var wallpaperSources = await ObsActionAdapter.RefreshOverlayBrowserSourcesAsync(
+            settings,
+            _overlay.WallpaperOverlayUrl,
+            cancellationToken);
+        _collectorStorage.Log(
+            $"OBS 로컬 오버레이 새로고침 · action={actionSources} · wallpaper={wallpaperSources}");
+        return (actionSources, wallpaperSources);
+    }
 
     public async Task<VNextRaffleSpeechPrewarmResult> PrewarmRaffleWinnerSpeechAsync(
         string drawId,
@@ -423,8 +478,16 @@ internal sealed class VNextLocalAgent : IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         if (_loop is not null) return;
+        _wallpaperRequests.Request();
+        _wakeListener.Start();
         _loop = Task.Run(() => RunAsync(_stop.Token));
         Publish(false, "연결 중", "");
+    }
+
+    private void RequestExecutionClaim()
+    {
+        Interlocked.Exchange(ref _executionClaimRequested, 1);
+        Wake();
     }
 
     public void Wake()
@@ -581,6 +644,8 @@ internal sealed class VNextLocalAgent : IDisposable
                     recoveryCompleted = true;
                 }
                 await EnsureDeviceRegisteredAsync(cancellationToken);
+                if (_wallpaperRequests.Pending)
+                    ScheduleDirectWallpaperSync(_wallpaperRequests.Capture(), cancellationToken);
                 try
                 {
                     await EnsureDeviceSecretRotationAsync(cancellationToken);
@@ -602,7 +667,41 @@ internal sealed class VNextLocalAgent : IDisposable
                 if (!_overlayAssets.RequiredReady())
                     throw new InvalidOperationException("필수 오버레이 이미지가 준비될 때까지 Agent 작업 수신을 보류합니다.");
                 await ReportDeviceStatusAsync(force: false, cancellationToken);
+                await RefreshOverlayBrowserSourceAfterStartupAsync(cancellationToken);
                 await FlushOutboxAsync(cancellationToken);
+
+                var claimRequested = Interlocked.Exchange(ref _executionClaimRequested, 0) != 0;
+                if (_wakeListener.Connected && !claimRequested)
+                {
+                    var dueExecution = true;
+                    try
+                    {
+                        dueExecution = await _client.HasPendingAgentExecutionAsync(
+                            _deviceId,
+                            _deviceSecret,
+                            SupportedActionTypes(),
+                            cancellationToken);
+                    }
+                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    {
+                        // The direct probe is only a cost optimization. On any
+                        // uncertainty, preserve the old Edge claim recovery so
+                        // an action can never be delayed by this change.
+                        _collectorStorage.Log(
+                            "Agent 안전 점검 직접 조회 보류 · 기존 claim 사용 · type="
+                            + ex.GetType().Name);
+                    }
+                    if (!dueExecution)
+                    {
+                        Publish(true, InflightExecutionCount() > 0 ? "액션 실행 중" : "대기 중", "");
+                        await WaitOrWakeAsync(
+                            InflightExecutionCount() > 0
+                                ? TimeSpan.FromMilliseconds(500)
+                                : RealtimeConnectedRecoveryInterval,
+                            cancellationToken);
+                        continue;
+                    }
+                }
                 if (!await _executionSlots.WaitAsync(0, cancellationToken))
                 {
                     await WaitForExecutionCapacityAsync(cancellationToken);
@@ -615,24 +714,34 @@ internal sealed class VNextLocalAgent : IDisposable
                 var claimEpoch = _client.CaptureSessionEpoch();
                 if (!_client.IsSessionEpochCurrent(claimEpoch))
                     throw new VNextDevelopmentException("뉴별록 연결이 변경됐습니다.", 401, "stale_session");
-                var job = await _client.ClaimAgentExecutionAsync(
+                var claim = await _client.ClaimAgentExecutionWithWallpaperAsync(
                     _deviceId,
                     _deviceSecret,
                     SupportedActionTypes(),
-                    LeaseSeconds,
-                    cancellationToken);
+                    knownWallpaperRevision: null,
+                    leaseSeconds: LeaseSeconds,
+                    cancellationToken: cancellationToken);
                 if (!_client.IsSessionEpochCurrent(claimEpoch))
                     continue;
+                var job = claim.Job;
                 consecutiveErrors = 0;
                 if (job is null)
                 {
                     Publish(true, InflightExecutionCount() > 0 ? "액션 실행 중" : "대기 중", "");
                     await WaitOrWakeAsync(
-                        InflightExecutionCount() > 0 ? TimeSpan.FromMilliseconds(500) : TimeSpan.FromSeconds(2),
+                        InflightExecutionCount() > 0
+                            ? TimeSpan.FromMilliseconds(500)
+                            : _wakeListener.Connected
+                                ? RealtimeConnectedRecoveryInterval
+                                : RealtimeDisconnectedClaimFallback,
                         cancellationToken);
                     continue;
                 }
 
+                    // Drain bursts without inserting a direct safety probe in
+                    // front of the next claim. The claim RPC still owns all
+                    // ordering, leasing, and action priority decisions.
+                    Interlocked.Exchange(ref _executionClaimRequested, 1);
                     StartTrackedExecution(job, claimEpoch, cancellationToken);
                     slotTransferred = true;
                 }
@@ -716,12 +825,151 @@ internal sealed class VNextLocalAgent : IDisposable
         lock (_executionGate) return _inflightExecutions.Count;
     }
 
+    private void RequestWallpaperSync()
+    {
+        var requestGeneration = _wallpaperRequests.Request();
+        // 풍벽지는 액션 실행 슬롯과 독립된 전용 조회 경로로 즉시 받는다.
+        // 액션 4개가 동시에 실행 중이어도 새 후원 카드 수신을 기다리지 않는다.
+        if (_deviceRegistered && !_stop.IsCancellationRequested)
+            ScheduleDirectWallpaperSync(requestGeneration, _stop.Token);
+    }
+
+    private void ScheduleDirectWallpaperSync(long requestGeneration, CancellationToken cancellationToken)
+    {
+        if (!_wallpaperFetchGate.Wait(0)) return;
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var sessionEpoch = _client.CaptureSessionEpoch();
+                var sync = await _client.GetWallpaperSnapshotAsync(
+                    _deviceId,
+                    _deviceSecret,
+                    _wallpaper.Revision,
+                    cancellationToken);
+                if (!_client.IsSessionEpochCurrent(sessionEpoch)) return;
+                _nextWallpaperSyncAtUtc = DateTimeOffset.UtcNow + WallpaperSyncInterval;
+                ScheduleWallpaperSync(sync, requestGeneration, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
+            catch (Exception ex)
+            {
+                _collectorStorage.Log("풍벽지 즉시 조회 보류 · type=" + ex.GetType().Name);
+                ScheduleWallpaperRetry(cancellationToken);
+            }
+            finally
+            {
+                try { _wallpaperFetchGate.Release(); } catch (ObjectDisposedException) { }
+                if (_wallpaperRequests.Pending && !cancellationToken.IsCancellationRequested)
+                    ScheduleDirectWallpaperSync(_wallpaperRequests.Capture(), cancellationToken);
+            }
+        }, CancellationToken.None);
+    }
+
+    private void ScheduleWallpaperRetry(CancellationToken cancellationToken)
+    {
+        _wallpaperRequests.Request();
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(WallpaperSyncInterval, cancellationToken);
+                if (_deviceRegistered)
+                    ScheduleDirectWallpaperSync(_wallpaperRequests.Capture(), cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
+        }, CancellationToken.None);
+    }
+
+    private void ScheduleWallpaperSync(
+        VNextWallpaperSync? sync,
+        long requestGeneration,
+        CancellationToken cancellationToken)
+    {
+        if (sync is null) return;
+        if (sync.Unavailable)
+        {
+            ScheduleWallpaperRetry(cancellationToken);
+            return;
+        }
+        if (!sync.Changed)
+        {
+            _wallpaperRequests.CompleteThrough(requestGeneration);
+            if (_wallpaperRequests.Pending)
+                ScheduleDirectWallpaperSync(_wallpaperRequests.Capture(), cancellationToken);
+            return;
+        }
+        if (sync.State is null)
+        {
+            ScheduleWallpaperRetry(cancellationToken);
+            return;
+        }
+        if (!_wallpaperSyncGate.Wait(0))
+        {
+            // 이전 이미지 적용 중 받은 더 최신 snapshot은 버리지 않는다.
+            _wallpaperRequests.Request();
+            return;
+        }
+        _ = Task.Run(async () =>
+        {
+            var applied = false;
+            try
+            {
+                if (await _wallpaper.ApplyAsync(sync, cancellationToken))
+                {
+                    applied = true;
+                    _wallpaperRequests.CompleteThrough(requestGeneration);
+                    _collectorStorage.Log($"풍벽지 로컬 반영 · revision={sync.Revision}");
+                }
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
+            catch (Exception ex)
+            {
+                _collectorStorage.Log("풍벽지 로컬 반영 보류 · type=" + ex.GetType().Name);
+                ScheduleWallpaperRetry(cancellationToken);
+            }
+            finally
+            {
+                try { _wallpaperSyncGate.Release(); } catch (ObjectDisposedException) { }
+                // 적용 도중 도착한 후속 세대는 즉시 다시 조회한다. 적용 실패는
+                // 위의 5초 bounded retry가 처리해 hot loop를 만들지 않는다.
+                if (applied && _wallpaperRequests.Pending)
+                    ScheduleDirectWallpaperSync(_wallpaperRequests.Capture(), cancellationToken);
+            }
+        }, CancellationToken.None);
+    }
+
+    private async Task RefreshOverlayBrowserSourceAfterStartupAsync(CancellationToken cancellationToken)
+    {
+        if (Volatile.Read(ref _startupOverlayRefreshPending) == 0) return;
+        var settings = _collectorStorage.LoadObsSettings();
+        if (!settings.Enabled) return;
+        try
+        {
+            var refreshed = await ObsActionAdapter.RefreshOverlayBrowserSourcesAsync(
+                settings,
+                new[] { _overlay.OverlayUrl, _overlay.WallpaperOverlayUrl },
+                cancellationToken);
+            if (refreshed < 1) return;
+            Interlocked.Exchange(ref _startupOverlayRefreshPending, 0);
+            _collectorStorage.Log($"Agent 시작 후 OBS 액션·풍벽지 새로고침 · sources={refreshed}");
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch
+        {
+            // OBS가 아직 시작되지 않았거나 WebSocket 연결 전이면 다음 폴링에서 다시 시도합니다.
+        }
+    }
+
     private void StartTrackedExecution(
         VNextAgentJob job,
         long claimEpoch,
         CancellationToken cancellationToken)
     {
-        var slotLease = new ExecutionSlotLease(_executionSlots, Wake);
+        var slotLease = new ExecutionSlotLease(_executionSlots, RequestExecutionClaim);
         var task = ProcessJobSafelyAsync(
             job,
             claimEpoch,
@@ -913,7 +1161,7 @@ internal sealed class VNextLocalAgent : IDisposable
                     manifest,
                     (asset, token) => _client.DownloadOverlayAssetAsync(asset, token),
                     cancellationToken);
-                _nextOverlayAssetSyncAt = DateTimeOffset.UtcNow.AddMinutes(1);
+                _nextOverlayAssetSyncAt = DateTimeOffset.UtcNow + OverlayAssetSyncInterval;
                 _collectorStorage.Log(
                     $"오버레이 이미지 확인 · available={result.Available} downloaded={result.Downloaded} reused={result.Reused} requiredUnavailable={result.RequiredUnavailable}");
                 return result;
@@ -924,7 +1172,7 @@ internal sealed class VNextLocalAgent : IDisposable
                 // Older G3A runtimes did not expose overlay_manifest. The exact
                 // built-in asset is compiled into this Agent and verified by
                 // immutable ID/SHA, so it remains safe and usable locally.
-                _nextOverlayAssetSyncAt = DateTimeOffset.UtcNow.AddMinutes(1);
+                _nextOverlayAssetSyncAt = DateTimeOffset.UtcNow + OverlayAssetSyncInterval;
                 _collectorStorage.Log("오버레이 이미지 확인 · 서버 manifest 미지원 · 내장 이미지 사용");
                 var builtInCount = _overlayAssets.Status().BuiltInCount;
                 return new OverlayAssetCacheSyncResult(
@@ -1340,7 +1588,9 @@ internal sealed class VNextLocalAgent : IDisposable
 
     private void Client_SessionChanged(object? sender, EventArgs e)
     {
-        Wake();
+        _wakeListener.Reconnect();
+        RequestExecutionClaim();
+        RequestWallpaperSync();
     }
 
     public void Dispose()
@@ -1349,6 +1599,7 @@ internal sealed class VNextLocalAgent : IDisposable
         _disposed = true;
         _client.SessionChanged -= Client_SessionChanged;
         _stop.Cancel();
+        _wakeListener.Dispose();
         Wake();
 
         var loop = _loop;
@@ -1379,9 +1630,12 @@ internal sealed class VNextLocalAgent : IDisposable
         _wakeSignal.Dispose();
         _registrationGate.Dispose();
         _overlayAssetSyncGate.Dispose();
+        _wallpaperFetchGate.Dispose();
+        _wallpaperSyncGate.Dispose();
         _outboxFlushGate.Dispose();
         _executionSlots.Dispose();
         _overlay.Dispose();
+        _wallpaper.Dispose();
         _store.Dispose();
     }
 }

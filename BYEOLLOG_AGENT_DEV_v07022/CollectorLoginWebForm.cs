@@ -44,12 +44,36 @@ internal sealed class CollectorLoginWebForm : Form
         BackColor = Color.FromArgb(7, 18, 38);
         Controls.Add(_ui);
 
+        // The HTML shell already draws rounded corners, but WebView2 still occupies a
+        // rectangular native top-level window. Clip the actual login window just like
+        // MainForm so the WebView background cannot leak through at any corner.
+        ApplyRoundedRegion(24);
+        Resize += (_, _) => ApplyRoundedRegion(24);
+
         Shown += async (_, _) => await InitializeUiForDisplayAsync();
         FormClosed += (_, _) =>
         {
             _appIcon?.Dispose();
             _appIcon = null;
         };
+    }
+
+    private void ApplyRoundedRegion(int radius)
+    {
+        if (Width <= 2 || Height <= 2) return;
+
+        var diameter = Math.Max(2, radius * 2);
+        var bounds = new Rectangle(0, 0, Math.Max(1, Width - 1), Math.Max(1, Height - 1));
+        using var path = new System.Drawing.Drawing2D.GraphicsPath();
+        path.AddArc(bounds.Left, bounds.Top, diameter, diameter, 180, 90);
+        path.AddArc(bounds.Right - diameter, bounds.Top, diameter, diameter, 270, 90);
+        path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0, 90);
+        path.AddArc(bounds.Left, bounds.Bottom - diameter, diameter, diameter, 90, 90);
+        path.CloseFigure();
+
+        var previous = Region;
+        Region = new Region(path);
+        previous?.Dispose();
     }
 
     private static Icon LoadAppIcon()

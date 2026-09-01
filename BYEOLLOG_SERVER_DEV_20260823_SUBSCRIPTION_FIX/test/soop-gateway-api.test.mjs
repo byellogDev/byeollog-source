@@ -2,13 +2,21 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 import {handleSoopGatewayIngress,ingestNormalizedSoopDonation} from '../lib/soop-gateway-api.js';
-import {normalizeSoopChatSdkCallback} from '../lib/soop-chat-gateway.js';
+import {normalizeSoopChatSdkCallback,signSoopGatewayRequest} from '../lib/soop-chat-gateway.js';
 
 const workspaceId='10000000-0000-4000-8000-000000000001';
 const secret='gateway_secret_123456789012345678901234567890';
 const env={SOOP_GATEWAY_INGRESS_ENABLED:'true',SOOP_GATEWAY_INGRESS_SECRET:secret};
 function response(){return {statusCode:200,body:null,headers:{},status(code){this.statusCode=code;return this},setHeader(k,v){this.headers[k]=v},json(value){this.body=value;return this}}}
-function request(body,headers={}){return {method:'POST',headers:{'content-type':'application/json','x-byeollog-soop-gateway-secret':secret,...headers},body}}
+function request(body,headers={},signingSecret=secret){
+  const timestamp=String(Date.now()),nonce='a'.repeat(32);
+  const signature=signSoopGatewayRequest({secret:signingSecret,timestamp,nonce,body});
+  return {method:'POST',headers:{
+    'content-type':'application/json','x-byeollog-soop-gateway-secret':signingSecret,
+    'x-byeollog-soop-gateway-timestamp':timestamp,'x-byeollog-soop-gateway-nonce':nonce,
+    'x-byeollog-soop-gateway-signature':signature,...headers
+  },body};
+}
 function relay(){return {schemaVersion:1,provider:'soop',eventType:'chat',event:{eventId:'chat-1',actor:{id:'viewer',name:'시청자'},message:'딸깍',occurredAt:'2026-08-29T03:00:00.000Z'},receivedAt:'2026-08-29T03:00:00.100Z',connection:{id:'gateway-instance:1',sequence:1,reconnectCount:0},rawPayloadSha256:'a'.repeat(64)}}
 
 test('gateway ingress is indistinguishable from missing until server secret gate is enabled',async()=>{
@@ -19,7 +27,20 @@ test('gateway ingress is indistinguishable from missing until server secret gate
 
 test('gateway ingress rejects wrong service secret before workspace lookup',async()=>{
   const res=response();let touched=false;
-  await handleSoopGatewayIngress(request({kind:'heartbeat',workspaceId},{'x-byeollog-soop-gateway-secret':'x'.repeat(40)}),res,{env,sbImpl:async()=>{touched=true}});
+  await handleSoopGatewayIngress(request({kind:'heartbeat',workspaceId},{},'x'.repeat(40)),res,{env,sbImpl:async()=>{touched=true}});
+  assert.equal(res.statusCode,401);assert.equal(touched,false);
+});
+
+test('gateway ingress rejects stale signatures and disables legacy bearer by default',async()=>{
+  const body={kind:'heartbeat',workspaceId};
+  const timestamp=String(Date.now()-10*60_000),nonce='b'.repeat(32);
+  const signature=signSoopGatewayRequest({secret,timestamp,nonce,body});
+  const res=response();let touched=false;
+  await handleSoopGatewayIngress({method:'POST',headers:{
+    'content-type':'application/json','x-byeollog-soop-gateway-secret':secret,
+    'x-byeollog-soop-gateway-timestamp':timestamp,'x-byeollog-soop-gateway-nonce':nonce,
+    'x-byeollog-soop-gateway-signature':signature
+  },body},res,{env,sbImpl:async()=>{touched=true}});
   assert.equal(res.statusCode,401);assert.equal(touched,false);
 });
 
@@ -66,17 +87,19 @@ test('event is normalized and observed but cannot run roulette while the activat
   assert.doesNotMatch(JSON.stringify(calls),/딸깍|시청자/);
 });
 
-test('enabled donation commits its official kind through the all-donation TTS v5 RPC before recording observation',async()=>{
+test('enabled donation commits its official kind, broadcast key, and release key through the wallpaper-aware v8 RPC',async()=>{
   const calls=[];const res=response();const enabledEnv={...env,NATIVE_ROULETTE_ENABLED:'true'};
   await handleSoopGatewayIngress(request({kind:'event',workspaceId,relay:{...relay(),eventType:'donation',event:{eventId:'donation-1',actor:{id:'viewer',name:'시청자'},amount:33,donationTypeLabel:'도전미션',message:null,occurredAt:'2026-08-29T03:00:00.000Z'}}}),res,{env:enabledEnv,sbImpl:async(table,path,options)=>{
     calls.push({table,path,options});
     if(!options)return [{gateway_enabled:true,native_roulette_enabled:true}];
-    if(table==='rpc/ingest_native_overlay_soop_donation_v5')return {duplicate:false,status:'queued',spinCount:1,ttsQueued:true,dataIsolation:'pre_approval',upboWrites:0};
+    if(table==='rpc/ingest_native_overlay_soop_donation_v8')return {duplicate:false,status:'queued',spinCount:1,ttsQueued:true,dataIsolation:'pre_approval',upboWrites:0,wallpaperRecorded:true};
     if(table==='byeollog_soop_event_observations')return [];
     throw new Error('unexpected '+table);
   }});
   assert.equal(res.statusCode,200);assert.equal(res.body.activated,true);
-  assert.equal(calls[1].table,'rpc/ingest_native_overlay_soop_donation_v5');
+  assert.equal(calls[1].table,'rpc/ingest_native_overlay_soop_donation_v8');
+  assert.equal(calls[1].options.body.p_broadcast_key,'gateway-instance:1');
+  assert.equal(calls[1].options.body.p_release_key,'local-development');
   assert.equal(calls[1].options.body.p_ceremony_image_url,null);
   assert.equal(calls[1].options.body.p_donation_type_label,'도전미션');
   assert.equal(calls[2].table,'byeollog_soop_event_observations');
@@ -97,7 +120,8 @@ test('ordinary SOOP balloon imageUrl survives the complete SDK to database ingre
       dataIsolation:'pre_approval',upboWrites:0};
   }});
   assert.equal(normalized.relay.event.ceremonyImageUrl,providerImage);
-  assert.equal(calls[0].table,'rpc/ingest_native_overlay_soop_donation_v5');
+  assert.equal(calls[0].table,'rpc/ingest_native_overlay_soop_donation_v8');
+  assert.equal(calls[0].options.body.p_broadcast_key,'gateway-instance:image-path');
   assert.equal(calls[0].options.body.p_amount,1);
   assert.equal(calls[0].options.body.p_ceremony_image_url,providerImage);
   assert.equal(calls[0].options.body.p_donation_type_label,'별풍선');
@@ -109,7 +133,7 @@ test('gateway observation stores only bounded provider image diagnostics',async(
   await handleSoopGatewayIngress(request({kind:'event',workspaceId,relay:donation,metadata:{occurredAtSource:'gateway_receive',ceremonyImage:{fieldPresent:true,valuePresent:true,accepted:true,scheme:'https',hostname:'static.file.sooplive.com',path:'/must-not-survive',token:'secret'}}}),res,{env:enabledEnv,sbImpl:async(table,path,options)=>{
     calls.push({table,path,options});
     if(!options)return [{gateway_enabled:true,native_roulette_enabled:true}];
-    if(table==='rpc/ingest_native_overlay_soop_donation_v5')return {duplicate:false,status:'queued',spinCount:0,ttsQueued:false,dataIsolation:'pre_approval',upboWrites:0};
+    if(table==='rpc/ingest_native_overlay_soop_donation_v8')return {duplicate:false,status:'queued',spinCount:0,ttsQueued:false,dataIsolation:'pre_approval',upboWrites:0,wallpaperRecorded:true};
     if(table==='byeollog_soop_event_observations')return [];
     throw new Error('unexpected '+table);
   }});
@@ -123,7 +147,7 @@ test('gateway fails closed when the database does not attest pre-approval isolat
   await handleSoopGatewayIngress(request({kind:'event',workspaceId,relay:{...relay(),eventType:'donation',event:{eventId:'donation-isolation-mismatch',actor:{id:'viewer',name:'시청자'},amount:33,message:null,occurredAt:'2026-08-29T03:00:00.000Z'}}}),res,{env:enabledEnv,sbImpl:async(table,path,options)=>{
     calls.push({table,path,options});
     if(!options)return [{gateway_enabled:true,native_roulette_enabled:true}];
-    if(table==='rpc/ingest_native_overlay_soop_donation_v5')return {duplicate:false,status:'queued',spinCount:1};
+    if(table==='rpc/ingest_native_overlay_soop_donation_v8')return {duplicate:false,status:'queued',spinCount:1};
     throw new Error('unexpected '+table);
   }});
   assert.equal(res.statusCode,503);
@@ -277,22 +301,67 @@ test('gateway incident monitor is service-only, database scheduled, and webhook 
   assert.match(sql,/No chat or viewer content is stored/i);
 });
 
+test('gateway incident monitor keeps live detection strict while permitting offline heartbeat coalescing',async()=>{
+  const sql=await readFile(new URL('../supabase/migrations/20260831063842_relax_offline_gateway_heartbeat_monitor.sql',import.meta.url),'utf8');
+  assert.match(sql,/case when session\.state='connected' then 45 else 600 end/i);
+  assert.match(sql,/make_interval\(secs=>threshold_seconds\)/i);
+  assert.match(sql,/상태별 허용 시간을 초과했습니다/i);
+  assert.match(sql,/revoke all on function private\.check_soop_gateway_heartbeats_v1\(\)[\s\S]+from public,anon,authenticated,service_role/i);
+  assert.doesNotMatch(sql,/create policy/i);
+});
+
+test('live heartbeat coalescing allows two missed reports without changing the event hot path',async()=>{
+  const sql=await readFile(new URL('../supabase/migrations/20260901165151_coalesce_live_gateway_heartbeat_without_hot_path_changes.sql',import.meta.url),'utf8');
+  assert.match(sql,/case when session\.state='connected' then 150 else 600 end/i);
+  assert.match(sql,/make_interval\(secs=>threshold_seconds\)/i);
+  assert.match(sql,/revoke all on function private\.check_soop_gateway_heartbeats_v1\(\)[\s\S]+from public,anon,authenticated,service_role/i);
+  const runner=await readFile(new URL('../services/soop-chat-gateway/index.mjs',import.meta.url),'utf8');
+  assert.match(runner,/shouldSendSoopGatewayHeartbeat/);
+  assert.match(runner,/X-Byeollog-Soop-Gateway-Signature/);
+  assert.doesNotMatch(runner,/X-Byeollog-Soop-Gateway-Secret/);
+  assert.match(runner,/enqueueGatewayEvent\(\{kind:'event'/);
+  assert.match(runner,/void flushOutbox\(\)/);
+  assert.doesNotMatch(runner,/await heartbeat\([^\n]+enqueueGatewayEvent/);
+});
+
 test('browser gateway follows the current SOOP Chat SDK lifecycle and resolves the real page context',async()=>{
   const source=await readFile(new URL('../services/soop-chat-gateway/browser-session.mjs',import.meta.url),'utf8');
   assert.doesNotMatch(source,/chat\.init\s*\(/);
   assert.match(source,/new window\.SOOP\.ChatSDK\(config\.clientId,config\.clientSecret\)/);
   assert.match(source,/expression:'window',returnByValue:false/);
-  assert.match(source,/objectId:pageObjectId/);
+  assert.match(source,/objectId:shard\.pageObjectId/);
   assert.doesNotMatch(source,/executionContextId\s*:\s*1/);
   assert.match(source,/chat\.handleReady\(message=>\{const room=chat\.getRoomInfo\(\)/);
   assert.match(source,/if\(payload&&'imageUrl' in message\)payload\.imageUrl=message\.imageUrl/);
   assert.doesNotMatch(source,/await chat\.connect\(\);[^\n]+chat\.getRoomInfo\(\)/);
+  assert.match(source,/SOOP_SHARED_BROWSER_POLICY=Object\.freeze\(\{browserProcesses:1,rendererProcessLimit:8,targetCreationConcurrency:8,sessionsPerShard:16\}\)/);
+  assert.match(source,/startByeollogGateway=async\(sessionId,config\)/);
+  assert.match(source,/const chats=new Map\(\)/);
+  assert.match(source,/acquireShardSession/);
+  assert.match(source,/async function createSharedBrowserHost\(\)/);
+  assert.match(source,/const host=await browserHost\(\)/);
+  assert.match(source,/host\.createTarget\(\)/);
+  assert.match(source,/await host\.closeTarget\(target\.id\)/);
+  assert.match(source,/openSoopSharedBrowserProbeTargets/);
+  assert.match(source,/--renderer-process-limit=/);
+  assert.match(source,/--disable-renderer-backgrounding/);
+  assert.match(source,/createTargetLimited/);
+  assert.match(source,/session\.finish\('browser_closed'\)/);
+  assert.equal((source.match(/spawn\(executable/g)||[]).length,1);
   const runner=await readFile(new URL('../services/soop-chat-gateway/index.mjs',import.meta.url),'utf8');
   assert.match(runner,/lastErrorCode,chatNumber,\.\.\.extra/);
   assert.match(runner,/chatNumber=Number\(room\?\.chatNumber\)\|\|null/);
   assert.match(runner,/classifySoopChatSdkCallback/);
+  assert.match(runner,/SoopRelevantChatGate/);
+  assert.match(runner,/chatGate\.arm\(normalized\.relay\.event\.actor\)/);
+  assert.match(runner,/!chatGate\.shouldForward\(normalized\.relay\.event\.actor\)/);
+  assert.match(runner,/SOOP_GATEWAY_HEARTBEAT_POLICY\.checkMs/);
+  assert.match(runner,/RECONCILE_MS=60_000/);
+  assert.match(runner,/expiresAt-Date\.now\(\)>LEASE_REFRESH_SKEW_MS/);
   assert.match(runner,/sdk_event_ignored/);
   assert.match(runner,/eventType:normalized\.relay\.eventType,sequence:currentSequence/);
+  assert.match(runner,/stableSoopGatewayStaggerMs/);
+  assert.match(runner,/await closeSoopBrowserHost\(\)/);
 });
 
 test('Windows gateway supervisor and task keep the worker recoverable without user controls',async()=>{

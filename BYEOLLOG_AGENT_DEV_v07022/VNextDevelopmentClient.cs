@@ -53,6 +53,7 @@ internal sealed record VNextAgentSecretRotationResult(
     DateTimeOffset PreviousValidUntil);
 
 internal sealed record VNextAgentDeviceStatusResult(string DeviceId, DateTimeOffset ReportedAt);
+internal sealed record VNextRealtimeCredentials(string AccessToken, string WorkspaceId, long SessionEpoch);
 internal sealed record VNextCollectionHealth(
     string State,
     DateTimeOffset? SessionStartedAt,
@@ -123,6 +124,7 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
     };
     private const int MaximumOverlayAssetBytes = 10 * 1024 * 1024;
     private const int MaximumRaffleWinnerAudioBytes = 2 * 1024 * 1024;
+    private const int WallpaperSchemaVersion = 2;
     private static readonly Regex ErrorCodePattern = new(
         "^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -177,7 +179,14 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
 
     public VNextDevelopmentClient(string sessionRootPath)
     {
-        _http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        _http = new HttpClient(new SocketsHttpHandler
+        {
+            AutomaticDecompression = DecompressionMethods.GZip
+                | DecompressionMethods.Deflate
+                | DecompressionMethods.Brotli,
+            ConnectTimeout = TimeSpan.FromSeconds(8),
+            PooledConnectionLifetime = TimeSpan.FromMinutes(10)
+        }) { Timeout = TimeSpan.FromSeconds(30) };
         _sessionVault = new VNextSessionVault(sessionRootPath);
     }
 
@@ -724,45 +733,65 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
 
         var normalizedDeviceId = parsedDeviceId.ToString("D");
         var normalizedActionTypes = NormalizeSupportedActionTypes(supportedActionTypes);
-        var responseText = await SendAgentRequestAsync(new
-        {
-            operation = "device_status",
-            workspaceId = WorkspaceId,
-            deviceId = normalizedDeviceId,
-            deviceSecret = NormalizeDeviceSecret(deviceSecret, "Agent 장치 키"),
-            agentVersion,
-            platform,
-            supportedActionTypes = normalizedActionTypes,
-            overlayAssetsReady,
-            managedOverlayAssets,
-            readyOverlayAssets = normalizedReadyOverlayAssets
-        }, cancellationToken);
-
-        // Kept as a second additive request so an already deployed Edge that
-        // does not know this operation still accepts the primary heartbeat.
+        var normalizedSecret = NormalizeDeviceSecret(deviceSecret, "Agent 장치 키");
         try
         {
-            await SendAgentRequestAsync(new
+            // Telemetry is not latency-sensitive.  Send both Agent liveness and
+            // collector health in one authenticated PostgREST round-trip so an
+            // idle Agent consumes no Edge Function invocation.
+            var directResponse = await SendDirectRpcAsync(
+                "g3a_agent_direct_report_v1",
+                new
+                {
+                    p_workspace_id = WorkspaceId,
+                    p_device_id = normalizedDeviceId,
+                    p_device_secret_hash = DeviceSecretSha256(normalizedSecret),
+                    p_agent_version = agentVersion,
+                    p_platform = platform,
+                    p_supported_action_types = normalizedActionTypes,
+                    p_collection_state = collectionHealth.State,
+                    p_session_started_at = collectionHealth.SessionStartedAt,
+                    p_last_observed_at = collectionHealth.LastObservedAt,
+                    p_last_upload_at = collectionHealth.LastUploadAt
+                },
+                cancellationToken,
+                preserveNulls: true);
+            return ParseDeviceStatusResponse(directResponse, normalizedDeviceId);
+        }
+        catch (Exception ex) when (
+            ex is not OperationCanceledException
+            && (DirectTransportCanFallback(ex)
+                || ex is JsonException
+                || ex is VNextDevelopmentException { Code: "invalid_agent_response" }))
+        {
+            // Rollout safety: the current action Edge accepts the combined
+            // payload while a database migration or PostgREST schema refresh
+            // is still converging. This fallback does not affect action claim.
+            var edgeResponse = await SendAgentRequestAsync(new
             {
-                operation = "collection_health",
+                operation = "device_status",
                 workspaceId = WorkspaceId,
                 deviceId = normalizedDeviceId,
-                deviceSecret = NormalizeDeviceSecret(deviceSecret, "Agent 장치 키"),
+                deviceSecret = normalizedSecret,
+                agentVersion,
+                platform,
+                supportedActionTypes = normalizedActionTypes,
+                overlayAssetsReady,
+                managedOverlayAssets,
+                readyOverlayAssets = normalizedReadyOverlayAssets,
                 collectionState = collectionHealth.State,
                 sessionStartedAt = collectionHealth.SessionStartedAt,
                 lastObservedAt = collectionHealth.LastObservedAt,
                 lastUploadAt = collectionHealth.LastUploadAt
             }, cancellationToken, preserveNulls: true);
+            return ParseDeviceStatusResponse(edgeResponse, normalizedDeviceId);
         }
-        catch (VNextDevelopmentException ex) when (
-            ex.StatusCode is 400 or 404
-            && ex.Code is ("invalid_operation" or "invalid_collection_health" or "unknown_error"))
-        {
-            // New telemetry is optional until the matching Edge release is
-            // active.  The dashboard shows unknown rather than synthesizing
-            // collection state from the successful Agent heartbeat above.
-        }
+    }
 
+    private static VNextAgentDeviceStatusResult ParseDeviceStatusResponse(
+        string responseText,
+        string normalizedDeviceId)
+    {
         try
         {
             using var document = JsonDocument.Parse(responseText);
@@ -835,10 +864,11 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         return destination.ToArray();
     }
 
-    public async Task<VNextAgentJob?> ClaimAgentExecutionAsync(
+    public async Task<VNextAgentClaimResult> ClaimAgentExecutionWithWallpaperAsync(
         string deviceId,
         string deviceSecret,
         IReadOnlyCollection<string> supportedActionTypes,
+        long? knownWallpaperRevision,
         int leaseSeconds = 45,
         CancellationToken cancellationToken = default)
     {
@@ -854,14 +884,41 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
             deviceId = normalizedDeviceId,
             deviceSecret = normalizedSecret,
             leaseSeconds,
-            supportedActionTypes = normalizedActionTypes
+            supportedActionTypes = normalizedActionTypes,
+            knownWallpaperRevision,
+            wallpaperSchemaVersion = WallpaperSchemaVersion
         }, cancellationToken);
 
         try
         {
             using var document = JsonDocument.Parse(responseText);
             var root = document.RootElement;
-            if (!root.TryGetProperty("job", out var job) || job.ValueKind == JsonValueKind.Null) return null;
+            VNextWallpaperSync? wallpaper = null;
+            if (root.TryGetProperty("wallpaper", out var wallpaperValue))
+            {
+                if (wallpaperValue.ValueKind != JsonValueKind.Object
+                    || !wallpaperValue.TryGetProperty("changed", out var changedValue)
+                    || changedValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False)
+                    || !wallpaperValue.TryGetProperty("revision", out var revisionValue)
+                    || !revisionValue.TryGetInt64(out var wallpaperRevision)
+                    || wallpaperRevision < 0)
+                    throw new VNextDevelopmentException("풍벽지 동기화 응답 형식이 올바르지 않습니다.", code: "invalid_agent_response");
+                var changed = changedValue.GetBoolean();
+                var unavailable = wallpaperValue.TryGetProperty("unavailable", out var unavailableValue)
+                    && unavailableValue.ValueKind == JsonValueKind.True;
+                JsonElement? state = null;
+                if (changed)
+                {
+                    if (!wallpaperValue.TryGetProperty("state", out var stateValue)
+                        || stateValue.ValueKind != JsonValueKind.Object
+                        || !IsValidWallpaperState(stateValue, wallpaperRevision))
+                        throw new VNextDevelopmentException("풍벽지 상태 응답 형식이 올바르지 않습니다.", code: "invalid_agent_response");
+                    state = stateValue.Clone();
+                }
+                wallpaper = new VNextWallpaperSync(changed, wallpaperRevision, unavailable, state);
+            }
+            if (!root.TryGetProperty("job", out var job) || job.ValueKind == JsonValueKind.Null)
+                return new VNextAgentClaimResult(null, wallpaper);
             if (job.ValueKind != JsonValueKind.Object)
                 throw new VNextDevelopmentException("Agent claim 응답 형식이 올바르지 않습니다.", code: "invalid_agent_response");
 
@@ -925,7 +982,7 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                 && !OverlayAssetCache.TryMapBuiltInAssetIdToKey(overlayAssetId, out _))
                 throw new VNextDevelopmentException("Agent 작업의 오버레이 이미지 버전이 없습니다.", code: "invalid_agent_response");
 
-            return new VNextAgentJob(
+            var parsedJob = new VNextAgentJob(
                 parsedExecutionId.ToString("D"),
                 idempotencyKey,
                 workspaceId,
@@ -940,6 +997,7 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                 RequiredInt(job, "retryBackoffSeconds", 1, 86_400),
                 leaseExpiresAt,
                 overlayAsset);
+            return new VNextAgentClaimResult(parsedJob, wallpaper);
         }
         catch (VNextDevelopmentException)
         {
@@ -949,6 +1007,156 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         {
             throw new VNextDevelopmentException("Agent claim 응답을 해석하지 못했습니다.", code: "invalid_agent_response");
         }
+    }
+
+    public async Task<VNextWallpaperSync> GetWallpaperSnapshotAsync(
+        string deviceId,
+        string deviceSecret,
+        long knownWallpaperRevision,
+        CancellationToken cancellationToken = default)
+    {
+        if (!Guid.TryParseExact(deviceId, "D", out var parsedDeviceId) || knownWallpaperRevision < 0)
+            throw new VNextDevelopmentException("풍벽지 동기화 요청값이 올바르지 않습니다.", code: "invalid_wallpaper_request");
+        var normalizedDeviceId = parsedDeviceId.ToString("D");
+        var normalizedSecret = NormalizeDeviceSecret(deviceSecret, "Agent 장치 키");
+        try
+        {
+            var directResponse = await SendDirectRpcAsync(
+                "g3a_agent_direct_wallpaper_snapshot_v1",
+                new
+                {
+                    p_workspace_id = WorkspaceId,
+                    p_known_revision = knownWallpaperRevision,
+                    p_device_id = normalizedDeviceId,
+                    p_device_secret_hash = DeviceSecretSha256(normalizedSecret)
+                },
+                cancellationToken);
+            using var directDocument = JsonDocument.Parse(directResponse);
+            return AgentWallpaperSnapshotMapper.Build(
+                directDocument.RootElement,
+                WorkspaceId,
+                SupabaseUrl);
+        }
+        catch (Exception ex) when (
+            ex is not OperationCanceledException
+            && (DirectTransportCanFallback(ex)
+                || ex is JsonException or InvalidDataException))
+        {
+            // A malformed/newer direct snapshot cannot blank OBS. Keep the
+            // already proven Edge renderer as a compatibility recovery path.
+        }
+
+        var responseText = await SendAgentRequestAsync(new
+        {
+            operation = "wallpaper",
+            workspaceId = WorkspaceId,
+            deviceId = normalizedDeviceId,
+            deviceSecret = normalizedSecret,
+            knownWallpaperRevision,
+            wallpaperSchemaVersion = WallpaperSchemaVersion
+        }, cancellationToken);
+        try
+        {
+            using var document = JsonDocument.Parse(responseText);
+            var root = document.RootElement;
+            if (!root.TryGetProperty("wallpaper", out var wallpaperValue)
+                || wallpaperValue.ValueKind != JsonValueKind.Object
+                || !wallpaperValue.TryGetProperty("changed", out var changedValue)
+                || changedValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False)
+                || !wallpaperValue.TryGetProperty("revision", out var revisionValue)
+                || !revisionValue.TryGetInt64(out var wallpaperRevision)
+                || wallpaperRevision < 0)
+                throw new VNextDevelopmentException("풍벽지 동기화 응답 형식이 올바르지 않습니다.", code: "invalid_agent_response");
+            var changed = changedValue.GetBoolean();
+            var unavailable = wallpaperValue.TryGetProperty("unavailable", out var unavailableValue)
+                && unavailableValue.ValueKind == JsonValueKind.True;
+            JsonElement? state = null;
+            if (changed)
+            {
+                if (!wallpaperValue.TryGetProperty("state", out var stateValue)
+                    || stateValue.ValueKind != JsonValueKind.Object
+                    || !IsValidWallpaperState(stateValue, wallpaperRevision))
+                    throw new VNextDevelopmentException("풍벽지 상태 응답 형식이 올바르지 않습니다.", code: "invalid_agent_response");
+                state = stateValue.Clone();
+            }
+            return new VNextWallpaperSync(changed, wallpaperRevision, unavailable, state);
+        }
+        catch (VNextDevelopmentException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            throw new VNextDevelopmentException("풍벽지 동기화 응답을 해석하지 못했습니다.", code: "invalid_agent_response");
+        }
+    }
+
+    public async Task<bool> HasPendingAgentExecutionAsync(
+        string deviceId,
+        string deviceSecret,
+        IReadOnlyCollection<string> supportedActionTypes,
+        CancellationToken cancellationToken = default)
+    {
+        if (!Guid.TryParseExact(deviceId, "D", out var parsedDeviceId))
+            throw new VNextDevelopmentException("Agent 장치 식별값이 올바르지 않습니다.", code: "invalid_device");
+        var normalizedSecret = NormalizeDeviceSecret(deviceSecret, "Agent 장치 키");
+        var responseText = await SendDirectRpcAsync(
+            "g3a_agent_direct_pending_v1",
+            new
+            {
+                p_workspace_id = WorkspaceId,
+                p_device_id = parsedDeviceId.ToString("D"),
+                p_device_secret_hash = DeviceSecretSha256(normalizedSecret),
+                p_supported_action_types = NormalizeSupportedActionTypes(supportedActionTypes)
+            },
+            cancellationToken);
+        try
+        {
+            using var document = JsonDocument.Parse(responseText);
+            if (document.RootElement.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                throw new VNextDevelopmentException("Agent 안전 점검 응답이 올바르지 않습니다.", code: "invalid_agent_response");
+            return document.RootElement.GetBoolean();
+        }
+        catch (VNextDevelopmentException)
+        {
+            throw;
+        }
+        catch
+        {
+            throw new VNextDevelopmentException("Agent 안전 점검 응답을 해석하지 못했습니다.", code: "invalid_agent_response");
+        }
+    }
+
+    public async Task<VNextAgentJob?> ClaimAgentExecutionAsync(
+        string deviceId,
+        string deviceSecret,
+        IReadOnlyCollection<string> supportedActionTypes,
+        int leaseSeconds = 45,
+        CancellationToken cancellationToken = default) =>
+        (await ClaimAgentExecutionWithWallpaperAsync(
+            deviceId,
+            deviceSecret,
+            supportedActionTypes,
+            knownWallpaperRevision: null,
+            leaseSeconds,
+            cancellationToken)).Job;
+
+    private static bool IsValidWallpaperState(JsonElement state, long expectedRevision)
+    {
+        if (!state.TryGetProperty("schemaVersion", out var schemaValue)
+            || !schemaValue.TryGetInt32(out var schemaVersion)
+            || schemaVersion is not (1 or 2)
+            || !state.TryGetProperty("revision", out var stateRevisionValue)
+            || !stateRevisionValue.TryGetInt64(out var stateRevision)
+            || stateRevision != expectedRevision
+            || !state.TryGetProperty("tiles", out var tilesValue)
+            || tilesValue.ValueKind != JsonValueKind.Array
+            || tilesValue.GetArrayLength() > 216)
+            return false;
+        return schemaVersion != 2
+            || state.TryGetProperty("assets", out var assetsValue)
+                && assetsValue.ValueKind == JsonValueKind.Array
+                && assetsValue.GetArrayLength() <= 216;
     }
 
     public Task<RaffleWinnerSpeechDownload> DownloadRaffleWinnerSpeechAsync(
@@ -1310,6 +1518,104 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         if (!DeviceSecretPattern.IsMatch(normalized))
             throw new VNextDevelopmentException(displayName + "가 올바르지 않습니다.", code: "invalid_device_secret");
         return normalized;
+    }
+
+    private static string DeviceSecretSha256(string normalizedSecret) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalizedSecret)))
+            .ToLowerInvariant();
+
+    private static bool DirectTransportCanFallback(Exception error) => error switch
+    {
+        HttpRequestException => true,
+        VNextDevelopmentException request =>
+            request.StatusCode is 400 or 404 or 409 or 500 or 502 or 503 or 504
+            || request.Code.StartsWith("PGRST", StringComparison.OrdinalIgnoreCase)
+            || request.Code is "direct_transport_unavailable",
+        _ => false
+    };
+
+    private async Task<string> SendDirectRpcAsync(
+        string functionName,
+        object payload,
+        CancellationToken cancellationToken,
+        bool preserveNulls = false)
+    {
+        if (!Regex.IsMatch(functionName, "^[a-z][a-z0-9_]{1,79}$", RegexOptions.CultureInvariant))
+            throw new ArgumentException("Direct RPC name is invalid.", nameof(functionName));
+        var body = JsonSerializer.Serialize(
+            payload,
+            preserveNulls ? _agentRequestJsonWithNulls : _json);
+        using var response = await SendWithSessionRecoveryAsync(
+            accessToken =>
+            {
+                var request = new HttpRequestMessage(
+                    HttpMethod.Post,
+                    SupabaseUrl + "/rest/v1/rpc/" + functionName);
+                request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+                return request;
+            },
+            HttpCompletionOption.ResponseContentRead,
+            cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            var code = ReadErrorCode(responseText);
+            throw new VNextDevelopmentException(
+                $"Agent 직접 동기화 요청 실패 (HTTP {(int)response.StatusCode}, {code})",
+                (int)response.StatusCode,
+                string.IsNullOrWhiteSpace(code) ? "direct_transport_unavailable" : code);
+        }
+        return responseText;
+    }
+
+    public async Task<byte[]> DownloadAuthenticatedWallpaperImageAsync(
+        Uri uri,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(uri);
+        if (uri.Scheme != Uri.UriSchemeHttps
+            || !string.Equals(uri.Host, SupabaseProjectRef + ".supabase.co", StringComparison.OrdinalIgnoreCase)
+            || !uri.IsDefaultPort
+            || !string.IsNullOrEmpty(uri.UserInfo)
+            || !uri.AbsolutePath.StartsWith(
+                "/storage/v1/object/authenticated/byeollog-signature-assets/workspaces/",
+                StringComparison.Ordinal))
+            throw new VNextDevelopmentException("풍벽지 인증 이미지 주소가 올바르지 않습니다.", code: "invalid_wallpaper_path");
+
+        using var response = await SendWithSessionRecoveryAsync(
+            accessToken =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, uri);
+                request.Headers.TryAddWithoutValidation("apikey", PublishableKey);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                request.Headers.Accept.ParseAdd("image/png,image/jpeg,image/webp,image/gif");
+                return request;
+            },
+            HttpCompletionOption.ResponseHeadersRead,
+            cancellationToken);
+        if (!response.IsSuccessStatusCode)
+            throw new VNextDevelopmentException(
+                $"풍벽지 인증 이미지 다운로드 실패 (HTTP {(int)response.StatusCode})",
+                (int)response.StatusCode,
+                "wallpaper_download_failed");
+        if (response.Content.Headers.ContentLength is long length && length > 12 * 1024 * 1024)
+            throw new VNextDevelopmentException("풍벽지 이미지 응답 크기가 제한을 초과했습니다.", code: "wallpaper_download_too_large");
+
+        await using var source = await response.Content.ReadAsStreamAsync(cancellationToken);
+        using var destination = new MemoryStream();
+        var buffer = new byte[32 * 1024];
+        while (true)
+        {
+            var read = await source.ReadAsync(buffer, cancellationToken);
+            if (read == 0) break;
+            if (destination.Length + read > 12 * 1024 * 1024)
+                throw new VNextDevelopmentException("풍벽지 이미지 응답 크기가 제한을 초과했습니다.", code: "wallpaper_download_too_large");
+            await destination.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
+        }
+        return destination.ToArray();
     }
 
     public async Task HeartbeatAgentExecutionAsync(
@@ -1966,6 +2272,20 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         expectedEpoch == SessionEpoch && IsSignedIn;
 
     internal long CaptureSessionEpoch() => SessionEpoch;
+
+    internal async Task<VNextRealtimeCredentials> GetRealtimeCredentialsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var accessToken = await GetValidAccessTokenAsync(cancellationToken);
+        var epoch = SessionEpoch;
+        var workspaceId = WorkspaceId;
+        if (!IsSessionEpochCurrent(epoch))
+            throw new VNextDevelopmentException(
+                "Realtime 연결 중 별록 로그인이 변경됐습니다.",
+                401,
+                "stale_session");
+        return new VNextRealtimeCredentials(accessToken, workspaceId, epoch);
+    }
 
     internal bool TryStartSessionOperation<T>(
         long expectedEpoch,

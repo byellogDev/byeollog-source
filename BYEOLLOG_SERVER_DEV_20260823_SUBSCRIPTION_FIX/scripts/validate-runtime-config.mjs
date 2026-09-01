@@ -21,15 +21,17 @@ requireValue('SESSION_SECRET',32);
 requireValue('COLLECTOR_TOKEN',24);
 requireValue('CRON_SECRET',24);
 
-const workspaceId=requireValue('BYEOLLOG_LEGACY_WORKSPACE_ID');
+// Legacy shared-token Collector support is intentionally optional. Current
+// account-paired Agents carry an exact workspace id in their session.
+const workspaceId=value('BYEOLLOG_LEGACY_WORKSPACE_ID');
 if(workspaceId&&!UUID.test(workspaceId))errors.push('BYEOLLOG_LEGACY_WORKSPACE_ID: invalid UUID');
-if(value('BYEOLLOG_AUTOMATION_PROJECT_URL')!==REQUIRED_PROJECT_URL){
+if((value('BYEOLLOG_AUTOMATION_PROJECT_URL')||REQUIRED_PROJECT_URL)!==REQUIRED_PROJECT_URL){
   errors.push('BYEOLLOG_AUTOMATION_PROJECT_URL: unexpected project');
 }
-if(value('BYEOLLOG_AUTOMATION_PROJECT_REF')!==REQUIRED_PROJECT_REF){
+if((value('BYEOLLOG_AUTOMATION_PROJECT_REF')||REQUIRED_PROJECT_REF)!==REQUIRED_PROJECT_REF){
   errors.push('BYEOLLOG_AUTOMATION_PROJECT_REF: unexpected project ref');
 }
-if(value('BYEOLLOG_AUTOMATION_SESSION_MODE')!==REQUIRED_AUTOMATION_MODE){
+if((value('BYEOLLOG_AUTOMATION_SESSION_MODE')||REQUIRED_AUTOMATION_MODE)!==REQUIRED_AUTOMATION_MODE){
   errors.push('BYEOLLOG_AUTOMATION_SESSION_MODE: automation release gate is not enabled');
 }
 

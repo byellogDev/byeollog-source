@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {classifySoopChatSdkCallback,normalizeSoopChatSdkCallback,SoopGatewayReplayGuard} from '../lib/soop-chat-gateway.js';
+import {classifySoopChatSdkCallback,isSoopBroadcastOfflineError,normalizeSoopChatSdkCallback,shouldSendSoopGatewayHeartbeat,SOOP_GATEWAY_HEARTBEAT_POLICY,stableSoopGatewayStaggerMs,SoopGatewayReplayGuard,SoopRelevantChatGate} from '../lib/soop-chat-gateway.js';
+import {soopBrowserRuntimePolicy,soopBrowserShardCount} from '../services/soop-chat-gateway/browser-session.mjs';
 
 function callback(overrides={}){
   return {
@@ -117,4 +118,61 @@ test('explicit provider id is idempotent even inside one connection',()=>{
   const event={signature:'b'.repeat(64),connectionId:'session-a',explicitEventId:true,now:200_000};
   assert.equal(guard.check(event),false);
   assert.equal(guard.check({...event,now:200_001}),true);
+});
+
+test('only chats from a recently donating actor cross the cloud boundary',()=>{
+  const gate=new SoopRelevantChatGate({windowMs:120_000});
+  gate.arm({id:'Viewer01',name:'후원자'}, {now:1_000_000});
+  assert.equal(gate.shouldForward({id:'viewer01',name:'다른표시명'},{now:1_000_001}),true);
+  assert.equal(gate.shouldForward({id:'another',name:'후원자'},{now:1_000_002}),true);
+  assert.equal(gate.shouldForward({id:'viewer02',name:'일반시청자'},{now:1_000_003}),false);
+  assert.equal(gate.shouldForward({id:'viewer01',name:'후원자'},{now:1_120_001}),false);
+});
+
+test('arming a donation extends the donor chat window without buffering the donation',()=>{
+  const gate=new SoopRelevantChatGate({windowMs:15_000});
+  gate.arm({id:'viewer01',name:'후원자'},{now:100_000});
+  gate.arm({id:'viewer01',name:'후원자'},{now:110_000});
+  assert.equal(gate.shouldForward({id:'viewer01',name:'후원자'},{now:124_999}),true);
+  assert.equal(gate.shouldForward({id:'viewer01',name:'후원자'},{now:125_001}),false);
+});
+
+test('steady live heartbeat is coalesced without delaying state or error transitions',()=>{
+  assert.deepEqual(SOOP_GATEWAY_HEARTBEAT_POLICY,{checkMs:15_000,connectedMs:60_000,offlineMs:300_000});
+  const steady={
+    lastHeartbeatAt:1_000_000,reportedState:'connected',lastHeartbeatState:'connected',
+    lastErrorCode:null,lastHeartbeatError:null
+  };
+  assert.equal(shouldSendSoopGatewayHeartbeat({...steady,now:1_059_999}),false);
+  assert.equal(shouldSendSoopGatewayHeartbeat({...steady,now:1_060_000}),true);
+  assert.equal(shouldSendSoopGatewayHeartbeat({...steady,now:1_000_001,reportedState:'retry_wait'}),true);
+  assert.equal(shouldSendSoopGatewayHeartbeat({...steady,now:1_000_001,lastErrorCode:'sdk_closed'}),true);
+  const offline={...steady,reportedState:'waiting_for_live',lastHeartbeatState:'waiting_for_live'};
+  assert.equal(shouldSendSoopGatewayHeartbeat({...offline,now:1_299_999}),false);
+  assert.equal(shouldSendSoopGatewayHeartbeat({...offline,now:1_300_000}),true);
+});
+
+test('workspace startup and reconnect staggering is stable and bounded',()=>{
+  const first=stableSoopGatewayStaggerMs('workspace-a',5_000);
+  assert.equal(first,stableSoopGatewayStaggerMs('workspace-a',5_000));
+  assert.ok(first>=0&&first<=5_000);
+  assert.ok(stableSoopGatewayStaggerMs('workspace-b',5_000)>=0);
+  assert.equal(stableSoopGatewayStaggerMs('workspace-a',0),0);
+});
+
+test('current SOOP SDK error 104 is a normal offline broadcast state',()=>{
+  assert.equal(isSoopBroadcastOfflineError(new Error('sdk-error: There are no streams currently in progress.(104)')),true);
+  assert.equal(isSoopBroadcastOfflineError({errorCode:'104',errorMessage:'idle'}),true);
+  assert.equal(isSoopBroadcastOfflineError({code:'ECONNRESET',message:'socket closed'}),false);
+});
+
+test('browser sessions are partitioned into bounded failure-isolation shards',()=>{
+  assert.equal(soopBrowserShardCount(0,16),0);
+  assert.equal(soopBrowserShardCount(1,16),1);
+  assert.equal(soopBrowserShardCount(16,16),1);
+  assert.equal(soopBrowserShardCount(17,16),2);
+  assert.equal(soopBrowserShardCount(100,16),7);
+  assert.equal(soopBrowserShardCount(2,1),2);
+  assert.deepEqual(soopBrowserRuntimePolicy(),{browserProcesses:1,rendererProcessLimit:8,sessionsPerShard:16});
+  assert.throws(()=>soopBrowserShardCount(-1,16),/Session count/);
 });

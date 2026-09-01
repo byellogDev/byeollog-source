@@ -1,5 +1,13 @@
 const $=id=>document.getElementById(id);
 
+(async()=>{
+  try{
+    const response=await fetch('/api/admin?operation=context',{cache:'no-store',credentials:'same-origin',headers:{Accept:'application/json'}});
+    if(response.status===401){location.replace('/login?expired=1');return}
+    if(response.status===503)location.replace('/login?check=retry');
+  }catch{}
+})();
+
 function passwordPolicyMessage(password){
   if(password.length<10)return '새 비밀번호는 10자 이상이어야 합니다.';
   if(password.length>128)return '새 비밀번호는 128자 이하여야 합니다.';

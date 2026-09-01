@@ -105,25 +105,45 @@ internal sealed class ByeollogOverlayService : IDisposable
     :root { color-scheme: only light; background: transparent; }
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: transparent; }
     body { position: relative; }
-    #asset { position: absolute; display: block; object-fit: contain; opacity: 0; transition: opacity 120ms ease-out; }
+    #wallpaper-layer { position:absolute; inset:0; display:none; overflow:hidden; pointer-events:none; z-index:1; }
+    body.wallpaper-only #wallpaper-layer { display:block; }
+    body.wallpaper-only #asset,
+    body.wallpaper-only #raffle-stage,
+    body.wallpaper-only #flashbang-stage,
+    body.wallpaper-only #effect-stage { display:none !important; }
+    #wallpaper-canvas { position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:0 0; }
+    .wallpaper-group { position:absolute; }
+    .wallpaper-tile { position:absolute; display:grid; grid-template-rows:minmax(0,1fr) 20.35%; overflow:visible; container-type:size; }
+    .wallpaper-tile.text-only { grid-template-rows:1fr; }
+    .wallpaper-tile.text-only img { display:none; }
+    .wallpaper-tile.text-only .wallpaper-meta { font-size:clamp(10px,min(8cqw,42cqh),24px); }
+    .wallpaper-tile img { position:relative; z-index:1; display:block; width:100%; height:100%; min-height:0; object-fit:contain; object-position:center bottom; filter:none; }
+    .wallpaper-meta { position:relative; z-index:1000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.08em; overflow:hidden; padding:.08em .38em; border:var(--label-border,2px) solid #c9cdd3; border-radius:2px; background:#fffffff8; font-family:"Noto Sans KR",Pretendard,"Malgun Gothic",sans-serif; font-size:clamp(5px,var(--label-size,18px),21px); font-weight:900; line-height:1.02; letter-spacing:-.045em; text-align:center; text-shadow:none; filter:none; }
+    .wallpaper-meta-name, .wallpaper-meta-info, .wallpaper-meta-compact { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .wallpaper-meta-name { color:#e33732; font-size:1em; font-weight:950; }
+    .wallpaper-meta-info { color:#161616; font-size:.92em; font-weight:950; }
+    .wallpaper-meta-compact { display:none; color:#222a35; font-size:1em; font-weight:900; }
+    .wallpaper-tile.compact-label .wallpaper-meta-name, .wallpaper-tile.compact-label .wallpaper-meta-info { display:none; }
+    .wallpaper-tile.compact-label .wallpaper-meta-compact { display:block; }
+    #asset { position: absolute; display: block; object-fit: contain; opacity: 0; transition: opacity 120ms ease-out; z-index:100; }
     #asset.visible { opacity: 1; }
     #asset.center-card { width: min(42vw, 820px); height: auto; max-height: 56vh; left: 50%; top: 50%; transform: translate(-50%, -50%); }
     #asset.center-icon { width: clamp(176px, 20vw, 384px); height: clamp(176px, 20vw, 384px); left: 50%; top: 50%; transform: translate(-50%, -50%); }
     #asset.top-left-icon { width: clamp(136px, 12.5vw, 240px); height: clamp(136px, 12.5vw, 240px); left: 3vw; top: 5vh; }
     #asset.top-right-icon { width: clamp(136px, 12.5vw, 240px); height: clamp(136px, 12.5vw, 240px); right: 3vw; top: 5vh; }
-    #raffle-stage { position: absolute; display: block; width: 30vw; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1); transform-origin: 50% 50%; opacity: 0; transition: opacity 120ms ease-out; pointer-events: none; }
+    #raffle-stage { position: absolute; display: block; width: 30vw; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1); transform-origin: 50% 50%; opacity: 0; transition: opacity 120ms ease-out; pointer-events: none; z-index:110; }
     #raffle-stage.visible { opacity: 1; }
     #raffle-asset { display: block; width: 100%; height: auto; object-fit: contain; }
     #raffle-copy { position: absolute; left: 50%; top: calc(100% + clamp(2px, .4vh, 6px)); transform: translateX(-50%); width: 180%; box-sizing: border-box; padding: 4px 22px; border: 0; background: transparent; color: #fff; text-align: center; opacity: 0; transition: opacity 150ms ease-out,transform 180ms ease-out; font-family: "Malgun Gothic","Apple SD Gothic Neo",sans-serif; filter: drop-shadow(0 3px 2px rgba(5,22,48,.92)) drop-shadow(0 0 7px rgba(5,22,48,.72)); }
     #raffle-copy.visible { opacity: 1; transform: translateX(-50%) translateY(-4px); }
     #raffle-title { color: #ffc23a; font-size: clamp(22px,2.1vw,42px); font-weight: 900; letter-spacing: -.03em; text-shadow: 0 2px 0 #071c3d; }
     #raffle-primary { margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: clamp(26px,2.6vw,50px); font-weight: 900; letter-spacing: -.04em; }
-    #flashbang-stage { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
+    #flashbang-stage { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; z-index:120; }
     #flashbang-stage.visible.soft { animation: flashbang-soft-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
     #flashbang-stage.visible.standard { animation: flashbang-standard-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
     #flashbang-stage.visible.strong { animation: flashbang-strong-recover 5000ms cubic-bezier(.14,.58,.32,1) both; }
     #flashbang-asset { display: block; width: 100%; height: 100%; object-fit: cover; }
-    #effect-stage { position:absolute; inset:0; width:100%; height:100%; opacity:0; pointer-events:none; overflow:hidden; isolation:isolate; }
+    #effect-stage { position:absolute; inset:0; width:100%; height:100%; opacity:0; pointer-events:none; overflow:hidden; isolation:isolate; z-index:130; }
     #effect-stage.visible.water-splash { animation:water-splash-show 1750ms linear both; }
     #effect-stage.visible.fireworks { animation:fireworks-show 4100ms linear both; }
     #effect-asset { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; }
@@ -151,11 +171,13 @@ internal sealed class ByeollogOverlayService : IDisposable
   </style>
 </head>
 <body>
+  <div id="wallpaper-layer" aria-hidden="true"><div id="wallpaper-canvas"></div></div>
   <img id="asset" alt="" draggable="false">
   <div id="raffle-stage"><img id="raffle-asset" alt="" draggable="false"><section id="raffle-copy" aria-live="polite"><div id="raffle-title"></div><div id="raffle-primary"></div></section></div>
   <div id="flashbang-stage"><img id="flashbang-asset" alt="" draggable="false"></div>
-  <div id="effect-stage" data-document-revision="categorized-actions-v13"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><video id="water-vfx-video" muted playsinline preload="auto" src="/overlay/builtin/water-splash-v4.webm?v=553531218503cf9d79963944900e82c6184eba87bf7e516e414a231b405f3775"></video><video id="fireworks-vfx-video" muted playsinline preload="auto" src="/overlay/builtin/photoreal-confetti-quad-v6.webm?v=2eeff05469c739f1a889897f9ab5f10bd24ad3baa3c659596cec469b107baca3"></video><img id="water-runoff-asset" alt="" draggable="false" src="/overlay/builtin/water-runoff-v2.png?v=d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee"><canvas id="water-flow-canvas"></canvas></div>
+  <div id="effect-stage" data-document-revision="categorized-actions-v13"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><video id="water-vfx-video" muted playsinline preload="auto"></video><video id="fireworks-vfx-video" muted playsinline preload="auto"></video><img id="water-runoff-asset" alt="" draggable="false"><canvas id="water-flow-canvas"></canvas></div>
   <script>
+    const wallpaperCanvas = document.getElementById('wallpaper-canvas');
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
     const raffleAsset = document.getElementById('raffle-asset');
@@ -441,6 +463,195 @@ internal sealed class ByeollogOverlayService : IDisposable
       raffleStage.style.top = Number.isInteger(state.positionY) ? (state.positionY / 100) + '%' : '50%';
       raffleStage.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
     }
+    const WALLPAPER_CARD_WIDTH = 240, WALLPAPER_CARD_HEIGHT = 226, WALLPAPER_ROW_STEP = 46;
+    const WALLPAPER_MIN_WIDTH = 80, WALLPAPER_MIN_HEIGHT = 60;
+    const WALLPAPER_CANVAS_MARGIN = 4, WALLPAPER_GROUP_GAP = 2;
+    let wallpaperRevision = -1;
+    const wallpaperGroupNodes = new Map();
+    function wallpaperResize(width, height) {
+      wallpaperCanvas.style.width = width + 'px';
+      wallpaperCanvas.style.height = height + 'px';
+      wallpaperCanvas.style.transform = 'scale(' + (innerWidth / width) + ',' + (innerHeight / height) + ')';
+    }
+    function wallpaperColumns(tiles, rows) {
+      return Math.ceil(tiles.length / rows);
+    }
+    function wallpaperAutomaticColumns(count) {
+      return count<=2?1:count<=6?2:count<=15?3:count<=30?4:count<=50?5:6;
+    }
+    function wallpaperOverlap(a, b, gap) {
+      return a.x < b.x+b.width+gap && a.x+a.width+gap > b.x && a.y < b.y+b.height+gap && a.y+a.height+gap > b.y;
+    }
+    function wallpaperAutoRect(group, scale) {
+      const columns = wallpaperAutomaticColumns(group.tiles.length);
+      const rows = Math.ceil(group.tiles.length / columns);
+      const requiredColumns = wallpaperColumns(group.tiles, rows);
+      const compact = group.displayKind === 'subscription' && !group.tiles.some(tile => typeof tile.imageUrl === 'string' && tile.imageUrl);
+      const baseCardHeight = compact ? WALLPAPER_ROW_STEP : WALLPAPER_CARD_HEIGHT;
+      return {
+        width: Math.max(WALLPAPER_MIN_WIDTH, Math.floor(Math.max(columns,requiredColumns)*WALLPAPER_CARD_WIDTH*scale)),
+        height: Math.max(WALLPAPER_MIN_HEIGHT, Math.floor((baseCardHeight+Math.max(0,rows-1)*WALLPAPER_ROW_STEP)*scale)),
+        columns, rows
+      };
+    }
+    function wallpaperFirstFree(rect, occupied, canvasWidth, canvasHeight) {
+      const maxX=canvasWidth-WALLPAPER_CANVAS_MARGIN-rect.width, maxY=canvasHeight-WALLPAPER_CANVAS_MARGIN-rect.height;
+      if (maxX<WALLPAPER_CANVAS_MARGIN || maxY<WALLPAPER_CANVAS_MARGIN) return null;
+      const xs=new Set([WALLPAPER_CANVAS_MARGIN]), ys=new Set([maxY]);
+      for (const other of occupied) { xs.add(other.x+other.width+WALLPAPER_GROUP_GAP); ys.add(other.y-rect.height-WALLPAPER_GROUP_GAP); }
+      const candidates=[];
+      for (const y of ys) for (const x of xs) if (x>=WALLPAPER_CANVAS_MARGIN&&x<=maxX&&y>=WALLPAPER_CANVAS_MARGIN&&y<=maxY) candidates.push({x,y,width:rect.width,height:rect.height,columns:rect.columns,rows:rect.rows});
+      candidates.sort((a,b)=>b.y-a.y||a.x-b.x);
+      return candidates.find(candidate=>!occupied.some(other=>wallpaperOverlap(candidate,other,WALLPAPER_GROUP_GAP)))||null;
+    }
+    function wallpaperAutoPlacements(groups, occupied, canvasWidth, canvasHeight) {
+      const ordered=[...groups].sort((a,b)=>b.tiles.length-a.tiles.length||String(a.id).localeCompare(String(b.id)));
+      for (let scale=1;scale>=.16;scale-=.02) {
+        const trial=[...occupied], placements=new Map(); let fits=true;
+        for (const group of ordered) {
+          const rect=wallpaperAutoRect(group,scale), placed=wallpaperFirstFree(rect,trial,canvasWidth,canvasHeight);
+          if (!placed) { fits=false; break; }
+          trial.push(placed); placements.set(group.id,placed);
+        }
+        if (fits) return placements;
+      }
+      const placements=new Map(); let x=WALLPAPER_CANVAS_MARGIN,y=canvasHeight-WALLPAPER_CANVAS_MARGIN;
+      for (const group of ordered) {
+        const rect=wallpaperAutoRect(group,.14);
+        if (x+rect.width>canvasWidth-WALLPAPER_CANVAS_MARGIN) { x=WALLPAPER_CANVAS_MARGIN; y-=rect.height+WALLPAPER_GROUP_GAP; }
+        y=Math.max(WALLPAPER_CANVAS_MARGIN,y-rect.height);
+        placements.set(group.id,{...rect,x,y}); x+=rect.width+WALLPAPER_GROUP_GAP;
+      }
+      return placements;
+    }
+    function wallpaperFit(group, placement) {
+      const count = group.tiles.length;
+      const rows = Number.isInteger(placement.rows) && placement.rows > 0
+        ? placement.rows : Math.max(1, Math.ceil(count / Math.max(1, placement.columns || 1)));
+      const usedColumns = Math.max(1, wallpaperColumns(group.tiles, rows));
+      const savedSlots = Number.isInteger(placement.columns) && placement.columns > 0 ? placement.columns : usedColumns;
+      const slotColumns = Math.max(savedSlots, usedColumns + (group.manual ? 1 : 0));
+      let width = placement.width;
+      let x = placement.x;
+      if (slotColumns > savedSlots && group.manual) {
+        const desired = Math.max(width, Math.round(width * slotColumns / savedSlots));
+        if (group.nextSide === 'left') { const right = x + width; x = Math.max(0, right - desired); width = right - x; }
+        else width = Math.min(desired, 1920 - x);
+      }
+      const compact = group.displayKind === 'subscription' && !group.tiles.some(tile => typeof tile.imageUrl === 'string' && tile.imageUrl);
+      const baseCardHeight = compact ? WALLPAPER_ROW_STEP : WALLPAPER_CARD_HEIGHT;
+      const baseWidth = slotColumns * WALLPAPER_CARD_WIDTH;
+      const baseHeight = baseCardHeight + Math.max(0, rows - 1) * WALLPAPER_ROW_STEP;
+      const scale = Math.min(width / baseWidth, placement.height / baseHeight);
+      const cardWidth = Math.max(1, Math.floor(WALLPAPER_CARD_WIDTH * scale));
+      const cardHeight = Math.max(1, Math.floor(baseCardHeight * scale));
+      const rowStep = Math.max(1, Math.floor(WALLPAPER_ROW_STEP * scale));
+      const contentStart = group.nextSide === 'left' ? slotColumns - usedColumns : 0;
+      const cards = group.tiles.map((tile, index) => {
+        const lane = Math.floor(index / rows), row = index % rows;
+        const column = contentStart + (group.nextSide === 'left' ? usedColumns - 1 - lane : lane);
+        return { ...tile, x: column * cardWidth, y: Math.max(0, placement.height - cardHeight - row * rowStep), width: cardWidth, height: cardHeight, zIndex: row + 1 };
+      });
+      return { ...placement, x, width, cards };
+    }
+    function validWallpaperLayout(layout, canvasWidth, canvasHeight) {
+      return layout && Number.isInteger(layout.x) && Number.isInteger(layout.y)
+        && Number.isInteger(layout.width) && Number.isInteger(layout.height)
+        && layout.x >= 0 && layout.y >= 0 && layout.width >= WALLPAPER_MIN_WIDTH && layout.height >= WALLPAPER_MIN_HEIGHT
+        && layout.x + layout.width <= canvasWidth && layout.y + layout.height <= canvasHeight;
+    }
+    function wallpaperGroups(tiles, canvasWidth, canvasHeight) {
+      const map = new Map();
+      for (const tile of tiles) {
+        let group = map.get(tile.groupKey);
+        if (!group) {
+          const layout = validWallpaperLayout(tile.layout, canvasWidth, canvasHeight) ? tile.layout : null;
+          group = { id: tile.groupKey, amount: tile.amount, displayKind: tile.displayKind || 'donation', mergeRange: tile.mergeRange, tiles: [], layout, nextSide: layout?.nextSide === 'left' ? 'left' : 'right' };
+          map.set(tile.groupKey, group);
+        }
+        group.tiles.push(tile);
+        if (!group.layout && validWallpaperLayout(tile.layout, canvasWidth, canvasHeight)) { group.layout = tile.layout; group.nextSide = tile.layout.nextSide === 'left' ? 'left' : 'right'; }
+      }
+      const groups = [...map.values()];
+      for (const group of groups) if (group.mergeRange) group.tiles.sort((a,b) => a.amount-b.amount || Date.parse(a.receivedAt||0)-Date.parse(b.receivedAt||0));
+      const manual=groups.filter(group=>!!group.layout), occupied=manual.map(group=>group.layout);
+      const automatic=groups.filter(group=>!group.layout), placements=wallpaperAutoPlacements(automatic,occupied,canvasWidth,canvasHeight);
+      return groups.map(group => {
+        group.manual=!!group.layout;
+        const placement=group.layout||placements.get(group.id);
+        return { ...group, ...wallpaperFit(group, placement) };
+      });
+    }
+    function renderWallpaper(state) {
+      const width = Number.isInteger(state.canvasWidth) ? state.canvasWidth : 1920;
+      const height = Number.isInteger(state.canvasHeight) ? state.canvasHeight : 1080;
+      wallpaperResize(width, height);
+      const groups = wallpaperGroups(Array.isArray(state.tiles) ? state.tiles : [], width, height);
+      const incomingGroups = new Set(groups.map(group => group.id));
+      for (const [id, entry] of wallpaperGroupNodes) {
+        if (!incomingGroups.has(id)) { entry.node.remove(); wallpaperGroupNodes.delete(id); }
+      }
+      for (const group of groups) {
+        let entry = wallpaperGroupNodes.get(group.id);
+        if (!entry) {
+          const section = document.createElement('section'); section.className = 'wallpaper-group';
+          wallpaperCanvas.append(section); entry = { node: section, cards: new Map() }; wallpaperGroupNodes.set(group.id, entry);
+        }
+        const section = entry.node;
+        section.style.left = group.x + 'px'; section.style.top = group.y + 'px';
+        section.style.width = group.width + 'px'; section.style.height = group.height + 'px';
+        const incomingCards = new Set(group.cards.map(card => card.id));
+        for (const [id, node] of entry.cards) if (!incomingCards.has(id)) { node.remove(); entry.cards.delete(id); }
+        for (const card of group.cards) {
+          let node = entry.cards.get(card.id);
+          if (!node) {
+            node = document.createElement('article'); node.className = 'wallpaper-tile';
+            const image = document.createElement('img'); image.alt = ''; image.decoding = 'async';
+            const meta = document.createElement('div'); meta.className = 'wallpaper-meta';
+            node.append(image, meta); section.append(node); entry.cards.set(card.id, node);
+          }
+          node.style.left = card.x + 'px'; node.style.top = card.y + 'px';
+          node.style.width = card.width + 'px'; node.style.height = card.height + 'px'; node.style.zIndex = 'auto';
+          node.classList.toggle('compact-label', card.width < 150 || card.height < 160);
+          node.style.setProperty('--label-size', Math.max(5, Math.min(21, card.width/13, card.height/12)) + 'px');
+          node.style.setProperty('--label-border', card.height < 55 ? '1px' : '2px');
+          const image = node.firstElementChild, meta = node.lastElementChild;
+          const imageKey = typeof card.imageKey === 'string' ? card.imageKey : card.imageUrl;
+          const textOnly = card.displayKind === 'subscription' && !(typeof card.imageUrl === 'string' && card.imageUrl);
+          node.classList.toggle('text-only', textOnly);
+          if (textOnly) {
+            image.removeAttribute('src'); image.dataset.assetKey = '';
+          } else if (typeof card.imageUrl === 'string' && image.dataset.assetKey !== imageKey) {
+            image.src = card.imageUrl; image.dataset.assetKey = imageKey || '';
+          }
+          const actor = String(card.actorName || '익명').trim() || '익명';
+          const amount = Number(card.amount||0).toLocaleString('ko-KR');
+          const copy = card.displayKind === 'challenge_success'
+            ? { name:'도전미션', info:amount + '개 성공!', compact:'도전미션 ' + amount + '개' }
+            : card.displayKind === 'subscription'
+              ? { name:actor, info:amount + '개월 구독', compact:actor + ' ' + amount + '개월' }
+              : { name:actor, info:'별풍선 ' + amount + '개', compact:actor + ' ' + amount + '개' };
+          let name = meta.querySelector('.wallpaper-meta-name'), info = meta.querySelector('.wallpaper-meta-info'), compact = meta.querySelector('.wallpaper-meta-compact');
+          if (!name || !info || !compact) {
+            name = document.createElement('span'); name.className = 'wallpaper-meta-name';
+            info = document.createElement('span'); info.className = 'wallpaper-meta-info';
+            compact = document.createElement('span'); compact.className = 'wallpaper-meta-compact';
+            meta.replaceChildren(name, info, compact);
+          }
+          name.textContent = copy.name; info.textContent = copy.info; compact.textContent = copy.compact;
+        }
+      }
+      wallpaperRevision = Number(state.revision) || 0;
+    }
+    async function refreshWallpaper() {
+      try {
+        const response = await fetch('/overlay/wallpaper-state', { cache: 'no-store' });
+        if (!response.ok) throw new Error('wallpaper state unavailable');
+        const state = await response.json();
+        if (Number(state.revision) !== wallpaperRevision) renderWallpaper(state);
+      } catch {}
+      setTimeout(refreshWallpaper, 100);
+    }
     async function refresh() {
       try {
         const response = await fetch('/overlay/state?documentRevision=categorized-actions-v13', { cache: 'no-store' });
@@ -552,9 +763,19 @@ internal sealed class ByeollogOverlayService : IDisposable
         setTimeout(refresh, 100);
       }
     }
-    asset.addEventListener('error', hide);
-    raffleAsset.addEventListener('error', hide);
-    refresh();
+    const wallpaperOnly = location.pathname.replace(/\/+$/,'') === '/overlay/wallpaper';
+    if (wallpaperOnly) {
+      document.body.classList.add('wallpaper-only');
+      addEventListener('resize', () => wallpaperResize(1920, 1080));
+      refreshWallpaper();
+    } else {
+      waterVfxVideo.src = '/overlay/builtin/water-splash-v4.webm?v=553531218503cf9d79963944900e82c6184eba87bf7e516e414a231b405f3775';
+      fireworksVfxVideo.src = '/overlay/builtin/photoreal-confetti-quad-v6.webm?v=2eeff05469c739f1a889897f9ab5f10bd24ad3baa3c659596cec469b107baca3';
+      waterRunoffAsset.src = '/overlay/builtin/water-runoff-v2.png?v=d059b9e5d45fb638b764ea6c8cb3cb794490edc9c2a9587873fa5e1ec0c802ee';
+      asset.addEventListener('error', hide);
+      raffleAsset.addEventListener('error', hide);
+      refresh();
+    }
   </script>
 </body>
 </html>
@@ -619,6 +840,8 @@ internal sealed class ByeollogOverlayService : IDisposable
 
     private readonly CollectorStorage _storage;
     private readonly OverlayAssetCache _assetCache;
+    private readonly WallpaperOverlayState _wallpaper;
+    private readonly bool _ownsWallpaper;
     private readonly TcpListener _listener;
     private readonly CancellationTokenSource _stop = new();
     private readonly SemaphoreSlim _displayGate = new(1, 1);
@@ -712,17 +935,39 @@ internal sealed class ByeollogOverlayService : IDisposable
         CollectorStorage storage,
         OverlayAssetCache assetCache,
         int port = DefaultPort)
+        : this(storage, assetCache, new WallpaperOverlayState(storage.RootPath, storage.Log), port, true)
+    {
+    }
+
+    public ByeollogOverlayService(
+        CollectorStorage storage,
+        OverlayAssetCache assetCache,
+        WallpaperOverlayState wallpaper,
+        int port = DefaultPort)
+        : this(storage, assetCache, wallpaper, port, false)
+    {
+    }
+
+    private ByeollogOverlayService(
+        CollectorStorage storage,
+        OverlayAssetCache assetCache,
+        WallpaperOverlayState wallpaper,
+        int port,
+        bool ownsWallpaper)
     {
         if (port is < 1_024 or > 65_535)
             throw new ArgumentOutOfRangeException(nameof(port));
         _storage = storage;
         _assetCache = assetCache;
+        _wallpaper = wallpaper;
+        _ownsWallpaper = ownsWallpaper;
         Port = port;
         _listener = new TcpListener(IPAddress.Loopback, port);
     }
 
     public int Port { get; }
     public string OverlayUrl => $"http://127.0.0.1:{Port}/overlay";
+    public string WallpaperOverlayUrl => $"http://127.0.0.1:{Port}/overlay/wallpaper";
     public bool IsRunning => _acceptLoop is not null && !_acceptLoop.IsCompleted && !_stop.IsCancellationRequested;
 
     public bool TryResolveAsset(
@@ -741,7 +986,7 @@ internal sealed class ByeollogOverlayService : IDisposable
             {
                 _listener.Start(16);
                 _acceptLoop = Task.Run(() => AcceptLoopAsync(_stop.Token));
-                _storage.Log($"별록 OBS 오버레이 시작 · {OverlayUrl}");
+                _storage.Log($"별록 OBS 오버레이 시작 · action={OverlayUrl} · wallpaper={WallpaperOverlayUrl}");
                 return true;
             }
             catch (SocketException ex)
@@ -1810,6 +2055,11 @@ internal sealed class ByeollogOverlayService : IDisposable
                     await WriteResponseAsync(stream, 200, "text/html; charset=utf-8", OverlayHtml, headOnly, timeout.Token);
                     return;
                 }
+                if (path == "/overlay/wallpaper")
+                {
+                    await WriteResponseAsync(stream, 200, "text/html; charset=utf-8", OverlayHtml, headOnly, timeout.Token);
+                    return;
+                }
                 if (path == "/overlay/builtin/water-runoff-v2.png"
                     && WaterRunoffBytes.Value.Length > 0)
                 {
@@ -1876,6 +2126,40 @@ internal sealed class ByeollogOverlayService : IDisposable
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                     });
                     await WriteResponseAsync(stream, 200, "application/json; charset=utf-8", body, headOnly, timeout.Token);
+                    return;
+                }
+                if (path == "/overlay/wallpaper-state")
+                {
+                    await WriteResponseAsync(
+                        stream,
+                        200,
+                        "application/json; charset=utf-8",
+                        _wallpaper.SnapshotBytes(),
+                        headOnly,
+                        timeout.Token);
+                    return;
+                }
+                if (path.StartsWith("/overlay/wallpaper-assets/", StringComparison.Ordinal))
+                {
+                    var token = Uri.UnescapeDataString(path["/overlay/wallpaper-assets/".Length..]);
+                    if (!_wallpaper.TryReadAsset(token, out var wallpaperBytes, out var wallpaperMime))
+                    {
+                        await WriteResponseAsync(
+                            stream,
+                            404,
+                            "text/plain; charset=utf-8",
+                            Encoding.UTF8.GetBytes("Not Found"),
+                            headOnly,
+                            timeout.Token);
+                        return;
+                    }
+                    await WriteResponseAsync(
+                        stream,
+                        200,
+                        wallpaperMime,
+                        wallpaperBytes,
+                        headOnly,
+                        timeout.Token);
                     return;
                 }
                 const string assetPrefix = "/overlay/assets/";
@@ -2236,6 +2520,7 @@ internal sealed class ByeollogOverlayService : IDisposable
         }
         SetInactive();
         try { _acceptLoop?.Wait(TimeSpan.FromSeconds(2)); } catch { }
+        if (_ownsWallpaper) _wallpaper.Dispose();
         // ShowAsync/PreviewAsync의 finally가 아직 display gate를 Release할 수
         // 있습니다. 동기 Dispose에서 비동기 호출을 완전히 drain할 수 없으므로
         // 두 managed 동기화 객체는 여기서 조기 Dispose하지 않고 GC에 맡깁니다.

@@ -67,9 +67,9 @@ test("the Agent exposes one unified release label without the historical public-
     source("MainForm.cs"),
     source("Ui/byeollog_ui.html")
   ]);
-  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.110"/);
-  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.110"/);
-  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.110"/);
+  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.134"/);
+  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.134"/);
+  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.134"/);
   assert.match(main, /BuildInfo\.DisplayVersion/);
   assert.doesNotMatch(main, /nDev/);
   assert.match(main, /\$"별록 · \{text\.Replace\("상태: ", ""\)\}"/);
@@ -93,7 +93,7 @@ test("every normally approved streamer can use the public automation surface", a
   assert.match(access, /returnedUserId != authenticatedUserId/);
   assert.doesNotMatch(form, /owner\/admin만/);
   assert.doesNotMatch(automation, /owner\/admin/);
-  assert.match(uiStore, /UiVersion\s*=\s*"v0\.7\.0\.110"/);
+  assert.match(uiStore, /UiVersion\s*=\s*"v0\.7\.0\.133"/);
 });
 
 test("legacy Collector shortcut cleanup removes only the installer-owned target", async () => {
@@ -271,7 +271,8 @@ test("automation popup leaves the WebView callback before entering its modal loo
     "automation open queue"
   );
 
-  assert.match(dispatch, /QueueVNextAutomationSettingsOpen\(\);/);
+  assert.match(dispatch, /QueueVNextAutomationSettingsOpen\(automationView\);/);
+  assert.match(dispatch, /TryGetProperty\("view"/);
   assert.match(dispatch, /return;/);
   assert.doesNotMatch(dispatch, /\bawait\b|ShowDialog\s*\(|ConnectVNextDevelopmentAsync/);
   assert.match(queue, /_automationSettingsOpenOrPending\)\s*return;/);
@@ -585,6 +586,10 @@ test("Agent-integrated PC and packaged overlay-image management is fail-closed a
   );
   assert.match(overlayService, /실제 자동화가 시작되면 미리보기를 즉시 양보/);
   assert.match(localAgent, /_overlay\.PreviewAsync/);
+  assert.match(localAgent, /RefreshOverlayBrowserSourceAfterStartupAsync\(cancellationToken\)/);
+  assert.match(localAgent, /_startupOverlayRefreshPending/);
+  assert.match(localAgent, /ObsActionAdapter\.RefreshOverlayBrowserSourcesAsync\([\s\S]*?_overlay\.OverlayUrl/);
+  assert.match(localAgent, /Interlocked\.Exchange\(ref _startupOverlayRefreshPending, 0\)/);
 
   const actualDisplay = between(
     overlayService,
@@ -782,15 +787,21 @@ test("automation data is rendered as text and the legacy collection and rule ent
   assert.doesNotMatch(automation, /insertAdjacentHTML\s*\(/);
   assert.doesNotMatch(automation, /document\.write\s*\(/);
 
-  for (const label of ["수집 목록 보기", "룰렛", "확정"]) {
+  for (const label of ["별록 풍벽지", "룰렛", "확정"]) {
     assert.match(shell, new RegExp(label));
   }
-  assert.match(shell, /data-open=["']collection["']/);
+  assert.match(shell, /id=["']wallpaperShortcut["']/);
+  assert.match(shell, /openAutomationSettings.*view:['"]wallpaper['"]/s);
   assert.match(shell, /data-open=["']rules["']/);
   assert.match(shell, /data-screen=["']collection["']/);
   assert.match(shell, /data-screen=["']rules["']/);
   assert.match(shell, /<section\b[^>]*\bid=["']collection["']/);
   assert.match(shell, /<section\b[^>]*\bid=["']rules["']/);
+  assert.match(automation, /id=["']wallpaperNav["'][^>]*>[\s\S]*?별록 풍벽지/);
+  assert.match(automation, /data-view-panel=["']wallpaper["']/);
+  assert.match(automation, /별록 액션 URL/);
+  assert.match(automation, /별록 풍벽지 URL/);
+  assert.match(automation, /풍벽지는 액션 아래/);
   for (const action of [
     "refreshCollection",
     "upsertRoulette",

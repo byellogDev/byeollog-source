@@ -63,6 +63,8 @@ internal static class WebViewTrustPolicy
         "syncOverlayAssets",
         "previewOverlayAsset",
         "copyOverlayUrl",
+        "copyWallpaperOverlayUrl",
+        "refreshWallpaperOverlay",
         "saveObsSettings",
         "testObsSettings",
         "testVoiceAnonymizerFilter",
@@ -111,6 +113,8 @@ internal static class WebViewTrustPolicy
         "refreshRaffle",
         "syncOverlayAssets",
         "copyOverlayUrl",
+        "copyWallpaperOverlayUrl",
+        "refreshWallpaperOverlay",
         "refreshLocalConnections"
     };
 

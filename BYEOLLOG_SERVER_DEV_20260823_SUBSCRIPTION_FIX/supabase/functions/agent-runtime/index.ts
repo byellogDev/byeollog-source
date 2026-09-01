@@ -7,6 +7,7 @@ import {
   RuntimeReleaseUnavailableError,
   ServiceRestError
 } from "../_shared/server-runtime.ts";
+import { buildAgentWallpaperState } from "../_shared/agent-wallpaper.ts";
 import {
   normalizeAgentDeviceStatus,
   normalizeCollectionHealth,
@@ -321,7 +322,8 @@ Deno.serve(async (request: Request) => {
     const deviceId = body.deviceId;
     if (operation !== "register" && operation !== "rotate_secret"
       && operation !== "overlay_manifest"
-      && operation !== "device_status" && operation !== "collection_health" && operation !== "claim"
+      && operation !== "device_status" && operation !== "collection_health"
+      && operation !== "wallpaper" && operation !== "claim"
       && operation !== "heartbeat" && operation !== "ack"
       && operation !== "raffle_winner_tts"
       && operation !== "raffle_tts_candidates"
@@ -430,6 +432,12 @@ Deno.serve(async (request: Request) => {
     if (operation === "device_status") {
       const status = normalizeAgentDeviceStatus(body);
       if (status === null) return json({ error: "invalid_device_status" }, 400);
+      const health = body.collectionState === undefined
+        ? null
+        : normalizeCollectionHealth(body);
+      if (body.collectionState !== undefined && health === null) {
+        return json({ error: "invalid_collection_health" }, 400);
+      }
       const reportedAt = await runtime.rest<string>("rpc/g3a_report_agent_status_v1", {
         method: "POST",
         body: JSON.stringify({
@@ -444,6 +452,25 @@ Deno.serve(async (request: Request) => {
       });
       if (typeof reportedAt !== "string" || !Number.isFinite(Date.parse(reportedAt))) {
         throw new Error("Agent status result was invalid");
+      }
+      if (health !== null) {
+        const collectionReportedAt = await runtime.rest<string>("rpc/g3a_report_collection_health_v1", {
+          method: "POST",
+          body: JSON.stringify({
+            p_workspace_id: normalizedWorkspaceId,
+            p_device_id: normalizedDeviceId,
+            p_device_secret_hash: deviceSecretHash,
+            p_collection_state: health.collectionState,
+            p_session_started_at: health.sessionStartedAt,
+            p_last_observed_at: health.lastObservedAt,
+            p_last_upload_at: health.lastUploadAt,
+            ...rpcContext
+          })
+        });
+        if (typeof collectionReportedAt !== "string"
+          || !Number.isFinite(Date.parse(collectionReportedAt))) {
+          throw new Error("Collection health result was invalid");
+        }
       }
       return json({ deviceId: normalizedDeviceId, reportedAt });
     }
@@ -581,10 +608,58 @@ Deno.serve(async (request: Request) => {
       });
     }
 
+    if (operation === "wallpaper") {
+      const wallpaperSchemaVersion = boundedInteger(body.wallpaperSchemaVersion, 1, 1, 2);
+      const knownWallpaperRevision = boundedInteger(
+        body.knownWallpaperRevision,
+        -1,
+        -1,
+        Number.MAX_SAFE_INTEGER
+      );
+      if (knownWallpaperRevision === null || wallpaperSchemaVersion === null) {
+        return json({ error: "invalid_wallpaper_parameters" }, 400);
+      }
+      try {
+        const rawWallpaper = await runtime.rest<unknown>("rpc/g3a_get_wallpaper_snapshot_v1", {
+          method: "POST",
+          body: JSON.stringify({
+            p_workspace_id: normalizedWorkspaceId,
+            p_known_revision: knownWallpaperRevision,
+            p_device_id: normalizedDeviceId,
+            p_device_secret_hash: deviceSecretHash,
+            ...rpcContext
+          })
+        });
+        const wallpaper = await buildAgentWallpaperState(
+          rawWallpaper,
+          normalizedWorkspaceId,
+          runtime.supabaseUrl,
+          wallpaperSchemaVersion
+        );
+        return json({ wallpaper });
+      } catch (error) {
+        console.error("agent_wallpaper_direct_sync_failed", {
+          name: error instanceof Error ? error.name : "UnknownError"
+        });
+        return json({
+          wallpaper: {
+            changed: false,
+            revision: knownWallpaperRevision,
+            unavailable: true
+          }
+        });
+      }
+    }
+
     if (operation === "claim") {
+      const wallpaperSchemaVersion = boundedInteger(body.wallpaperSchemaVersion, 1, 1, 2);
       const leaseSeconds = boundedInteger(body.leaseSeconds, 45, 5, 600);
       const supportedActionTypes = normalizeSupportedActionTypes(body.supportedActionTypes);
-      if (leaseSeconds === null || supportedActionTypes === null) {
+      const knownWallpaperRevision = body.knownWallpaperRevision === undefined
+        ? null
+        : boundedInteger(body.knownWallpaperRevision, -1, -1, Number.MAX_SAFE_INTEGER);
+      if (leaseSeconds === null || supportedActionTypes === null || wallpaperSchemaVersion === null
+        || (body.knownWallpaperRevision !== undefined && knownWallpaperRevision === null)) {
         return json({ error: "invalid_claim_parameters" }, 400);
       }
       const claimed = await runtime.rest<ClaimedAgentExecution[]>("rpc/g3a_claim_execution_v1", {
@@ -602,7 +677,36 @@ Deno.serve(async (request: Request) => {
         })
       });
       const item = claimed[0];
-      if (!item) return json({ job: null });
+      let wallpaper: JsonObject | null = null;
+      // 액션 claim은 방송 반응시간의 임계 경로다. 실행할 작업이 있으면 풍벽지
+      // 스냅샷 RPC/이미지 서명 작업을 전혀 기다리지 않고 즉시 Agent로 돌려준다.
+      // 풍벽지는 대기 poll에서만 갱신되므로 액션과 데이터 경로도 분리된다.
+      if (!item && knownWallpaperRevision !== null) {
+        try {
+          const rawWallpaper = await runtime.rest<unknown>("rpc/g3a_get_wallpaper_snapshot_v1", {
+            method: "POST",
+            body: JSON.stringify({
+              p_workspace_id: normalizedWorkspaceId,
+              p_known_revision: knownWallpaperRevision,
+              p_device_id: normalizedDeviceId,
+              p_device_secret_hash: deviceSecretHash,
+              ...rpcContext
+            })
+          });
+          wallpaper = await buildAgentWallpaperState(
+            rawWallpaper,
+            normalizedWorkspaceId,
+            runtime.supabaseUrl,
+            wallpaperSchemaVersion
+          );
+        } catch (error) {
+          console.error("agent_wallpaper_sync_failed", {
+            name: error instanceof Error ? error.name : "UnknownError"
+          });
+          wallpaper = { changed: false, revision: knownWallpaperRevision, unavailable: true };
+        }
+      }
+      if (!item) return json({ job: null, ...(wallpaper === null ? {} : { wallpaper }) });
       if (item.workspace_id.toLowerCase() !== normalizedWorkspaceId
         || item.execution_target !== "local_agent"
         || item.agent_device_id.toLowerCase() !== normalizedDeviceId
@@ -625,7 +729,8 @@ Deno.serve(async (request: Request) => {
           maxAttempts: item.max_attempts,
           retryBackoffSeconds: item.retry_backoff_seconds,
           leaseExpiresAt: item.lease_expires_at
-        }
+        },
+        ...(wallpaper === null ? {} : { wallpaper })
       });
     }
 

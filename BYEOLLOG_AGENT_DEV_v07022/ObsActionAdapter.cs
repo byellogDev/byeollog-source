@@ -276,6 +276,23 @@ internal sealed class ObsActionAdapter
         string overlayUrl,
         CancellationToken cancellationToken)
     {
+        return await RefreshOverlayBrowserSourcesAsync(
+            settings,
+            new[] { overlayUrl },
+            cancellationToken);
+    }
+
+    internal static async Task<int> RefreshOverlayBrowserSourcesAsync(
+        ObsConnectionSettings settings,
+        IReadOnlyCollection<string> overlayUrls,
+        CancellationToken cancellationToken)
+    {
+        var expectedUrls = overlayUrls
+            .Where(url => !string.IsNullOrWhiteSpace(url))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        if (expectedUrls.Length == 0) return 0;
+
         await using var obs = await ObsWebSocketClient.ConnectAsync(settings, cancellationToken);
         var info = await obs.GetVersionAsync(cancellationToken);
         if (!info.AvailableRequests.Contains("GetInputList")
@@ -298,7 +315,9 @@ internal sealed class ObsActionAdapter
                 && urlValue.ValueKind == JsonValueKind.String
                 ? urlValue.GetString() ?? ""
                 : "";
-            if (!ByeollogOverlayService.IsMatchingLoopbackOverlayUrl(sourceUrl, overlayUrl)) continue;
+            if (!expectedUrls.Any(expectedUrl =>
+                    ByeollogOverlayService.IsMatchingLoopbackOverlayUrl(sourceUrl, expectedUrl)))
+                continue;
 
             await obs.PressInputPropertiesButtonAsync(
                 input.InputName,

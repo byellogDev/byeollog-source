@@ -17,6 +17,8 @@
     <Compile Include="../VNextAgentStore.cs" Link="VNextAgentStore.cs" />
     <Compile Include="../OverlayAssetCache.cs" Link="OverlayAssetCache.cs" />
     <Compile Include="../ByeollogOverlayService.cs" Link="ByeollogOverlayService.cs" />
+    <Compile Include="../WallpaperOverlayState.cs" Link="WallpaperOverlayState.cs" />
+    <Compile Include="../AgentWallpaperSnapshotMapper.cs" Link="AgentWallpaperSnapshotMapper.cs" />
     <Compile Include="../RaffleOverlayActionAdapter.cs" Link="RaffleOverlayActionAdapter.cs" />
     <Compile Include="../FlashbangOverlayActionAdapter.cs" Link="FlashbangOverlayActionAdapter.cs" />
     <Compile Include="../RaffleWinnerSpeechCache.cs" Link="RaffleWinnerSpeechCache.cs" />

@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import {mkdir,readFile,readdir,rename,rm,stat,writeFile} from 'node:fs/promises';
+import {link,mkdir,readFile,readdir,rename,rm,stat,writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 
 const VERSION=1;
@@ -15,15 +15,29 @@ function stableJson(value){
 }
 
 export class EncryptedGatewayOutbox{
-  constructor({directory,secret,maxItems=10_000,maxAgeMs=7*24*60*60*1_000}={}){
+  constructor({directory,secret,maxItems=10_000,maxAgeMs=7*24*60*60*1_000,
+    deadLetterMaxAgeMs=30*24*60*60*1_000,baseRetryMs=1_000,maxRetryMs=5*60*1_000,
+    permanentFailureAttempts=3}={}){
     if(!directory)throw new Error('Outbox directory is required');
     if(String(secret||'').length<32)throw new Error('Outbox secret must be at least 32 characters');
-    this.directory=directory;this.key=deriveKey(secret);this.maxItems=maxItems;this.maxAgeMs=maxAgeMs;this.flushPromise=null;
+    this.directory=directory;this.key=deriveKey(secret);this.maxItems=maxItems;this.maxAgeMs=maxAgeMs;
+    this.deadLetterMaxAgeMs=deadLetterMaxAgeMs;this.baseRetryMs=baseRetryMs;this.maxRetryMs=maxRetryMs;
+    this.permanentFailureAttempts=permanentFailureAttempts;this.flushPromise=null;
   }
-  async init(){await mkdir(this.directory,{recursive:true});await this.pruneExpired()}
+  async init(){await mkdir(this.directory,{recursive:true});return await this.pruneExpired()}
   idFor(body){return crypto.createHmac('sha256',this.key).update(stableJson(body)).digest('hex')}
   pathFor(id){return join(this.directory,`${id}.json`)}
-  async files(){return (await readdir(this.directory,{withFileTypes:true})).filter(entry=>entry.isFile()&&/^[a-f0-9]{64}\.json$/.test(entry.name)).map(entry=>entry.name).sort()}
+  async entries(pattern){return (await readdir(this.directory,{withFileTypes:true})).filter(entry=>entry.isFile()&&pattern.test(entry.name)).map(entry=>entry.name).sort()}
+  async files(){return await this.entries(/^[a-f0-9]{64}\.json$/)}
+  async deadFiles(){return await this.entries(/^[a-f0-9]{64}\.dead-[0-9]+\.json$/)}
+  async writeEnvelope(destination,envelope,{exclusive=false}={}){
+    const temporary=join(this.directory,`.${envelope.id}.${process.pid}.${crypto.randomBytes(4).toString('hex')}.tmp`);
+    await writeFile(temporary,JSON.stringify(envelope),{encoding:'utf8',mode:0o600});
+    try{
+      if(exclusive){await link(temporary,destination);await rm(temporary,{force:true})}
+      else await rename(temporary,destination);
+    }catch(error){await rm(temporary,{force:true}).catch(()=>{});throw error}
+  }
   async enqueue(body){
     const files=await this.files();
     if(files.length>=this.maxItems)throw Object.assign(new Error('Encrypted gateway outbox is full'),{code:'outbox_full'});
@@ -32,10 +46,8 @@ export class EncryptedGatewayOutbox{
     const iv=crypto.randomBytes(12),cipher=crypto.createCipheriv('aes-256-gcm',this.key,iv);
     cipher.setAAD(Buffer.from(`byeollog-soop-outbox:${VERSION}:${id}`));
     const ciphertext=Buffer.concat([cipher.update(plaintext),cipher.final()]),tag=cipher.getAuthTag();
-    const envelope={version:VERSION,id,createdAt:new Date().toISOString(),iv:iv.toString('base64'),tag:tag.toString('base64'),ciphertext:ciphertext.toString('base64')};
-    const temporary=join(this.directory,`.${id}.${process.pid}.${crypto.randomBytes(4).toString('hex')}.tmp`);
-    await writeFile(temporary,JSON.stringify(envelope),{encoding:'utf8',mode:0o600});
-    try{await rename(temporary,destination)}catch(error){await rm(temporary,{force:true}).catch(()=>{});if(error?.code!=='EEXIST')throw error;return {id,duplicate:true}}
+    const envelope={version:VERSION,id,createdAt:new Date().toISOString(),iv:iv.toString('base64'),tag:tag.toString('base64'),ciphertext:ciphertext.toString('base64'),delivery:{attempts:0,nextAttemptAt:null,lastErrorCode:null,lastStatus:null}};
+    try{await this.writeEnvelope(destination,envelope,{exclusive:true})}catch(error){if(error?.code!=='EEXIST')throw error;return {id,duplicate:true}}
     return {id,duplicate:false};
   }
   async readFileName(name){
@@ -47,32 +59,79 @@ export class EncryptedGatewayOutbox{
     const plaintext=Buffer.concat([decipher.update(Buffer.from(envelope.ciphertext,'base64')),decipher.final()]);
     const body=JSON.parse(plaintext.toString('utf8'));
     if(this.idFor(body)!==id)throw Object.assign(new Error('Outbox payload hash mismatch'),{code:'outbox_payload_invalid'});
-    return {id,body,createdAt:envelope.createdAt};
+    const delivery=envelope.delivery&&typeof envelope.delivery==='object'?envelope.delivery:{};
+    return {id,body,createdAt:envelope.createdAt,envelope,delivery:{
+      attempts:Math.max(0,Math.trunc(Number(delivery.attempts)||0)),
+      nextAttemptAt:delivery.nextAttemptAt||null,lastErrorCode:delivery.lastErrorCode||null,
+      lastStatus:Number(delivery.lastStatus)||null
+    }};
   }
   async remove(id){await rm(this.pathFor(id),{force:true})}
   async quarantine(name){
     const source=join(this.directory,name),destination=join(this.directory,`${name}.corrupt-${Date.now()}`);
     await rename(source,destination).catch(()=>{});
   }
+  async defer(name,item,error,now=Date.now()){
+    const attempts=item.delivery.attempts+1;
+    const exponential=Math.min(this.maxRetryMs,this.baseRetryMs*(2**Math.min(16,attempts-1)));
+    const jitter=Number.parseInt(item.id.slice(0,6),16)%Math.max(1,Math.ceil(exponential*0.2));
+    const nextAttemptAt=new Date(now+exponential+jitter).toISOString();
+    const envelope={...item.envelope,delivery:{attempts,nextAttemptAt,
+      lastErrorCode:String(error?.code||'delivery_failed').slice(0,120),lastStatus:Number(error?.status)||null}};
+    await this.writeEnvelope(join(this.directory,name),envelope);
+    return {attempts,nextAttemptAt};
+  }
+  async deadLetter(name,item,error,now=Date.now()){
+    const attempts=item.delivery.attempts+1;
+    const envelope={...item.envelope,delivery:{attempts,nextAttemptAt:null,
+      lastErrorCode:String(error?.code||'delivery_failed').slice(0,120),lastStatus:Number(error?.status)||null,
+      deadLetteredAt:new Date(now).toISOString()}};
+    const destination=join(this.directory,`${item.id}.dead-${now}.json`);
+    await this.writeEnvelope(destination,envelope);
+    await rm(join(this.directory,name),{force:true});
+    return {attempts,destination};
+  }
   async pruneExpired(now=Date.now()){
-    let removed=0;
+    let pendingExpired=0,deadRemoved=0,corrupt=0;
     for(const name of await this.files()){
-      try{const info=await stat(join(this.directory,name));if(now-info.mtimeMs>this.maxAgeMs){await rm(join(this.directory,name),{force:true});removed+=1}}catch{}
+      try{
+        const info=await stat(join(this.directory,name));
+        if(now-info.mtimeMs<=this.maxAgeMs)continue;
+        const item=await this.readFileName(name);
+        const error=Object.assign(new Error('Gateway outbox item exceeded its online retention window'),{code:'outbox_expired'});
+        await this.deadLetter(name,item,error,now);pendingExpired+=1;
+      }catch{await this.quarantine(name);corrupt+=1}
     }
-    return removed;
+    for(const name of await this.deadFiles()){
+      try{const info=await stat(join(this.directory,name));if(now-info.mtimeMs>this.deadLetterMaxAgeMs){await rm(join(this.directory,name),{force:true});deadRemoved+=1}}catch{}
+    }
+    return {pendingExpired,deadRemoved,corrupt};
   }
   async count(){return (await this.files()).length}
-  async flush(send,{limit=250,onCorrupt=()=>{},onFailure=()=>{},onDelivered=()=>{}}={}){
+  async status(){return {pending:await this.count(),deadLetters:(await this.deadFiles()).length,maxItems:this.maxItems}}
+  async flush(send,{limit=250,onCorrupt=()=>{},onFailure=()=>{},onDelivered=()=>{},onDeadLetter=()=>{},
+    classifyFailure=()=>({retryable:true})}={}){
     if(this.flushPromise)return await this.flushPromise;
     this.flushPromise=(async()=>{
-      let delivered=0;
+      let delivered=0,deferred=0,deadLettered=0;
       for(const name of (await this.files()).slice(0,limit)){
         let item;
         try{item=await this.readFileName(name)}catch(error){await this.quarantine(name);onCorrupt(error);continue}
-        try{await send(item.body)}catch(error){onFailure(error,item);break}
+        const nextAttemptAt=Date.parse(item.delivery.nextAttemptAt||'');
+        if(Number.isFinite(nextAttemptAt)&&nextAttemptAt>Date.now())break;
+        try{await send(item.body)}catch(error){
+          const classification=classifyFailure(error,item)||{retryable:true};
+          const permanent=classification.retryable===false;
+          if(permanent&&item.delivery.attempts+1>=this.permanentFailureAttempts){
+            const state=await this.deadLetter(name,item,error);deadLettered+=1;
+            onDeadLetter(error,item,{...classification,...state});continue;
+          }
+          const state=await this.defer(name,item,error);deferred+=1;
+          onFailure(error,item,{...classification,...state});break;
+        }
         await this.remove(item.id);delivered+=1;onDelivered(item);
       }
-      return {delivered,pending:await this.count()};
+      return {delivered,deferred,deadLettered,pending:await this.count(),deadLetters:(await this.deadFiles()).length};
     })();
     try{return await this.flushPromise}finally{this.flushPromise=null}
   }

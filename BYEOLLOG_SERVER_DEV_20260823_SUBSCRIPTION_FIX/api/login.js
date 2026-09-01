@@ -1,5 +1,4 @@
 import crypto from 'node:crypto';
-import {readFile} from 'node:fs/promises';
 import {createSessionToken,setSessionCookie} from '../lib/auth.js';
 import {sb} from '../lib/supabase-rest.js';
 import {handleSignup,handleSignupStatus} from '../lib/signup.js';
@@ -9,9 +8,10 @@ import {rejectMaintenanceWrite} from '../lib/maintenance.js';
 import {isJsonRequest,isTrustedMutationOrigin} from '../lib/request-origin.js';
 import {handleSoopOAuthCallback,handleSoopOAuthDiagnose,handleSoopOAuthDisconnect,handleSoopOAuthStart,handleSoopOAuthStatus} from '../lib/soop-oauth.js';
 import {handleSoopGatewayIngress} from '../lib/soop-gateway-api.js';
-import {claimOverlayTtsSynthesis,claimRouletteOverlayCommand,finishOverlayTtsSynthesis,finishRouletteOverlayCommand,getRouletteServiceOverlayHtml,peekRouletteOverlayFollowup,touchRouletteOverlayClient,verifyOverlayTtsAuthorization,verifyRouletteServiceOverlayToken} from '../lib/soop-roulette-service.js';
+import {claimOverlayTtsSynthesis,claimRouletteOverlayCommand,finishOverlayTtsSynthesis,finishRouletteOverlayCommand,getRouletteServiceOverlayHtml,peekRouletteOverlayFollowup,touchRouletteOverlayClient,validateRouletteOverlayService,verifyOverlayTtsAuthorization,verifyRouletteServiceOverlayToken} from '../lib/soop-roulette-service.js';
 import {MANAGED_TTS_AUDIO_FRAME,MANAGED_TTS_END_FRAME,MANAGED_TTS_ERROR_FRAME,MANAGED_TTS_SAMPLE_RATE,managedOverlayTtsRuntime,managedTtsFrame} from '../lib/managed-overlay-tts.js';
 import {rouletteAssetOrigin} from '../lib/roulette-custom-assets.js';
+import {VERCEL_AUDIO_ASSET} from '../lib/vercel-binary-assets/audio-asset.js';
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -85,6 +85,24 @@ async function handleSoopRouletteOverlayPage(req,res){
   res.setHeader('Content-Security-Policy',`default-src 'none'; script-src 'nonce-${nonce}'; script-src-attr 'none'; style-src 'nonce-${nonce}'; style-src-attr 'none'; img-src 'self' data:${assetSource} https://sooplive.com https://*.sooplive.com https://afreecatv.com https://*.afreecatv.com https://afreecatvcdn.com https://*.afreecatvcdn.com; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`);
   res.setHeader('X-Robots-Tag','noindex, noarchive');
   return res.status(200).send(getRouletteServiceOverlayHtml(nonce));
+}
+
+async function handleSoopWallpaperOverlayPage(req,res){
+  if(req.method!=='GET')return res.status(405).json({message:'Method not allowed'});
+  const nonce=crypto.randomBytes(18).toString('base64url');
+  res.setHeader('Content-Type','text/html; charset=utf-8');
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('Content-Security-Policy',`default-src 'none'; style-src 'nonce-${nonce}'; style-src-attr 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`);
+  res.setHeader('X-Robots-Tag','noindex, noarchive');
+  return res.status(410).send(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>별록 풍벽지 · 종료됨</title><style nonce="${nonce}">html,body{width:100%;height:100%;margin:0;overflow:hidden;background:transparent}</style></head><body aria-label="종료된 별록 웹 풍벽지 오버레이"></body></html>`);
+}
+
+async function handleSoopWallpaperState(req,res){
+  if(req.method!=='GET')return res.status(405).json({message:'Method not allowed'});
+  res.setHeader('Cache-Control','no-store, private');
+  // 구형 웹 OBS 클라이언트는 clientVersion이 달라지면 페이지를 새로고침한다.
+  // 새 페이지는 410 투명 문서이므로 이미 떠 있던 카드까지 즉시 제거되고 폴링도 종료된다.
+  return res.status(200).json({ok:false,disabled:true,reason:'moved_to_local_agent',clientVersion:'agent-only-20260831'});
 }
 
 async function handleSoopRouletteOverlayPoll(req,res){
@@ -180,7 +198,8 @@ async function handleSoopRouletteOverlayTts(req,res){
 async function handleSoopRouletteOverlaySound(req,res){
   if(req.method!=='GET')return res.status(405).json({message:'Method not allowed'});
   try{
-    const audio=await readFile(new URL('../assets/audio/roulette-spin-v1.wav',import.meta.url));
+    const audio=Buffer.from(VERCEL_AUDIO_ASSET.data,'base64');
+    if(audio.byteLength!==VERCEL_AUDIO_ASSET.size||crypto.createHash('sha256').update(audio).digest('hex')!==VERCEL_AUDIO_ASSET.sha256)throw new Error('roulette sound integrity mismatch');
     res.setHeader('Content-Type','audio/wav');
     res.setHeader('Content-Length',String(audio.byteLength));
     res.setHeader('Cache-Control','public, max-age=31536000, immutable');
@@ -204,6 +223,8 @@ export default async function handler(req,res){
   if(operation==='soop-roulette-overlay-poll')return handleSoopRouletteOverlayPoll(req,res);
   if(operation==='soop-roulette-overlay-sound')return handleSoopRouletteOverlaySound(req,res);
   if(operation==='soop-roulette-overlay-tts')return handleSoopRouletteOverlayTts(req,res);
+  if(operation==='soop-wallpaper-page')return handleSoopWallpaperOverlayPage(req,res);
+  if(operation==='soop-wallpaper-state')return handleSoopWallpaperState(req,res);
   if(operation==='signup')return handleSignup(req,res);
   if(operation==='signup-status')return handleSignupStatus(req,res);
   if(operation==='inquiry')return handleInquirySubmit(req,res);
@@ -251,25 +272,36 @@ export default async function handler(req,res){
       }
       const devices=await sb(
         'byeollog_collector_devices',
-        `?select=id,workspace_id,status&id=eq.${encodeURIComponent(deviceId)}`+
+        `?select=id,workspace_id,status,created_by_user_id&id=eq.${encodeURIComponent(deviceId)}`+
         `&workspace_id=eq.${encodeURIComponent(workspace.id)}&status=eq.active&limit=1`
       ).catch(()=>[]);
       const device=Array.isArray(devices)?devices[0]:null;
-      if(!device || device.workspace_id!==workspace.id){
+      if(!device || device.workspace_id!==workspace.id || !device.created_by_user_id){
         return res.status(401).json({message:'연결된 Collector 기기가 해제되었거나 만료되었습니다.'});
       }
       deviceId=device.id;
 
-      // handoff는 Collector를 소유한 스트리머의 대시보드 접근이므로 owner 역할을 부여.
-      // 기기 등록 자체는 owner만 가능하도록 제한되어 있음.
+      const memberships=await sb(
+        'byeollog_workspace_members',
+        `?select=role,workspace_id&user_id=eq.${encodeURIComponent(device.created_by_user_id)}`+
+        `&workspace_id=eq.${encodeURIComponent(workspace.id)}&limit=1`
+      ).catch(()=>[]);
+      const membership=Array.isArray(memberships)?memberships[0]:null;
+      if(!membership || membership.workspace_id!==workspace.id){
+        return res.status(401).json({message:'Collector를 연결한 계정의 권한을 확인할 수 없습니다.'});
+      }
+
+      // 자동 로그인도 기기를 실제로 등록한 멤버의 신원과 현재 역할을 사용한다.
+      // 기존 세션은 lib/auth.js의 실시간 재검증에서 같은 방식으로 보완된다.
       setSessionCookie(res,createSessionToken({
         mode:'collector_handoff',
+        user_id:device.created_by_user_id,
         workspace_id:workspace.id,
         workspace_slug:workspace.slug,
-        role:'owner',
+        role:membership.role,
         collector_device_id:deviceId,
       }));
-      return res.status(200).json({ok:true,mode:'collector_handoff',workspace});
+      return res.status(200).json({ok:true,mode:'collector_handoff',workspace,role:membership.role});
     }catch(e){
       return res.status(500).json({message:'Collector 대시보드 로그인 처리에 실패했습니다.'});
     }

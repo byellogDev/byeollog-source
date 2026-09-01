@@ -11,7 +11,7 @@ const payload={kind:'event',workspaceId:'workspace-1',relay:{eventType:'chat',ev
 test('encrypted outbox survives restart, hides content, deduplicates, and retries',async()=>{
   const directory=await mkdtemp(join(tmpdir(),'byeollog-outbox-test-'));
   try{
-    const first=new EncryptedGatewayOutbox({directory,secret});await first.init();
+    const first=new EncryptedGatewayOutbox({directory,secret,baseRetryMs:1,maxRetryMs:1});await first.init();
     assert.equal((await first.enqueue(payload)).duplicate,false);
     assert.equal((await first.enqueue(payload)).duplicate,true);
     const names=await first.files();assert.equal(names.length,1);
@@ -19,9 +19,37 @@ test('encrypted outbox survives restart, hides content, deduplicates, and retrie
     assert.doesNotMatch(disk,/private-viewer|비공개닉네임|비밀 채팅 문장/);
     const failed=await first.flush(async()=>{throw Object.assign(new Error('offline'),{code:'network_offline'})});
     assert.equal(failed.pending,1);
-    const second=new EncryptedGatewayOutbox({directory,secret});await second.init();
+    await new Promise(resolve=>setTimeout(resolve,10));
+    const second=new EncryptedGatewayOutbox({directory,secret,baseRetryMs:1,maxRetryMs:1});await second.init();
     const delivered=[];const recovered=await second.flush(async body=>delivered.push(body));
     assert.equal(recovered.delivered,1);assert.equal(recovered.pending,0);assert.deepEqual(delivered,[payload]);
+  }finally{await rm(directory,{recursive:true,force:true})}
+});
+
+test('a poison event is dead-lettered after bounded permanent failures and does not block later events',async()=>{
+  const directory=await mkdtemp(join(tmpdir(),'byeollog-outbox-dlq-'));
+  try{
+    const outbox=new EncryptedGatewayOutbox({directory,secret,baseRetryMs:1,maxRetryMs:1,permanentFailureAttempts:3});
+    await outbox.init();
+    const poison={...payload,relay:{...payload.relay,event:{...payload.relay.event,eventId:'poison'}}};
+    const healthy={...payload,relay:{...payload.relay,event:{...payload.relay.event,eventId:'healthy'}}};
+    const poisonId=(await outbox.enqueue(poison)).id;
+    await outbox.enqueue(healthy);
+    const delivered=[];
+    const send=async body=>{
+      if(outbox.idFor(body)===poisonId)throw Object.assign(new Error('invalid payload'),{status:400,code:'invalid_payload'});
+      delivered.push(body);
+    };
+    const classifyFailure=error=>({retryable:error.status!==400});
+    for(let attempt=0;attempt<3;attempt+=1){
+      await outbox.flush(send,{classifyFailure});
+      await new Promise(resolve=>setTimeout(resolve,10));
+    }
+    const status=await outbox.status();
+    assert.equal(status.pending,0);assert.equal(status.deadLetters,1);
+    assert.deepEqual(delivered,[healthy]);
+    const dead=await readFile(join(directory,(await outbox.deadFiles())[0]),'utf8');
+    assert.doesNotMatch(dead,/private-viewer|비공개닉네임|비밀 채팅 문장/);
   }finally{await rm(directory,{recursive:true,force:true})}
 });
 

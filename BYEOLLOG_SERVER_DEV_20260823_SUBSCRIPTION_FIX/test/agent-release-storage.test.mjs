@@ -30,7 +30,7 @@ test("GitHub release storage keeps Vercel deployments free of release binaries",
 
   const packagePath = new URL(payload.package.url).pathname.slice(1);
   const ignoreLines = ignore.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  assert.equal(packagePath, `agent-updates/releases/0.7.0.110/byeollog_agent_v07110_PRESERVE_WEFLAB_RECOVERY_WINDOW_WIN_X64.zip`);
+  assert.equal(packagePath, `agent-updates/releases/0.7.0.134/byeollog_agent_v07134_REALTIME_RECOVERY_WIN_X64.zip`);
   assert.equal(ignoreLines.includes("agent-updates/releases"), true);
   assert.equal(ignoreLines.some((line) => line.startsWith("!agent-updates/releases/")), false);
   assert.ok((vercel.redirects || []).some(({ source, destination, permanent }) =>

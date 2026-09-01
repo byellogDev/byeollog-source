@@ -19,6 +19,10 @@ test("Agent owns a loopback-only Browser Source with observed liveness and three
   ]);
   assert.match(service, /new TcpListener\(IPAddress\.Loopback, port\)/);
   assert.match(service, /http:\/\/127\.0\.0\.1:\{Port\}\/overlay/);
+  assert.match(service, /WallpaperOverlayUrl\s*=>\s*\$"http:\/\/127\.0\.0\.1:\{Port\}\/overlay\/wallpaper"/);
+  assert.match(service, /if \(path == "\/overlay\/wallpaper"\)/);
+  assert.match(service, /body\.wallpaper-only #wallpaper-layer/);
+  assert.match(service, /if \(wallpaperOnly\) \{[\s\S]{0,80}document\.body\.classList\.add\('wallpaper-only'\)/);
   assert.match(service, /string\.Equals\(method, "GET"/);
   assert.match(service, /string\.Equals\(method, "HEAD"/);
   assert.match(service, /\/overlay\/state/);
@@ -46,6 +50,31 @@ test("Agent owns a loopback-only Browser Source with observed liveness and three
   assert.match(service, /center-icon/);
   assert.match(service, /top-left-icon/);
   assert.match(service, /top-right-icon/);
+  assert.match(service, /\.wallpaper-meta[^}]*font-family:"Noto Sans KR",Pretendard,"Malgun Gothic",sans-serif/);
+  assert.match(service, /\.wallpaper-tile img[^}]*z-index:1/);
+  assert.match(service, /\.wallpaper-meta[^}]*z-index:1000/);
+  assert.match(service, /\.wallpaper-tile img[^}]*filter:none/);
+  assert.match(service, /\.wallpaper-meta[^}]*filter:none/);
+  assert.doesNotMatch(service, /\.wallpaper-(?:tile img|meta)[^}]*drop-shadow/);
+  assert.match(service, /\.wallpaper-meta[^}]*font-size:clamp\(5px,var\(--label-size,18px\),21px\)/);
+  assert.match(service, /node\.style\.zIndex = 'auto'/);
+  assert.match(service, /\.wallpaper-meta[^}]*letter-spacing:-\.045em/);
+  assert.match(service, /\.wallpaper-meta-name[^}]*color:#e33732/);
+  assert.match(service, /info:'별풍선 ' \+ amount \+ '개'/);
+  assert.match(service, /card\.width < 150 \|\| card\.height < 160/);
+  assert.match(service, /function validWallpaperLayout\(layout, canvasWidth, canvasHeight\)/);
+  assert.match(service, /layout\.x >= 0 && layout\.y >= 0/);
+  assert.doesNotMatch(service, /function wallpaperRuns/);
+  assert.match(service, /function wallpaperColumns\(tiles, rows\)\s*\{\s*return Math\.ceil\(tiles\.length \/ rows\)/);
+  assert.match(service, /const cards = group\.tiles\.map\(\(tile, index\) =>/);
+  assert.match(service, /group\.tiles\.sort\(\(a,b\) => a\.amount-b\.amount \|\| Date\.parse\(a\.receivedAt\|\|0\)-Date\.parse\(b\.receivedAt\|\|0\)\)/);
+  assert.match(service, /\.wallpaper-tile\.text-only[^}]*grid-template-rows:1fr/);
+  assert.match(service, /group\.displayKind === 'subscription' && !group\.tiles\.some\(tile => typeof tile\.imageUrl === 'string' && tile\.imageUrl\)/);
+  assert.match(service, /const baseCardHeight = compact \? WALLPAPER_ROW_STEP : WALLPAPER_CARD_HEIGHT/);
+  assert.match(service, /card\.displayKind === 'subscription' && !\(typeof card\.imageUrl === 'string' && card\.imageUrl\)/);
+  assert.match(service, /node\.classList\.toggle\('text-only', textOnly\)/);
+  assert.match(service, /\.wallpaper-tile\.text-only \.wallpaper-meta[^}]*font-size:clamp\(10px,min\(8cqw,42cqh\),24px\)/);
+  assert.match(service, /개월 구독/);
   assert.match(obs, /RefreshOverlayBrowserSourcesAsync/);
   assert.match(service, /IsMatchingLoopbackOverlayUrl/);
   assert.match(obs, /refreshnocache/);
@@ -74,26 +103,28 @@ test("Agent reports bounded capabilities and packaged overlay-image readiness fo
   assert.match(client, /managedOverlayAssets is < 0 or > 100/);
   assert.match(client, /readyOverlayAssets = normalizedReadyOverlayAssets/);
   assert.match(agent, /AgentVersion\s*=\s*BuildInfo\.Version/);
-  assert.match(agent, /DeviceStatusInterval = TimeSpan\.FromSeconds\(30\)/);
+  assert.match(agent, /DeviceStatusInterval = TimeSpan\.FromMinutes\(4\)/);
+  assert.match(agent, /OverlayAssetSyncInterval = TimeSpan\.FromHours\(6\)/);
   assert.match(agent, /overlayStatus\.RequiredReady/);
   assert.match(agent, /overlayStatus\.ManagedCount/);
   assert.match(agent, /ReadyRevisionsAsync/);
   assert.match(publish, /byeollog_agent_v07032_AUTO_UPDATE_BOOTSTRAP_WIN_X64\.zip/);
 });
 
-test("Agent reports Weflab collection health separately from its automation heartbeat", async () => {
+test("Agent reports automation and Weflab health in one low-cost authenticated heartbeat", async () => {
   const [client, agent, storage, form] = await Promise.all([
     readFile(new URL("VNextDevelopmentClient.cs", root), "utf8"),
     readFile(new URL("VNextLocalAgent.cs", root), "utf8"),
     readFile(new URL("CollectorStorage.cs", root), "utf8"),
     readFile(new URL("MainForm.cs", root), "utf8")
   ]);
-  assert.match(client, /operation = "collection_health"/);
-  assert.match(client, /operation = "device_status"[\s\S]*operation = "collection_health"/);
+  assert.match(client, /g3a_agent_direct_report_v1/);
+  assert.match(client, /p_collection_state = collectionHealth\.State/);
+  assert.match(client, /operation = "device_status"/);
   assert.match(client, /_agentRequestJsonWithNulls[\s\S]*JsonIgnoreCondition\.Never/);
-  assert.match(client, /operation = "collection_health"[\s\S]*preserveNulls:\s*true/);
+  assert.match(client, /g3a_agent_direct_report_v1[\s\S]*preserveNulls:\s*true/);
   assert.match(client, /invalid_collection_health/);
-  assert.match(client, /invalid_operation/);
+  assert.doesNotMatch(client, /operation = "device_status"[\s\S]{0,1600}operation = "collection_health"/);
   assert.match(agent, /vNext Agent 반복 처리 오류/);
   assert.match(agent, /session\?\.Active != true[\s\S]*VNextCollectionHealth\("idle"/);
   assert.match(agent, /LastWeflabObservedAt\.HasValue \? "active" : "recovering"/);

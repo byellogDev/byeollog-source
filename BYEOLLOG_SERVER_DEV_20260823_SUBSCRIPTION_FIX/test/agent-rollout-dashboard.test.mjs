@@ -19,7 +19,7 @@ test('agent rollout route reuses the authenticated admin function',async()=>{
   assert.match(admin,/requireCapabilityLive\(req,res,'data:read'\)/);
   assert.match(admin,/isPlatformAdmin\(liveSession\)/);
   assert.match(admin,/operation==='agent-rollout-status'/);
-  assert.match(admin,/operation==='context'\|\|operation==='agent-rollout-status'/);
+  assert.match(admin,/if\(!isBrowserPage\)return res\.status\(401\)\.json/);
   assert.match(vercel,/"source": "\/agent-rollout"[\s\S]*"destination": "\/api\/admin\?view=agent-rollout"/);
   assert.match(admin,/rpc\/get_agent_rollout_dashboard_v2/);
   assert.match(page,/자동화 · 수집 현황/);

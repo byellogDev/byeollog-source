@@ -41,9 +41,10 @@ test('legacy Collector pairing remains the primary response path',()=>{
 
 test('binary deployment assets are served through a verified compatibility endpoint',()=>{
   assert.match(assetHandler,/Deployment asset integrity check failed/);
-  assert.match(assetHandler,/Content-Type','image\/png/);
+  assert.match(assetHandler,/Content-Type',mimeType/);
   assert.match(vercelConfig,/\/api\/data\?operation=deployment-asset&name=byeollog_logo_dark\.png/);
   assert.match(vercelConfig,/\/api\/data\?operation=deployment-asset&name=byeollog_app_icon\.png/);
+  assert.match(vercelConfig,/\/assets\/roulette-previews\/:name\.webp/);
 
   let statusCode=0;
   let body=null;
@@ -59,4 +60,9 @@ test('binary deployment assets are served through a verified compatibility endpo
   assert.equal(statusCode,200);
   assert.equal(headers.get('Content-Type'),'image/png');
   assert.equal(body.length,102778);
+
+  dataHandler({method:'GET',query:{operation:'deployment-asset',name:'roulette-01-navy-gold.webp'}},response);
+  assert.equal(statusCode,200);
+  assert.equal(headers.get('Content-Type'),'image/webp');
+  assert.equal(body.length,82_814);
 });

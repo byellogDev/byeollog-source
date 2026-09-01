@@ -45,7 +45,7 @@ test('catalog pins exactly the seven final clean-edge WebP identities',async t=>
   assert.equal(new Set(NATIVE_ROULETTE_ASSETS.map(asset=>asset.key)).size,7);
   for(const asset of NATIVE_ROULETTE_ASSETS){
     assert.match(asset.fileName,/^roulette-0[1-7]-.*-clean-edge\.webp$/);
-    assert.match(asset.previewUrl,/^\/assets\/roulette-previews\/roulette-0[1-7]-.*\.png$/);
+    assert.match(asset.previewUrl,/^\/assets\/roulette-previews\/roulette-0[1-7]-.*\.webp$/);
     const previewUrl=new URL(`../${asset.previewUrl.slice(1)}`,import.meta.url);
     assert.equal(existsSync(previewUrl),true);
     await t.test(`reviewed preview digest ${asset.previewUrl.split('/').at(-1)}`,async()=>{

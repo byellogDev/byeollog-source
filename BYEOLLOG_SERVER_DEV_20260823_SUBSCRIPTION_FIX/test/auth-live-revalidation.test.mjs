@@ -54,6 +54,53 @@ test('membership revalidation distinguishes a confirmed missing membership from 
   );
 });
 
+test('collector handoff revalidation restores the device owner identity for existing cookies',async()=>{
+  const deviceId='30000000-0000-4000-8000-000000000001';
+  const tables=[];
+  const result=await revalidateMembership({
+    mode:'collector_handoff',workspace_id:workspaceId,collector_device_id:deviceId,role:'owner'
+  },{
+    retryDelayMs:0,
+    sbImpl:async table=>{
+      tables.push(table);
+      if(table==='byeollog_collector_devices')return [{
+        id:deviceId,workspace_id:workspaceId,status:'active',created_by_user_id:userId
+      }];
+      if(table==='byeollog_workspace_members')return [{workspace_id:workspaceId,role:'editor'}];
+      if(table==='byeollog_workspaces')return [{id:workspaceId,status:'active'}];
+      return [];
+    }
+  });
+  assert.equal(result.user_id,userId);
+  assert.equal(result.role,'editor');
+  assert.deepEqual(tables,[
+    'byeollog_collector_devices','byeollog_workspace_members','byeollog_workspaces'
+  ]);
+});
+
+test('collector handoff revalidation rejects devices without a bound active member',async()=>{
+  const deviceId='30000000-0000-4000-8000-000000000002';
+  const missingOwner=await revalidateMembership({
+    mode:'collector_handoff',workspace_id:workspaceId,collector_device_id:deviceId,role:'owner'
+  },{
+    retryDelayMs:0,
+    sbImpl:async table=>table==='byeollog_collector_devices'
+      ?[{id:deviceId,workspace_id:workspaceId,status:'active',created_by_user_id:null}]
+      :[]
+  });
+  assert.equal(missingOwner,null);
+
+  const missingMembership=await revalidateMembership({
+    mode:'collector_handoff',workspace_id:workspaceId,collector_device_id:deviceId,role:'owner'
+  },{
+    retryDelayMs:0,
+    sbImpl:async table=>table==='byeollog_collector_devices'
+      ?[{id:deviceId,workspace_id:workspaceId,status:'active',created_by_user_id:userId}]
+      :[]
+  });
+  assert.equal(missingMembership,null);
+});
+
 test('live authorization keeps the cookie and returns retryable 503 when membership storage is unavailable',async()=>{
   const previous=process.env.SESSION_SECRET;
   process.env.SESSION_SECRET='test-session-secret-that-is-longer-than-32-characters';
@@ -98,4 +145,28 @@ test('SOOP navigation clears the cookie only when membership absence is confirme
     assert.equal(res.headers.location,'/login?expired=1');
     assert.match(String(res.headers['set-cookie']),/Max-Age=0/);
   }finally{if(previous===undefined)delete process.env.SESSION_SECRET;else process.env.SESSION_SECRET=previous}
+});
+
+test('all dashboard HTML entry points use navigation auth while API operations keep JSON auth',async()=>{
+  const {readFile}=await import('node:fs/promises');
+  const [admin,rollout,changePassword,withdraw,loginPage]=await Promise.all([
+    readFile(new URL('../api/admin.js',import.meta.url),'utf8'),
+    readFile(new URL('../lib/agent-rollout-html.js',import.meta.url),'utf8'),
+    readFile(new URL('../assets/change-password-page.js',import.meta.url),'utf8'),
+    readFile(new URL('../assets/withdraw-page.js',import.meta.url),'utf8'),
+    readFile(new URL('../assets/login-page.js',import.meta.url),'utf8')
+  ]);
+  assert.match(admin,/DASHBOARD_NAVIGATION_AUTH=\{navigation:true,loginPath:'\/login\?expired=1',retryPath:'\/login\?check=retry'\}/);
+  assert.match(admin,/handleAgentRolloutPage[\s\S]*requireCapabilityLive\(req,res,'data:read',DASHBOARD_NAVIGATION_AUTH\)/);
+  assert.match(admin,/handleProductControlPage[\s\S]*requireCapabilityLive\(req,res,'data:read',DASHBOARD_NAVIGATION_AUTH\)/);
+  assert.match(admin,/const pageStartedAt[\s\S]*requireCapabilityLive\(req,res,'data:read',DASHBOARD_NAVIGATION_AUTH\)/);
+  assert.match(admin,/const isBrowserPage=!operation\|\|view==='agent-rollout'\|\|\['roulette','actions','signatures','wallpaper'\]\.includes\(view\)/);
+  assert.match(admin,/if\(!isBrowserPage\)return res\.status\(401\)\.json\(\{message:'Unauthorized'\}\)/);
+  assert.match(admin,/operation==='context'[\s\S]*requireCapabilityLive\(req,res,'data:read'\)/);
+  assert.match(rollout,/response\.status===401[\s\S]*location\.replace\('\/login\?expired=1'\)/);
+  for(const source of [changePassword,withdraw]){
+    assert.match(source,/fetch\('\/api\/admin\?operation=context'/);
+    assert.match(source,/response\.status===401[\s\S]*location\.replace\('\/login\?expired=1'\)/);
+  }
+  assert.match(loginPage,/loginParams\.get\('check'\)==='retry'/);
 });

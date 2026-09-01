@@ -15,6 +15,7 @@ const loginParams=new URLSearchParams(location.search);
     .catch(err=>{try{history.replaceState(null,'','/login')}catch(_){}form.querySelectorAll('input,button').forEach(el=>el.disabled=false);msg.textContent=err.message+' 직접 로그인해주세요.'});
 })();
 if(loginParams.get('expired')==='1')document.getElementById('msg').textContent='관리자 세션이 만료되었습니다. 다시 로그인해주세요.';
+if(loginParams.get('check')==='retry')document.getElementById('msg').textContent='로그인 상태 확인이 잠시 지연되고 있습니다. 잠시 후 다시 로그인해주세요.';
 document.getElementById('loginForm').addEventListener('submit',async e=>{
   e.preventDefault();const msg=document.getElementById('msg');msg.textContent='확인 중...';
   try{const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:document.getElementById('loginId').value,password:document.getElementById('password').value})});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.message||'로그인 실패');location.replace('/dashboard')}

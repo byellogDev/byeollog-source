@@ -217,6 +217,7 @@ internal sealed class VNextAutomationSettingsForm : Form
         "devices" => "devices",
         "overlays" => "overlays",
         "activity" => "activity",
+        "wallpaper" => "wallpaper",
         _ => null
     };
 
@@ -458,6 +459,11 @@ internal sealed class VNextAutomationSettingsForm : Form
                         "별록 액션과 등록 PC를 불러오는 중이에요.",
                         ownerId => LoadAndPushStateAsync(showToast: true, ownerId));
                     break;
+                case "refreshWallpaperOverlay":
+                    await RunOperationAsync(
+                        "OBS의 별록 풍벽지 소스를 확인하는 중이에요.",
+                        RefreshWallpaperOverlayAsync);
+                    break;
                 case "refreshReadiness":
                     await RunOperationAsync(
                         "방송 준비 상태를 확인하는 중이에요.",
@@ -522,6 +528,9 @@ internal sealed class VNextAutomationSettingsForm : Form
                     break;
                 case "copyOverlayUrl":
                     await CopyOverlayUrlAsync();
+                    break;
+                case "copyWallpaperOverlayUrl":
+                    await CopyWallpaperOverlayUrlAsync();
                     break;
                 case "saveObsSettings":
                     await SaveObsSettingsAsync(payload);
@@ -1458,6 +1467,42 @@ internal sealed class VNextAutomationSettingsForm : Form
         await ShowToastAsync("OBS 브라우저 소스 주소를 복사했어요.", "success");
     }
 
+    private async Task CopyWallpaperOverlayUrlAsync()
+    {
+        RequireCanManage();
+        if (_localAgent is null)
+            throw new VNextDevelopmentException("이 PC 자동화 실행기를 시작할 수 없습니다.", code: "local_agent_unavailable");
+        if (!_localAgent.OverlayAvailable)
+            throw new VNextDevelopmentException("별록 풍벽지용 로컬 서버가 실행되지 않았습니다.", code: "overlay_server_unavailable");
+        Clipboard.SetText(_localAgent.WallpaperOverlayUrl);
+        await ShowToastAsync("별록 풍벽지 전용 OBS 주소를 복사했어요.", "success");
+    }
+
+    private async Task RefreshWallpaperOverlayAsync(long ownerId)
+    {
+        RequireCanManage();
+        if (_localAgent is null)
+            throw new VNextDevelopmentException(
+                "이 PC 자동화 실행기를 시작할 수 없습니다.",
+                code: "local_agent_unavailable");
+
+        var sessionEpoch = _client.CaptureSessionEpoch();
+        var refreshed = await _localAgent.RefreshObsOverlaySourcesAsync(_lifetimeToken);
+        if (!CanCommit(ownerId, sessionEpoch)) return;
+
+        if (refreshed.WallpaperSources < 1)
+        {
+            await ShowToastAsync(
+                "OBS에 ‘별록 풍벽지’ 전용 주소가 없습니다. 아래의 새 전용 주소를 브라우저 소스로 추가해주세요.",
+                "warning");
+            return;
+        }
+
+        await ShowToastAsync(
+            $"OBS 별록 풍벽지 소스 {refreshed.WallpaperSources}개를 새로고침했어요.",
+            "success");
+    }
+
     private async Task<object> CreateLocalConnectionsStateAsync()
     {
         var obs = _storage.LoadObsSettings();
@@ -1860,6 +1905,7 @@ internal sealed class VNextAutomationSettingsForm : Form
                 available = true,
                 currentDeviceId = _localAgent.DeviceId,
                 overlayUrl = _localAgent.OverlayUrl,
+                wallpaperOverlayUrl = _localAgent.WallpaperOverlayUrl,
                 overlayRunning = overlay.OverlayRunning,
                 requiredAssetsReady = overlay.Cache.RequiredReady,
                 exactAssetsReady = overlay.ReadyRevisions.Count,
@@ -1888,6 +1934,7 @@ internal sealed class VNextAutomationSettingsForm : Form
                 available = true,
                 currentDeviceId = _localAgent.DeviceId,
                 overlayUrl = _localAgent.OverlayUrl,
+                wallpaperOverlayUrl = _localAgent.WallpaperOverlayUrl,
                 overlayRunning = _localAgent.OverlayAvailable,
                 error = "이 PC의 상세 준비 상태를 확인하지 못했습니다."
             };

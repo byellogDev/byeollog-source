@@ -25,8 +25,22 @@ internal static class Program
         "Collect-SupportBundle.ps1"
     ];
 
-    private static async Task Main()
+    private static async Task Main(string[] args)
     {
+        if (args.Length >= 2 && string.Equals(args[0], "--wallpaper-harness", StringComparison.Ordinal))
+        {
+            var seconds = args.Length >= 3 && int.TryParse(args[2], out var parsedSeconds)
+                ? Math.Clamp(parsedSeconds, 1, 300)
+                : 30;
+            var storage = new CollectorStorage(args[1]);
+            using var wallpaper = new WallpaperOverlayState(storage.RootPath, storage.Log);
+            using var service = new ByeollogOverlayService(storage, new OverlayAssetCache(storage.RootPath), wallpaper, 43121);
+            if (!service.TryStart()) throw new InvalidOperationException("Wallpaper visual harness failed to start.");
+            Console.WriteLine("WALLPAPER_HARNESS_URL=" + service.OverlayUrl);
+            await Task.Delay(TimeSpan.FromSeconds(seconds));
+            return;
+        }
+
         var root = Path.Combine(Path.GetTempPath(), "byeollog-agent-store-tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
         var databasePath = Path.Combine(root, "agent.sqlite");
@@ -40,6 +54,9 @@ internal static class Program
             WeflabRecoveryDecisionTests();
             SessionVaultTests(root);
             ActionFreshnessTests();
+            WallpaperSyncRequestTrackerTests();
+            AgentWallpaperSnapshotMapperTests();
+            await WallpaperOverlayStateTestsAsync(root);
             True(VNextAgentStore.IsFinalLocalOutcome(
                     new VNextAgentAck("final-success", 1, true, false, null, null)),
                 "successful local ACK is a final UI outcome");
@@ -194,6 +211,264 @@ internal static class Program
         finally
         {
             try { Directory.Delete(root, recursive: true); } catch { }
+        }
+    }
+
+    private static void WallpaperSyncRequestTrackerTests()
+    {
+        var tracker = new WallpaperSyncRequestTracker();
+        var first = tracker.Request();
+        True(tracker.Pending, "wallpaper Realtime wake becomes pending immediately");
+        tracker.CompleteThrough(first);
+        False(tracker.Pending, "applied wallpaper generation clears its own pending wake");
+
+        var applying = tracker.Request();
+        var newer = tracker.Request();
+        tracker.CompleteThrough(applying);
+        True(tracker.Pending,
+            "a wallpaper wake received during snapshot apply survives the older completion");
+        tracker.CompleteThrough(newer);
+        False(tracker.Pending, "the latest wallpaper generation clears after it is applied");
+    }
+
+    private static void AgentWallpaperSnapshotMapperTests()
+    {
+        const string workspaceId = "11111111-1111-4111-8111-111111111111";
+        using var raw = JsonDocument.Parse("""
+        {
+          "changed": true,
+          "revision": 77,
+          "overlay": {
+            "visibleGroupKeys": ["donation:33", "donation:50", "subscription:6"],
+            "mergeRanges": [{"min": 1, "max": 99}]
+          },
+          "sessions": [{
+            "id": "22222222-2222-4222-8222-222222222222",
+            "canvasWidth": 1920,
+            "canvasHeight": 1080,
+            "startedAt": "2026-09-01T10:00:00Z"
+          }],
+          "signatures": [{
+            "amount": 33,
+            "asset": {
+              "storagePath": "workspaces/11111111-1111-4111-8111-111111111111/wallpaper/33.png",
+              "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "mimeType": "image/png",
+              "byteSize": 123,
+              "width": 320,
+              "height": 180
+            }
+          }],
+          "activationSnapshot": null,
+          "tiles": [
+            {
+              "id": "33333333-3333-4333-8333-333333333333",
+              "sequenceNo": 1,
+              "sessionId": "22222222-2222-4222-8222-222222222222",
+              "actorName": "시그풍",
+              "amount": 33,
+              "displayKind": "donation",
+              "assetSource": "soop",
+              "asset": {"url": "https://res.sooplive.com/old.png"},
+              "receivedAt": "2026-09-01T10:01:00Z",
+              "layoutX": 10,
+              "layoutY": 20,
+              "layoutWidth": 300,
+              "layoutHeight": 400,
+              "layoutColumns": 2,
+              "layoutRows": 3,
+              "layoutNextSide": "left"
+            },
+            {
+              "id": "44444444-4444-4444-8444-444444444444",
+              "sequenceNo": 2,
+              "sessionId": "22222222-2222-4222-8222-222222222222",
+              "actorName": "기본풍",
+              "amount": 50,
+              "displayKind": "donation",
+              "assetSource": "soop",
+              "asset": {"url": "http://res.sooplive.com/new_player/items/ba_step2.png"},
+              "receivedAt": "2026-09-01T10:02:00Z"
+            },
+            {
+              "id": "55555555-5555-4555-8555-555555555555",
+              "sequenceNo": 3,
+              "sessionId": "22222222-2222-4222-8222-222222222222",
+              "actorName": "구독자",
+              "amount": 6,
+              "displayKind": "subscription",
+              "assetSource": "none",
+              "asset": {},
+              "receivedAt": "2026-09-01T10:03:00Z"
+            }
+          ]
+        }
+        """);
+
+        var sync = AgentWallpaperSnapshotMapper.Build(
+            raw.RootElement,
+            workspaceId,
+            "https://offslvwaugvjotkywlus.supabase.co");
+        True(sync.Changed && sync.Revision == 77 && sync.State.HasValue,
+            "direct wallpaper raw snapshot maps to one changed local revision");
+        var state = sync.State!.Value;
+        Equal(1, state.GetProperty("schemaVersion").GetInt32(),
+            "direct wallpaper mapper keeps the local renderer contract");
+        Equal(3, state.GetProperty("tiles").GetArrayLength(),
+            "direct wallpaper mapper preserves every visible card");
+        var signature = state.GetProperty("tiles")[0];
+        Equal("signature", signature.GetProperty("source").GetString(),
+            "custom signature precedence matches the Edge mapper");
+        True(signature.GetProperty("imageUrl").GetString()!.Contains(
+                "/storage/v1/object/authenticated/byeollog-signature-assets/",
+                StringComparison.Ordinal),
+            "custom signatures use the authenticated Agent storage path");
+        Equal("wallpaper-merge-1-99", signature.GetProperty("groupKey").GetString(),
+            "manual merge ranges match the Edge grouping contract");
+        Equal("left", signature.GetProperty("layout").GetProperty("nextSide").GetString(),
+            "manual layout fields survive direct transport");
+        Equal("https://res.sooplive.com/new_player/items/ba_step2.png",
+            state.GetProperty("tiles")[1].GetProperty("imageUrl").GetString(),
+            "SOOP image URLs receive the same HTTPS normalization");
+        Equal(JsonValueKind.Null,
+            state.GetProperty("tiles")[2].GetProperty("imageUrl").ValueKind,
+            "image-free subscription cards remain image-free");
+
+        using var unchanged = JsonDocument.Parse("{\"changed\":false,\"revision\":77}");
+        var noChange = AgentWallpaperSnapshotMapper.Build(
+            unchanged.RootElement,
+            workspaceId,
+            "https://offslvwaugvjotkywlus.supabase.co");
+        False(noChange.Changed, "unchanged direct wallpaper response stays payload-free");
+    }
+
+    private static async Task WallpaperOverlayStateTestsAsync(string root)
+    {
+        var wallpaperRoot = Path.Combine(root, "wallpaper-state");
+        var png = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZlCIAAAAASUVORK5CYII=");
+        var hash = Convert.ToHexString(SHA256.HashData(png)).ToLowerInvariant();
+        var imageUrl = "https://res.sooplive.com/new_player/items/balloon_50.jpg";
+        var goodHandler = new ScriptedWallpaperHandler(_ =>
+        {
+            var content = new ByteArrayContent(png);
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = content };
+        });
+        using (var wallpaper = new WallpaperOverlayState(wallpaperRoot, _ => { }, goodHandler))
+        {
+            var state = JsonSerializer.SerializeToElement(new
+            {
+                schemaVersion = 1,
+                revision = 1,
+                canvasWidth = 1920,
+                canvasHeight = 1080,
+                tiles = new[]
+                {
+                    new { imageKey = "soop:" + imageUrl, imageUrl, imageMimeType = "image/jpeg", imageByteSize = png.Length, imageSha256 = hash },
+                    new { imageKey = "soop:" + imageUrl, imageUrl, imageMimeType = "image/jpeg", imageByteSize = png.Length, imageSha256 = hash }
+                }
+            });
+            True(await wallpaper.ApplyAsync(new VNextWallpaperSync(true, 1, false, state), CancellationToken.None),
+                "wallpaper snapshot accepts a PNG whose SOOP URL and response header claim JPEG");
+            Equal(1, goodHandler.Requests.Count,
+                "repeated wallpaper cards download the same image only once per snapshot");
+            using var snapshot = JsonDocument.Parse(wallpaper.SnapshotBytes());
+            var firstUrl = snapshot.RootElement.GetProperty("tiles")[0].GetProperty("imageUrl").GetString();
+            var secondUrl = snapshot.RootElement.GetProperty("tiles")[1].GetProperty("imageUrl").GetString();
+            Equal("/overlay/wallpaper-assets/" + hash, firstUrl,
+                "mislabeled SOOP PNG is rebound to its content-addressed local asset");
+            Equal(firstUrl, secondUrl, "duplicate cards reuse one local wallpaper asset token");
+            True(wallpaper.TryReadAsset(hash, out var cached, out var mime),
+                "content-addressed wallpaper asset can be served to OBS");
+            Equal("image/png", mime, "OBS receives the MIME detected from image bytes");
+            True(png.SequenceEqual(cached), "cached wallpaper bytes are preserved exactly");
+
+            var subscriptionState = JsonSerializer.SerializeToElement(new
+            {
+                schemaVersion = 1,
+                revision = 2,
+                canvasWidth = 1920,
+                canvasHeight = 1080,
+                tiles = new[]
+                {
+                    new { id = "subscription-6", displayKind = "subscription", actorName = "구독자", amount = 6, imageKey = (string?)null, imageUrl = (string?)null }
+                }
+            });
+            True(await wallpaper.ApplyAsync(new VNextWallpaperSync(true, 2, false, subscriptionState), CancellationToken.None),
+                "image-free subscription wallpaper snapshots are accepted without a remote asset request");
+            Equal(1, goodHandler.Requests.Count,
+                "subscription cards do not download a placeholder image");
+            using var subscriptionSnapshot = JsonDocument.Parse(wallpaper.SnapshotBytes());
+            Equal(JsonValueKind.Null,
+                subscriptionSnapshot.RootElement.GetProperty("tiles")[0].GetProperty("imageUrl").ValueKind,
+                "subscription card remains explicitly image-free in the local OBS state");
+
+            var compactState = JsonSerializer.SerializeToElement(new
+            {
+                schemaVersion = 2,
+                revision = 3,
+                canvasWidth = 1920,
+                canvasHeight = 1080,
+                assets = new[]
+                {
+                    new { source = "soop", imageKey = "soop:" + imageUrl, imageUrl, imageMimeType = "image/jpeg", imageByteSize = png.Length, imageSha256 = hash }
+                },
+                tiles = new[]
+                {
+                    new { id = "compact-1", displayKind = "donation", actorName = "후원자1", amount = 50, assetIndex = 0 },
+                    new { id = "compact-2", displayKind = "donation", actorName = "후원자2", amount = 50, assetIndex = 0 }
+                }
+            });
+            True(await wallpaper.ApplyAsync(new VNextWallpaperSync(true, 3, false, compactState), CancellationToken.None),
+                "schema v2 wallpaper snapshot expands before the unchanged local renderer sees it");
+            Equal(1, goodHandler.Requests.Count,
+                "schema v2 reuses the persistent content-addressed image without another download");
+            using var compactSnapshot = JsonDocument.Parse(wallpaper.SnapshotBytes());
+            Equal(1, compactSnapshot.RootElement.GetProperty("schemaVersion").GetInt32(),
+                "local OBS state remains schema v1 for visual parity");
+            False(compactSnapshot.RootElement.TryGetProperty("assets", out _),
+                "network-only asset manifest is removed from local OBS state");
+            Equal("/overlay/wallpaper-assets/" + hash,
+                compactSnapshot.RootElement.GetProperty("tiles")[1].GetProperty("imageUrl").GetString(),
+                "every compact card resolves to the same local image URL");
+        }
+
+        var beforeFailure = File.ReadAllBytes(Path.Combine(wallpaperRoot, "wallpaper-overlay-state-v1.json"));
+        var failedHandler = new ScriptedWallpaperHandler(_ => new HttpResponseMessage(HttpStatusCode.BadGateway));
+        using (var wallpaper = new WallpaperOverlayState(wallpaperRoot, _ => { }, failedHandler))
+        {
+            var failedState = JsonSerializer.SerializeToElement(new
+            {
+                schemaVersion = 1,
+                revision = 4,
+                canvasWidth = 1920,
+                canvasHeight = 1080,
+                tiles = new[]
+                {
+                    new { imageKey = "soop:https://res.sooplive.com/new_player/items/balloon_112.jpg", imageUrl = "https://res.sooplive.com/new_player/items/balloon_112.jpg" }
+                }
+            });
+            await ThrowsAsync<IOException>(
+                () => wallpaper.ApplyAsync(new VNextWallpaperSync(true, 4, false, failedState), CancellationToken.None),
+                "a required wallpaper image failure rejects the whole snapshot");
+            Equal(3L, wallpaper.Revision, "failed image download keeps the last OBS revision active");
+            True(beforeFailure.SequenceEqual(wallpaper.SnapshotBytes()),
+                "failed image download cannot replace the visible OBS state with blank cards");
+        }
+
+        var incompleteRoot = Path.Combine(root, "wallpaper-incomplete-state");
+        Directory.CreateDirectory(incompleteRoot);
+        File.WriteAllText(
+            Path.Combine(incompleteRoot, "wallpaper-overlay-state-v1.json"),
+            "{\"schemaVersion\":1,\"revision\":342,\"canvasWidth\":1920,\"canvasHeight\":1080,\"tiles\":[{\"imageKey\":\"soop:https://res.sooplive.com/new_player/items/balloon_50.jpg\",\"imageUrl\":null}]}");
+        using (var wallpaper = new WallpaperOverlayState(incompleteRoot, _ => { }))
+        {
+            Equal(0L, wallpaper.Revision,
+                "an incomplete persisted wallpaper resets only its sync cursor for automatic recovery");
+            using var snapshot = JsonDocument.Parse(wallpaper.SnapshotBytes());
+            Equal(342L, snapshot.RootElement.GetProperty("revision").GetInt64(),
+                "automatic recovery keeps the previous visible snapshot until the replacement is ready");
         }
     }
 
@@ -2374,6 +2649,26 @@ internal static class Program
         await Task.Delay(100);
         using (var http = new HttpClient(new HttpClientHandler { UseProxy = false }))
         {
+            var overlayHtml = await http.GetStringAsync(service.OverlayUrl);
+            True(overlayHtml.Contains("id=\"wallpaper-layer\"", StringComparison.Ordinal),
+                "the existing OBS document contains the persistent wallpaper layer");
+            True(overlayHtml.Contains("#wallpaper-layer { position:absolute; inset:0; display:none; overflow:hidden; pointer-events:none; z-index:1; }", StringComparison.Ordinal),
+                "the action document keeps wallpaper rendering disabled");
+            True(overlayHtml.Contains("body.wallpaper-only #wallpaper-layer { display:block; }", StringComparison.Ordinal),
+                "the wallpaper document enables only the lower wallpaper layer");
+            var wallpaperHtml = await http.GetStringAsync(service.WallpaperOverlayUrl);
+            True(wallpaperHtml.Contains("location.pathname.replace(/\\/+$/,'') === '/overlay/wallpaper'", StringComparison.Ordinal),
+                "the dedicated wallpaper URL selects wallpaper-only mode");
+            True(overlayHtml.Contains("#effect-stage { position:absolute; inset:0; width:100%; height:100%; opacity:0; pointer-events:none; overflow:hidden; isolation:isolate; z-index:130; }", StringComparison.Ordinal),
+                "transient action effects remain above every wallpaper card");
+            using (var wallpaperDocument = JsonDocument.Parse(
+                await http.GetStringAsync($"{service.OverlayUrl}/wallpaper-state")))
+            {
+                Equal(1, wallpaperDocument.RootElement.GetProperty("schemaVersion").GetInt32(),
+                    "localhost wallpaper state uses the sealed schema");
+                Equal(0L, wallpaperDocument.RootElement.GetProperty("revision").GetInt64(),
+                    "a fresh Agent serves an empty persistent wallpaper without cloud polling");
+            }
             _ = await http.GetStringAsync($"{service.OverlayUrl}/state");
             var waterMotion = await http.GetByteArrayAsync(
                 $"{service.OverlayUrl}/builtin/water-splash-v4.webm");
@@ -3247,6 +3542,25 @@ internal static class Program
 
             Requests.Add(request.RequestUri);
             return Task.FromResult(_responses.Dequeue()(request.RequestUri));
+        }
+    }
+
+    private sealed class ScriptedWallpaperHandler : HttpMessageHandler
+    {
+        private readonly Func<Uri, HttpResponseMessage> _response;
+
+        internal ScriptedWallpaperHandler(Func<Uri, HttpResponseMessage> response) => _response = response;
+        internal List<Uri> Requests { get; } = [];
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (request.Method != HttpMethod.Get || request.RequestUri is null)
+                throw new InvalidOperationException("The wallpaper test expected an absolute GET request.");
+            Requests.Add(request.RequestUri);
+            return Task.FromResult(_response(request.RequestUri));
         }
     }
 

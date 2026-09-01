@@ -1,18 +1,19 @@
 import crypto from 'node:crypto';
 import os from 'node:os';
 import {mkdir,rename,writeFile} from 'node:fs/promises';
-import {classifySoopChatSdkCallback,SoopGatewayReplayGuard} from '../../lib/soop-chat-gateway.js';
+import {classifySoopChatSdkCallback,isSoopBroadcastOfflineError,shouldSendSoopGatewayHeartbeat,signSoopGatewayRequest,SOOP_GATEWAY_HEARTBEAT_POLICY,stableSoopGatewayStaggerMs,SoopGatewayReplayGuard,SoopRelevantChatGate} from '../../lib/soop-chat-gateway.js';
 import {reduceSoopSdkSession} from '../../lib/soop-sdk-relay.js';
-import {runSoopBrowserSession} from './browser-session.mjs';
+import {closeSoopBrowserHost,runSoopBrowserSession,soopBrowserRuntimePolicy} from './browser-session.mjs';
 import {EncryptedGatewayOutbox} from './outbox.mjs';
 
-const POLL_MS=15_000,HEARTBEAT_MS=15_000,OUTBOX_FLUSH_MS=1_000;
+const RECONCILE_MS=60_000,OUTBOX_FLUSH_MS=1_000;
+const LEASE_REFRESH_SKEW_MS=60_000,DONOR_CHAT_WINDOW_MS=120_000;
 const instanceId=`${os.hostname().replace(/[^A-Za-z0-9_-]/g,'_').slice(0,48)}:${process.pid}:${crypto.randomBytes(6).toString('hex')}`;
 const gatewayUrl=String(process.env.BYEOLLOG_SOOP_GATEWAY_URL||'https://byeollog.com/api/auth/soop/gateway').trim();
 const gatewaySecret=String(process.env.SOOP_GATEWAY_INGRESS_SECRET||'').trim();
 const stateDirectory=String(process.env.SOOP_GATEWAY_STATE_DIR||'').trim();
 const workerStatePath=stateDirectory?`${stateDirectory}/worker-state.json`:null;
-const workers=new Map(),reportedUnsupportedActions=new Set();let stopping=false,outbox=null,outboxTimer=null,workerStateTimer=null;
+const workers=new Map(),reportedUnsupportedActions=new Set();let stopping=false,outbox=null,outboxTimer=null,workerStateTimer=null,lastOutboxPressureLogAt=0;
 
 function log(level,event,data={}){process.stdout.write(`${JSON.stringify({at:new Date().toISOString(),level,event,instanceId,...data})}\n`)}
 function workspaceTag(workspaceId){return crypto.createHash('sha256').update(String(workspaceId)).digest('hex').slice(0,12)}
@@ -36,11 +37,37 @@ function assertConfiguration(){
 async function postGateway(body){
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10_000);
   try{
-    const response=await fetch(gatewayUrl,{method:'POST',headers:{'Content-Type':'application/json','X-Byeollog-Soop-Gateway-Secret':gatewaySecret},body:JSON.stringify(body),cache:'no-store',signal:controller.signal});
+    const timestamp=String(Date.now()),nonce=crypto.randomBytes(16).toString('hex');
+    const signature=signSoopGatewayRequest({secret:gatewaySecret,timestamp,nonce,body});
+    const response=await fetch(gatewayUrl,{method:'POST',headers:{
+      'Content-Type':'application/json',
+      'X-Byeollog-Soop-Gateway-Timestamp':timestamp,
+      'X-Byeollog-Soop-Gateway-Nonce':nonce,
+      'X-Byeollog-Soop-Gateway-Signature':signature
+    },body:JSON.stringify(body),cache:'no-store',signal:controller.signal});
     const data=await response.json().catch(()=>({}));
     if(!response.ok){const error=new Error(data.code||`gateway_http_${response.status}`);error.status=response.status;error.code=data.code||'gateway_request_failed';throw error}
     return data;
   }finally{clearTimeout(timer)}
+}
+
+function classifyGatewayDeliveryFailure(error){
+  const status=Number(error?.status)||0;
+  // Authentication, throttling, conflicts and server/network faults are
+  // deployment or transient failures. Preserve their events for recovery.
+  if(status===0||status===401||status===403||status===408||status===409||status===425||status===429||status>=500)return {retryable:true};
+  // These statuses describe an event that the current API can never accept.
+  if([400,404,405,413,415,422].includes(status))return {retryable:false};
+  return {retryable:true};
+}
+
+function logOutboxPressure(status,force=false){
+  const pending=Number(status?.pending)||0,deadLetters=Number(status?.deadLetters)||0;
+  const now=Date.now(),threshold=pending>=5_000?'critical':pending>=1_000?'high':pending>=100?'elevated':null;
+  if(!threshold&&deadLetters===0)return;
+  if(!force&&now-lastOutboxPressureLogAt<60_000)return;
+  lastOutboxPressureLogAt=now;
+  log(threshold==='critical'?'error':'warn','outbox_pressure',{pending,deadLetters,threshold:threshold||'dead_letter_present'});
 }
 
 async function enabledWorkspaceIds(){
@@ -50,11 +77,15 @@ async function enabledWorkspaceIds(){
 
 async function flushOutbox(){
   if(!outbox)return {delivered:0,pending:0};
-  return await outbox.flush(postGateway,{
+  const result=await outbox.flush(postGateway,{
+    classifyFailure:classifyGatewayDeliveryFailure,
     onCorrupt:error=>log('error','outbox_item_quarantined',{code:errorCode(error?.code,'outbox_corrupt')}),
-    onFailure:(error,item)=>log('warn','outbox_delivery_deferred',{item:item.id.slice(0,12),code:errorCode(error?.code,'event_delivery_failed'),status:Number(error?.status)||null}),
+    onFailure:(error,item,state)=>log('warn','outbox_delivery_deferred',{item:item.id.slice(0,12),code:errorCode(error?.code,'event_delivery_failed'),status:Number(error?.status)||null,attempts:state.attempts,nextAttemptAt:state.nextAttemptAt}),
+    onDeadLetter:(error,item,state)=>log('error','outbox_item_dead_lettered',{item:item.id.slice(0,12),code:errorCode(error?.code,'event_delivery_failed'),status:Number(error?.status)||null,attempts:state.attempts}),
     onDelivered:item=>log('info','outbox_item_delivered',{item:item.id.slice(0,12)})
   });
+  logOutboxPressure(result);
+  return result;
 }
 
 async function enqueueGatewayEvent(body){
@@ -69,23 +100,52 @@ async function enqueueGatewayEvent(body){
 }
 
 async function runWorkspace(workspaceId,signal){
-  const replay=new SoopGatewayReplayGuard(),startedAt=new Date().toISOString();let generation=0,sequence=0,lastEventAt=null,chatNumber=null;
+  const replay=new SoopGatewayReplayGuard(),chatGate=new SoopRelevantChatGate({windowMs:DONOR_CHAT_WINDOW_MS});let generation=0,sequence=0,lastEventAt=null,chatNumber=null,connectedAt=null,lastDisconnectedAt=null;
   const tag=workspaceTag(workspaceId);let lastErrorCode=null;
   let state={status:'idle',reconnectCount:0,retryAttempt:0};
-  const heartbeat=async(extra={})=>await postGateway({kind:'heartbeat',workspaceId,instanceId,state:state.status,generation,reconnectCount:state.reconnectCount,lastSequence:sequence,connectedAt:state.status==='connected'?startedAt:null,lastEventAt,heartbeatAt:new Date().toISOString(),lastErrorCode,chatNumber,...extra});
-  const timer=setInterval(()=>void heartbeat().catch(error=>log('warn','heartbeat_failed',{workspace:tag,code:errorCode(error?.code,'heartbeat_failed')})),HEARTBEAT_MS);
+  const retrySleep=async(baseMs,scope)=>{
+    const base=Math.max(250,Math.trunc(Number(baseMs)||1_000));
+    const jitter=stableSoopGatewayStaggerMs(`${workspaceId}:${scope}:${generation}`,Math.min(5_000,Math.max(250,Math.ceil(base*0.2))));
+    await sleep(base+jitter,signal);
+  };
+  let lease=null,lastHeartbeatAt=0,lastHeartbeatState=null,lastHeartbeatError=null;
+  const heartbeat=async(extra={},force=false)=>{
+    const now=Date.now(),connected=state.status==='connected';
+    // A 30-second local live probe temporarily enters "connecting".  When the
+    // last durable state was already offline, keep reporting waiting_for_live
+    // instead of turning every local probe into two cloud state transitions.
+    const reportedState=state.status==='connecting'&&lastHeartbeatState==='waiting_for_live'
+      ?'waiting_for_live':state.status;
+    if(!force&&!shouldSendSoopGatewayHeartbeat({
+      now,lastHeartbeatAt,reportedState,lastHeartbeatState,lastErrorCode,lastHeartbeatError
+    }))return {ok:true,skipped:true};
+    const result=await postGateway({kind:'heartbeat',workspaceId,instanceId,state:reportedState,generation,reconnectCount:state.reconnectCount,lastSequence:sequence,connectedAt:connected?connectedAt:null,lastEventAt,heartbeatAt:new Date(now).toISOString(),lastErrorCode,chatNumber,...extra});
+    lastHeartbeatAt=now;lastHeartbeatState=reportedState;lastHeartbeatError=lastErrorCode;
+    return result;
+  };
+  const currentLease=async(force=false)=>{
+    const expiresAt=Date.parse(lease?.expiresAt||'');
+    if(!force&&lease&&Number.isFinite(expiresAt)&&expiresAt-Date.now()>LEASE_REFRESH_SKEW_MS)return lease;
+    lease=await postGateway({kind:'lease',workspaceId});
+    return lease;
+  };
+  const timer=setInterval(()=>void heartbeat().catch(error=>log('warn','heartbeat_failed',{workspace:tag,code:errorCode(error?.code,'heartbeat_failed')})),SOOP_GATEWAY_HEARTBEAT_POLICY.checkMs);
   try{
+    await sleep(stableSoopGatewayStaggerMs(workspaceId,5_000),signal);
     while(!signal.aborted){
-      generation+=1;sequence=0;chatNumber=null;state=reduceSoopSdkSession(state,{type:'connect_requested'});await heartbeat();
+      const retryingOffline=state.status==='waiting_for_live';
+      generation+=1;sequence=0;chatNumber=null;state=reduceSoopSdkSession(state,{type:'connect_requested'});
+      if(!retryingOffline)await heartbeat();
       let token;
-      try{token=await postGateway({kind:'lease',workspaceId})}catch(error){
+      try{token=await currentLease()}catch(error){
+        lease=null;
         if(error?.code==='soop_connection_missing'||error?.upstreamStatus===401){state=reduceSoopSdkSession(state,{type:'authorization_failed'})}
         else state=reduceSoopSdkSession(state,{type:'temporary_error'});
         lastErrorCode=errorCode(error?.code,'token_refresh_failed');
         log('warn','lease_failed',{workspace:tag,code:lastErrorCode});
         await heartbeat().catch(()=>{});
         if(state.status==='reauthorization_required')break;
-        await sleep(state.nextRetryMs||30_000,signal);continue;
+        await retrySleep(state.nextRetryMs||30_000,'lease');continue;
       }
       const connectionId=`${instanceId}:${workspaceId}:${generation}`;
       let room=null;
@@ -93,7 +153,10 @@ async function runWorkspace(workspaceId,signal){
         const result=await runSoopBrowserSession({clientId:token.clientId,clientSecret:token.clientSecret,accessToken:token.accessToken,signal,
           onState:event=>{
             if(event.state==='connected'){
-              state=reduceSoopSdkSession(state,{type:'connected'});room=event.room||room;chatNumber=Number(room?.chatNumber)||null;lastErrorCode=null;
+              const readyAt=new Date(event.at||Date.now()).toISOString();
+              const reconnectGap=Date.parse(readyAt)-Date.parse(lastDisconnectedAt||'');
+              if(!connectedAt||(lastDisconnectedAt&&(!Number.isFinite(reconnectGap)||reconnectGap>20*60_000)))connectedAt=readyAt;
+              state=reduceSoopSdkSession(state,{type:'connected'});room=event.room||room;chatNumber=Number(room?.chatNumber)||null;lastErrorCode=null;lastDisconnectedAt=null;
               log('info','sdk_connected',{workspace:tag,chatNumberAvailable:chatNumber!==null});
               void heartbeat({tokenExpiresAt:token.expiresAt}).catch(()=>{});
             }
@@ -125,6 +188,13 @@ async function runWorkspace(workspaceId,signal){
               const normalized=classified.value;
               const duplicate=replay.check({signature:normalized.metadata.replaySignature,connectionId,explicitEventId:normalized.metadata.explicitEventId});
               if(duplicate)return;
+              if(normalized.relay.eventType==='donation'){
+                // Arm before enqueue/network I/O so an immediately following
+                // donor chat cannot race ahead of the donation callback.
+                chatGate.arm(normalized.relay.event.actor);
+              }else if(!chatGate.shouldForward(normalized.relay.event.actor)){
+                return;
+              }
               lastEventAt=event.at;
                try{await enqueueGatewayEvent({kind:'event',workspaceId,relay:normalized.relay,metadata:{
                  occurredAtSource:normalized.metadata.occurredAtSource,
@@ -136,18 +206,24 @@ async function runWorkspace(workspaceId,signal){
             })().catch(error=>log('error','sdk_event_processing_failed',{workspace:tag,action:errorCode(event.action,'unknown'),sequence:currentSequence,code:errorCode(error?.code,'sdk_event_processing_failed')}));
           }});
         if(signal.aborted)break;
-        if(!result.ready)lastErrorCode=errorCode(result.errorCode,'sdk_connect_failed');
-        state=reduceSoopSdkSession(state,{type:result.ready?'connection_closed':'temporary_error'});
+        if(state.status==='connected')lastDisconnectedAt=new Date().toISOString();
+        const offline=!result.ready&&isSoopBroadcastOfflineError(result);
+        if(!result.ready)lastErrorCode=errorCode(offline?'broadcast_offline':result.errorCode,'sdk_connect_failed');
+        state=reduceSoopSdkSession(state,{type:result.ready?'connection_closed':offline?'broadcast_offline':'temporary_error'});
       }catch(error){
-        const offline=/invalid-chat-info|broadcast|방송/i.test(String(error?.message||''));
+        if(state.status==='connected')lastDisconnectedAt=new Date().toISOString();
+        const offline=isSoopBroadcastOfflineError(error);
+        if(!offline&&/token|unauthor|forbidden|401|403/i.test(`${error?.code||''} ${error?.message||''}`))lease=null;
         lastErrorCode=errorCode(offline?'broadcast_offline':error?.code,'sdk_connect_failed');
-        log('warn','session_failed',{workspace:tag,code:lastErrorCode,message:safeErrorMessage(error?.message)});
+        if(offline){
+          if(!retryingOffline)log('info','broadcast_offline',{workspace:tag,code:lastErrorCode});
+        }else log('warn','session_failed',{workspace:tag,code:lastErrorCode,message:safeErrorMessage(error?.message)});
         state=reduceSoopSdkSession(state,{type:offline?'broadcast_offline':'temporary_error'});
         await heartbeat({chatNumber:Number(room?.chatNumber)||null,tokenExpiresAt:token.expiresAt}).catch(()=>{});
-        if(offline){await sleep(30_000,signal);continue}
+        if(offline){await retrySleep(30_000,'offline');continue}
       }
       await heartbeat({tokenExpiresAt:token.expiresAt}).catch(()=>{});
-      await sleep(state.nextRetryMs||1_000,signal);
+      await retrySleep(state.nextRetryMs||1_000,'reconnect');
     }
   }finally{clearInterval(timer);state=reduceSoopSdkSession(state,{type:'stopped'});await heartbeat().catch(()=>{});log('info','workspace_stopped',{workspace:tag})}
 }
@@ -161,16 +237,18 @@ async function reconcile(){
 async function main(){
   assertConfiguration();
   outbox=new EncryptedGatewayOutbox({directory:stateDirectory?`${stateDirectory}/outbox`:`${process.cwd()}/.soop-gateway-outbox`,secret:gatewaySecret});
-  await outbox.init();
+  const initialization=await outbox.init();
   await persistWorkerState();
   workerStateTimer=setInterval(()=>void persistWorkerState().catch(error=>log('error','worker_state_write_failed',{code:errorCode(error?.code,'worker_state_write_failed')})),15_000);
-  const pending=await outbox.count();log('info','gateway_started',{outboxPending:pending});
+  const outboxStatus=await outbox.status();log('info','gateway_started',{outboxPending:outboxStatus.pending,outboxDeadLetters:outboxStatus.deadLetters,outboxExpiredToDeadLetter:initialization.pendingExpired,outboxExpiredDeadLettersRemoved:initialization.deadRemoved,browserPolicy:soopBrowserRuntimePolicy()});
+  logOutboxPressure(outboxStatus,true);
   await flushOutbox().catch(error=>log('warn','outbox_startup_flush_failed',{code:errorCode(error?.code,'outbox_startup_flush_failed')}));
   outboxTimer=setInterval(()=>void flushOutbox().catch(error=>log('warn','outbox_flush_failed',{code:errorCode(error?.code,'outbox_flush_failed')})),OUTBOX_FLUSH_MS);
-  while(!stopping){try{await reconcile()}catch(error){log('error','reconcile_failed',{code:error?.code||'reconcile_failed'})}await sleep(POLL_MS)}
+  while(!stopping){try{await reconcile()}catch(error){log('error','reconcile_failed',{code:error?.code||'reconcile_failed'})}await sleep(RECONCILE_MS)}
   if(outboxTimer)clearInterval(outboxTimer);
   if(workerStateTimer)clearInterval(workerStateTimer);
-  for(const worker of workers.values())worker.abort.abort();await Promise.allSettled([...workers.values()].map(worker=>worker.promise));await flushOutbox().catch(()=>{});await persistWorkerState('stopped').catch(()=>{});log('info','gateway_stopped',{outboxPending:await outbox.count()});
+  for(const worker of workers.values())worker.abort.abort();await Promise.allSettled([...workers.values()].map(worker=>worker.promise));await flushOutbox().catch(()=>{});await persistWorkerState('stopped').catch(()=>{});const finalOutbox=await outbox.status();log('info','gateway_stopped',{outboxPending:finalOutbox.pending,outboxDeadLetters:finalOutbox.deadLetters});
+  await closeSoopBrowserHost();
 }
 
 for(const name of ['SIGINT','SIGTERM'])process.on(name,()=>{stopping=true});

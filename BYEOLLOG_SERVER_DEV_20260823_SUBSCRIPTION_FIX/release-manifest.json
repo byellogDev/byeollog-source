@@ -1,0 +1,1791 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-01T22:44:36.464Z",
+  "gitCommit": "1e274f6ae06a83408402c0ba054523ac813f74f1",
+  "gitBranch": "codex/public-release-v071",
+  "workingTreeClean": false,
+  "dirtyPathCount": 147,
+  "dirtyPaths": [
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.111/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.119/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.120/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.121/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.122/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.123/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.124/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.125/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.126/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.127/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.128/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.129/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.130/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.131/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.132/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.133/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.134/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/stable/win-x64.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/api/admin.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/api/data.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/api/login.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/change-password-page.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/login-page.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-01-navy-gold.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-02-royal-purple-rose-gold.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-03-emerald-champagne.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-04-burgundy-pale-gold.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-05-graphite-cyan.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-06-powder-blue-peach.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-07-lavender-butter.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/withdraw-page.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/byeollog-gateway-p1p2-20260902.tar.gz",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/docs/COMMON_OVERLAY_SIGNATURE_BALLOON_20260829_KO.md",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/docs/LOCAL_OVERLAY_AGENT_INTEGRATION_DESIGN_20260831_KO.md",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/docs/SOOP_GATEWAY_OPERATIONS_20260829_KO.md",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/admin-html.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/admin-source.html",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/agent-rollout-html.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/auth.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/dashboard-navigation.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/native-roulette-assets.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/product-dashboard-html.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/soop-chat-gateway.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/soop-gateway-api.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/soop-roulette-service.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/audio-asset.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/audio-part-1.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/audio-part-2.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/audio-part-3.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/audio-part-4.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/audio-part-5.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-1.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-2.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-3.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-4.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-5.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-6.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-7.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-assets.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/wallpaper-image-mask.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/wallpaper-layout.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/wallpaper-overlay.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/wallpaper-service.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/ops/ncp/00-byeollog-hardening.conf",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/ops/ncp/byeollog-disk-maintenance.service",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/ops/ncp/byeollog-disk-maintenance.timer",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/ops/ncp/byeollog-health-check.sh",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/ops/ncp/byeollog-health.service",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/ops/ncp/byeollog-health.timer",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/ops/ncp/byeollog-sshd.local",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/ops/ncp/deploy-gateway-p1p2.sh",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/package.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/release-manifest.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/scripts/generate-release-manifest.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/scripts/validate-runtime-config.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/services/soop-chat-gateway/README.md",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/services/soop-chat-gateway/browser-session.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/services/soop-chat-gateway/compose.example.yml",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/services/soop-chat-gateway/index.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/services/soop-chat-gateway/outbox.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/LIVE_EDGE_SOURCE_MANIFEST.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/config.toml",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/functions/_shared/agent-wallpaper-payload.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/functions/_shared/agent-wallpaper.ts",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/functions/_shared/server-runtime.ts",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/functions/agent-runtime/index.ts",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260830175652_live_wallpaper_ledger.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260830181831_wallpaper_manual_layout.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260830183628_wallpaper_broadcast_rounds.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260830184706_repair_wallpaper_assets.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260830210648_wallpaper_visibility_and_capacity.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260830213711_wallpaper_merge_live_sessions_latest_assets.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260830215454_wallpaper_overlay_session_fk_index.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260830221708_wallpaper_next_side_live_layout.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260830222704_wallpaper_challenge_success_cards.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260830223242_wallpaper_visible_allowlist.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260831045843_agent_realtime_wake_channel.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260831063842_relax_offline_gateway_heartbeat_monitor.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260831142517_wallpaper_broadcast_connection_start_time.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260831153000_wallpaper_off_canvas_layout.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260831183000_agent_wallpaper_snapshot.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260831203000_refresh_agent_signature_wallpaper_snapshots.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260831211707_wallpaper_subscription_cards.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260831214059_backfill_matchable_wallpaper_subscriptions.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260831222902_wallpaper_subscription_official_image.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260831225459_repair_subscription_official_image_layout.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260901000734_rollback_wallpaper_off_canvas_layout.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260901162843_stop_legacy_wallpaper_layout_retry_storm.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260901165151_coalesce_live_gateway_heartbeat_without_hot_path_changes.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260901171632_bound_operational_data_retention_without_hot_path_changes.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260901182718_agent_direct_sync_transport.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260901215735_wallpaper_persistent_size_ranges.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260901220924_harden_operational_reliability_without_hot_path_changes.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260901221106_cover_remaining_application_foreign_keys.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-direct-sync.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-realtime-wake.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-release-storage.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-rollout-dashboard.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-update-feed.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/auth-live-revalidation.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/dashboard-performance.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/g3a-production-bridge.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/live-edge-recovery.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/native-roulette-digital-twin.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/native-roulette.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/operational-hardening.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/operational-retention.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/product-control-center.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/release-provenance.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/soop-chat-gateway.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/soop-gateway-api.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/soop-gateway-outbox.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/wallpaper-contract.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/wallpaper-image-mask.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/wallpaper-layout.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/wallpaper-payload-compaction.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/web-security-posture.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Benchmark-SoopSharedBrowser.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Build-AdminHtml.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Build-VercelBinaryAssets.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Capture-ObsSourceScreenshot.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Optimize-VercelInlineStaticAssets.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Preview-ProductDashboard.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Refresh-ObsBrowserSource.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Run-NativeRouletteDigitalTwin.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/native-roulette-digital-twin-ui.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/vercel.json"
+  ],
+  "sourceDigest": "2db99b9b4d9553c976af85a5c55ea04ffca26d2e4cf9c55f2ace556982a78543",
+  "fileCount": 326,
+  "files": [
+    {
+      "path": "agent-updates/release-asset-storage.json",
+      "bytes": 283,
+      "sha256": "77276a6f49a1eded091340e173d3cf9d7766b4448863f4227e8d4cf1efc2c093"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.100/release-provenance.json",
+      "bytes": 325,
+      "sha256": "0260b236eba7aaa5b1e5f6ac463665e19c7f1f2de40aef418b32a8dc5c0db635"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.101/release-provenance.json",
+      "bytes": 317,
+      "sha256": "608d150bc278d206eba61999e40a9f3903355792e3728572767e88d2fd00183a"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.102/release-provenance.json",
+      "bytes": 324,
+      "sha256": "eee41663d732930060a42b25a192272700b52c8b99f5a3fd12e1115076a08fb1"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.103/release-provenance.json",
+      "bytes": 321,
+      "sha256": "d31c7f5d0a35d754890c8dcc57ded87a2de70b57eb387d60f550a4c21a490923"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.104/release-provenance.json",
+      "bytes": 322,
+      "sha256": "e8bed35225526431efa6bb058c5a29abbfb4863b984844b1e6b52222244304af"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.105/release-provenance.json",
+      "bytes": 325,
+      "sha256": "9c7244202a31aae2125c183f71b677432dcafa6e43826a8c5ea83e5e63f0310a"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.106/release-provenance.json",
+      "bytes": 332,
+      "sha256": "8d9a3907b4df082d91d1e6a27d3bd593c1603a99a84513a86935cfcbdd00865e"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.107/release-provenance.json",
+      "bytes": 335,
+      "sha256": "854141dc594ff5c149eebcf62002b4da773ac6137daba109a39d0ed376d2b520"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.108/release-provenance.json",
+      "bytes": 324,
+      "sha256": "fdc9ba218cb6e9bfc28ef45a618f043036cffa217ca4eb368fa8a012c62f3ecc"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.109/release-provenance.json",
+      "bytes": 329,
+      "sha256": "b8eb2506d2b678d65c0bcf07e83ee868c696e453d36816ce9619b9cd86e21abb"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.110/release-provenance.json",
+      "bytes": 334,
+      "sha256": "bc3f74afd4905ad653b2f334387f6a4ac505ec95ce0eb58284d3cc3f6d77e1ac"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.111/release-provenance.json",
+      "bytes": 327,
+      "sha256": "a3d4ff4cb6ce05644d2f67ad01c978d6337d2f75414a5dd900282cdc78cd090f"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.119/release-provenance.json",
+      "bytes": 324,
+      "sha256": "10be0a1bd38fdc94176e8e13276611e68da4c4ab049110e627486403e540f860"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.120/release-provenance.json",
+      "bytes": 321,
+      "sha256": "1060c7dfe4c445a43df6d4899bbfa9b80ccd6c0e04378934f42d59f9ceb68789"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.121/release-provenance.json",
+      "bytes": 324,
+      "sha256": "56c8ff10d3ffde753f671e310c89d9038cc4a598c5d919729636d2fe2e2de020"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.122/release-provenance.json",
+      "bytes": 326,
+      "sha256": "f224bfe5743b0668f0af1f3b26c3efa8493a4d53e51b625c98c95bd614267933"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.123/release-provenance.json",
+      "bytes": 329,
+      "sha256": "983c0bebf01c6fc8415156886b57f0e72efd7b9f4f2890e13b1ac66b28d6fb35"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.124/release-provenance.json",
+      "bytes": 328,
+      "sha256": "8f618d8d5389dc317f08ee3b20ac00a10a94918a26c42be5c073ce103f0bc971"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.125/release-provenance.json",
+      "bytes": 331,
+      "sha256": "f9133ba670045c9ff2f5d054e59926dae4cf837bf1c625260c4b9e87e6bde37e"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.126/release-provenance.json",
+      "bytes": 337,
+      "sha256": "04aa5e9a07d4e25ca56293062230456546a568a00ae0f707be0a0d41faec3f65"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.127/release-provenance.json",
+      "bytes": 340,
+      "sha256": "e110764da3b56b4efc40e311e8a49e70f4159d89dd196263ec381cd23b353b1d"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.128/release-provenance.json",
+      "bytes": 341,
+      "sha256": "b1c6efaeb8e5457764fc16bccf79b6a913a8200947d7299c15e84a02ea44b3a3"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.129/release-provenance.json",
+      "bytes": 334,
+      "sha256": "24d3838ed32b33244d8fa3dea362d8447bb629cb94e39c91f0d5c2a7faa16930"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.130/release-provenance.json",
+      "bytes": 332,
+      "sha256": "a005501283d717a34a035c54d1bd4e2a1bb0470c94416034822a495246feec48"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.131/release-provenance.json",
+      "bytes": 333,
+      "sha256": "7a612a5e3fcb46834114777340367c78196f750ad7827a86c80b5962bdaaa3ca"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.132/release-provenance.json",
+      "bytes": 332,
+      "sha256": "64d10835c94c2e7b2326f29aa0927c079897edbeb43878def55603eef570530b"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.133/release-provenance.json",
+      "bytes": 322,
+      "sha256": "3b942b25c70adc0a2f4646f3173933b87297259a9df8ba3c5e7e0cb0e6e6282c"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.134/release-provenance.json",
+      "bytes": 320,
+      "sha256": "cab1b574d6fc0cdf2a2b31f9e2e1b66e950238c08012db235402324e37dddc10"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.71/release-provenance.json",
+      "bytes": 330,
+      "sha256": "e42f2926a9d4cd3561865a3383b9b9ccc4a7d05aa4e1e074ea896a530c2b650a"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.72/release-provenance.json",
+      "bytes": 318,
+      "sha256": "850e99058e17bb28acc364566ba39b9576a4a82a6c16eb18de9224ed1d4da3a9"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.73/release-provenance.json",
+      "bytes": 323,
+      "sha256": "2d1a412ac6f13480b52e00ae26fa4ef94fbb5225ba95ec89ccec9506c3e520e1"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.74/release-provenance.json",
+      "bytes": 330,
+      "sha256": "64558ae4db83aecce28796dbde01c38db0ccb09b26ca46cd89c12f9ae04a628a"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.75/release-provenance.json",
+      "bytes": 323,
+      "sha256": "3571988ae98b0b224a2546bc5369ed6b2a95ad0dea6feacc0e63c2750fc24a1f"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.76/release-provenance.json",
+      "bytes": 327,
+      "sha256": "36fbc21cbad8d7e66efb2d694fd74a47aa2aa3a6104ecd4b3e48224d22f4fd3b"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.77/release-provenance.json",
+      "bytes": 330,
+      "sha256": "3f5e59dd5b9919fd65302beac2523923d2e0953859d27bf8fdc3b0e3eef9c4c9"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.78/release-provenance.json",
+      "bytes": 326,
+      "sha256": "5120db6a7aebc655685925a0030d7bc73758621da09831be85a8bc197f2a61f1"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.79/release-provenance.json",
+      "bytes": 325,
+      "sha256": "7fa98a25fbbaad18f05ba37ee8546926379f518f22078c23b47bc93f8f8021c5"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.80/release-provenance.json",
+      "bytes": 326,
+      "sha256": "8ed0382ef411b9bda57312ca8247505049189f2a514747e00c5969c0efcbb2a6"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.81/release-provenance.json",
+      "bytes": 327,
+      "sha256": "8473edd00a367d7877f918988ba16486e57b7ad9068b71c7ac0f9ead89630825"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.82/release-provenance.json",
+      "bytes": 321,
+      "sha256": "7fffb1561237ca2744ac3e09f706ac703b6ba25cdcb1b02b9eddff39045720ec"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.83/release-provenance.json",
+      "bytes": 324,
+      "sha256": "79b46884ccd2644a6a955c3402c5984fd1843f13c048165f9bc02632e7ea733c"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.84/release-provenance.json",
+      "bytes": 318,
+      "sha256": "5d6239a332c59701bab36f28e8e53ce66fe36bb8e44420654caf4a1a57d61c68"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.85/release-provenance.json",
+      "bytes": 331,
+      "sha256": "aeb21db108e7e20b6fea0b67781cfb79fd399aa5a9f37c5f71b4c319cb60487f"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.86/release-provenance.json",
+      "bytes": 325,
+      "sha256": "23516da5a166067f205d17710b5538c7d24cd0c6e23bf4476d17af973e769d81"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.87/release-provenance.json",
+      "bytes": 321,
+      "sha256": "e3f6e3fc171cdb5cb76e5c4242ed6300f81c22f1380cee459accb0a282efff30"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.88/release-provenance.json",
+      "bytes": 325,
+      "sha256": "40a33778535d4936f1562fcee2f228720fe486eb1babb0184034e54cba4cd4c8"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.89/release-provenance.json",
+      "bytes": 330,
+      "sha256": "b6e221a926e170229ed7f0cfcd15890ae61055e672a873a4ae25e8ea48bb7ff4"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.90/release-provenance.json",
+      "bytes": 321,
+      "sha256": "7bcc24e60054cd54941a4b39d712c8788a5a6f54d00cfea5c9eabae0ef4d67fe"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.91/release-provenance.json",
+      "bytes": 324,
+      "sha256": "5dca684aa75a4739230db60ed3da1c436eca7ac880b60209ce9dc6992b25272d"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.92/release-provenance.json",
+      "bytes": 319,
+      "sha256": "a5a6e2e16143b4d49b8d3a9e57cb5b424fd1f01dc28ee56e4dec8943fda226ff"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.93/release-provenance.json",
+      "bytes": 319,
+      "sha256": "8ebf18d9c50e779d3c8bcc7948e08621476cdd76874548824f4339c0f0df792a"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.94/release-provenance.json",
+      "bytes": 318,
+      "sha256": "401d28bda0c25860533fecd39ea214330e88afb6288364578fe0bbdb6dd7f103"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.95/release-provenance.json",
+      "bytes": 335,
+      "sha256": "8bec032a827afda60537786bcc69b34f83b346e65c1e429721a2592c34767801"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.96/release-provenance.json",
+      "bytes": 339,
+      "sha256": "9e11fe2ff7f4611eea4bcc5f0e38c7b4cbdf242906c347c6f96f63b3a24ada38"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.97/release-provenance.json",
+      "bytes": 338,
+      "sha256": "492c5d51c24dc3932402f20aa139c4dc4246076885126d062439e53f6a702051"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.98/release-provenance.json",
+      "bytes": 319,
+      "sha256": "ee4aaa642a6ff8da694b27b29d7d3f1319ef46e0a74726650f48e3fb15b13882"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.99/release-provenance.json",
+      "bytes": 316,
+      "sha256": "58866ed006495597223b81270b27d707bca289d595603b2a022ecadad456f9f8"
+    },
+    {
+      "path": "agent-updates/stable/win-x64.json",
+      "bytes": 1643,
+      "sha256": "ee47edafd3e8a0593c945625cbd5a9f16a7f1f292e892d9df560a8abb178a094"
+    },
+    {
+      "path": "api/admin.js",
+      "bytes": 66469,
+      "sha256": "9e2b25029059e912ec0c1306e807e18b88b1ab03d96880ba79927e48fe7e7be9"
+    },
+    {
+      "path": "api/backups.js",
+      "bytes": 2660,
+      "sha256": "3ee2eaa31345a0eb17971819569f15f530aa3d11a96da850614ef16a5b85981a"
+    },
+    {
+      "path": "api/collector-devices.js",
+      "bytes": 1988,
+      "sha256": "3a7daf19af2cb1ba06481340a8ddcf653577261b3acd44720a935f76ac24a48f"
+    },
+    {
+      "path": "api/collector-pair.js",
+      "bytes": 14730,
+      "sha256": "b27709a73ea501b38e223927eede149d25274b060dd1a444e2d617faa1726194"
+    },
+    {
+      "path": "api/collector-pairing-code.js",
+      "bytes": 1892,
+      "sha256": "4c7dbd3fe473580a42d272b1802570881cafdcb54c348d642dc1c2ee9ff959d5"
+    },
+    {
+      "path": "api/collector-process.js",
+      "bytes": 1997,
+      "sha256": "d0e42c70b1638f9b6bfb6994087ea895ce0103fc7b7e0936565faa40f64340c4"
+    },
+    {
+      "path": "api/collector.js",
+      "bytes": 9773,
+      "sha256": "d6e8b9aaee356c79a766d5204877ddf393b6c2b9313c4263d0ddcd041bc820ec"
+    },
+    {
+      "path": "api/data.js",
+      "bytes": 11390,
+      "sha256": "87ae8ac99839d1de2f99a7bbd2135ec002373468785d62df736f0dd819a56461"
+    },
+    {
+      "path": "api/login.js",
+      "bytes": 22701,
+      "sha256": "35c65ee861e99a76f44dfca14d1d1278ab2470a034b65f62788725c6f4175fb1"
+    },
+    {
+      "path": "api/logout.js",
+      "bytes": 210,
+      "sha256": "b867842a92e961e7f54456b24f993f22b83f745817e97459e7bb303f33811216"
+    },
+    {
+      "path": "api/native-roulette.js",
+      "bytes": 7291,
+      "sha256": "d2b57f005e41631e7837d1dcd3c1a8a19c1646d1fe663aa4daf8720cc80fabc9"
+    },
+    {
+      "path": "api/restore.js",
+      "bytes": 1165,
+      "sha256": "1553f765cf04f1115763a3c34d4d6fdde16f60b7b463df7b4c2f073c10328d1d"
+    },
+    {
+      "path": "api/roulette-void.js",
+      "bytes": 1238,
+      "sha256": "9fbce7df42ecaa059308a0b4aba5a376bec51661732b71c9e9fdfebfcfb12635"
+    },
+    {
+      "path": "assets/audio/roulette-spin-v1.wav",
+      "bytes": 576044,
+      "sha256": "651376fec5b8424825269a25e6041e591711ed1c55642fb61e20574f35382bec"
+    },
+    {
+      "path": "assets/byeollog-theme.css",
+      "bytes": 27430,
+      "sha256": "b36a121ef6cffb37a21b9145a9c122e7345d85f1c3396205fd4a6a7030b5761b"
+    },
+    {
+      "path": "assets/change-password-page.js",
+      "bytes": 2208,
+      "sha256": "197cca69374d941ad9413cfd2ec50bb5f85b0d0e9be02683bfdc51a20c66dc09"
+    },
+    {
+      "path": "assets/login-page.js",
+      "bytes": 2223,
+      "sha256": "588af5ff875b4cbd53d5ec282a5fdb6acbffd1e0374aae1f906d0e9504f6e74e"
+    },
+    {
+      "path": "assets/native-roulette-settings.js",
+      "bytes": 12961,
+      "sha256": "c94ef024777da9f90927aa962133f6765ac1ce189df74578499baa8ec3f24e55"
+    },
+    {
+      "path": "assets/reset-password-page.js",
+      "bytes": 2456,
+      "sha256": "dea417a0e451adbf98bf46a03b413d32519bab4490244a574c5c134327682a66"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-01-navy-gold.png",
+      "bytes": 492558,
+      "sha256": "591892f8be91a8a3fe880d85f0a588e8c76d304a7853bc3da96c6af64eaf1f6f"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-01-navy-gold.webp",
+      "bytes": 82814,
+      "sha256": "e87242e094b670f982de13617310947c18ba7fe3162374d17969ff44b7549e64"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-02-royal-purple-rose-gold.png",
+      "bytes": 428385,
+      "sha256": "d2df884c18c580a4a4ae2798f816f90442429167da560728949c22bbc803a2ed"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-02-royal-purple-rose-gold.webp",
+      "bytes": 79126,
+      "sha256": "8775a39459e0ab9f3a3811af1776b2854e09a6856c761b4d2c265316313f2ac7"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-03-emerald-champagne.png",
+      "bytes": 421844,
+      "sha256": "f03694c70340447727be18181802f7408552ad90e3765c30692841969a31b169"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-03-emerald-champagne.webp",
+      "bytes": 83268,
+      "sha256": "43cca869616d8d7fa10c9ff54ca9cc14b566273ec28414202049168efe9eddff"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-04-burgundy-pale-gold.png",
+      "bytes": 417127,
+      "sha256": "6c692a1a6c7b0410a4673249bec4359727d85338b68ce697b3c006eefe9319a8"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-04-burgundy-pale-gold.webp",
+      "bytes": 78894,
+      "sha256": "fd74e89287a9726e6945fcb801de7718b864f0f1a39dfd3f6ed07688d25e7503"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-05-graphite-cyan.png",
+      "bytes": 412253,
+      "sha256": "c8825333e3a9a3700bd35869bb046b1213d62783d2be5dcf191d88df5a1da6ca"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-05-graphite-cyan.webp",
+      "bytes": 78012,
+      "sha256": "025d1100c743ae2f6575be440da1beeef8efa3ce2446f7db39f63d1be7ffd75a"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-06-powder-blue-peach.png",
+      "bytes": 434206,
+      "sha256": "b5bc9e94c63fd439e0d336510d056250848d0eeb68139f2429fb7908a1d7cc2a"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-06-powder-blue-peach.webp",
+      "bytes": 75906,
+      "sha256": "0f5eb648548458f6bcae76b5a93a4802ee176caa91f5ff49befe2ceffd3fb4a3"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-07-lavender-butter.png",
+      "bytes": 430540,
+      "sha256": "dd9c2aecbb0f08953479cab8d83a3ffb3280514a5f067ecb1ac89f823abe9ccd"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-07-lavender-butter.webp",
+      "bytes": 73914,
+      "sha256": "9056da48d01e45da86a28c468fcb83a8965d8bf16f83f0589f20bc24c0e25988"
+    },
+    {
+      "path": "assets/signup-page.js",
+      "bytes": 1605,
+      "sha256": "19bd3994b898bfc3fcbc010f8d28f66cccd5e6c91da06cc53035429fa9e460e3"
+    },
+    {
+      "path": "assets/signup-status-page.js",
+      "bytes": 2417,
+      "sha256": "ce3877bea22ac47d2caef71da35e9e0f41825ca67ea04ea7ec4150af3f9befcf"
+    },
+    {
+      "path": "assets/withdraw-page.js",
+      "bytes": 2173,
+      "sha256": "571a4827286b8e9ce84bb85ed26a317234a047cef377e6337389570b9e4c8230"
+    },
+    {
+      "path": "lib/admin-html.js",
+      "bytes": 318913,
+      "sha256": "904e4c818c794980b49af19c7642de06bcc47dd626e2ce273342b01e1b79a521"
+    },
+    {
+      "path": "lib/admin-source.html",
+      "bytes": 239157,
+      "sha256": "f72e2141f5832d6aa6bc5ec22b0cd83ddd32adb93392a050e0cb1e08b79a7f1c"
+    },
+    {
+      "path": "lib/agent-rollout-html.js",
+      "bytes": 16950,
+      "sha256": "1943a5b6cdb885f30f8d148fac453e0576d4ba6e989b17b992111f7e1671a89f"
+    },
+    {
+      "path": "lib/agent-rollout.js",
+      "bytes": 6841,
+      "sha256": "f94a8b4cc788f292d60d23b4b5f6229b6ba97021c8a0bf5699376040172905d1"
+    },
+    {
+      "path": "lib/auth.js",
+      "bytes": 9785,
+      "sha256": "599beedb5355a03be575b0cbd90f5faf09aa84884a9f72dd7b5d85239a878f39"
+    },
+    {
+      "path": "lib/backup.js",
+      "bytes": 18518,
+      "sha256": "ed2dc40905a6170aef7bbdc6c7295c32426497b71f59b90094518e6b160f1234"
+    },
+    {
+      "path": "lib/collector-automation-session-contract.js",
+      "bytes": 5520,
+      "sha256": "4fcdfe6e0fed9b222e5dacc47f27f0a56027623be2b176d8234769ab09763ec3"
+    },
+    {
+      "path": "lib/collector-processor.js",
+      "bytes": 27951,
+      "sha256": "d6a09905e3550d1cdbf04e4a6014cf8fd505b40abca64771a6759d199f02d2db"
+    },
+    {
+      "path": "lib/collector-subscription.js",
+      "bytes": 1855,
+      "sha256": "62edafeb0270a1d55ab639eedd69c21fdc14ca77685eec8c990487ff9a40aab5"
+    },
+    {
+      "path": "lib/common-overlay-v8.js",
+      "bytes": 39431,
+      "sha256": "513e9f70140c4733982452d67d7ef1335e603b984054f675c67952a71a220c89"
+    },
+    {
+      "path": "lib/dashboard-navigation.js",
+      "bytes": 1265,
+      "sha256": "797660d317f37edae26894a149020ed3eb91fa631615352060f1c63894894f88"
+    },
+    {
+      "path": "lib/deployment-assets.js",
+      "bytes": 597814,
+      "sha256": "eb3c974fbb33432595816694845ce23132a4627abaf83e7cdd3752cb16de9df1"
+    },
+    {
+      "path": "lib/lib-inquiry.js",
+      "bytes": 3357,
+      "sha256": "93f75ced6521053fb78dd18f751af7b7089b36bdfaa53186d067ac9065737cdf"
+    },
+    {
+      "path": "lib/maintenance.js",
+      "bytes": 1319,
+      "sha256": "b5412f6230d36f2fb33f103d1b74bc750deb14ec84a3836b7570b80444ade78e"
+    },
+    {
+      "path": "lib/managed-overlay-tts.js",
+      "bytes": 16291,
+      "sha256": "9b4111687e4142694d32ec425aa5fe108e6780910dbea67429e25742343ddb80"
+    },
+    {
+      "path": "lib/native-roulette-assets.js",
+      "bytes": 5384,
+      "sha256": "c1498fae45e468666660fdf03fcbf21ca72a67ed7d56209dea92f1ddd68c9060"
+    },
+    {
+      "path": "lib/native-roulette-settings-html.js",
+      "bytes": 7028,
+      "sha256": "1e4a2a57139216593fa2ae9e484175197da5f4264be5a64333928a5e729b3e45"
+    },
+    {
+      "path": "lib/native-roulette.js",
+      "bytes": 23432,
+      "sha256": "bbffbd2c5ef2fad5b07030eedcc04af9d6ce911afa2f50578c7de648d84d1172"
+    },
+    {
+      "path": "lib/password.js",
+      "bytes": 7642,
+      "sha256": "3a9043135d48b1279c7b34123b3157ba1e242237a2ee1c6219d015d9f721bfe9"
+    },
+    {
+      "path": "lib/product-dashboard-html.js",
+      "bytes": 140664,
+      "sha256": "8353bae458c4489e2cb41761e22be8a656cafe0deecb326f4c29f869302e5ae9"
+    },
+    {
+      "path": "lib/rate-limit.js",
+      "bytes": 1199,
+      "sha256": "d289d87e7c11437ad02e98bc2b4b68cb10642af516c9f8be9fe8deb8665161b7"
+    },
+    {
+      "path": "lib/request-origin.js",
+      "bytes": 1131,
+      "sha256": "7983ad3f6a11b50ff44816a2ec85adf42abe221ecdc8c517054a35f0c5eee1a3"
+    },
+    {
+      "path": "lib/roulette-custom-assets.js",
+      "bytes": 8702,
+      "sha256": "3541aad3a32aa2cabb4ef34da773a662d563ae889a9aec464138e9005fa3032c"
+    },
+    {
+      "path": "lib/signature-balloon-assets.js",
+      "bytes": 8721,
+      "sha256": "2ae186056a556940cdd34abfb4f5fa39b527ad87a875d3a3a655959a5114174f"
+    },
+    {
+      "path": "lib/signature-balloon-registry.js",
+      "bytes": 3338,
+      "sha256": "a42507044ecea658d3cdfa0f75c827f785d18af3b1bed0055f6ca695de2f6d4d"
+    },
+    {
+      "path": "lib/signup.js",
+      "bytes": 17078,
+      "sha256": "219da7cf265b3c8e5c7d5f6574a3b54682ae1e9cd6d629f3d11b7d7b4dc6ae58"
+    },
+    {
+      "path": "lib/soop-chat-gateway.js",
+      "bytes": 12410,
+      "sha256": "fa962dfd2bda91630d9ad44e4760336de89eefb01c45f60be983285232faa2be"
+    },
+    {
+      "path": "lib/soop-gateway-api.js",
+      "bytes": 11464,
+      "sha256": "2522b8270ea67de5e4836b511366a4e85f4bdfb4cfa284c040c95b5e39a4d71c"
+    },
+    {
+      "path": "lib/soop-oauth.js",
+      "bytes": 25056,
+      "sha256": "13d3461e2758864a7bf45aa9190a68f55e8bdbc0fff4211a8b322005918ade93"
+    },
+    {
+      "path": "lib/soop-roulette-service.js",
+      "bytes": 11924,
+      "sha256": "7bde2732178ff26bc247cfeeb625526a1e3009e12d4d839904cdd7b60d10179e"
+    },
+    {
+      "path": "lib/soop-sdk-relay.js",
+      "bytes": 5804,
+      "sha256": "20a64e220b354c208354333377a95758dbc3e75cc958a85176bf6f2f0f8e2d77"
+    },
+    {
+      "path": "lib/storage-manifest.js",
+      "bytes": 751,
+      "sha256": "266d4847b34b35d87c85990ed03d332ace6d9410221b768f94ddcd980d4b5cf4"
+    },
+    {
+      "path": "lib/supabase-rest.js",
+      "bytes": 1249,
+      "sha256": "d716dff5a1c4892ae2bd6335e9d13cb9e890244cc7aa15024f917ffe774f827b"
+    },
+    {
+      "path": "lib/vercel-binary-assets/audio-asset.js",
+      "bytes": 426,
+      "sha256": "0636e915270bdeacda9e2891b7399ec72b25d222c2b7a64e0ca068129fa6a7c4"
+    },
+    {
+      "path": "lib/vercel-binary-assets/audio-part-1.js",
+      "bytes": 180019,
+      "sha256": "07a8dbcf5c53512b656157225f05cf2d9ffd99fbfa18a9063f0b1b23931c5d19"
+    },
+    {
+      "path": "lib/vercel-binary-assets/audio-part-2.js",
+      "bytes": 180019,
+      "sha256": "7b604e77dfd32293256b76fb506ad308e97807a0b14a76f8a8e919f6d02b5264"
+    },
+    {
+      "path": "lib/vercel-binary-assets/audio-part-3.js",
+      "bytes": 180019,
+      "sha256": "844b258f961d79d1c8aacccb60681fd9b37ee36b0b7b9a580e7dfa49992ed905"
+    },
+    {
+      "path": "lib/vercel-binary-assets/audio-part-4.js",
+      "bytes": 180019,
+      "sha256": "18eba40977d78416da2048ef11da3c14183ea4c24adaf46f18375b40792c393c"
+    },
+    {
+      "path": "lib/vercel-binary-assets/audio-part-5.js",
+      "bytes": 48079,
+      "sha256": "c51f93a6fac25eceaf5b0bebd3c2c180c3a4369b97dbc1c4bcd95cacd64ef51a"
+    },
+    {
+      "path": "lib/vercel-binary-assets/preview-1.js",
+      "bytes": 110602,
+      "sha256": "3742aaa4b640a5dfa85282ffbb89a19d0cadcaa4d88051228e9625302d87c2a9"
+    },
+    {
+      "path": "lib/vercel-binary-assets/preview-2.js",
+      "bytes": 105699,
+      "sha256": "4e953aa537f6c040ae4da3764e48093318418c5a7fd084429a6408db3eb0c4c4"
+    },
+    {
+      "path": "lib/vercel-binary-assets/preview-3.js",
+      "bytes": 111214,
+      "sha256": "d93d4651490888399650653ee0198e10600582345412ba614fb78f46122c80dc"
+    },
+    {
+      "path": "lib/vercel-binary-assets/preview-4.js",
+      "bytes": 105383,
+      "sha256": "25c0f55f7fc24622c35e5f636b914546080694822ae3631e8c5440af5e353d89"
+    },
+    {
+      "path": "lib/vercel-binary-assets/preview-5.js",
+      "bytes": 104202,
+      "sha256": "5fee644103bd7b2e711673661e16149e62051b9ceb18a61c3fec909723b381d5"
+    },
+    {
+      "path": "lib/vercel-binary-assets/preview-6.js",
+      "bytes": 101398,
+      "sha256": "df3c01f5e2d98a79275607eaaccfb77c51975b9bebf78bacccc3f44e080fb936"
+    },
+    {
+      "path": "lib/vercel-binary-assets/preview-7.js",
+      "bytes": 98740,
+      "sha256": "d68aba13dc8f3a3257e882e921bacf649257613ef74c93164ec38682980c4aa8"
+    },
+    {
+      "path": "lib/vercel-binary-assets/preview-assets.js",
+      "bytes": 440,
+      "sha256": "60abdbde5cdb14e23834e42fd4e20857ab17d20651115f02bca775744e6a51dd"
+    },
+    {
+      "path": "lib/wallpaper-image-mask.js",
+      "bytes": 3751,
+      "sha256": "76c01d0d3650c013ee58eebce093198c4f387897545f5b542ecb0f75c23a221e"
+    },
+    {
+      "path": "lib/wallpaper-layout.js",
+      "bytes": 12892,
+      "sha256": "fc19adb51ff0dce7433996c7d97146102131a595f8f0326c442e1a700aed7f6a"
+    },
+    {
+      "path": "lib/wallpaper-overlay.js",
+      "bytes": 7806,
+      "sha256": "b0c619ee080ef23075a7ae79ac6075062f03537b13239979e3ef6d6da07875ab"
+    },
+    {
+      "path": "lib/wallpaper-service.js",
+      "bytes": 14333,
+      "sha256": "2c3578d639b89f63a66cd2304e4fa7e783bf7662b05539dc1358262699dfaa8f"
+    },
+    {
+      "path": "lib/weflab-public-roulette-import.js",
+      "bytes": 7767,
+      "sha256": "1da7db2a14d563c572ca5b4bb5b370b2be3ab39bce5b684748cab45bc70aaa21"
+    },
+    {
+      "path": "lib/workspace.js",
+      "bytes": 2472,
+      "sha256": "feee76e3fbb8e1999b5d43163199a15134977954492863788205ca46ca637954"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 57503,
+      "sha256": "46c7ae10673439bcea31fd4b841241b9bdb625e024c16f1895b072ed8cdbef38"
+    },
+    {
+      "path": "package.json",
+      "bytes": 1834,
+      "sha256": "bd6a37a1120a4f70a6206cb016d1f01b181bcd20f8c1b7d3bfeefeac3bde354f"
+    },
+    {
+      "path": "scripts/generate-release-manifest.mjs",
+      "bytes": 2520,
+      "sha256": "d43d8229c99997fbf1e52091f8f1fdb9b9155a073cb09102cd8efc3a6237c11f"
+    },
+    {
+      "path": "scripts/validate-runtime-config.mjs",
+      "bytes": 3992,
+      "sha256": "9bb08c375f6f8d71fad62b37bfd78ce946a9f632a75d0bde388158b98b161fc5"
+    },
+    {
+      "path": "services/soop-chat-gateway/.env.gateway.example",
+      "bytes": 418,
+      "sha256": "cd694a4e53b8ad2b974e130bd40b7c2b22339f000e05ac12a2210b6078ec4599"
+    },
+    {
+      "path": "services/soop-chat-gateway/browser-session.mjs",
+      "bytes": 19029,
+      "sha256": "e3c3e7b155f32bd21d2ca1bef6c708ddecfac517aa22c416329395634316ac52"
+    },
+    {
+      "path": "services/soop-chat-gateway/compose.example.yml",
+      "bytes": 655,
+      "sha256": "6e300df98c01f679d65c5ad658f44c7e8a1e1d8ff43a41dda91955aa330f60d2"
+    },
+    {
+      "path": "services/soop-chat-gateway/Dockerfile",
+      "bytes": 995,
+      "sha256": "d9dc44a19e2e6f04f742d48b64f2ae89d13c9568534c714223452bd3cf73ba58"
+    },
+    {
+      "path": "services/soop-chat-gateway/index.mjs",
+      "bytes": 18027,
+      "sha256": "0eff4ac98bed00313f958253b6b3bf98ff77cd45b5b0cf57a0c05c16d687542f"
+    },
+    {
+      "path": "services/soop-chat-gateway/outbox.mjs",
+      "bytes": 8641,
+      "sha256": "a945ac8989a6c6c9986f998ec3b855aee7af4f24ae953522e3fa7184f5c242c8"
+    },
+    {
+      "path": "services/soop-chat-gateway/README.md",
+      "bytes": 3544,
+      "sha256": "d358e1bc516cb2de1bc231e422388fcbabf4a42d0c0d4f626529305ba71cd080"
+    },
+    {
+      "path": "services/soop-chat-gateway/supervisor.mjs",
+      "bytes": 7097,
+      "sha256": "f4d605834aa781754082de96d5737d74473c5788a19f2666f920f79985866944"
+    },
+    {
+      "path": "supabase/migrations/20260822234535_next_roulette_reward_multiplier.sql",
+      "bytes": 20942,
+      "sha256": "d898f51b5669d420c98dea688c5d31cf499fe0c92125a69679008096395d89a2"
+    },
+    {
+      "path": "supabase/migrations/20260823010650_grant_public_rpc_service_role.sql",
+      "bytes": 320,
+      "sha256": "2f5dba8cb1de870738bd0cbb0e3c6caae579e8aba2ff50be4a7d3418645bce3c"
+    },
+    {
+      "path": "supabase/migrations/20260823011107_harden_public_rpc_and_rls.sql",
+      "bytes": 4841,
+      "sha256": "08148cf75aa093a3eead20c2429d086d47ee93db00bd942576295d364e0d30a7"
+    },
+    {
+      "path": "supabase/migrations/20260823055539_harden_multiplier_rls_and_fk_indexes.sql",
+      "bytes": 991,
+      "sha256": "2e1ea3097966b69799ec079813da2bbf8bdfab069728408505e7e21596e0ea1b"
+    },
+    {
+      "path": "supabase/migrations/20260823060109_add_multiplier_explicit_deny_policies.sql",
+      "bytes": 596,
+      "sha256": "facb9e6a0d6bef6a8a410632659fe68f6a7d2fa9deb35c0fcf7d5ea191b7c8a7"
+    },
+    {
+      "path": "supabase/migrations/20260823103000_add_raffle_action.sql",
+      "bytes": 32773,
+      "sha256": "1fb7f8ef1242ddb657f6a29808bf9ef4a3ab1adb25e331bb578ec5ea1b75dc85"
+    },
+    {
+      "path": "supabase/migrations/20260823153158_refine_raffle_ticket_modes_and_overlay.sql",
+      "bytes": 28532,
+      "sha256": "345b93a1dcf8cce055c75a1f9f2b0f9cda94e3e2c77bf8062ce3d12c06d16d07"
+    },
+    {
+      "path": "supabase/migrations/20260823162319_restore_collector_rule_read_access.sql",
+      "bytes": 411,
+      "sha256": "2999468bc18129d469b8e95627e8f0eaaece043a9725aef26b84bed5656a462b"
+    },
+    {
+      "path": "supabase/migrations/20260823171308_add_manual_raffle_draw_control.sql",
+      "bytes": 17941,
+      "sha256": "ed7be0ba2be143ac75885fc304e9f6b27e5bcac518ce0853b51e16eed2a8231e"
+    },
+    {
+      "path": "supabase/migrations/20260823191145_preserve_rule_version_names.sql",
+      "bytes": 6416,
+      "sha256": "3fa0540373ac169d8754f6dbbbb79b8e47d31f378bf22172e41270aa0fd0db40"
+    },
+    {
+      "path": "supabase/migrations/20260823225424_harden_raffle_delivery.sql",
+      "bytes": 13032,
+      "sha256": "5af13c1e079df7909a2e565001a2e2fb0ed607a92bf0b2fbd0393599c561219c"
+    },
+    {
+      "path": "supabase/migrations/20260823230740_add_raffle_winner_reannounce.sql",
+      "bytes": 14052,
+      "sha256": "60904bcde928fc82dd5474ac40bbfb0113db4357667a86a5a9f9427f27e6123e"
+    },
+    {
+      "path": "supabase/migrations/20260824051542_fix_save_guided_rule_v10_ambiguous_rule_id.sql",
+      "bytes": 4801,
+      "sha256": "7954b0d49110cfa7324cfec6969bd74e45b057c493beb089cb417278a1245016"
+    },
+    {
+      "path": "supabase/migrations/20260824090000_add_raffle_tts_volume.sql",
+      "bytes": 8092,
+      "sha256": "9cd0afd0748982d06a482b46c7bc0e5318971f12bbc90dab5272391ca1476563"
+    },
+    {
+      "path": "supabase/migrations/20260824103000_harden_manual_raffle_draw_request.sql",
+      "bytes": 12764,
+      "sha256": "c94163bd36ad279a66d9e9e879cc0f961b27f237ecac34992bd6886520d01095"
+    },
+    {
+      "path": "supabase/migrations/20260824120000_add_agent_rollout_dashboard_v1.sql",
+      "bytes": 6779,
+      "sha256": "2ce1affdaf687e2ff1b5de8025d29b9ab4b0f435f4c93316da848502653ec072"
+    },
+    {
+      "path": "supabase/migrations/20260824130000_add_raffle_winner_tts_gateway.sql",
+      "bytes": 3735,
+      "sha256": "0f339e70bd4537cc6c0d6df910fb4a96bd9c6f9017f0768f8d33a369ea1f915e"
+    },
+    {
+      "path": "supabase/migrations/20260824140000_bind_raffle_tts_cache_identity.sql",
+      "bytes": 8182,
+      "sha256": "47a7b3af8ee698705e70c3e4b76eff4a40f53229002558b22f7800825a22c63c"
+    },
+    {
+      "path": "supabase/migrations/20260824153000_restore_raffle_winner_tts_gateway.sql",
+      "bytes": 3611,
+      "sha256": "fc418296081beb07e96b6519db9eb82d6761136afb10e71abd41c7f3c5afc4f0"
+    },
+    {
+      "path": "supabase/migrations/20260824160000_add_missing_raffle_sealed_at.sql",
+      "bytes": 463,
+      "sha256": "3542397c064bea94a3e9e65ac4ba0f8e4f98e965d18f52b7f8ad88bd21ec823d"
+    },
+    {
+      "path": "supabase/migrations/20260824173931_add_flashbang_action.sql",
+      "bytes": 16412,
+      "sha256": "c22f45a37667ec999a0ce03f24deb8fe04f7c1b952d9f92da82cdc5a2de34c5f"
+    },
+    {
+      "path": "supabase/migrations/20260824192432_allow_flashbang_rule_action_target.sql",
+      "bytes": 1056,
+      "sha256": "e4ca92bfbf9a2dc5e2999ff23169c0652fa854147cdbd002f8dcde587db3e0b3"
+    },
+    {
+      "path": "supabase/migrations/20260824192955_fix_flashbang_timeout_contract.sql",
+      "bytes": 11530,
+      "sha256": "af153794f373bf7d93c825c66d3161b4c5abaeb60e7fe832a6b71b1992f8519c"
+    },
+    {
+      "path": "supabase/migrations/20260824202652_allow_flashbang_exact_donation.sql",
+      "bytes": 10467,
+      "sha256": "1383c090da01871aec91b1fa400eb51db18495f9b59214a00ffa0f2315d89009"
+    },
+    {
+      "path": "supabase/migrations/20260825100000_add_collection_health_and_event_decisions.sql",
+      "bytes": 12277,
+      "sha256": "b77b24322f75e5c961699b204ddb3a95aaff35b8905827edd84b352cb4902ab3"
+    },
+    {
+      "path": "supabase/migrations/20260825101500_revoke_superseded_agent_rpcs.sql",
+      "bytes": 1247,
+      "sha256": "8fe672111f3b3532c08fafc0825318f6e2516ce44c3e7db0b6387b611eb7eb5e"
+    },
+    {
+      "path": "supabase/migrations/20260825120000_add_voice_anonymize_action.sql",
+      "bytes": 20124,
+      "sha256": "ec32597e99d08c4ccd5a316ac2030b580b1da1776a80e2b85b27204eee98b29e"
+    },
+    {
+      "path": "supabase/migrations/20260825134122_add_voice_anonymizer_pitch_presets.sql",
+      "bytes": 18528,
+      "sha256": "a1c6959df5434aef264d764ee3dc30fbed27c8a946f54ce7ff723aaea7ad5194"
+    },
+    {
+      "path": "supabase/migrations/20260826060945_add_screen_and_effect_actions.sql",
+      "bytes": 24795,
+      "sha256": "18924b87b86584858c7733f2d59afd50367d6bd80b6a2f16a3496568b1cea73c"
+    },
+    {
+      "path": "supabase/migrations/20260827164017_add_web_product_control_plane.sql",
+      "bytes": 1969,
+      "sha256": "83718c9ead4b8990cb6d86f75b69b059cb85096d636182a8aed2990da24fab76"
+    },
+    {
+      "path": "supabase/migrations/20260827164651_add_roulette_public_visibility.sql",
+      "bytes": 611,
+      "sha256": "adad40d4f8030b82958a83f98fcacf88c8e66781e0626015169c465ec4247bf7"
+    },
+    {
+      "path": "supabase/migrations/20260828022116_harden_unbiased_random_sampling.sql",
+      "bytes": 9069,
+      "sha256": "25c6426e981dc347bc548f6abcb81fd08a367e69d2a7b72127525df317c0f142"
+    },
+    {
+      "path": "supabase/migrations/20260828173951_soop_gateway_readiness_observability.sql",
+      "bytes": 6913,
+      "sha256": "b2841190feee93da7f98dfc88cc6cdd411b3cb352c5264ac35dc6e79b4a9b832"
+    },
+    {
+      "path": "supabase/migrations/20260828213853_promote_native_roulette_production_runtime.sql",
+      "bytes": 36111,
+      "sha256": "50ccaa3f27b48bb40fe76fb33c11dadae898bf189648bdb9debdc0f36e08d627"
+    },
+    {
+      "path": "supabase/migrations/20260828220112_retire_legacy_soop_test_switches.sql",
+      "bytes": 511,
+      "sha256": "ff6fee2c42fa0dc8f43e74d070f7eab5c472969afe80719008b0d78340cdc8eb"
+    },
+    {
+      "path": "supabase/migrations/20260828220151_add_native_roulette_explicit_deny_policies.sql",
+      "bytes": 846,
+      "sha256": "267409c2e53699fb5734e0dff2a5f9f6086ff8dea8dbc702da9c56cee371bf45"
+    },
+    {
+      "path": "supabase/migrations/20260828220956_publish_native_roulette_asset_catalog.sql",
+      "bytes": 2101,
+      "sha256": "338302192b0e80645ff189e588ce403cb30ef57b4b05291678befd50bc2866c7"
+    },
+    {
+      "path": "supabase/migrations/20260828223200_lock_native_roulette_overlay_client.sql",
+      "bytes": 3970,
+      "sha256": "2a7d27c9df8ae44be6b2c9da7c4599c814f826af048be636456243c66ff7a0f3"
+    },
+    {
+      "path": "supabase/migrations/20260828224000_add_soop_runtime_explicit_deny_policies.sql",
+      "bytes": 529,
+      "sha256": "1532c8bcec8162b314a646d72cdd96870f9ef74bc8b7e8c49734d8630517c3f0"
+    },
+    {
+      "path": "supabase/migrations/20260828231500_add_native_roulette_overlay_layout.sql",
+      "bytes": 3935,
+      "sha256": "f73591ed084bfd2befad8564e35ed08472935b7afd632898c9e8a501b11214ad"
+    },
+    {
+      "path": "supabase/migrations/20260828234000_add_roulette_result_overlay_part.sql",
+      "bytes": 3274,
+      "sha256": "17e6eafc70f6529d8934009b294b182168e5d3e31bc5c2a690baa333820b9b0c"
+    },
+    {
+      "path": "supabase/migrations/20260829030000_add_ephemeral_soop_roulette_overlay_experiment.sql",
+      "bytes": 1603,
+      "sha256": "0797982afa4a9392c95e8940deaf5e7446eeb6cfa3e56b498471fb1ff368fc5d"
+    },
+    {
+      "path": "supabase/migrations/20260829031658_add_signature_balloon_registry.sql",
+      "bytes": 3065,
+      "sha256": "bb72e8a6066a3138389a8f18d37d3eca58928f4e225c0cce84a5f71e64ee1909"
+    },
+    {
+      "path": "supabase/migrations/20260829033506_add_common_overlay_donation_ceremony.sql",
+      "bytes": 3787,
+      "sha256": "bb2c6fd134beb25beb24e489790328e9956e3a04755fd94fb72a6223fa11ee53"
+    },
+    {
+      "path": "supabase/migrations/20260829114729_isolate_preapproval_native_roulette.sql",
+      "bytes": 10307,
+      "sha256": "0ad86851ea66b0b4adc314c4d05b4d7d7c189b92ece9ea013a9b1bb907c8aa3d"
+    },
+    {
+      "path": "supabase/migrations/20260829121302_add_signature_wallpaper_asset.sql",
+      "bytes": 5007,
+      "sha256": "2e9ec69e3f75f7dcde89974eb8e2054c566f7cd701182f5f6a25a39535dad72d"
+    },
+    {
+      "path": "supabase/migrations/20260829164723_add_soop_gateway_incident_monitor.sql",
+      "bytes": 6868,
+      "sha256": "e40ae1e4f510a8f26cf56494346b8da52a1c3d4352b751aa72f760c697c0e241"
+    },
+    {
+      "path": "supabase/migrations/20260829173255_add_managed_overlay_tts_runtime.sql",
+      "bytes": 8856,
+      "sha256": "47f0523f9ccc7a4b7c37714fa1bb0642943603ab8e5e4ae587f08f4839577345"
+    },
+    {
+      "path": "supabase/migrations/20260829175111_add_managed_tts_explicit_deny_policy.sql",
+      "bytes": 311,
+      "sha256": "01a275841934af82e7f97a2481b44bf19d29954a9fca92210ac2f5eaae9a0315"
+    },
+    {
+      "path": "supabase/migrations/20260829183549_add_overlay_donation_test_mode.sql",
+      "bytes": 9576,
+      "sha256": "a10c26ced5522ecd9e6bd8b8a2da3c1311846a4d46374ba6264e9731824f6c6f"
+    },
+    {
+      "path": "supabase/migrations/20260829190227_normalize_roulette_result_tts_text.sql",
+      "bytes": 4118,
+      "sha256": "693fa1b38d8a8eff7e89ac90b3e76cb7600422fd09bffd5f5a9eab0c45499670"
+    },
+    {
+      "path": "supabase/migrations/20260829193604_add_live_roulette_followup_card.sql",
+      "bytes": 3791,
+      "sha256": "44f8c20a2bbfefb147e9060149c690693e085cad1095e4a42a431b13c10950b8"
+    },
+    {
+      "path": "supabase/migrations/20260829200648_keep_followup_chat_open_during_series.sql",
+      "bytes": 5313,
+      "sha256": "69198ab314e31c4c4fc823802cb537bafb6238ed5d5e2b31c2c51b6cc0fc7db3"
+    },
+    {
+      "path": "supabase/migrations/20260829203650_rebuild_common_overlay_delivery_v8.sql",
+      "bytes": 23125,
+      "sha256": "f3629c4bf4cfcb041e18cc12bac7a2efd9266ec65266ab9846d9d2b9998fc8c4"
+    },
+    {
+      "path": "supabase/migrations/20260829231235_preserve_soop_donation_type_in_overlay.sql",
+      "bytes": 2100,
+      "sha256": "dbc693c133ec6dd2966e1f2c72f7ae66583e54c78f9377d69e9a9bea43014292"
+    },
+    {
+      "path": "supabase/migrations/20260830012515_promote_google_tts_primary.sql",
+      "bytes": 2854,
+      "sha256": "cdb45b3d001a2cdbcc5fee9dea982ef55175178a0ce945c72fb6d98eb1edd1c3"
+    },
+    {
+      "path": "supabase/migrations/20260830025645_enable_tts_for_all_donations.sql",
+      "bytes": 6276,
+      "sha256": "a2bbcf28bc7e29dde68de32884684dfe8f9cc0f1482e8ac8562469d43e544a0c"
+    },
+    {
+      "path": "supabase/migrations/20260830035415_correlate_soop_donation_message_by_name.sql",
+      "bytes": 15026,
+      "sha256": "477e76cda34958d30efdc744d2a80fe8f52ea99e68e14c36192e7a2342f1c94d"
+    },
+    {
+      "path": "supabase/migrations/20260830045041_fixed_followup_queue_and_complete_donation_test.sql",
+      "bytes": 6887,
+      "sha256": "98f5bd2dd8b03815e55e307552b57a9241d4dd7adfa7af5ec9ce87f663881db3"
+    },
+    {
+      "path": "supabase/migrations/20260830175652_live_wallpaper_ledger.sql",
+      "bytes": 10717,
+      "sha256": "4aa3c5639472870a27c5fe9000500e34707bbb01a2a992cf2211f78b4085c5d4"
+    },
+    {
+      "path": "supabase/migrations/20260830181831_wallpaper_manual_layout.sql",
+      "bytes": 6336,
+      "sha256": "cfb2a9e936277a708d741d9d949630c6e2a41f5bdf0c51d56024d8b8ad125653"
+    },
+    {
+      "path": "supabase/migrations/20260830183628_wallpaper_broadcast_rounds.sql",
+      "bytes": 29092,
+      "sha256": "9837df10122ec877a68691340f0a8f8d6ece57ce13d7a4e4c9e384cfa63b2abd"
+    },
+    {
+      "path": "supabase/migrations/20260830184706_repair_wallpaper_assets.sql",
+      "bytes": 2280,
+      "sha256": "ae8d253525623ff71dc29372c7ca4cd2f4ce04ce7f4693839ca4adde6d33368d"
+    },
+    {
+      "path": "supabase/migrations/20260830210648_wallpaper_visibility_and_capacity.sql",
+      "bytes": 8575,
+      "sha256": "9e7b1d186eb01be49c8db267a8c075988a2b8b433a7b2b922b828ce021acbc77"
+    },
+    {
+      "path": "supabase/migrations/20260830213711_wallpaper_merge_live_sessions_latest_assets.sql",
+      "bytes": 19973,
+      "sha256": "9d23895035a778f200848543bf62440781b0ea18e0895f7fea9afabc1fd429bb"
+    },
+    {
+      "path": "supabase/migrations/20260830215454_wallpaper_overlay_session_fk_index.sql",
+      "bytes": 340,
+      "sha256": "09352722228710e31ce65d1772d76673bbfe06346f201dbd21acb1610642aef6"
+    },
+    {
+      "path": "supabase/migrations/20260830221708_wallpaper_next_side_live_layout.sql",
+      "bytes": 6054,
+      "sha256": "5d5b00e4b15212cd0faac9d80cd871dcf7e234f3a26835521e4a4b76674af8e4"
+    },
+    {
+      "path": "supabase/migrations/20260830222704_wallpaper_challenge_success_cards.sql",
+      "bytes": 5966,
+      "sha256": "0b5e8570284f4ab25c28922bf2c98d0acef22fbeb0f8be538e5df68c55f9783e"
+    },
+    {
+      "path": "supabase/migrations/20260830223242_wallpaper_visible_allowlist.sql",
+      "bytes": 2414,
+      "sha256": "0dc08aaceaa3b7c1720f77e14ffb938fe87bc5763cc6dd517b701292ee7b0903"
+    },
+    {
+      "path": "supabase/migrations/20260831045843_agent_realtime_wake_channel.sql",
+      "bytes": 4136,
+      "sha256": "8cc6669beb0cc183ce7e54313d433bee1916dec8768855590e19147f8b2591c4"
+    },
+    {
+      "path": "supabase/migrations/20260831063842_relax_offline_gateway_heartbeat_monitor.sql",
+      "bytes": 5221,
+      "sha256": "898c1d36b59884c228776b7da4be1de59f01d6fdb743ff61bb4ab6d79d776fe9"
+    },
+    {
+      "path": "supabase/migrations/20260831142517_wallpaper_broadcast_connection_start_time.sql",
+      "bytes": 6667,
+      "sha256": "aadffc0c5da43e0357366c8535d60602e8f5604da815563a7ff60a3bb7bd3848"
+    },
+    {
+      "path": "supabase/migrations/20260831153000_wallpaper_off_canvas_layout.sql",
+      "bytes": 4643,
+      "sha256": "e29af700ba3431ce0debe03a8498d1d1fb08a8478d19a301151249d01a1db634"
+    },
+    {
+      "path": "supabase/migrations/20260831183000_agent_wallpaper_snapshot.sql",
+      "bytes": 5650,
+      "sha256": "02d5602dfbc39f4e64d29c4e149191f170c9b4f24f71a34a05a9367123891633"
+    },
+    {
+      "path": "supabase/migrations/20260831203000_refresh_agent_signature_wallpaper_snapshots.sql",
+      "bytes": 620,
+      "sha256": "63df426552cb2620ec069377988aab1da0d82178764076e7888aee63fea8ec2e"
+    },
+    {
+      "path": "supabase/migrations/20260831211707_wallpaper_subscription_cards.sql",
+      "bytes": 6273,
+      "sha256": "3462d848d875847a44ec7553097628d38f0a6a40e2a7a4ca8934da7467d9ecd0"
+    },
+    {
+      "path": "supabase/migrations/20260831214059_backfill_matchable_wallpaper_subscriptions.sql",
+      "bytes": 3686,
+      "sha256": "24e6b2fcc1466e7bdeaaaf427a98b3cce9c597935bae447aa83efe23519fa6cf"
+    },
+    {
+      "path": "supabase/migrations/20260831222902_wallpaper_subscription_official_image.sql",
+      "bytes": 8304,
+      "sha256": "efd8d8d0c764f63046315af717be115fe531b48fcabdc078a401dd6e284b0567"
+    },
+    {
+      "path": "supabase/migrations/20260831225459_repair_subscription_official_image_layout.sql",
+      "bytes": 2073,
+      "sha256": "3a738fc45d66dbb5e1251db62dc0bf865823af7a1fe525c307e074c4e3d3852a"
+    },
+    {
+      "path": "supabase/migrations/20260901000734_rollback_wallpaper_off_canvas_layout.sql",
+      "bytes": 5822,
+      "sha256": "140e7b15afb7caef3fdd146786c1b86bc8e9f49ab14e6d37a1003ebdc5fcbaa8"
+    },
+    {
+      "path": "supabase/migrations/20260901162843_stop_legacy_wallpaper_layout_retry_storm.sql",
+      "bytes": 5976,
+      "sha256": "4078ba2cc152d48cefb561cd80eb082090894246df9c93622f89de35de85df3c"
+    },
+    {
+      "path": "supabase/migrations/20260901165151_coalesce_live_gateway_heartbeat_without_hot_path_changes.sql",
+      "bytes": 3610,
+      "sha256": "0ea3f716afb22fa519d6ede1112314a192d5e95e55a20183c12588f7c2649036"
+    },
+    {
+      "path": "supabase/migrations/20260901171632_bound_operational_data_retention_without_hot_path_changes.sql",
+      "bytes": 12663,
+      "sha256": "30a0220bdcd8972e574893b3583d58b6ad1939482f309c0487255421f36cb88d"
+    },
+    {
+      "path": "supabase/migrations/20260901182718_agent_direct_sync_transport.sql",
+      "bytes": 9493,
+      "sha256": "20a01e19bcb0834ebb2ef4cbade0cca634cc0dc3cc740e445f92914502f06822"
+    },
+    {
+      "path": "supabase/migrations/20260901215735_wallpaper_persistent_size_ranges.sql",
+      "bytes": 4496,
+      "sha256": "56e1f86f8f76c9f72d6ab2fca969c83814feb6d8fc08492bcbd5b0211c228046"
+    },
+    {
+      "path": "supabase/migrations/20260901220924_harden_operational_reliability_without_hot_path_changes.sql",
+      "bytes": 8541,
+      "sha256": "fc4fb3235e1d827a14c3cf9a99f5c6330da594b9fdabfeeb9fd9aeb2917c30ad"
+    },
+    {
+      "path": "supabase/migrations/20260901221106_cover_remaining_application_foreign_keys.sql",
+      "bytes": 1307,
+      "sha256": "2144fb19a23a0531ba3c4f7fe6d2afd97920f25f04a033238746df297d76e88e"
+    },
+    {
+      "path": "tools/__pycache__/Generate-NativeRouletteAudioCandidates.cpython-312.pyc",
+      "bytes": 22649,
+      "sha256": "16b3f7e71d4bb9da2cf24d98faba817914583c9222776a3f297234e737a9316f"
+    },
+    {
+      "path": "tools/audit_supabase_migration_reference.ps1",
+      "bytes": 7486,
+      "sha256": "5a633a0567b7dcc79a344a5576acd88e0a154db69d1c04478a1e1ecbb3b434ad"
+    },
+    {
+      "path": "tools/Audit-CurrentTtsPath.mjs",
+      "bytes": 2194,
+      "sha256": "807e524a7163e9141afbe71a79eab866314f2433dd5e91cdf7272083d5f96a9e"
+    },
+    {
+      "path": "tools/Audit-NativeRouletteActivationPrep.mjs",
+      "bytes": 5492,
+      "sha256": "3e6a5e714b7f55d5959dd9b6762cb5185b2b061c533c897b1ac0d3010c365aad"
+    },
+    {
+      "path": "tools/Backfill-SignatureWallpaperAssets.mjs",
+      "bytes": 977,
+      "sha256": "b9a8d5209ba8359f3623e42c2165ab50c230d54b006628c77a640d1afef3215c"
+    },
+    {
+      "path": "tools/Benchmark-NativeRouletteTtsEndpoint.mjs",
+      "bytes": 5180,
+      "sha256": "fce27dd712aada3b35621e9908a853650cb9e86d72db869c849a7b0a6c43c11b"
+    },
+    {
+      "path": "tools/Benchmark-SoopSharedBrowser.mjs",
+      "bytes": 2663,
+      "sha256": "a0f3e7c2314d42b96511ae2aa7654bf1f171a52b145a6f7955e05fd15bf62a39"
+    },
+    {
+      "path": "tools/Benchmark-TtsCandidates.mjs",
+      "bytes": 8766,
+      "sha256": "fcf8af103a50d89e80a76b92c0125a6a0b2b2174f8f59eded7dffd8b5ea385af"
+    },
+    {
+      "path": "tools/Build-AdminHtml.mjs",
+      "bytes": 1195,
+      "sha256": "4051c79a9b4eeb5c40b03747c4e8fc45d0ef4fe89c4a3dbf1c0540ddc0127fb6"
+    },
+    {
+      "path": "tools/Build-CartesiaVoiceBlindPack.mjs",
+      "bytes": 2520,
+      "sha256": "1b42dc10b8e7a5254d5037b6902dfe239ba017f004edf988e923a376444cc1c7"
+    },
+    {
+      "path": "tools/Build-GoogleChirpVoiceBlindPack.mjs",
+      "bytes": 2664,
+      "sha256": "112437c30589cde261802ecd012ee798604aec0cac26357cd0c10b292ae97a98"
+    },
+    {
+      "path": "tools/Build-InworldVoiceBlindPack.mjs",
+      "bytes": 1720,
+      "sha256": "5e1ce129c24e9143b4133f4d898071b53a4b13ee20e0fcd1ba59ca1871ee46e3"
+    },
+    {
+      "path": "tools/Build-TtsFinalVoiceBlindPack.mjs",
+      "bytes": 2678,
+      "sha256": "f786195004cf462db9318661de6d931569025ea7f96df8e0507b9fa03b9b1d07"
+    },
+    {
+      "path": "tools/Build-TtsWinkFinalBlindPack.mjs",
+      "bytes": 3329,
+      "sha256": "2e6a6f929e25e9b635d96e5d9f03c7807e8e074f84d3274918f3993fb81fc3ec"
+    },
+    {
+      "path": "tools/Build-VercelBinaryAssets.mjs",
+      "bytes": 2792,
+      "sha256": "671cc365ea2268c63aa26d75971cc500c2c4daf4ae03f0876b261d75774d3cf9"
+    },
+    {
+      "path": "tools/Capture-ObsSourceScreenshot.mjs",
+      "bytes": 2526,
+      "sha256": "04c017c6656bb28f6d8cf07ef102ef305fc66cca405fc50db4185064b4bdee91"
+    },
+    {
+      "path": "tools/Ensure-SoopGatewayRunning.ps1",
+      "bytes": 2087,
+      "sha256": "e9df67fdb6eb6b5e9e928d8988fbb57ec0a200ee89f4ba82f2869f5c48dc363d"
+    },
+    {
+      "path": "tools/Generate-NativeRouletteAudioCandidates.py",
+      "bytes": 15558,
+      "sha256": "967849424e9cefde31fa969dcf8bd886d25491a19f16ca8e9baf2179ef8a1ce8"
+    },
+    {
+      "path": "tools/Install-SoopGatewayTask.ps1",
+      "bytes": 3572,
+      "sha256": "3699f1b0ecd5ec81b805e16c20e25e2797ca723ae8e6c8a285170772643d6a64"
+    },
+    {
+      "path": "tools/native-roulette-digital-twin-core.mjs",
+      "bytes": 15724,
+      "sha256": "460a7512919d05095b7626805d223bf35d86939b5092da90d992a0dad92aeda8"
+    },
+    {
+      "path": "tools/native-roulette-digital-twin-ui.mjs",
+      "bytes": 19811,
+      "sha256": "bd4064e2ae1f8f73f528c03fe90bf8f5ab236c7042c7adc767709b61e5230a7b"
+    },
+    {
+      "path": "tools/native-roulette-readiness-dashboard.mjs",
+      "bytes": 10767,
+      "sha256": "495560358c5f2bd6ddf192a5632c1eed61939e92785aaf9844733791e676b099"
+    },
+    {
+      "path": "tools/native-roulette-readiness-lab.mjs",
+      "bytes": 18511,
+      "sha256": "fb647efa6d48f7290de20a7167f3289f0d0e5b6ac5aa4f7dbc35a259f74e09b1"
+    },
+    {
+      "path": "tools/native-roulette-reliability-core.mjs",
+      "bytes": 16223,
+      "sha256": "a71e6ba539265ff62c868400e88f70acb708206de8e637987718fa7958acf6c6"
+    },
+    {
+      "path": "tools/New-SourceManifest.ps1",
+      "bytes": 2004,
+      "sha256": "86d79ae87f11690b6adb93c74b1ac9fb8a3dd029f8f33bd6b822171422cf0ad0"
+    },
+    {
+      "path": "tools/Optimize-VercelInlineStaticAssets.mjs",
+      "bytes": 1232,
+      "sha256": "10221b08297fc848873631134c944bf80fed33cb6ed9dd5e820ad559a6450297"
+    },
+    {
+      "path": "tools/Prepare-CartesiaFallbackBenchmark.mjs",
+      "bytes": 1207,
+      "sha256": "66926f4fc862069cc027ec11260fa8cf98ffe5c6c4355e9e701c63f0bd39225e"
+    },
+    {
+      "path": "tools/Prepare-CartesiaVoiceBenchmark.mjs",
+      "bytes": 2317,
+      "sha256": "204aff4fcf56c4eb2f0866a1ed871f2baddf0927c03d439183c963a24d367a23"
+    },
+    {
+      "path": "tools/Preview-CommonOverlayV8.mjs",
+      "bytes": 6138,
+      "sha256": "5f99b5ab53a6c7f67684a70a1acb93d66f4fbbf2e258f521fff1d33581107211"
+    },
+    {
+      "path": "tools/Preview-ProductDashboard.mjs",
+      "bytes": 3617,
+      "sha256": "158a758fc17e81a605d3e7b229ff4e470c279320a542fb42eab8403e77f215b4"
+    },
+    {
+      "path": "tools/Probe-SoopChatSdk.mjs",
+      "bytes": 11708,
+      "sha256": "d8edf8f7b04c0d981a5d861c5bbb41372b60b041ea9cc0416132701247a352a3"
+    },
+    {
+      "path": "tools/Publish-AgentReleaseAssets.mjs",
+      "bytes": 9917,
+      "sha256": "d309c5266634f2ac5cc058b8974978008ee57a785e5f2d84c706a44c3b9d034a"
+    },
+    {
+      "path": "tools/Publish-NativeRouletteAssets.mjs",
+      "bytes": 2546,
+      "sha256": "fc2b0bb1b6fb2c7dd51d88531d6f32007cde19e9d1e8f05942bc1688ef653dfe"
+    },
+    {
+      "path": "tools/Refresh-ObsBrowserSource.mjs",
+      "bytes": 1992,
+      "sha256": "6bc94493a90249c85f73527ec4ef0061c9c23df3715fed3bdf394a0732666feb"
+    },
+    {
+      "path": "tools/Render-WallpaperPreview.mjs",
+      "bytes": 4513,
+      "sha256": "e7c8e8133a1c0199a3d35fdb6ebc01aacf64c450eb90b7348e21fdc4e74e0105"
+    },
+    {
+      "path": "tools/Run-CartesiaFallbackBenchmark.ps1",
+      "bytes": 1968,
+      "sha256": "2c62b134715f793de43a106c96a286fe0dec934a5b6f1c6e66b6e480a1593f16"
+    },
+    {
+      "path": "tools/Run-CartesiaVoiceBenchmark.ps1",
+      "bytes": 2005,
+      "sha256": "7a53855a6bf7e6789ebf00375ae09ea67e896b169add542226076d8c4ca6004c"
+    },
+    {
+      "path": "tools/Run-GoogleChirpTtsBenchmark.ps1",
+      "bytes": 2781,
+      "sha256": "e0a5667824bed03d1920782a1f934e0cabff00ead6e7a51cfaa678a4a2361c92"
+    },
+    {
+      "path": "tools/Run-InworldTtsBenchmark.ps1",
+      "bytes": 2030,
+      "sha256": "55a9768f457bf41f8bacfa108a0d25de4ac9edd8b5aa0b75e3e849f8a58c0264"
+    },
+    {
+      "path": "tools/Run-ManagedTtsBenchmark.ps1",
+      "bytes": 2074,
+      "sha256": "651bd871ccc8b4f85f2448ae5d61367d057b6afe9d0da6d2623fcfb13e8c3797"
+    },
+    {
+      "path": "tools/Run-NativeRouletteDigitalTwin.mjs",
+      "bytes": 11335,
+      "sha256": "82f60f897f38b56e65c2916b0366671942210dd6f32c28cdd692d686e6ecdc5d"
+    },
+    {
+      "path": "tools/Run-NativeRouletteReadinessLab.mjs",
+      "bytes": 3373,
+      "sha256": "a418d231fabdc5ca945cebdf6f6041be3ba632e39f8bd53fc0bc8624c77ef2c4"
+    },
+    {
+      "path": "tools/Run-PowerShellHidden.vbs",
+      "bytes": 554,
+      "sha256": "be6b1ca08ba8e1ae0ecb16e2b9e2883983081e5d14009c9815a184de04c61b3d"
+    },
+    {
+      "path": "tools/Run-SoopGatewayHidden.ps1",
+      "bytes": 2334,
+      "sha256": "c30d9c05d8ccb4a38853996954977195145c55f4b94ab4cc49dcefbc777329fc"
+    },
+    {
+      "path": "tools/Run-SoopGatewaySoak.mjs",
+      "bytes": 3957,
+      "sha256": "1cad94d1a4358189581b4aba21ccbf915cc0e9fd2cb13815414f095382c455fa"
+    },
+    {
+      "path": "tools/Run-SoopGatewaySoakHidden.ps1",
+      "bytes": 561,
+      "sha256": "e6e3800d43f5006c986c3a3fcdc46f47fa7c184d58849d3cae039ae38974e843"
+    },
+    {
+      "path": "tools/Run-TtsWinkFinalBenchmark.ps1",
+      "bytes": 3331,
+      "sha256": "5931eff1f98b8b4cb271d32da4a8e358de9dcacbf43c62fcba63d7c34b9df685"
+    },
+    {
+      "path": "tools/Save-CartesiaTtsBenchmarkCredential.ps1",
+      "bytes": 3565,
+      "sha256": "1cda12ffa43dcebe58f0a45dfb75220ae345ff5d6df20f4d29ec1767e93d0ebe"
+    },
+    {
+      "path": "tools/Save-InworldTtsBenchmarkCredential.ps1",
+      "bytes": 3131,
+      "sha256": "6665d8d716bba6d4ab3d933f06f9a96d9bb26d69897fe57f792eda5ffb4d3bde"
+    },
+    {
+      "path": "tools/Save-TtsBenchmarkCredentials.ps1",
+      "bytes": 1770,
+      "sha256": "106c8eab35371290d789dbfed428e711aad40456bf29efbbac3e307da6d77db5"
+    },
+    {
+      "path": "tools/Simulate-NativeRouletteReliability.mjs",
+      "bytes": 2546,
+      "sha256": "273096f7b2a724a1007667c68fa3703de539698e440e00c3e1c9446b506ddb5b"
+    },
+    {
+      "path": "tools/Start-NativeRouletteDigitalTwin.ps1",
+      "bytes": 1315,
+      "sha256": "9a1fa68f4600cf0d391d3d8c3ea758b2226a50f0ea20e41408c5b83155630676"
+    },
+    {
+      "path": "tools/Start-SoopGatewaySoak.ps1",
+      "bytes": 2749,
+      "sha256": "5004f8c1e40592d6a3b2caba55f57504a3904bd260d52c920516fce0d55f7d2a"
+    },
+    {
+      "path": "tools/Test-SoopGatewayRecovery.ps1",
+      "bytes": 2438,
+      "sha256": "b7a31855894bce5ed21787eab33faf63dcbf1a7742aa86721824fdcdfb63e8a1"
+    },
+    {
+      "path": "tools/tts-benchmark/byeollog-cosy-wav-adapter.mjs",
+      "bytes": 2657,
+      "sha256": "ec9c29ce0654d480e7703907c551b15a4b7a1ec054265e1d5190ddb5574b34ac"
+    },
+    {
+      "path": "tools/tts-benchmark/cartesia-sse-adapter.mjs",
+      "bytes": 3594,
+      "sha256": "61f241101faff05831134c53c4ad2ce7cbdcf4fd5593f2ab1cdf8a190d7db7e2"
+    },
+    {
+      "path": "tools/tts-benchmark/cartesia-websocket-adapter.mjs",
+      "bytes": 5066,
+      "sha256": "92c38d4fd7f546e66e6afa452bb0c1d72191fe9f3abbba837129d5b281691475"
+    },
+    {
+      "path": "tools/tts-benchmark/core.mjs",
+      "bytes": 8476,
+      "sha256": "883a83abfc7ccbaaf426bc707f23ea4786f38f536a6ee5c329df1279d3ee48d5"
+    },
+    {
+      "path": "tools/tts-benchmark/corpus.final-wink.ko.json",
+      "bytes": 1327,
+      "sha256": "7be7d68798f379165528b6c276e789404bb993c2a4314b9f7a3ea7d95315916e"
+    },
+    {
+      "path": "tools/tts-benchmark/corpus.ko.json",
+      "bytes": 1404,
+      "sha256": "876bb06532ec1e72df46e47bea692f77487f8f46fec28629d7404b7aafe24507"
+    },
+    {
+      "path": "tools/tts-benchmark/corpus.ko.production-pronunciation.json",
+      "bytes": 1000,
+      "sha256": "ad8a1e7d0f6de192f0e6ec46faae543e3bc731a1dc691a7a6d359e709248cb4d"
+    },
+    {
+      "path": "tools/tts-benchmark/corpus.max-chat.ko.json",
+      "bytes": 868,
+      "sha256": "052ff519e5be34c849e2d7b00147a91faeedb9887f3881c3455bf16f1a0a6138"
+    },
+    {
+      "path": "tools/tts-benchmark/corpus.voice-quality.ko.json",
+      "bytes": 1294,
+      "sha256": "6bb5a23a9df99a1f1e846835b5d93028222999f2dc7c7ce503c360ef53172587"
+    },
+    {
+      "path": "tools/tts-benchmark/elevenlabs-http-adapter.mjs",
+      "bytes": 2175,
+      "sha256": "54db97ac9457aed2d9ea78fe1e8c6ce736a1698a1ebc6a929a944fe37db8fc8c"
+    },
+    {
+      "path": "tools/tts-benchmark/fixture-server.mjs",
+      "bytes": 3081,
+      "sha256": "a988000c8891cd5fec8b5ad7e0fd74a24a8edce9b2e72f8fdc184404f8e35fcd"
+    },
+    {
+      "path": "tools/tts-benchmark/google-chirp3-streaming-adapter.mjs",
+      "bytes": 3404,
+      "sha256": "06a09fe24a7159dc87daecaae6815847120c8e455b77bb6ae537e9e1241342a0"
+    },
+    {
+      "path": "tools/tts-benchmark/http-pcm-adapter.mjs",
+      "bytes": 2556,
+      "sha256": "59b8cae4361c64911092e821908501a7463dbec0bdf43c2a5a40c50251e0b17a"
+    },
+    {
+      "path": "tools/tts-benchmark/inworld-http-stream-adapter.mjs",
+      "bytes": 4376,
+      "sha256": "cde6d1f613e9824bd1355ba883a87039f1b8b9551a49f60423ff5e6dff19e13f"
+    },
+    {
+      "path": "tools/tts-benchmark/inworld-websocket-adapter.mjs",
+      "bytes": 6066,
+      "sha256": "ed59efa73bbe992c38e71a9bf074692b380be230981ff106c6524d7f35ea62f3"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.example.json",
+      "bytes": 627,
+      "sha256": "4f5979ebee0e93a2d856b1b0386efbd90b064e5b50a7496ff7a8e554994f3dcc"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.google-chirp3.korean-female.json",
+      "bytes": 1972,
+      "sha256": "78206fe65c147b6b4ada514bf3141a338e6727d91c2c19bac298bf0fce8c0fe5"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.inworld.1.5-max-normalized.json",
+      "bytes": 718,
+      "sha256": "5e548c089fd937b534ba19764188809945b3376562b4083d231ee8b8d7ec20ee"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.inworld.example.json",
+      "bytes": 637,
+      "sha256": "02e65afa565ff3731f8b2b1537b957e7d654b1e2e1306a22359a03637a132f54"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.inworld.korean-voices.websocket.json",
+      "bytes": 2123,
+      "sha256": "15fc3f33b7545299cf3d4d99c78ca3af7cf0215f14111248cff455c329a1a7d1"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.inworld.websocket.example.json",
+      "bytes": 677,
+      "sha256": "1c4b3b80a248cdc338584d13ddebd9e5516d58e29022d9c6fdd469551aa758ce"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.local-cosy.example.json",
+      "bytes": 434,
+      "sha256": "9d3a922181c1115dad7c456dffacfcc021c11e5edab9019e57b6568a1bb975ee"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.managed.example.json",
+      "bytes": 862,
+      "sha256": "f718b01706f0c2de2b0dee2f53bc9768d3b0f069e56d28b1b8ab31afcc6a09fc"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.tts-final-wink.json",
+      "bytes": 1088,
+      "sha256": "b3bca90a0ec57a071c3f9c473ba86cc9e202f4dccb157b0dda4515186983a3d1"
+    },
+    {
+      "path": "vercel.json",
+      "bytes": 9271,
+      "sha256": "ee447ba786e55f7d1257f17277d2595359349ea78128ce039b11ba7302ead822"
+    }
+  ]
+}

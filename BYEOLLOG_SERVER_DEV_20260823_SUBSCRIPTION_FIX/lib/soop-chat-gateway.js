@@ -13,6 +13,40 @@ const SOOP_DONATION_ACTION_LABELS=Object.freeze({
 const DONATION_ACTIONS=new Set(Object.keys(SOOP_DONATION_ACTION_LABELS));
 const ACTIONS=new Set(['MESSAGE','MANAGER_MESSAGE',...DONATION_ACTIONS]);
 
+export const SOOP_GATEWAY_HEARTBEAT_POLICY=Object.freeze({
+  checkMs:15_000,
+  connectedMs:60_000,
+  offlineMs:300_000
+});
+
+// The current SOOP Chat SDK reports an idle channel as error 104 with an
+// English message instead of the older invalid-chat-info/broadcast wording.
+// Treat every known representation as a normal offline state so an idle
+// workspace does not enter the transient-failure retry path.
+export function isSoopBroadcastOfflineError(value={}){
+  const code=String(value?.code??value?.errorCode??'').trim().toLowerCase();
+  const message=String(value?.message??value?.errorMessage??value??'').slice(0,4_000);
+  return code==='104'||code==='broadcast_offline'||/invalid[-_ ]?chat[-_ ]?info/i.test(code)
+    ||/there are no streams currently in progress(?:\.\s*\(104\))?/i.test(message)
+    ||/invalid[-_ ]?chat[-_ ]?info|broadcast(?:\s+is)?\s+offline|방송[^\n]{0,40}(?:없|종료|오프라인)/i.test(message);
+}
+
+// Heartbeats are operational telemetry, not part of the donation/action hot
+// path.  State or error transitions must still cross the server boundary on
+// the next local check; only an unchanged steady state is coalesced.
+export function shouldSendSoopGatewayHeartbeat({
+  now=Date.now(),lastHeartbeatAt=0,reportedState,lastHeartbeatState,
+  lastErrorCode=null,lastHeartbeatError=null
+}={}){
+  if(reportedState!==lastHeartbeatState||lastErrorCode!==lastHeartbeatError)return true;
+  const instant=Number(now),previous=Number(lastHeartbeatAt);
+  if(!Number.isFinite(instant)||!Number.isFinite(previous)||previous<=0)return true;
+  const interval=reportedState==='connected'
+    ?SOOP_GATEWAY_HEARTBEAT_POLICY.connectedMs
+    :SOOP_GATEWAY_HEARTBEAT_POLICY.offlineMs;
+  return instant-previous>=interval;
+}
+
 function clean(value,max){
   const text=String(value??'').replace(/[\u0000-\u001f\u007f]/g,' ').trim();
   return text&&text.length<=max?text:'';
@@ -24,7 +58,34 @@ function stableJson(value){
   return JSON.stringify(value);
 }
 
+export const SOOP_GATEWAY_SIGNATURE_TOLERANCE_MS=5*60_000;
+
+export function signSoopGatewayRequest({secret,timestamp,nonce,body}={}){
+  const normalizedSecret=String(secret||'');
+  const normalizedTimestamp=String(timestamp||'');
+  const normalizedNonce=String(nonce||'');
+  if(normalizedSecret.length<32||!/^[0-9]{10,16}$/.test(normalizedTimestamp)||!/^[a-f0-9]{32,64}$/i.test(normalizedNonce))return '';
+  return crypto.createHmac('sha256',normalizedSecret)
+    .update(`${normalizedTimestamp}\n${normalizedNonce}\n${stableJson(body)}`,'utf8').digest('hex');
+}
+
+export function verifySoopGatewayRequestSignature({secret,timestamp,nonce,signature,body,now=Date.now(),toleranceMs=SOOP_GATEWAY_SIGNATURE_TOLERANCE_MS}={}){
+  const instant=Number(timestamp),current=Number(now),tolerance=Math.max(1_000,Number(toleranceMs)||SOOP_GATEWAY_SIGNATURE_TOLERANCE_MS);
+  if(!Number.isFinite(instant)||!Number.isFinite(current)||Math.abs(current-instant)>tolerance)return false;
+  const expected=signSoopGatewayRequest({secret,timestamp:String(timestamp),nonce,body});
+  const supplied=String(signature||'').trim().toLowerCase();
+  if(!expected||!/^[a-f0-9]{64}$/.test(supplied))return false;
+  const left=Buffer.from(expected,'hex'),right=Buffer.from(supplied,'hex');
+  return left.length===right.length&&crypto.timingSafeEqual(left,right);
+}
+
 function sha256(value){return crypto.createHash('sha256').update(String(value),'utf8').digest('hex')}
+
+export function stableSoopGatewayStaggerMs(seed,maxMs){
+  const ceiling=Math.max(0,Math.min(30_000,Math.trunc(Number(maxMs)||0)));
+  if(ceiling===0)return 0;
+  return Number.parseInt(sha256(seed).slice(0,8),16)%(ceiling+1);
+}
 
 function eventInstant(message,receivedAt){
   const candidates=[message?.occurredAt,message?.createdAt,message?.sentAt,message?.timestamp,message?.messageTime];
@@ -142,5 +203,41 @@ export class SoopGatewayReplayGuard{
     this.entries.set(key,{connectionId:connection,at:now});
     while(this.entries.size>this.maxEntries)this.entries.delete(this.entries.keys().next().value);
     return duplicate;
+  }
+}
+
+// The server only uses chat packets to capture the short donor follow-up
+// message associated with a donation.  Forwarding every room message makes
+// unrelated viewer chat dominate the hot path, so the gateway keeps a bounded
+// local donor window and only relays chats that can still be relevant.  The
+// donation itself is armed synchronously before any network await, keeping the
+// donation/action path immediate.
+export class SoopRelevantChatGate{
+  constructor({windowMs=120_000,maxEntries=5_000}={}){
+    this.windowMs=Math.max(15_000,Math.min(300_000,Math.trunc(Number(windowMs)||120_000)));
+    this.maxEntries=Math.max(100,Math.min(100_000,Math.trunc(Number(maxEntries)||5_000)));
+    this.entries=new Map();
+  }
+  #keys(actor={}){
+    const id=clean(actor.id,180).toLocaleLowerCase('en-US');
+    const name=clean(actor.name,120).toLocaleLowerCase('ko-KR');
+    return [...new Set([id&&`id:${id}`,name&&`name:${name}`].filter(Boolean))];
+  }
+  #prune(now){
+    for(const [key,expiresAt] of this.entries){if(expiresAt<now)this.entries.delete(key)}
+    while(this.entries.size>this.maxEntries)this.entries.delete(this.entries.keys().next().value);
+  }
+  arm(actor,{now=Date.now()}={}){
+    const instant=Number(now);
+    if(!Number.isFinite(instant))throw new Error('SOOP donor window time is invalid');
+    this.#prune(instant);
+    const expiresAt=instant+this.windowMs;
+    for(const key of this.#keys(actor))this.entries.set(key,expiresAt);
+  }
+  shouldForward(actor,{now=Date.now()}={}){
+    const instant=Number(now);
+    if(!Number.isFinite(instant))throw new Error('SOOP chat window time is invalid');
+    this.#prune(instant);
+    return this.#keys(actor).some(key=>(this.entries.get(key)||0)>=instant);
   }
 }

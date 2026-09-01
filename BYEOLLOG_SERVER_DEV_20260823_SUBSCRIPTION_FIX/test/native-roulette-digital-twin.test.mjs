@@ -124,12 +124,12 @@ test('HTTP surface binds to loopback, serves immutable assets, and rejects forei
   assert.equal(controller.status,200);
   assert.match(controller.headers.get('content-security-policy'),/default-src 'self'/);
   assert.match(await controller.text(),/방송 시나리오/);
-  const preview=await fetch(`${base}/assets/roulette-preview/roulette_navy_gold_v1.png`);
+  const preview=await fetch(`${base}/assets/roulette-preview/roulette_navy_gold_v1.webp`);
   assert.equal(preview.status,200);
-  assert.equal(preview.headers.get('content-type'),'image/png');
+  assert.equal(preview.headers.get('content-type'),'image/webp');
   const bytes=Buffer.from(await preview.arrayBuffer());
-  assert.equal(bytes.length,492_558);
-  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),'591892f8be91a8a3fe880d85f0a588e8c76d304a7853bc3da96c6af64eaf1f6f');
+  assert.equal(bytes.length,82_814);
+  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),'e87242e094b670f982de13617310947c18ba7fe3162374d17969ff44b7549e64');
   const animation=await fetch(`${base}/assets/roulette-animation/roulette_navy_gold_v1.webp`);
   assert.equal(animation.status,200);
   assert.equal(animation.headers.get('content-type'),'image/webp');

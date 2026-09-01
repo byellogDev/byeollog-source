@@ -8,12 +8,15 @@
     "node": "22.x"
   },
   "scripts": {
-    "validate:runtime": "node scripts/validate-runtime-config.mjs",
+    "validate:runtime": "node --env-file-if-exists=.env.local scripts/validate-runtime-config.mjs",
+    "release:manifest": "node scripts/generate-release-manifest.mjs",
+    "release:preflight": "npm test && npm run validate:runtime && npm run release:manifest",
     "release:assets": "node tools/Publish-AgentReleaseAssets.mjs",
     "lab:roulette": "node tools/Run-NativeRouletteReadinessLab.mjs",
     "twin:roulette": "node tools/Run-NativeRouletteDigitalTwin.mjs",
     "test:roulette-twin": "node tools/Run-NativeRouletteDigitalTwin.mjs --headless --runs 1000 --seed 20260828",
     "benchmark:roulette-tts-local": "node tools/Benchmark-NativeRouletteTtsEndpoint.mjs",
+    "benchmark:soop-gateway-browser": "node tools/Benchmark-SoopSharedBrowser.mjs",
     "audit:tts-path": "node tools/Audit-CurrentTtsPath.mjs",
     "benchmark:tts:selftest": "node tools/Benchmark-TtsCandidates.mjs --self-test --iterations 3 --warmups 1 --concurrency 2",
     "benchmark:tts:google": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/Run-GoogleChirpTtsBenchmark.ps1",

@@ -183,17 +183,28 @@ export async function revalidateMembership(session,{sbImpl=sb,retryDelayMs=40}={
     if(!session.collector_device_id || !session.workspace_id) return null;
     const rows=await membershipQuery(
       sbImpl,'byeollog_collector_devices',
-      `?select=id,workspace_id,status&id=eq.${encodeURIComponent(session.collector_device_id)}`+
+      `?select=id,workspace_id,status,created_by_user_id&id=eq.${encodeURIComponent(session.collector_device_id)}`+
       `&workspace_id=eq.${encodeURIComponent(session.workspace_id)}&status=eq.active&limit=1`,retryDelayMs
     );
     const device=Array.isArray(rows)?rows[0]:null;
-    if(!device || device.workspace_id!==session.workspace_id) return null;
+    if(!device || device.workspace_id!==session.workspace_id || !device.created_by_user_id) return null;
+    const memberships=await membershipQuery(
+      sbImpl,'byeollog_workspace_members',
+      `?select=role,workspace_id&user_id=eq.${encodeURIComponent(device.created_by_user_id)}`+
+      `&workspace_id=eq.${encodeURIComponent(session.workspace_id)}&limit=1`,retryDelayMs
+    );
+    const membership=Array.isArray(memberships)?memberships[0]:null;
+    if(!membership || membership.workspace_id!==session.workspace_id) return null;
     const workspaces=await membershipQuery(
       sbImpl,'byeollog_workspaces',
       `?select=id,status&id=eq.${encodeURIComponent(session.workspace_id)}&status=eq.active&limit=1`,retryDelayMs
     );
     if(!Array.isArray(workspaces)||workspaces[0]?.id!==session.workspace_id) return null;
-    return session;
+    return {
+      ...session,
+      user_id:device.created_by_user_id,
+      role:normalizeRole(membership.role),
+    };
   }
 
   if(!session.user_id || !session.workspace_id) return null;

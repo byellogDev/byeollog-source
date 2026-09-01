@@ -13,7 +13,7 @@ const server=http.createServer(async(req,res)=>{
     return res.end(await readFile(new URL('../assets/byeollog-theme.css',import.meta.url),'utf8'));
   }
   if(url.pathname.startsWith('/assets/roulette-previews/')){
-    res.writeHead(200,{'Content-Type':'image/png','Cache-Control':'no-store'});
+    res.writeHead(200,{'Content-Type':url.pathname.endsWith('.webp')?'image/webp':'image/png','Cache-Control':'no-store'});
     return res.end(await readFile(new URL(`../${url.pathname.slice(1)}`,import.meta.url)));
   }
   if(url.pathname==='/assets/soop-default-balloon.svg'){

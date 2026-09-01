@@ -5,6 +5,14 @@ const input=document.getElementById('withdrawConfirm');
 const submit=document.getElementById('withdrawSubmit');
 const message=document.getElementById('withdrawMessage');
 
+(async()=>{
+  try{
+    const response=await fetch('/api/admin?operation=context',{cache:'no-store',credentials:'same-origin',headers:{Accept:'application/json'}});
+    if(response.status===401){location.replace('/login?expired=1');return}
+    if(response.status===503)location.replace('/login?check=retry');
+  }catch{}
+})();
+
 function setMessage(text,type=''){
   message.textContent=text;
   message.className=`message${type?` ${type}`:''}`;
@@ -32,7 +40,8 @@ form.addEventListener('submit',async(event)=>{
     const data=await response.json().catch(()=>({}));
     if(!response.ok){
       if(response.status===401){
-        setMessage('세션이 만료되었습니다. 다시 로그인한 뒤 시도해주세요.','error');
+        location.replace('/login?expired=1');
+        return;
       }else{
         setMessage(String(data.message||'회원 탈퇴를 완료하지 못했습니다. 잠시 후 다시 시도해주세요.'),'error');
       }

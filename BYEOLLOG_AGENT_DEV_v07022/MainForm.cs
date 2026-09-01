@@ -1995,7 +1995,10 @@ public sealed class MainForm : Form
                     await OpenDashboardAsync();
                     break;
                 case "openAutomationSettings":
-                    QueueVNextAutomationSettingsOpen();
+                    var automationView = payload.TryGetProperty("view", out var automationViewElement)
+                        ? automationViewElement.GetString() ?? "rules"
+                        : "rules";
+                    QueueVNextAutomationSettingsOpen(automationView);
                     return;
                 case "screen":
                     var screen = payload.TryGetProperty("screen", out var screenElement) ? screenElement.GetString() ?? "" : "";
@@ -2095,7 +2098,7 @@ public sealed class MainForm : Form
         // 메인 WebView2 콜백이 반환된 뒤 같은 메인 창 안에 자동화 화면을 올립니다.
         // 별도 모달 창과 중첩 메시지 루프를 만들지 않습니다.
         if (IsDisposed || Disposing || !IsHandleCreated) return;
-        _pendingAutomationView = targetView is "rules" or "readiness" or "devices" or "overlays" or "activity"
+        _pendingAutomationView = targetView is "rules" or "readiness" or "devices" or "overlays" or "activity" or "wallpaper"
             ? targetView
             : "rules";
         _automationSettingsShowRequested = true;

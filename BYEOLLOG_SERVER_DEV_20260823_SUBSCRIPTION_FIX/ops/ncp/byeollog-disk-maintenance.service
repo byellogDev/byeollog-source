@@ -1,0 +1,8 @@
+[Unit]
+Description=Bounded Byeollog host disk maintenance
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker image prune -f --filter until=168h
+ExecStart=/usr/bin/journalctl --vacuum-time=14d

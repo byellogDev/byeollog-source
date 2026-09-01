@@ -1,6 +1,7 @@
 import {safeEqual} from './auth.js';
 import {isJsonRequest} from './request-origin.js';
 import {normalizeSoopSdkRelayEnvelope} from './soop-sdk-relay.js';
+import {verifySoopGatewayRequestSignature} from './soop-chat-gateway.js';
 import {getSoopOAuthConfig,refreshSoopConnection} from './soop-oauth.js';
 import {sb} from './supabase-rest.js';
 
@@ -84,12 +85,12 @@ async function recordObservation(workspaceId,relay,body,outcome,details,sbImpl){
   });
 }
 
-export async function ingestNormalizedSoopDonation(workspaceId,relay,{testMode=false,sbImpl=sb}={}){
+export async function ingestNormalizedSoopDonation(workspaceId,relay,{testMode=false,sbImpl=sb,environment=process.env}={}){
   const normalizedWorkspace=text(workspaceId,36).toLowerCase();
   if(!UUID.test(normalizedWorkspace)||relay?.eventType!=='donation'){
     throw Object.assign(new Error('invalid normalized donation'),{status:400,code:'invalid_normalized_donation'});
   }
-  const rpc=testMode?'enqueue_native_overlay_donation_test_v3':'ingest_native_overlay_soop_donation_v5';
+  const rpc=testMode?'enqueue_native_overlay_donation_test_v3':'ingest_native_overlay_soop_donation_v8';
   const event=relay.event;
   const body={
     p_workspace_id:normalizedWorkspace,p_event_id:event.eventId,p_actor_id:event.actor.id,
@@ -99,6 +100,8 @@ export async function ingestNormalizedSoopDonation(workspaceId,relay,{testMode=f
   if(!testMode){
     body.p_ceremony_image_url=event.ceremonyImageUrl;
     body.p_donation_type_label=event.donationTypeLabel;
+    body.p_broadcast_key=relay.connection.id;
+    body.p_release_key=text(environment.VERCEL_DEPLOYMENT_ID||environment.VERCEL_GIT_COMMIT_SHA||environment.npm_package_version||'local-development',160)||'local-development';
   }
   const result=await sbImpl(`rpc/${rpc}`,'',{method:'POST',body});
   const resultRow=Array.isArray(result)?result[0]||{}:result||{};
@@ -121,7 +124,7 @@ async function event(body,control,sbImpl,env){
   }
   let result,resultRow;
   if(relay.eventType==='donation'){
-    ({result,resultRow}=await ingestNormalizedSoopDonation(workspaceId,relay,{sbImpl}));
+    ({result,resultRow}=await ingestNormalizedSoopDonation(workspaceId,relay,{sbImpl,environment:env}));
   }else{
     const rpcBody={
     p_workspace_id:workspaceId,p_chat_event_id:relay.event.eventId,p_actor_id:relay.event.actor.id,
@@ -149,9 +152,18 @@ export async function handleSoopGatewayIngress(req,res,{env=process.env,sbImpl=s
   if(!readiness.enabled||!readiness.configured)return res.status(404).json({message:'Not found'});
   const expected=String(env.SOOP_GATEWAY_INGRESS_SECRET||'').trim();
   const supplied=String(req.headers?.['x-byeollog-soop-gateway-secret']||'').trim();
-  if(supplied.length<32||!safeEqual(expected,supplied))return res.status(401).json({message:'Unauthorized'});
   const body=bodyOf(req);
   if(!body||JSON.stringify(body).length>64*1024)return res.status(400).json({message:'Invalid request'});
+  const signed=verifySoopGatewayRequestSignature({
+    secret:expected,
+    timestamp:req.headers?.['x-byeollog-soop-gateway-timestamp'],
+    nonce:req.headers?.['x-byeollog-soop-gateway-nonce'],
+    signature:req.headers?.['x-byeollog-soop-gateway-signature'],
+    body
+  });
+  const legacyAllowed=String(env.SOOP_GATEWAY_ALLOW_LEGACY_BEARER||'').trim().toLowerCase()==='true';
+  const legacyAccepted=legacyAllowed&&supplied.length>=32&&safeEqual(expected,supplied);
+  if(!signed&&!legacyAccepted)return res.status(401).json({message:'Unauthorized'});
   if(body.kind==='reconcile'){
     try{return res.status(200).json(await reconcile(sbImpl))}
     catch(error){return res.status(503).json({message:'SOOP 게이트웨이 작업 목록을 불러오지 못했습니다.',code:error?.code||'soop_gateway_reconcile_failed'})}

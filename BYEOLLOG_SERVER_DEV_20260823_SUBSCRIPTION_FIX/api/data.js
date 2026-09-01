@@ -1,6 +1,7 @@
 import {createHash} from 'node:crypto';
 import {requireCapabilityLive} from '../lib/auth.js';
 import {DEPLOYMENT_ASSETS} from '../lib/deployment-assets.js';
+import {VERCEL_PREVIEW_ASSETS} from '../lib/vercel-binary-assets/preview-assets.js';
 import {workspaceForSession,addWorkspaceFilter,withWorkspaceBody,WORKSPACE_TABLES} from '../lib/workspace.js';
 import {rejectMaintenanceWrite} from '../lib/maintenance.js';
 import {
@@ -17,22 +18,23 @@ const PUBLIC_RPC_OPERATIONS=Object.freeze({
 });
 const UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const VERIFIED_DEPLOYMENT_ASSETS=Object.freeze(Object.fromEntries(
-  Object.entries(DEPLOYMENT_ASSETS).map(([name,asset])=>{
+  Object.entries({...DEPLOYMENT_ASSETS,...VERCEL_PREVIEW_ASSETS}).map(([name,asset])=>{
     const bytes=Buffer.from(asset.data.replace(/\s+/g,''),'base64');
     const digest=createHash('sha256').update(bytes).digest('hex');
     if(bytes.length!==asset.size||digest!==asset.sha256){
       throw new Error(`Deployment asset integrity check failed: ${name}`);
     }
-    return [name,bytes];
+    return [name,Object.freeze({bytes,mimeType:asset.mimeType||'image/png'})];
   })
 ));
 
 function serveDeploymentAsset(req,res){
   if(req.method!=='GET'&&req.method!=='HEAD')return res.status(405).json({message:'Method not allowed'});
   const name=Array.isArray(req.query?.name)?req.query.name[0]:String(req.query?.name||'');
-  const bytes=VERIFIED_DEPLOYMENT_ASSETS[name];
-  if(!bytes)return res.status(404).json({message:'Asset not found'});
-  res.setHeader('Content-Type','image/png');
+  const asset=VERIFIED_DEPLOYMENT_ASSETS[name];
+  if(!asset)return res.status(404).json({message:'Asset not found'});
+  const {bytes,mimeType}=asset;
+  res.setHeader('Content-Type',mimeType);
   res.setHeader('Cache-Control','public, max-age=31536000, immutable');
   res.setHeader('Content-Length',String(bytes.length));
   if(req.method==='HEAD')return res.status(200).end();

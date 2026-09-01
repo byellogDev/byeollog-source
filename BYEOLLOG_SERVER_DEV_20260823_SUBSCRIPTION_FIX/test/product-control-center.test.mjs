@@ -7,6 +7,7 @@ import {
   WeflabPublicImportError
 } from '../lib/weflab-public-roulette-import.js';
 import {getProductDashboardHtml} from '../lib/product-dashboard-html.js';
+import {compactDashboardNavigation,dashboardNavigationHtml,dashboardTitle} from '../lib/dashboard-navigation.js';
 import {normalizeNativeRouletteWebDraft,NativeRouletteValidationError} from '../lib/native-roulette.js';
 
 const source=relative=>readFile(new URL(relative,import.meta.url),'utf8');
@@ -69,8 +70,16 @@ test('control center keeps roulette, action and existing upbo navigation organic
     assert.match(page,/byeollogAdminTheme/);
   }
   assert.match(upboPage,/class="top brandBanner dashboardHeader"/);
+  assert.match(upboPage,new RegExp(`<title>${dashboardTitle('upbo')}<\\/title>`));
+  assert.doesNotMatch(upboPage,/\bdocument\.title\s*=/);
   assert.match(upboPage,/class="productNav dashboardNav"/);
-  assert.match(upboPage,/href="\/dashboard\/overlay">▣ 오버레이/);
+  assert.equal(compactDashboardNavigation(upboPage),dashboardNavigationHtml('upbo'));
+  for(const section of ['roulette','signatures','wallpaper','actions']){
+    const page=getProductDashboardHtml('test-nonce',section);
+    assert.match(page,new RegExp(`<title>${dashboardTitle(section)}<\\/title>`));
+    assert.equal(compactDashboardNavigation(page),dashboardNavigationHtml(section));
+  }
+  assert.doesNotMatch(upboPage,/href="\/dashboard\/overlay"|▣ 오버레이/);
   assert.match(upboPage,/class="admin-page dashboard-page"/);
   assert.match(roulettePage,/열린 편집 화면에서 새 룰렛명을 입력/);
   assert.match(roulettePage,/업보로 지정/);
@@ -236,7 +245,7 @@ test('roulette editor supports authenticated custom single and optional series i
   assert.match(page,/customSeriesImage:seriesEnabled\?state\.customSeriesImage:null/);
   assert.match(admin,/operation==='roulette-image-upload-ticket'\|\|operation==='roulette-image-confirm'/);
   assert.match(admin,/await verifyDraftCustomAssets\(workspaceId,draft\)/);
-  assert.match(admin,/img-src 'self' data: \$\{assetOrigin\}; connect-src 'self' \$\{assetOrigin\}/);
+  assert.match(admin,/img-src 'self' data: \$\{assetOrigin\} https:\/\/sooplive\.com https:\/\/\*\.sooplive\.com[^`]*; connect-src 'self' \$\{assetOrigin\}/);
   assert.doesNotMatch(page,/SUPABASE_(?:SECRET|SERVICE_ROLE)/);
 });
 
@@ -306,7 +315,39 @@ test('signature registration and common OBS source replace web overlay placement
   assert.match(roulette,/460×450/);
   assert.match(roulette,/후원 종류 강조 영역과 최대 120자 후원 멘트를 수용하는 고정 경계/);
   assert.doesNotMatch(signatures+roulette,/href="\/dashboard\/overlay"|id="overlayLayoutCanvas"|update-overlay-part-layout|preview-overlay-part/);
-  assert.match(routes,/"source": "\/dashboard\/overlay"[\s\S]{0,100}"destination": "\/api\/admin\?view=roulette"/);
+  assert.match(routes,/"source": "\/dashboard\/overlay"[\s\S]{0,100}"destination": "\/dashboard\/roulette"[\s\S]{0,50}"permanent": true/);
   const scripts=[...signatures.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(match=>match[1]);
   for(const script of scripts)assert.doesNotThrow(()=>new Function(script));
+});
+
+test('web wallpaper editor stacks a merged 20-card range into two continuous 10-card columns',async()=>{
+  const dashboard=await source('../lib/product-dashboard-html.js');
+  const start=dashboard.indexOf('function fitWallpaperDraftGroup');
+  const end=dashboard.indexOf('\nfunction wallpaperCardStyle',start);
+  assert.ok(start>=0&&end>start);
+  const fit=new Function(`${dashboard.slice(start,end)};return fitWallpaperDraftGroup;`)();
+  const amounts=[...Array(12).fill(1),2,3,5,7,9,10,10,11];
+  const group={width:720,height:640,nextSide:'right',mergeRange:{min:1,max:32},cards:amounts.map((amount,index)=>({id:index,amount}))};
+  fit(group);
+  assert.equal(group.rowsPerColumn,10);
+  assert.equal(group.columns,2);
+  const laneCounts=[...group.cards.reduce((lanes,card)=>lanes.set(card.x,(lanes.get(card.x)||0)+1),new Map()).values()];
+  assert.deepEqual(laneCounts,[10,10]);
+  assert.deepEqual(group.cards.slice(10).map(card=>card.amount),[1,1,2,3,5,7,9,10,10,11]);
+});
+
+test('web wallpaper control is a first-class dashboard page without post-render patching',async()=>{
+  const page=getProductDashboardHtml('test-nonce','wallpaper');
+  const implementation=await source('../lib/product-dashboard-html.js');
+  const routes=await source('../vercel.json');
+  assert.match(page,/<title>별록 풍벽지<\/title>/);
+  assert.match(page,/id="wallpaperPreview"/);
+  assert.match(page,/id="copyWallpaperBtn"/);
+  assert.match(page,/id="resetWallpaperBtn"/);
+  assert.match(page,/Agent 풍벽지 주소 복사/);
+  assert.match(page,/Agent의 별록 풍벽지 주소를 아래에, 별록 액션 주소를 위에/);
+  assert.match(page,/구형 웹 풍벽지 주소는 종료/);
+  assert.match(page,/request\('wallpaper-control'/);
+  assert.match(routes,/"source": "\/dashboard\/wallpaper"/);
+  assert.doesNotMatch(implementation,/const oldPriority|const oldMobile|return html\s*\.replace/);
 });

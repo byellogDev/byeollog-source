@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {ADMIN_HTML_BASE64} from '../lib/admin-html.js';
 import {serializeInlineJson} from '../api/admin.js';
+import {compactDashboardNavigation,dashboardNavigationHtml,dashboardTitle} from '../lib/dashboard-navigation.js';
 
 const decoded=Buffer.from(ADMIN_HTML_BASE64,'base64').toString('utf8');
 const source=await readFile(new URL('../lib/admin-source.html',import.meta.url),'utf8');
@@ -11,7 +12,9 @@ const vercelConfig=JSON.parse(await readFile(new URL('../vercel.json',import.met
 
 test('dashboard uses the same official app icon as the Byeollog main page',()=>{
   assert.equal(decoded,source,'editable dashboard source must match the deployed base64 module');
-  assert.match(decoded,/<title>별록 대시보드<\/title>/);
+  assert.match(decoded,new RegExp(`<title>${dashboardTitle('upbo')}<\\/title>`));
+  assert.equal(compactDashboardNavigation(decoded),dashboardNavigationHtml('upbo'));
+  assert.doesNotMatch(decoded,/\bdocument\.title\s*=/);
   assert.match(decoded,/rel="icon"[^>]+byeollog_app_icon\.png/);
   assert.doesNotMatch(decoded,/byeollog_favicon\.png/);
 });

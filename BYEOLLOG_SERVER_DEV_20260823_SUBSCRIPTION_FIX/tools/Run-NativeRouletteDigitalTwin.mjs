@@ -115,11 +115,11 @@ async function serveAsset(pathname,res){
     const body=await readFile(resolve(repoDir,'dormant-native-roulette-assets','audio','roulette-spin-v1.wav'));
     res.writeHead(200,{'content-type':'audio/wav','content-length':body.length,'cache-control':'no-store','x-content-type-options':'nosniff'});res.end(body);return true;
   }
-  const match=pathname.match(/^\/assets\/roulette-preview\/([a-z0-9_]+)\.png$/);
+  const match=pathname.match(/^\/assets\/roulette-preview\/([a-z0-9_]+)\.webp$/);
   if(match){
     const asset=nativeRouletteTwinAssetByKey(match[1]);if(!asset)return false;
     const body=await readFile(resolve(repoDir,asset.previewUrl.replace(/^\/assets\//,'assets/')));
-    res.writeHead(200,{'content-type':'image/png','content-length':body.length,'cache-control':'no-store','x-content-type-options':'nosniff'});res.end(body);return true;
+    res.writeHead(200,{'content-type':'image/webp','content-length':body.length,'cache-control':'no-store','x-content-type-options':'nosniff'});res.end(body);return true;
   }
   const animationMatch=pathname.match(/^\/assets\/roulette-animation\/([a-z0-9_]+)\.webp$/);
   if(!animationMatch)return false;

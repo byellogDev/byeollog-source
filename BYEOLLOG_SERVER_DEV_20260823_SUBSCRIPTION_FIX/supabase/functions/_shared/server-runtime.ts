@@ -37,6 +37,56 @@ export interface ServerRuntime {
   rest: ServiceRestClient;
 }
 
+const SERVICE_STORAGE_BUCKETS = new Set(["byeollog-signature-assets"]);
+
+export async function createServiceStorageSignedUrl(
+  bucket: string,
+  objectPath: string,
+  expiresInSeconds = 15 * 60
+): Promise<string> {
+  if (!SERVICE_STORAGE_BUCKETS.has(bucket)
+    || !/^workspaces\/[0-9a-f-]{36}\/[A-Za-z0-9._/-]{1,900}$/.test(objectPath)
+    || !Number.isSafeInteger(expiresInSeconds)
+    || expiresInSeconds < 60
+    || expiresInSeconds > 60 * 60) {
+    throw new Error("Invalid service storage signing request");
+  }
+  const { supabaseUrl } = readOffslRuntimePreflight();
+  const serviceKey = Deno.env.get("BYEOLLOG_SUPABASE_SECRET_KEY") ?? requiredEnv("SUPABASE_SERVICE_ROLE_KEY");
+  const encodedPath = objectPath.split("/").map(encodeURIComponent).join("/");
+  const headers = new Headers({
+    apikey: serviceKey,
+    "content-type": "application/json"
+  });
+  if (looksLikeJwt(serviceKey)) headers.set("authorization", `Bearer ${serviceKey}`);
+  const response = await fetch(`${supabaseUrl}/storage/v1/object/sign/${bucket}/${encodedPath}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ expiresIn: expiresInSeconds })
+  });
+  const payload = await response.json().catch(() => null) as { signedURL?: unknown; signedUrl?: unknown } | null;
+  const relative = typeof payload?.signedURL === "string"
+    ? payload.signedURL
+    : typeof payload?.signedUrl === "string" ? payload.signedUrl : null;
+  if (!response.ok || relative === null) throw new Error("Storage signing failed");
+  // Storage returns `/object/sign/...` while the public Storage API is rooted
+  // at `/storage/v1`.  Preserve already-prefixed/absolute responses, but add
+  // that trusted API prefix to the canonical relative response before doing
+  // the exact origin/path check.
+  const normalized = relative.startsWith("/object/sign/")
+    ? `/storage/v1${relative}`
+    : relative;
+  const signed = new URL(normalized, supabaseUrl);
+  const expectedPath = `/storage/v1/object/sign/${bucket}/${encodedPath}`;
+  if (signed.origin !== supabaseUrl
+    || signed.username !== "" || signed.password !== "" || signed.hash !== ""
+    || signed.pathname !== expectedPath
+    || !signed.searchParams.has("token")) {
+    throw new Error("Storage signing returned an invalid URL");
+  }
+  return signed.toString();
+}
+
 function requiredEnv(name: string): string {
   const value = Deno.env.get(name);
   if (!value) throw new Error(`Missing server configuration: ${name}`);

@@ -130,6 +130,17 @@ test("every startup stage keeps its complete Korean title and description", asyn
   assert.match(loading, /SetStage\("별록 시작을 취소하는 중", "현재 준비 작업을 안전하게 마무리하고 있습니다\."\)/);
 });
 
+test("the WebView login window clips its native corners like the main window", async () => {
+  const login = await source("CollectorLoginWebForm.cs");
+
+  assert.match(login, /ApplyRoundedRegion\(24\);/);
+  assert.match(login, /Resize \+= \(_, _\) => ApplyRoundedRegion\(24\);/);
+  assert.match(login, /private void ApplyRoundedRegion\(int radius\)/);
+  assert.match(login, /path\.AddArc\(bounds\.Left, bounds\.Top/);
+  assert.match(login, /path\.AddArc\(bounds\.Right - diameter, bounds\.Bottom - diameter/);
+  assert.match(login, /var previous = Region;\s*Region = new Region\(path\);\s*previous\?\.Dispose\(\);/);
+});
+
 test("collector WebView retries E_ABORT without misreporting a missing runtime", async () => {
   const main = await source("MainForm.cs");
 

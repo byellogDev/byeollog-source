@@ -27,10 +27,15 @@ import {
 import {isJsonRequest,isTrustedMutationOrigin} from '../lib/request-origin.js';
 import {refreshSoopConnection} from '../lib/soop-oauth.js';
 import {createRouletteServiceOverlayToken,rouletteOverlayUrl} from '../lib/soop-roulette-service.js';
+import {loadWallpaperState} from '../lib/wallpaper-service.js';
+import {createWallpaperImageMask} from '../lib/wallpaper-image-mask.js';
+import {WALLPAPER_CANVAS_HEIGHT,WALLPAPER_CANVAS_WIDTH,WALLPAPER_EDITOR_MARGIN_X,WALLPAPER_EDITOR_MARGIN_Y} from '../lib/wallpaper-layout.js';
 import {normalizeSoopSdkRelayEnvelope,SOOP_SDK_RELAY_SCHEMA_VERSION} from '../lib/soop-sdk-relay.js';
 import {ingestNormalizedSoopDonation} from '../lib/soop-gateway-api.js';
 
 const UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const DASHBOARD_NAVIGATION_AUTH={navigation:true,loginPath:'/login?expired=1',retryPath:'/login?check=retry'};
+const WALLPAPER_LAYOUT_SAVE_PROTOCOL=2;
 
 function bodyOf(req){
   if(typeof req.body==='string'){try{return JSON.parse(req.body)}catch{return null}}
@@ -252,7 +257,7 @@ async function handleAgentRolloutStatus(req,res){
 }
 
 async function handleAgentRolloutPage(req,res){
-  const liveSession=await requireCapabilityLive(req,res,'data:read');
+  const liveSession=await requireCapabilityLive(req,res,'data:read',DASHBOARD_NAVIGATION_AUTH);
   if(!liveSession)return;
   res.setHeader('Cache-Control','no-store, private');
   res.setHeader('X-Content-Type-Options','nosniff');
@@ -500,6 +505,116 @@ async function handleProductControlState(req,res){
   }
 }
 
+async function handleWallpaperImageMask(req,res){
+  if(req.method!=='POST'){
+    res.setHeader('Cache-Control','no-store');
+    return res.status(405).json({message:'Method not allowed'});
+  }
+  if(!requireSafeJsonMutation(req,res))return;
+  const session=await requireCapabilityLive(req,res,'data:read');if(!session)return;
+  try{
+    const body=bodyOf(req);if(!body)return res.status(400).json({message:'Invalid JSON body'});
+    const result=await createWallpaperImageMask(body.url);
+    res.setHeader('Content-Type','application/json; charset=utf-8');
+    res.setHeader('Cache-Control','no-store, private');
+    return res.status(200).json({width:result.width,height:result.height,maskWidth:result.maskWidth,maskHeight:result.maskHeight,alpha:result.alpha,density:result.density});
+  }catch(error){
+    res.setHeader('Cache-Control','no-store');
+    return res.status(Number(error?.status)||500).json({message:error?.message||'풍벽지 이미지를 분석하지 못했습니다.'});
+  }
+}
+
+async function handleWallpaperControl(req,res){
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('Content-Type','application/json; charset=utf-8');
+  if(!['GET','POST'].includes(req.method))return res.status(405).json({message:'Method not allowed'});
+  if(req.method==='POST'&&!requireSafeJsonMutation(req,res))return;
+  const capability=req.method==='POST'?'data:write':'data:read';
+  const session=await requireCapabilityLive(req,res,capability);if(!session)return;
+  const workspaceId=await workspaceForSession(session);if(!workspaceId)return res.status(403).json({message:'워크스페이스를 확인할 수 없습니다.'});
+  try{
+    if(req.method==='POST'){
+      const body=bodyOf(req);if(!body)return res.status(400).json({message:'Invalid JSON body'});
+      const action=String(body.action||'');
+      if(action==='reset'){
+        await sb('rpc/rotate_wallpaper_session_v1','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id}});
+      }else if(action==='select-sessions'){
+        const sessionIds=Array.isArray(body.sessionIds)?body.sessionIds.map(value=>String(value||'').trim().toLowerCase()):[];
+        if(sessionIds.length>20||sessionIds.some(id=>!UUID_PATTERN.test(id))||new Set(sessionIds).size!==sessionIds.length){
+          return res.status(400).json({message:'방송 회차 선택 정보가 올바르지 않습니다.'});
+        }
+        await sb('rpc/select_wallpaper_sessions_v1','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id,p_session_ids:sessionIds}});
+      }else if(action==='save-layout'){
+        if(Number(body.layoutSaveProtocol)!==WALLPAPER_LAYOUT_SAVE_PROTOCOL){
+          return res.status(428).json({
+            message:'풍벽지 편집 화면이 갱신되었습니다. 페이지를 새로고침한 뒤 다시 조정해주세요.',
+            code:'wallpaper_editor_upgrade_required'
+          });
+        }
+        const expectedRevision=Number(body.expectedRevision);
+        const tiles=Array.isArray(body.tiles)?body.tiles:[];
+        if(!Number.isSafeInteger(expectedRevision)||expectedRevision<0||tiles.length>216){
+          return res.status(400).json({message:'풍벽지 배치 정보가 올바르지 않습니다.'});
+        }
+        const normalized=[];
+        for(const tile of tiles){
+          const id=String(tile?.id||'').trim().toLowerCase();
+          const nextSide=tile?.nextSide==='left'?'left':tile?.nextSide==='right'?'right':null;
+          const values=['x','y','width','height','columns','rows'].map(key=>Number(tile?.[key]));
+          if(!UUID_PATTERN.test(id)||!nextSide||!values.every(Number.isSafeInteger)
+            ||values[0]<-WALLPAPER_EDITOR_MARGIN_X||values[1]<-WALLPAPER_EDITOR_MARGIN_Y||values[2]<80||values[3]<60
+            ||values[0]+values[2]>WALLPAPER_CANVAS_WIDTH+WALLPAPER_EDITOR_MARGIN_X
+            ||values[1]+values[3]>WALLPAPER_CANVAS_HEIGHT+WALLPAPER_EDITOR_MARGIN_Y
+            ||values[4]<1||values[4]>217||values[5]<1||values[5]>216){
+            return res.status(400).json({message:'풍벽지 카드가 편집 가능 영역을 벗어났습니다.'});
+          }
+          normalized.push({id,x:values[0],y:values[1],width:values[2],height:values[3],columns:values[4],rows:values[5],next_side:nextSide});
+        }
+        if(new Set(normalized.map(tile=>tile.id)).size!==normalized.length)return res.status(400).json({message:'중복된 풍벽지 카드가 있습니다.'});
+        await sb('rpc/save_wallpaper_overlay_layout_v3','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id,p_expected_revision:expectedRevision,p_protocol:WALLPAPER_LAYOUT_SAVE_PROTOCOL,p_tiles:normalized}});
+      }else if(action==='save-visibility'){
+        const expectedRevision=Number(body.expectedRevision);
+        const visibleKeys=Array.isArray(body.visibleKeys)?[...new Set(body.visibleKeys.map(value=>String(value||'').trim()))].sort():[];
+        if(!Number.isSafeInteger(expectedRevision)||expectedRevision<0||visibleKeys.length>500
+          ||visibleKeys.some(key=>!/^(donation|challenge_success|subscription):[1-9][0-9]{0,9}$/.test(key))){
+          return res.status(400).json({message:'풍벽지 표시 목록이 올바르지 않습니다.'});
+        }
+        await sb('rpc/save_wallpaper_visible_keys_v1','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id,p_expected_revision:expectedRevision,p_visible_keys:visibleKeys}});
+      }else if(action==='save-merge-rules'){
+        const expectedRevision=Number(body.expectedRevision),source=Array.isArray(body.mergeRules)?body.mergeRules:[];
+        const mergeRules=source.map(item=>({min:Number(item?.min),max:Number(item?.max)})).sort((a,b)=>a.min-b.min||a.max-b.max);
+        if(!Number.isSafeInteger(expectedRevision)||expectedRevision<0||mergeRules.length>20
+          ||mergeRules.some(item=>!Number.isSafeInteger(item.min)||!Number.isSafeInteger(item.max)||item.min<1||item.max<item.min||item.max>1000000)
+          ||mergeRules.some((item,index)=>index>0&&item.min<=mergeRules[index-1].max)){
+          return res.status(400).json({message:'풍벽지 합병 범위가 올바르지 않습니다.'});
+        }
+        await sb('rpc/save_wallpaper_merge_rules_v1','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id,p_expected_revision:expectedRevision,p_merge_ranges:mergeRules}});
+      }else if(action==='save-size-rules'){
+        const expectedRevision=Number(body.expectedRevision),source=Array.isArray(body.sizeRules)?body.sizeRules:[];
+        const sizeRules=source.map(item=>({min:Number(item?.min),max:Number(item?.max),width:Number(item?.width)})).sort((a,b)=>a.min-b.min||a.max-b.max);
+        if(!Number.isSafeInteger(expectedRevision)||expectedRevision<0||sizeRules.length>20
+          ||sizeRules.some(item=>!Number.isSafeInteger(item.min)||!Number.isSafeInteger(item.max)||!Number.isSafeInteger(item.width)||item.min<1||item.max<item.min||item.max>1000000||item.width<80||item.width>480)
+          ||sizeRules.some((item,index)=>index>0&&item.min<=sizeRules[index-1].max)){
+          return res.status(400).json({message:'풍벽지 크기 범위가 올바르지 않습니다.'});
+        }
+        await sb('rpc/save_wallpaper_size_rules_v1','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id,p_expected_revision:expectedRevision,p_size_ranges:sizeRules}});
+      }else if(action==='auto-arrange'){
+        const expectedRevision=Number(body.expectedRevision);
+        if(!Number.isSafeInteger(expectedRevision)||expectedRevision<0)return res.status(400).json({message:'풍벽지 회차 정보가 올바르지 않습니다.'});
+        await sb('rpc/clear_wallpaper_overlay_layout_v1','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id,p_expected_revision:expectedRevision}});
+      }else return res.status(400).json({message:'풍벽지 요청이 올바르지 않습니다.'});
+    }
+    const state=await loadWallpaperState(workspaceId,{authorizedUserId:session.user_id});
+    const overlayUrl='http://127.0.0.1:43120/overlay/wallpaper';
+    return res.status(200).json({ok:true,...state,overlayUrl,overlayAvailable:true,localAgentOverlay:true,retentionDays:30,maxVisibleTiles:216,layoutSaveProtocol:WALLPAPER_LAYOUT_SAVE_PROTOCOL});
+  }catch(error){
+    if(error?.code==='40001')return res.status(409).json({message:'편집 중 새 후원이 들어왔습니다. 최신 배치를 불러온 뒤 다시 조정해주세요.',code:'wallpaper_revision_conflict'});
+    if(error?.code==='P0002')return res.status(409).json({message:'풍벽지 회차 구성이 바뀌었습니다. 새로고침 후 다시 시도해주세요.',code:'wallpaper_session_changed'});
+    console.error('[wallpaper-control] failed',{code:error?.code||'wallpaper_control_failed'});
+    return res.status(502).json({message:'풍벽지 상태를 처리하지 못했습니다.'});
+  }
+}
+
 function firstRow(value){return Array.isArray(value)?value[0]||null:null}
 function ageMilliseconds(value,now=Date.now()){
   const parsed=Date.parse(value||'');
@@ -520,7 +635,8 @@ async function loadSoopRuntimeStatus(liveSession){
   ]);
   const connection=firstRow(connectionRows),control=firstRow(controlRows),gateway=firstRow(gatewayRows),service=firstRow(serviceRows);
   const heartbeatAgeMs=ageMilliseconds(gateway?.heartbeat_at);
-  const gatewayFresh=heartbeatAgeMs!==null&&heartbeatAgeMs<=45_000;
+  const gatewayFreshLimitMs=gateway?.state==='connected'?150_000:10*60_000;
+  const gatewayFresh=heartbeatAgeMs!==null&&heartbeatAgeMs<=gatewayFreshLimitMs;
   return {
     ok:true,
     connection:{
@@ -738,12 +854,12 @@ async function handleRouletteDraft(req,res){
 }
 
 async function handleProductControlPage(req,res,section){
-  const session=await requireCapabilityLive(req,res,'data:read');if(!session)return;
+  const session=await requireCapabilityLive(req,res,'data:read',DASHBOARD_NAVIGATION_AUTH);if(!session)return;
   res.setHeader('Cache-Control','no-store, private');
   res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('X-Frame-Options','DENY');res.setHeader('Referrer-Policy','no-referrer');
   const nonce=crypto.randomBytes(18).toString('base64url');
   const assetOrigin=rouletteAssetOrigin();
-  res.setHeader('Content-Security-Policy',`default-src 'none'; script-src 'nonce-${nonce}'; script-src-attr 'none'; style-src 'self' 'nonce-${nonce}'; style-src-attr 'none'; img-src 'self' data: ${assetOrigin}; connect-src 'self' ${assetOrigin}; frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'self'`);
+  res.setHeader('Content-Security-Policy',`default-src 'none'; script-src 'nonce-${nonce}'; script-src-attr 'none'; style-src 'self' 'nonce-${nonce}'; style-src-attr 'none'; img-src 'self' data: ${assetOrigin} https://sooplive.com https://*.sooplive.com https://afreecatv.com https://*.afreecatv.com https://afreecatvcdn.com https://*.afreecatvcdn.com; connect-src 'self' ${assetOrigin}; frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'self'`);
   res.setHeader('Content-Type','text/html; charset=utf-8');
   return res.status(200).send(getProductDashboardHtml(nonce,section));
 }
@@ -757,7 +873,9 @@ export default async function handler(req,res){
   const session=getSession(req);
   if(!session){
     res.setHeader('Cache-Control','no-store');
-    if(operation==='context'||operation==='agent-rollout-status')return res.status(401).json({message:'Unauthorized'});
+    const view=String(req.query?.view||'');
+    const isBrowserPage=!operation||view==='agent-rollout'||['roulette','actions','signatures','wallpaper'].includes(view);
+    if(!isBrowserPage)return res.status(401).json({message:'Unauthorized'});
     res.setHeader('Location','/login?expired=1');
     return res.status(302).end();
   }
@@ -765,6 +883,7 @@ export default async function handler(req,res){
   if(operation==='dashboard-bootstrap')return handleDashboardBootstrap(req,res);
   if(operation==='agent-rollout-status')return handleAgentRolloutStatus(req,res);
   if(operation==='product-control-state')return handleProductControlState(req,res);
+  if(operation==='wallpaper-image-mask')return handleWallpaperImageMask(req,res);
   if(operation==='soop-runtime-status')return handleSoopRuntimeStatus(req,res);
   if(operation==='native-roulette-service')return handleNativeRouletteService(req,res);
   if(operation==='weflab-public-import')return handleWeflabPublicImport(req,res);
@@ -772,8 +891,9 @@ export default async function handler(req,res){
   if(operation==='roulette-draft')return handleRouletteDraft(req,res);
   if(operation==='signature-image-upload-ticket'||operation==='signature-image-confirm')return handleSignatureAsset(req,res,operation);
   if(operation==='signature-balloon-registry')return handleSignatureBalloonRegistry(req,res);
+  if(operation==='wallpaper-control')return handleWallpaperControl(req,res);
   if(String(req.query?.view||'')==='agent-rollout')return handleAgentRolloutPage(req,res);
-  if(['roulette','actions','signatures'].includes(String(req.query?.view||'')))return handleProductControlPage(req,res,String(req.query.view));
+  if(['roulette','actions','signatures','wallpaper'].includes(String(req.query?.view||'')))return handleProductControlPage(req,res,String(req.query.view));
 
   if(operation==='context'){
     res.setHeader('Cache-Control','no-store, private');
@@ -851,7 +971,7 @@ export default async function handler(req,res){
   }
 
   const pageStartedAt=performance.now();
-  const liveSession=await requireCapabilityLive(req,res,'data:read');
+  const liveSession=await requireCapabilityLive(req,res,'data:read',DASHBOARD_NAVIGATION_AUTH);
   if(!liveSession)return;
   let initialBootstrap=null;
   try{
