@@ -798,3 +798,22 @@ test("v134 bounds silent Realtime wake recovery without delaying the hot path", 
   assert.match(agent, /RealtimeConnectedRecoveryInterval = TimeSpan\.FromSeconds\(30\)/);
   assert.match(agent, /RealtimeDisconnectedClaimFallback = TimeSpan\.FromSeconds\(2\)/);
 });
+
+test("v135 measures rendered latency without entering the action hot path", async () => {
+  const [build, notes, service, client, agent] = await Promise.all([
+    source("Build-v07135-AutoUpdate.ps1"),
+    source("RELEASE_v07135_DISPLAY_LATENCY_OBSERVABILITY_KO.txt"),
+    source("ByeollogOverlayService.cs"),
+    source("VNextDevelopmentClient.cs"),
+    source("VNextLocalAgent.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7135/);
+  assert.match(build, /byeollog_agent_v07135_DISPLAY_LATENCY_OBSERVABILITY_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.135'/);
+  assert.match(notes, /별도 비동기 큐/);
+  assert.match(notes, /개인정보와 콘텐츠는 계측 데이터에 포함하지 않습니다/);
+  assert.match(service, /requestVideoFrameCallback/);
+  assert.match(service, /requestAnimationFrame\(\(\) => requestAnimationFrame\(resolve\)\)/);
+  assert.match(client, /g3a_agent_direct_display_observation_v1/);
+  assert.match(agent, /_pendingDisplayObservations\) > 16/);
+});

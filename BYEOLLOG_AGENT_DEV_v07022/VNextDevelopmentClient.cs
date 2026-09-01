@@ -1091,6 +1091,62 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         }
     }
 
+    public async Task<bool> ReportDisplayObservationAsync(
+        string deviceId,
+        string deviceSecret,
+        ByeollogOverlayDisplayObservation observation,
+        CancellationToken cancellationToken = default)
+    {
+        if (!Guid.TryParseExact(deviceId, "D", out var parsedDeviceId)
+            || observation.Kind is not ("action_first_frame" or "wallpaper_ready")
+            || observation.Revision < 0
+            || observation.LocalLatencyMs is < 0 or > 120_000)
+            throw new VNextDevelopmentException(
+                "화면 지연 계측값이 올바르지 않습니다.",
+                code: "invalid_display_observation");
+        string? executionId = null;
+        long? wallpaperRevision = null;
+        if (observation.Kind == "action_first_frame")
+        {
+            if (!Guid.TryParseExact(observation.ExecutionId, "D", out var parsedExecutionId))
+                throw new VNextDevelopmentException(
+                    "액션 화면 계측 식별값이 올바르지 않습니다.",
+                    code: "invalid_display_observation");
+            executionId = parsedExecutionId.ToString("D");
+        }
+        else
+        {
+            if (observation.ExecutionId is not null)
+                throw new VNextDevelopmentException(
+                    "풍벽지 화면 계측 식별값이 올바르지 않습니다.",
+                    code: "invalid_display_observation");
+            wallpaperRevision = observation.Revision;
+        }
+
+        var normalizedSecret = NormalizeDeviceSecret(deviceSecret, "Agent 장치 키");
+        var responseText = await SendDirectRpcAsync(
+            "g3a_agent_direct_display_observation_v1",
+            new
+            {
+                p_workspace_id = WorkspaceId,
+                p_device_id = parsedDeviceId.ToString("D"),
+                p_device_secret_hash = DeviceSecretSha256(normalizedSecret),
+                p_observation_kind = observation.Kind,
+                p_execution_id = executionId,
+                p_wallpaper_revision = wallpaperRevision,
+                p_agent_observed_at = observation.ObservedAtUtc,
+                p_local_latency_ms = observation.LocalLatencyMs
+            },
+            cancellationToken,
+            preserveNulls: true);
+        using var document = JsonDocument.Parse(responseText);
+        if (document.RootElement.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+            throw new VNextDevelopmentException(
+                "화면 지연 계측 응답이 올바르지 않습니다.",
+                code: "invalid_agent_response");
+        return document.RootElement.GetBoolean();
+    }
+
     public async Task<bool> HasPendingAgentExecutionAsync(
         string deviceId,
         string deviceSecret,

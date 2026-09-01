@@ -107,6 +107,7 @@ internal sealed class VNextLocalAgent : IDisposable
     private readonly SemaphoreSlim _overlayAssetSyncGate = new(1, 1);
     private readonly SemaphoreSlim _wallpaperFetchGate = new(1, 1);
     private readonly SemaphoreSlim _wallpaperSyncGate = new(1, 1);
+    private readonly SemaphoreSlim _displayObservationGate = new(1, 1);
     private readonly SemaphoreSlim _outboxFlushGate = new(1, 1);
     private readonly SemaphoreSlim _executionSlots = new(MaximumConcurrentExecutions, MaximumConcurrentExecutions);
     private readonly SemaphoreSlim _raffleSpeechPrewarmGate = new(1, 1);
@@ -125,6 +126,7 @@ internal sealed class VNextLocalAgent : IDisposable
     private DateTimeOffset _nextDeviceStatusAt = DateTimeOffset.MinValue;
     private int _resourcesDisposed;
     private int _executionClaimRequested = 1;
+    private int _pendingDisplayObservations;
 
     public VNextLocalAgent(VNextDevelopmentClient client, CollectorStorage collectorStorage)
     {
@@ -155,6 +157,7 @@ internal sealed class VNextLocalAgent : IDisposable
                 handler: null,
                 authenticatedDownloader: _client.DownloadAuthenticatedWallpaperImageAsync);
             _overlay = new ByeollogOverlayService(collectorStorage, _overlayAssets, _wallpaper);
+            _overlay.DisplayObserved += QueueDisplayObservation;
             _overlay.TryStart();
             _timedMuteActions = new TimedMuteActionAdapter(collectorStorage, _overlay);
             _raffleWinnerSpeechCache = new RaffleWinnerSpeechCache(
@@ -915,6 +918,7 @@ internal sealed class VNextLocalAgent : IDisposable
             var applied = false;
             try
             {
+                _overlay.NotifyWallpaperApplyStarted(sync.Revision);
                 if (await _wallpaper.ApplyAsync(sync, cancellationToken))
                 {
                     applied = true;
@@ -1447,6 +1451,8 @@ internal sealed class VNextLocalAgent : IDisposable
             return new VNextAgentOutcome(false, false, null, freshnessError);
         }
 
+        using var displayObservationScope = _overlay.BeginExecution(job.ExecutionId);
+
         if (job.ActionType == "obs.set_input_mute")
             return await _obsActions.ExecuteSetInputMuteAsync(actionParameters, cancellationToken);
 
@@ -1534,6 +1540,49 @@ internal sealed class VNextLocalAgent : IDisposable
     private static string[] SupportedActionTypes() =>
         VNextAgentCapabilities.ForWindowsAgent();
 
+    private void QueueDisplayObservation(ByeollogOverlayDisplayObservation observation)
+    {
+        if (_disposed || _stop.IsCancellationRequested || !_deviceRegistered) return;
+        if (Interlocked.Increment(ref _pendingDisplayObservations) > 16)
+        {
+            Interlocked.Decrement(ref _pendingDisplayObservations);
+            return;
+        }
+
+        _ = Task.Run(async () =>
+        {
+            var acquired = false;
+            try
+            {
+                using var timeout = CancellationTokenSource.CreateLinkedTokenSource(_stop.Token);
+                timeout.CancelAfter(TimeSpan.FromSeconds(8));
+                await _displayObservationGate.WaitAsync(timeout.Token);
+                acquired = true;
+                if (!_deviceRegistered || _stop.IsCancellationRequested) return;
+                _ = await _client.ReportDisplayObservationAsync(
+                    _deviceId,
+                    _deviceSecret,
+                    observation,
+                    timeout.Token);
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception ex)
+            {
+                // 계측은 표시·ACK 경로 밖의 best-effort 작업이다. 실패 유형만 남기고
+                // 액션이나 풍벽지 처리를 재시도/지연시키지 않는다.
+                _collectorStorage.Log("화면 지연 계측 보류 · type=" + ex.GetType().Name);
+            }
+            finally
+            {
+                if (acquired)
+                {
+                    try { _displayObservationGate.Release(); } catch (ObjectDisposedException) { }
+                }
+                Interlocked.Decrement(ref _pendingDisplayObservations);
+            }
+        }, CancellationToken.None);
+    }
+
     public async Task<bool> WaitForAckAsync(string executionId, TimeSpan timeout, CancellationToken cancellationToken = default)
     {
         var deadline = DateTimeOffset.UtcNow + timeout;
@@ -1598,6 +1647,7 @@ internal sealed class VNextLocalAgent : IDisposable
         if (_disposed) return;
         _disposed = true;
         _client.SessionChanged -= Client_SessionChanged;
+        _overlay.DisplayObserved -= QueueDisplayObservation;
         _stop.Cancel();
         _wakeListener.Dispose();
         Wake();
@@ -1632,6 +1682,7 @@ internal sealed class VNextLocalAgent : IDisposable
         _overlayAssetSyncGate.Dispose();
         _wallpaperFetchGate.Dispose();
         _wallpaperSyncGate.Dispose();
+        _displayObservationGate.Dispose();
         _outboxFlushGate.Dispose();
         _executionSlots.Dispose();
         _overlay.Dispose();

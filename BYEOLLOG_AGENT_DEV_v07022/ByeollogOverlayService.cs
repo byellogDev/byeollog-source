@@ -55,6 +55,13 @@ internal sealed record ByeollogOverlayDisplayEvidence(
         Math.Max(0, ActiveStateRequestsAfter - ActiveStateRequestsBefore);
 }
 
+internal sealed record ByeollogOverlayDisplayObservation(
+    string Kind,
+    long Revision,
+    string? ExecutionId,
+    DateTimeOffset ObservedAtUtc,
+    int LocalLatencyMs);
+
 internal sealed record ByeollogSynchronizedDisplayResult<T>(
     T SideEffectResult,
     ByeollogOverlayDisplayEvidence OverlayEvidence);
@@ -467,7 +474,82 @@ internal sealed class ByeollogOverlayService : IDisposable
     const WALLPAPER_MIN_WIDTH = 80, WALLPAPER_MIN_HEIGHT = 60;
     const WALLPAPER_CANVAS_MARGIN = 4, WALLPAPER_GROUP_GAP = 2;
     let wallpaperRevision = -1;
+    let pendingActionObservation = -1, reportedActionObservation = -1;
+    let pendingWallpaperObservation = -1, reportedWallpaperObservation = -1;
     const wallpaperGroupNodes = new Map();
+    function nextPaint() {
+      return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }
+    function boundedEvent(target, successEvent, failureEvent, timeoutMs = 5000) {
+      return new Promise((resolve,reject) => {
+        const timer = setTimeout(() => { cleanup(); reject(new Error('media timeout')); }, timeoutMs);
+        const success = () => { cleanup(); resolve(); };
+        const failure = () => { cleanup(); reject(new Error('media failed')); };
+        const cleanup = () => {
+          clearTimeout(timer);
+          target.removeEventListener(successEvent,success);
+          target.removeEventListener(failureEvent,failure);
+        };
+        target.addEventListener(successEvent,success,{once:true});
+        target.addEventListener(failureEvent,failure,{once:true});
+      });
+    }
+    async function imageReady(image) {
+      if (!image || !image.getAttribute('src')) return true;
+      try {
+        if (!image.complete) await boundedEvent(image,'load','error');
+        if (!image.naturalWidth) return false;
+        if (typeof image.decode === 'function') await image.decode();
+        return image.naturalWidth > 0;
+      } catch { return false; }
+    }
+    async function videoFrameReady(video) {
+      if (!video || !video.getAttribute('src')) return false;
+      try {
+        if (video.readyState < 2) await boundedEvent(video,'loadeddata','error');
+        if (typeof video.requestVideoFrameCallback === 'function') {
+          await new Promise((resolve,reject) => {
+            const timer = setTimeout(() => reject(new Error('video frame timeout')),5000);
+            video.requestVideoFrameCallback(() => { clearTimeout(timer); resolve(); });
+          });
+        }
+        return video.readyState >= 2;
+      } catch { return false; }
+    }
+    function reportDisplayObserved(kind, revision) {
+      fetch('/overlay/display-observed?kind=' + encodeURIComponent(kind)
+        + '&revision=' + encodeURIComponent(revision), { cache:'no-store', keepalive:true }).catch(() => {});
+    }
+    function scheduleActionObservation(revision, exactRevision, media, visibleTarget) {
+      if (!Number.isInteger(revision) || revision < 0 || reportedActionObservation === revision
+          || pendingActionObservation === revision || !visibleTarget) return;
+      pendingActionObservation = revision;
+      void (async () => {
+        const ready = media instanceof HTMLVideoElement
+          ? await videoFrameReady(media)
+          : await imageReady(media);
+        if (!ready) return;
+        await nextPaint();
+        if (currentRevision !== exactRevision || pendingActionObservation !== revision
+            || !visibleTarget.classList.contains('visible')) return;
+        reportedActionObservation = revision;
+        reportDisplayObserved('action', revision);
+      })().finally(() => { if (pendingActionObservation === revision) pendingActionObservation = -1; });
+    }
+    function scheduleWallpaperObservation(revision) {
+      if (!Number.isInteger(revision) || revision < 0 || reportedWallpaperObservation === revision
+          || pendingWallpaperObservation === revision) return;
+      pendingWallpaperObservation = revision;
+      const images = [...wallpaperCanvas.querySelectorAll('img')].filter(image => image.getAttribute('src'));
+      void (async () => {
+        const ready = await Promise.all(images.map(imageReady));
+        if (ready.some(value => !value)) return;
+        await nextPaint();
+        if (wallpaperRevision !== revision || pendingWallpaperObservation !== revision) return;
+        reportedWallpaperObservation = revision;
+        reportDisplayObserved('wallpaper', revision);
+      })().finally(() => { if (pendingWallpaperObservation === revision) pendingWallpaperObservation = -1; });
+    }
     function wallpaperResize(width, height) {
       wallpaperCanvas.style.width = width + 'px';
       wallpaperCanvas.style.height = height + 'px';
@@ -642,6 +724,7 @@ internal sealed class ByeollogOverlayService : IDisposable
         }
       }
       wallpaperRevision = Number(state.revision) || 0;
+      scheduleWallpaperObservation(wallpaperRevision);
     }
     async function refreshWallpaper() {
       try {
@@ -662,6 +745,10 @@ internal sealed class ByeollogOverlayService : IDisposable
           const flashbang = flashbangIntensity(state.assetKey);
           const visualEffect = visualEffectKind(state.assetKey);
           const targetAsset = raffle ? raffleAsset : flashbang ? flashbangAsset : visualEffect ? effectAsset : asset;
+          const displayMedia = visualEffect === 'water-splash' ? waterVfxVideo
+            : visualEffect === 'fireworks' ? fireworksVfxVideo : targetAsset;
+          const visibleTarget = raffle ? raffleStage : flashbang ? flashbangStage
+            : visualEffect === 'audio-only' ? null : visualEffect ? effectStage : asset;
           const nextRevision = state.revision + ':' + state.assetToken + ':' + state.assetVersion + ':' + state.contentSha256 + ':' + state.assetKey + ':' + state.positionX + ':' + state.positionY + ':' + state.scalePercent;
           if (currentRevision !== nextRevision) {
             currentRevision = nextRevision;
@@ -754,6 +841,7 @@ internal sealed class ByeollogOverlayService : IDisposable
             stopAudio();
             asset.classList.add('visible');
           }
+          scheduleActionObservation(Number(state.revision), nextRevision, displayMedia, visibleTarget);
         } else {
           hide();
         }
@@ -849,6 +937,10 @@ internal sealed class ByeollogOverlayService : IDisposable
     private readonly object _stateGate = new();
     private readonly object _previewGate = new();
     private readonly object _automationGate = new();
+    private readonly AsyncLocal<string?> _executionContext = new();
+    private readonly SortedDictionary<long, DisplayObservationContext> _actionDisplayContexts = [];
+    private readonly SortedDictionary<long, DisplayObservationContext> _wallpaperDisplayContexts = [];
+    private readonly HashSet<string> _reportedDisplayObservations = new(StringComparer.Ordinal);
     private AutomationDisplaySession? _activeAutomation;
     private CancellationTokenSource? _previewCancellation;
     private int _automationDisplays;
@@ -870,6 +962,32 @@ internal sealed class ByeollogOverlayService : IDisposable
     private long _lastCurrentDocumentActiveStateRequestAtMs;
     private long _lastAssetRequestAtMs;
     private bool _disposed;
+
+    private sealed record DisplayObservationContext(
+        string? ExecutionId,
+        long StartedTimestamp);
+
+    private sealed class ExecutionContextScope : IDisposable
+    {
+        private readonly AsyncLocal<string?> _context;
+        private readonly string? _previous;
+        private int _disposed;
+
+        public ExecutionContextScope(AsyncLocal<string?> context, string value)
+        {
+            _context = context;
+            _previous = context.Value;
+            context.Value = value;
+        }
+
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
+                _context.Value = _previous;
+        }
+    }
+
+    public event Action<ByeollogOverlayDisplayObservation>? DisplayObserved;
 
     private sealed class ActiveOverlayAudio
     {
@@ -969,6 +1087,25 @@ internal sealed class ByeollogOverlayService : IDisposable
     public string OverlayUrl => $"http://127.0.0.1:{Port}/overlay";
     public string WallpaperOverlayUrl => $"http://127.0.0.1:{Port}/overlay/wallpaper";
     public bool IsRunning => _acceptLoop is not null && !_acceptLoop.IsCompleted && !_stop.IsCancellationRequested;
+
+    public IDisposable BeginExecution(string executionId)
+    {
+        if (!Guid.TryParseExact(executionId, "D", out var parsed))
+            throw new ArgumentException("Execution identity is invalid.", nameof(executionId));
+        return new ExecutionContextScope(_executionContext, parsed.ToString("D"));
+    }
+
+    public void NotifyWallpaperApplyStarted(long revision)
+    {
+        if (revision < 0) return;
+        lock (_stateGate)
+        {
+            _wallpaperDisplayContexts[revision] = new DisplayObservationContext(
+                null,
+                System.Diagnostics.Stopwatch.GetTimestamp());
+            TrimDisplayContexts(_wallpaperDisplayContexts);
+        }
+    }
 
     public bool TryResolveAsset(
         string assetKey,
@@ -1863,6 +2000,7 @@ internal sealed class ByeollogOverlayService : IDisposable
         lock (_stateGate)
         {
             _revision++;
+            RecordActionDisplayContext(_revision);
             _activeContent = content;
             _activePlacement = placement;
             _activePresentation = presentation;
@@ -1881,6 +2019,7 @@ internal sealed class ByeollogOverlayService : IDisposable
         lock (_stateGate)
         {
             _revision++;
+            RecordActionDisplayContext(_revision);
             _activeContent = content;
             _activePlacement = placement;
             _activePresentation = presentation;
@@ -1888,6 +2027,16 @@ internal sealed class ByeollogOverlayService : IDisposable
             _hideAtUtc = hideAtUtc;
             return _activeAudio;
         }
+    }
+
+    private void RecordActionDisplayContext(long revision)
+    {
+        var executionId = _executionContext.Value;
+        if (executionId is null) return;
+        _actionDisplayContexts[revision] = new DisplayObservationContext(
+            executionId,
+            System.Diagnostics.Stopwatch.GetTimestamp());
+        TrimDisplayContexts(_actionDisplayContexts);
     }
 
     private void SetInactive()
@@ -2139,6 +2288,17 @@ internal sealed class ByeollogOverlayService : IDisposable
                         timeout.Token);
                     return;
                 }
+                if (path == "/overlay/display-observed")
+                {
+                    if (!TryDisplayObservationFromTarget(target, out var observationKind, out var observationRevision))
+                    {
+                        await WriteResponseAsync(stream, 400, "application/json; charset=utf-8", Encoding.UTF8.GetBytes("{\"ok\":false}"), headOnly, timeout.Token);
+                        return;
+                    }
+                    RecordDisplayObservation(observationKind, observationRevision);
+                    await WriteResponseAsync(stream, 200, "application/json; charset=utf-8", Encoding.UTF8.GetBytes("{\"ok\":true}"), headOnly, timeout.Token);
+                    return;
+                }
                 if (path.StartsWith("/overlay/wallpaper-assets/", StringComparison.Ordinal))
                 {
                     var token = Uri.UnescapeDataString(path["/overlay/wallpaper-assets/".Length..]);
@@ -2386,6 +2546,69 @@ internal sealed class ByeollogOverlayService : IDisposable
         {
             return false;
         }
+    }
+
+    private static bool TryDisplayObservationFromTarget(
+        string target,
+        out string kind,
+        out long revision)
+    {
+        kind = "";
+        revision = -1;
+        var queryIndex = target.IndexOf('?');
+        if (queryIndex < 0 || queryIndex == target.Length - 1) return false;
+        var parts = target[(queryIndex + 1)..].Split('&', StringSplitOptions.None);
+        if (parts.Length != 2
+            || !parts[0].StartsWith("kind=", StringComparison.Ordinal)
+            || !parts[1].StartsWith("revision=", StringComparison.Ordinal)) return false;
+        try
+        {
+            kind = Uri.UnescapeDataString(parts[0]["kind=".Length..]);
+            var revisionText = Uri.UnescapeDataString(parts[1]["revision=".Length..]);
+            return kind is "action" or "wallpaper"
+                && long.TryParse(
+                    revisionText,
+                    System.Globalization.NumberStyles.None,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out revision)
+                && revision >= 0;
+        }
+        catch (UriFormatException)
+        {
+            return false;
+        }
+    }
+
+    private void RecordDisplayObservation(string kind, long revision)
+    {
+        ByeollogOverlayDisplayObservation? observation = null;
+        lock (_stateGate)
+        {
+            var contexts = kind == "action" ? _actionDisplayContexts : _wallpaperDisplayContexts;
+            if (!contexts.TryGetValue(revision, out var context)) return;
+            var observationKind = kind == "action" ? "action_first_frame" : "wallpaper_ready";
+            var key = observationKind + ":" + revision.ToString(
+                System.Globalization.CultureInfo.InvariantCulture);
+            if (!_reportedDisplayObservations.Add(key)) return;
+            var latency = System.Diagnostics.Stopwatch.GetElapsedTime(context.StartedTimestamp);
+            observation = new ByeollogOverlayDisplayObservation(
+                observationKind,
+                revision,
+                context.ExecutionId,
+                DateTimeOffset.UtcNow,
+                (int)Math.Clamp(Math.Round(latency.TotalMilliseconds), 0, 120_000));
+            contexts.Remove(revision);
+            while (_reportedDisplayObservations.Count > 256)
+                _reportedDisplayObservations.Remove(_reportedDisplayObservations.First());
+        }
+
+        try { DisplayObserved?.Invoke(observation); }
+        catch { /* Best-effort telemetry must never affect the Browser Source. */ }
+    }
+
+    private static void TrimDisplayContexts(SortedDictionary<long, DisplayObservationContext> contexts)
+    {
+        while (contexts.Count > 64) contexts.Remove(contexts.First().Key);
     }
 
     private OverlayAssetContent? ActiveContentForToken(

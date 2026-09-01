@@ -32,6 +32,10 @@ test("Agent owns a loopback-only Browser Source with observed liveness and three
   assert.match(service, /OverlayAssetContent\? _activeContent/);
   assert.match(service, /WaitForBrowserSourceAsync/);
   assert.match(service, /LastStateRequestAtUtc/);
+  assert.match(service, /\/overlay\/display-observed\?kind=/);
+  assert.match(service, /requestAnimationFrame\(\(\) => requestAnimationFrame\(resolve\)\)/);
+  assert.match(service, /typeof image\.decode === 'function'/);
+  assert.match(service, /DisplayObserved\?\.Invoke\(observation\)/);
   assert.doesNotMatch(service, /IPAddress\.Any|0\.0\.0\.0/);
   assert.match(project, /<Version>0\.7\.0\.[0-9]+<\/Version>/);
   assert.match(project, /byeollog_mic_off_overlay\.svg/);
@@ -109,6 +113,25 @@ test("Agent reports bounded capabilities and packaged overlay-image readiness fo
   assert.match(agent, /overlayStatus\.ManagedCount/);
   assert.match(agent, /ReadyRevisionsAsync/);
   assert.match(publish, /byeollog_agent_v07032_AUTO_UPDATE_BOOTSTRAP_WIN_X64\.zip/);
+});
+
+test("first-frame metrics are bounded, authenticated, and isolated from action delivery", async () => {
+  const [service, client, agent] = await Promise.all([
+    readFile(new URL("ByeollogOverlayService.cs", root), "utf8"),
+    readFile(new URL("VNextDevelopmentClient.cs", root), "utf8"),
+    readFile(new URL("VNextLocalAgent.cs", root), "utf8")
+  ]);
+  assert.match(service, /internal sealed record ByeollogOverlayDisplayObservation/);
+  assert.match(service, /BeginExecution\(string executionId\)/);
+  assert.match(service, /NotifyWallpaperApplyStarted\(long revision\)/);
+  assert.match(client, /g3a_agent_direct_display_observation_v1/);
+  assert.match(client, /p_device_secret_hash = DeviceSecretSha256/);
+  assert.match(agent, /Interlocked\.Increment\(ref _pendingDisplayObservations\) > 16/);
+  assert.match(agent, /timeout\.CancelAfter\(TimeSpan\.FromSeconds\(8\)\)/);
+  assert.match(agent, /using var displayObservationScope = _overlay\.BeginExecution\(job\.ExecutionId\)/);
+  assert.match(agent, /_overlay\.NotifyWallpaperApplyStarted\(sync\.Revision\)/);
+  assert.match(agent, /catch \(Exception ex\)[\s\S]{0,260}화면 지연 계측 보류/);
+  assert.doesNotMatch(agent, /await\s+QueueDisplayObservation/);
 });
 
 test("Agent reports automation and Weflab health in one low-cost authenticated heartbeat", async () => {

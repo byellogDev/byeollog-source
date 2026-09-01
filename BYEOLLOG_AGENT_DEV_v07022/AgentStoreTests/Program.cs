@@ -2650,6 +2650,12 @@ internal static class Program
         using (var http = new HttpClient(new HttpClientHandler { UseProxy = false }))
         {
             var overlayHtml = await http.GetStringAsync(service.OverlayUrl);
+            True(overlayHtml.Contains("/overlay/display-observed?kind=", StringComparison.Ordinal),
+                "the Browser Source reports a privacy-safe local display observation");
+            True(overlayHtml.Contains("requestAnimationFrame(() => requestAnimationFrame(resolve))", StringComparison.Ordinal),
+                "display telemetry waits through two paint frames instead of measuring DOM mutation");
+            True(overlayHtml.Contains("typeof image.decode === 'function'", StringComparison.Ordinal),
+                "image-backed displays are measured only after decode completes");
             True(overlayHtml.Contains("id=\"wallpaper-layer\"", StringComparison.Ordinal),
                 "the existing OBS document contains the persistent wallpaper layer");
             True(overlayHtml.Contains("#wallpaper-layer { position:absolute; inset:0; display:none; overflow:hidden; pointer-events:none; z-index:1; }", StringComparison.Ordinal),
@@ -2693,6 +2699,61 @@ internal static class Program
         True(
             service.Telemetry().LastStateRequestAtUtc is not null,
             "overlay telemetry records the last real browser-source state request");
+
+        var displayObservations = new ConcurrentQueue<ByeollogOverlayDisplayObservation>();
+        service.DisplayObserved += displayObservations.Enqueue;
+        var displayExecutionId = Guid.NewGuid().ToString("D");
+        Task observedAction;
+        long observedActionRevision;
+        using (service.BeginExecution(displayExecutionId))
+        {
+            observedAction = service.ShowAsync(
+                OverlayAssetCache.MicrophoneOffAssetKey,
+                1_000,
+                expectedAsset: null,
+                CancellationToken.None);
+            await WaitUntilAsync(() => service.Snapshot().Active, TimeSpan.FromSeconds(2));
+            observedActionRevision = service.Snapshot().Revision;
+        }
+        using (var http = new HttpClient(new HttpClientHandler { UseProxy = false }))
+        {
+            using var reported = await http.GetAsync(
+                $"{service.OverlayUrl}/display-observed?kind=action&revision={observedActionRevision}");
+            Equal(HttpStatusCode.OK, reported.StatusCode,
+                "a loopback action first-frame observation is accepted");
+            using var duplicate = await http.GetAsync(
+                $"{service.OverlayUrl}/display-observed?kind=action&revision={observedActionRevision}");
+            Equal(HttpStatusCode.OK, duplicate.StatusCode,
+                "a duplicate browser observation is harmless and idempotent");
+            service.NotifyWallpaperApplyStarted(17);
+            using var wallpaperReported = await http.GetAsync(
+                $"{service.OverlayUrl}/display-observed?kind=wallpaper&revision=17");
+            Equal(HttpStatusCode.OK, wallpaperReported.StatusCode,
+                "a loopback wallpaper-ready observation is accepted");
+            using var malformed = await http.GetAsync(
+                $"{service.OverlayUrl}/display-observed?revision=17&kind=wallpaper");
+            Equal(HttpStatusCode.BadRequest, malformed.StatusCode,
+                "display telemetry rejects reordered or ambiguous query parameters");
+        }
+        await observedAction.WaitAsync(TimeSpan.FromSeconds(3));
+        Equal(2, displayObservations.Count,
+            "one action and one wallpaper revision each emit exactly one observation");
+        True(displayObservations.TryDequeue(out var actionObservation),
+            "the action display observation is available");
+        Equal("action_first_frame", actionObservation?.Kind,
+            "action observations have a sealed non-PII kind");
+        Equal(displayExecutionId, actionObservation?.ExecutionId,
+            "the rendered action revision remains correlated to its execution");
+        Equal(observedActionRevision, actionObservation?.Revision,
+            "the rendered action revision is preserved");
+        True(displayObservations.TryDequeue(out var wallpaperObservation),
+            "the wallpaper display observation is available");
+        Equal("wallpaper_ready", wallpaperObservation?.Kind,
+            "wallpaper observations have a sealed non-PII kind");
+        Equal<string?>(null, wallpaperObservation?.ExecutionId,
+            "wallpaper telemetry does not invent an action identity");
+        Equal(17L, wallpaperObservation?.Revision,
+            "the applied wallpaper revision is preserved");
 
         True(
             ByeollogOverlayService.IsMatchingLoopbackOverlayUrl(
