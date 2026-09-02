@@ -11,6 +11,7 @@ import {
   getRouletteServiceOverlayHtml,
   overlayTtsText,
   peekRouletteOverlayFollowup,
+  recordRouletteChatDryRun,
   ROULETTE_OVERLAY_CLIENT_VERSION,
   rouletteOverlayUrl,
   touchRouletteOverlayClient,
@@ -135,6 +136,24 @@ test('overlay acknowledgement is tied to workspace, command and lease owner',asy
   assert.deepEqual(calls[0].options.body,{p_workspace_id:workspaceId,p_token_version:tokenVersion,p_command_id:commandId,p_client_id:'client-1',p_succeeded:true,p_error:null});
 });
 
+test('roulette result reveal records a dry-run chat command through the service-only RPC',async()=>{
+  const calls=[];
+  const commandId='8d66048f-d838-4efc-b2b1-6123d37c3468';
+  const sbImpl=async(table,path,options)=>{
+    calls.push({table,path,options});
+    return {status:'recorded',message:'룰렛 결과 : 아봉 10초'};
+  };
+  const result=await recordRouletteChatDryRun(
+    {wid:workspaceId,tv:tokenVersion},'overlay-client-1',commandId,{sbImpl});
+  assert.equal(result.invalid,false);
+  assert.equal(result.result.message,'룰렛 결과 : 아봉 10초');
+  assert.equal(calls[0].table,'rpc/record_native_roulette_chat_dry_run_v1');
+  assert.deepEqual(calls[0].options.body,{
+    p_workspace_id:workspaceId,p_token_version:tokenVersion,
+    p_command_id:commandId,p_client_id:'overlay-client-1'
+  });
+});
+
 test('production common overlay keeps a series card alive and reads its tracked message last',()=>{
   const html=getRouletteServiceOverlayHtml('nonce');
   const scripts=[...html.matchAll(/<script nonce="nonce">([\s\S]*?)<\/script>/g)].map(match=>match[1]);
@@ -161,7 +180,9 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/scheduleCloseAfter\(15000\)/);
   assert.match(html,/if\(position\.current<position\.total\)\{scheduleCloseAfter\(15000\)/);
   assert.match(html,/const landingMs=setWinner\(payload\.resultText/);
-  assert.match(html,/await sleep\(landingMs\);await speak/);
+  assert.match(html,/await sleep\(landingMs\);void reportResultReveal\(command\);await speak/);
+  assert.match(html,/action:'result-revealed',commandId:command\.id/);
+  assert.doesNotMatch(html,/await reportResultReveal\(command\)/);
   assert.match(html,/loadImage\(image,data\.url,'ceremony'\)/);
   assert.match(html,/id="ceremonyPanel" class="ceremonyPanel"/);
   assert.match(html,/id="ceremonyDonorName"/);
@@ -252,6 +273,20 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.doesNotMatch(html,/>별록 공통 오버레이 연결 중<|>별록 공통 오버레이 연결됨</);
   assert.doesNotMatch(html,/function previewPart\(/);
   assert.doesNotMatch(html,/실험|4시간|roulette-public-asset/);
+});
+
+test('chatbot dry-run migration is reveal-gated, idempotent and cannot send live chat',async()=>{
+  const sql=await readFile(new URL('../supabase/migrations/20260902123052_add_roulette_chat_dry_run_reveal_outbox.sql',import.meta.url),'utf8');
+  assert.match(sql,/create table byeollog_automation\.native_roulette_chat_dry_runs_v1/i);
+  assert.match(sql,/delivery_mode text not null default 'dry_run'/i);
+  assert.match(sql,/unique\(spin_id\)/i);
+  assert.match(sql,/command\.command_kind='roulette_spin'/i);
+  assert.match(sql,/command\.status not in \('processing','succeeded'\)/i);
+  assert.match(sql,/processed_at is null[\s\S]*processed_at<clock_timestamp\(\)-interval '5 minutes'/i);
+  assert.match(sql,/v_message:='룰렛 결과 : '\|\|btrim\(v_spin\.result_text\)/i);
+  assert.match(sql,/on conflict\(spin_id\) do nothing/i);
+  assert.match(sql,/grant execute on function public\.record_native_roulette_chat_dry_run_v1[\s\S]*to service_role/i);
+  assert.doesNotMatch(sql,/sendMessage|sendManagerMessage/i);
 });
 
 test('v8 uses the maximum rendered card envelope as a stable OBS source boundary',()=>{

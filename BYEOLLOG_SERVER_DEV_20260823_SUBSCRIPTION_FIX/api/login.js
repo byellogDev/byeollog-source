@@ -8,7 +8,7 @@ import {rejectMaintenanceWrite} from '../lib/maintenance.js';
 import {isJsonRequest,isTrustedMutationOrigin} from '../lib/request-origin.js';
 import {handleSoopOAuthCallback,handleSoopOAuthDiagnose,handleSoopOAuthDisconnect,handleSoopOAuthStart,handleSoopOAuthStatus} from '../lib/soop-oauth.js';
 import {handleSoopGatewayIngress} from '../lib/soop-gateway-api.js';
-import {claimOverlayTtsSynthesis,claimRouletteOverlayCommand,finishOverlayTtsSynthesis,finishRouletteOverlayCommand,getRouletteServiceOverlayHtml,peekRouletteOverlayFollowup,touchRouletteOverlayClient,validateRouletteOverlayService,verifyOverlayTtsAuthorization,verifyRouletteServiceOverlayToken} from '../lib/soop-roulette-service.js';
+import {claimOverlayTtsSynthesis,claimRouletteOverlayCommand,finishOverlayTtsSynthesis,finishRouletteOverlayCommand,getRouletteServiceOverlayHtml,peekRouletteOverlayFollowup,recordRouletteChatDryRun,touchRouletteOverlayClient,validateRouletteOverlayService,verifyOverlayTtsAuthorization,verifyRouletteServiceOverlayToken} from '../lib/soop-roulette-service.js';
 import {MANAGED_TTS_AUDIO_FRAME,MANAGED_TTS_END_FRAME,MANAGED_TTS_ERROR_FRAME,MANAGED_TTS_SAMPLE_RATE,managedOverlayTtsRuntime,managedTtsFrame} from '../lib/managed-overlay-tts.js';
 import {rouletteAssetOrigin} from '../lib/roulette-custom-assets.js';
 import {VERCEL_AUDIO_ASSET} from '../lib/vercel-binary-assets/audio-asset.js';
@@ -187,6 +187,13 @@ async function handleSoopRouletteOverlayPoll(req,res){
         const peeked=await peekRouletteOverlayFollowup(payload,clientId,eventId);
         if(peeked.invalid)return res.status(409).json({message:'룰렛이 일시정지되었거나 오버레이 주소가 변경되었습니다.'});
         return res.status(200).json({ok:true,peek:peeked.peek});
+      }
+      if(body.action==='result-revealed'){
+        const commandId=String(body.commandId||'').trim().toLowerCase();
+        if(!UUID.test(commandId))return res.status(400).json({message:'룰렛 결과 식별값이 올바르지 않습니다.'});
+        const recorded=await recordRouletteChatDryRun(payload,clientId,commandId);
+        if(recorded.invalid)return res.status(409).json({message:'룰렛이 일시정지되었거나 오버레이 주소가 변경되었습니다.'});
+        return res.status(200).json({ok:true,dryRun:recorded.result});
       }
       const commandId=String(body.commandId||'').trim().toLowerCase();
       if((body.action&&body.action!=='ack')||!UUID.test(commandId)||typeof body.succeeded!=='boolean')return res.status(400).json({message:'오버레이 완료 정보가 올바르지 않습니다.'});

@@ -7,7 +7,7 @@ import {hydrateSignatureAssetPreview} from './signature-balloon-assets.js';
 import {sb} from './supabase-rest.js';
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-export const ROULETTE_OVERLAY_CLIENT_VERSION='20260830-common-overlay-v14-fixed-followup-queue';
+export const ROULETTE_OVERLAY_CLIENT_VERSION='20260902-common-overlay-v15-chat-dry-run-reveal';
 export const SOOP_DEFAULT_CEREMONY_BASE_URL='https://res.sooplive.com/new_player/items/';
 
 export function soopDefaultCeremonyImageUrl(amount){
@@ -149,6 +149,14 @@ export async function finishOverlayTtsSynthesis(ttsPayload,requestId,result,{sbI
 export async function touchRouletteOverlayClient(payload,clientId,{sbImpl=sb}={}){
   const touched=await sbImpl('rpc/touch_native_roulette_overlay_client_v2','',{method:'POST',body:{p_workspace_id:payload.wid,p_token_version:payload.tv,p_client_id:clientId}});
   return {invalid:false,touched:Boolean(touched)};
+}
+
+export async function recordRouletteChatDryRun(payload,clientId,commandId,{sbImpl=sb}={}){
+  const result=await sbImpl('rpc/record_native_roulette_chat_dry_run_v1','',{method:'POST',body:{
+    p_workspace_id:payload.wid,p_token_version:payload.tv,
+    p_command_id:commandId,p_client_id:clientId
+  }});
+  return {invalid:false,result};
 }
 
 export async function resolveCeremonyForOverlay(workspaceId,ceremony,{hydrate=hydrateSignatureAssetPreview,amount=1}={}){
