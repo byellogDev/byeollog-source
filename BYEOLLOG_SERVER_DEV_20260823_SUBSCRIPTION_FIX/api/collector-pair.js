@@ -89,11 +89,18 @@ async function buildAccountAutomationFields(body,account){
       code:String(detail.code||error?.code||'').slice(0,40)||null,
       type:String(error?.name||error?.constructor?.name||'').slice(0,80)||null
     });
-    return {};
+    // Keep Collector pairing additive and fail-closed, but return a non-secret
+    // diagnostic so the Agent can distinguish an automation hand-off failure
+    // from a normal legacy-only login.
+    return {automation_ready:false,automation_status:String(reason).slice(0,96)};
   };
 
   const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),2000);
+  // Enrollment and readiness are sequential database RPCs. Both enforce their
+  // own 5 second statement_timeout, so the former 2 second shared deadline
+  // could cancel healthy cold-start logins before the Agent session was issued.
+  // This path runs only while pairing; it is not on donation/action hot paths.
+  const timer=setTimeout(()=>controller.abort(),12000);
   let stage='enrollment';
   try{
     const userId=account.user?.id;

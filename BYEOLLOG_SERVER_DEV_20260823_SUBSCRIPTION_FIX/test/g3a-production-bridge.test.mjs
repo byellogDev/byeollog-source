@@ -30,6 +30,10 @@ test('public bridge enrolls only through the service-derived release contract',(
   assert.match(pair,/\[collector-pair:automation\] omitted/);
   assert.match(pair,/let stage='enrollment'/);
   assert.match(pair,/omit\(stage\+'_error',error\)/);
+  assert.match(pair,/automation_status:String\(reason\)/);
+  assert.match(pair,/setTimeout\(\(\)=>controller\.abort\(\),12000\)/);
+  assert.doesNotMatch(pair,/controller\.abort\(\),2000/);
+  assert.match(vercelConfig,/"api\/collector-pair\.js"\s*:\s*\{\s*"maxDuration"\s*:\s*30/);
 });
 
 test('legacy Collector pairing remains the primary response path',()=>{

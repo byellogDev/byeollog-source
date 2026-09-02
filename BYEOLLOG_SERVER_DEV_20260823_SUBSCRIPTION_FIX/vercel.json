@@ -4,6 +4,9 @@
   "functions": {
     "api/login.js": {
       "maxDuration": 60
+    },
+    "api/collector-pair.js": {
+      "maxDuration": 30
     }
   },
   "cleanUrls": true,
