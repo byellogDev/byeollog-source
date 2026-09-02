@@ -45,6 +45,7 @@ test('managed TTS authorization binds workspace, command, client, attempt and ex
   assert.equal(overlayTtsText('roulette_spin',{resultText:'아봉 10초',ttsText:'예전 저장값, 당첨!'}),'아봉 10초');
   const twenty='가나다라마바사아자차카타파하거너더러머버';
   assert.equal(overlayTtsText('roulette_spin',{resultText:twenty+'보'}),twenty);
+  assert.equal(overlayTtsText('donation_ceremony',{actor:{name:'도전자'},donationTypeLabel:'도전미션',amount:330}),'도전자님 도전미션 330개 감사합니다!');
   assert.equal(overlayTtsText('donation_chat_tts',{displayText:'[10초 전] 채팅',ttsText:'채팅'}),'채팅');
 });
 
@@ -63,7 +64,7 @@ test('overlay claim validates live token version and expands a verified custom i
   assert.deepEqual(result.command.payload.rouletteItems,['아봉 10초']);
   assert.equal(result.command.payload.eventId,'514ff4e5-dcc3-4541-887c-f9b18eecaf59');
   assert.equal(result.command.payload.eventOccurredAt,'2026-08-29T03:59:55.000Z');
-  assert.equal(result.command.payload.followupChatTtsWindowSeconds,15);
+  assert.equal(result.command.payload.followupChatTtsWindowSeconds,30);
   assert.equal(result.command.payload.ttsText,'아봉 10초');
   assert.match(result.command.ttsAuthorization,/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
   assert.equal('layout' in result,false);
@@ -88,9 +89,11 @@ test('ceremony claim keeps the donation card alive for its tracked message windo
   const result=await claimRouletteOverlayCommand({wid:workspaceId,tv:tokenVersion},'client-1',{sbImpl,env});
   assert.equal(result.command.kind,'donation_ceremony');
   assert.equal(result.command.payload.donationTypeLabel,'도전미션');
-  assert.equal(result.command.payload.followupChatTtsWindowSeconds,15);
+  assert.equal(result.command.payload.followupChatTtsWindowSeconds,30);
   assert.equal(result.command.payload.eventId,eventId);
   assert.equal(result.command.payload.ceremony.defaultFallbackUrl,'https://res.sooplive.com/new_player/items/ba_step4.png');
+  assert.equal(result.command.payload.ttsText,'도전자님 도전미션 330개 감사합니다!');
+  assert.match(result.command.ttsAuthorization,/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
 });
 
 test('follow-up peek is display-only and returns a bounded event-scoped payload',async()=>{
@@ -181,9 +184,9 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.doesNotMatch(html,/heartbeat\(\);poll\(\)/);
   assert.match(html,/if\(streamed\)\{console\.warn\([^)]*partial audio[^)]*\);return\}/);
   assert.match(html,/function resetSpinSound\(\)/);
-  assert.match(html,/await sleep\(3000\);resetSpinSound\(\);stopSlot\(\)/);
-  assert.match(html,/scheduleCloseAfter\(15000\)/);
-  assert.match(html,/if\(position\.current<position\.total\)\{scheduleCloseAfter\(15000\)/);
+  assert.match(html,/await sleep\(3000\);resetSpinSound\(\)/);
+  assert.match(html,/FOLLOWUP_WINDOW_MS=30000/);
+  assert.match(html,/if\(position\.current<position\.total\)\{scheduleCloseAfter\(FOLLOWUP_WINDOW_MS\)/);
   assert.match(html,/const landingMs=setWinner\(payload\.resultText/);
   assert.match(html,/await sleep\(landingMs\);void reportResultReveal\(command\);await speak/);
   assert.match(html,/action:'result-revealed',commandId:command\.id/);
@@ -201,9 +204,10 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/belongsToCeremony=ceremonyVisible&&activeCeremonyEventId&&activeCeremonyEventId===eventId/);
   assert.match(html,/if\(belongsToCeremony\)\{clearCeremonyCloseTimer\(\);showCeremonyMessage\(payload\.message\|\|payload\.ttsText\|\|''\);await speak/);
   assert.match(html,/preferredEventId=cardVisible&&activeEventId\?activeEventId:ceremonyVisible&&activeCeremonyEventId\?activeCeremonyEventId:null/);
-  assert.match(html,/scheduleCeremonyFinalClose\(payload\)/);
+  assert.match(html,/async function ceremony\(command\)[\s\S]*await speak\(command,payload\.ttsText\|\|''/);
+  assert.match(html,/ALERT_MIN_DISPLAY_MS=5000/);
   assert.match(html,/trackedEventId=cardVisible&&activeEventId\?activeEventId:ceremonyVisible&&activeCeremonyEventId\?activeCeremonyEventId:null/);
-  assert.match(html,/showCeremonyMessage\(peek\.message\);scheduleCeremonyCloseAfter\(15000\)/);
+  assert.match(html,/showCeremonyMessage\(peek\.message\);scheduleCeremonyCloseAfter\(FOLLOWUP_WINDOW_MS\)/);
   assert.match(html,/ceremonyDonationSummary'\)\.textContent=type\+' '\+amount\.toLocaleString\(\)\+'개'/);
   assert.match(html,/byeollogPlayedOverlayCommands/);
   assert.match(html,/function remember\(id\)[\s\S]*slice\(-4096\)/);
@@ -228,7 +232,7 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/loadImage\(image,data\.defaultFallbackUrl,'SOOP default'\)/);
   assert.match(html,/classList\.toggle\('imageUnavailable',!loaded\)/);
   assert.match(html,/if\(abandonedEventIds\.has\(eventId\)\)return/);
-  assert.match(html,/Math\.min\(15000,occurredAt\+16200-Date\.now\(\)\)/);
+  assert.doesNotMatch(html,/occurredAt\+16200|finalCloseDelay/);
   assert.doesNotMatch(html,/async function ceremony\(command\)\{[^}]*if\(!data\.url\)return/);
   assert.doesNotMatch(html,/soop-default-balloon/);
   assert.match(html,/providerFallbackUrl/);
@@ -239,7 +243,8 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/data\.clientVersion&&data\.clientVersion!==clientVersion/);
   assert.doesNotMatch(html,/applyPart\('resultPanel'/);
   assert.doesNotMatch(html,/rouletteCard\.builtin \.resultPanel\{position:absolute/);
-  assert.match(html,/function startSlot\(items\)/);
+  assert.match(html,/\.resultPanel\.spinning\{height:42px\}/);
+  assert.doesNotMatch(html,/roulette\(command\)[^\n]*startSlot\(/);
   assert.match(html,/setWinner\(payload\.resultText/);
   assert.match(html,/await speak\(command,payload\.resultText\|\|''/);
   assert.doesNotMatch(html,/payload\.resultText\|\|''\)\+', 당첨!'/);
@@ -274,7 +279,12 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/if\(length<=22\)return 32/);
   assert.match(html,/panel\.style\.height=\(100\+height\)\+'px'/);
   assert.match(html,/function standaloneChatText\(payload\)[\s\S]*displayName\(payload\.actor&&payload\.actor\.name\)/);
-  assert.match(html,/Math\.max\(3600/);
+  assert.match(html,/presentationMemory=new Map\(\)/);
+  assert.match(html,/remembered\?\.kind==='roulette_spin'/);
+  assert.match(html,/remembered\?\.kind==='donation_ceremony'/);
+  assert.match(html,/@keyframes alertFadeIn/);
+  assert.match(html,/@keyframes alertFadeOut/);
+  assert.match(html,/@keyframes textTada/);
   assert.match(html,/object-fit:contain/);
   assert.doesNotMatch(html,/style\.opacity='\.82'/);
   assert.doesNotMatch(html,/text-overflow:ellipsis;white-space:nowrap[^}]*slotValue/);
@@ -358,6 +368,17 @@ test('roulette result TTS normalization migration authorizes only the exact prod
   assert.doesNotMatch(sql,/당첨!/);
   assert.match(sql,/revoke all[\s\S]*from public,anon,authenticated,service_role/i);
   assert.match(sql,/grant execute[\s\S]*to service_role/i);
+});
+
+test('Weflab baseline migration extends donor chat capture and safely authorizes donation-summary TTS',async()=>{
+  const sql=await readFile(new URL('../supabase/migrations/20260903032716_weflab_overlay_baseline.sql',import.meta.url),'utf8');
+  assert.match(sql,/\{followupChatTtsWindowSeconds\}','30'::jsonb/i);
+  assert.match(sql,/expires_at=wait\.opens_at\+interval '30 seconds'/i);
+  assert.match(sql,/command\.command_kind in \('roulette_spin','donation_chat_tts','donation_ceremony'\)/i);
+  assert.match(sql,/when 'donation_ceremony' then[\s\S]*v_actor_name\|\|'님 '/i);
+  assert.match(sql,/p_text_sha256!~'\^\[0-9a-f\]\{64\}\$'/i);
+  assert.match(sql,/v_expected_hash<>p_text_sha256/i);
+  assert.match(sql,/grant execute on function public\.claim_native_roulette_tts_v1[\s\S]*to service_role/i);
 });
 
 test('overlay URLs are client-versioned so a copied OBS source receives current rendering code',()=>{

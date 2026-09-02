@@ -7,7 +7,7 @@ import {hydrateSignatureAssetPreview} from './signature-balloon-assets.js';
 import {sb} from './supabase-rest.js';
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-export const ROULETTE_OVERLAY_CLIENT_VERSION='20260903-common-overlay-v19-centered-native-wheel';
+export const ROULETTE_OVERLAY_CLIENT_VERSION='20260903-common-overlay-v20-weflab-baseline';
 export const SOOP_DEFAULT_CEREMONY_BASE_URL='https://res.sooplive.com/new_player/items/';
 
 export function soopDefaultCeremonyImageUrl(amount){
@@ -35,6 +35,12 @@ function safeEqual(leftValue,rightValue){
 
 export function overlayTtsText(commandKind,payload){
   if(commandKind==='roulette_spin')return unicodeGraphemes(String(payload?.resultText||'').trim()).slice(0,NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES).join('');
+  if(commandKind==='donation_ceremony'){
+    const donor=String(payload?.actor?.name||'시청자').trim()||'시청자';
+    const type=String(payload?.donationTypeLabel||payload?.balloonTypeLabel||'별풍선').trim()||'별풍선';
+    const amount=Math.max(1,Math.trunc(Number(payload?.amount)||1));
+    return `${donor}님 ${type} ${amount}개 감사합니다!`.slice(0,240);
+  }
   if(commandKind==='donation_chat_tts')return String(payload?.ttsText||payload?.message||'').trim();
   return '';
 }
@@ -99,7 +105,7 @@ export async function claimRouletteOverlayCommand(payload,clientId,{sbImpl=sb,en
   commandPayload.eventId=row.event_id;
   commandPayload.eventOccurredAt=row.event_occurred_at;
   if(row.command_kind==='roulette_spin'||row.command_kind==='donation_ceremony'){
-    commandPayload.followupChatTtsWindowSeconds=15;
+    commandPayload.followupChatTtsWindowSeconds=30;
   }
   if(row.command_kind==='roulette_spin'){
     commandPayload.resultText=unicodeGraphemes(String(commandPayload.resultText||'').trim()).slice(0,NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES).join('');
@@ -110,7 +116,7 @@ export async function claimRouletteOverlayCommand(payload,clientId,{sbImpl=sb,en
   }
   commandPayload.ceremony=await resolveCeremonyForOverlay(payload.wid,commandPayload.ceremony,{amount:commandPayload.amount,sbImpl});
   const text=overlayTtsText(row.command_kind,commandPayload);
-  if(row.command_kind==='roulette_spin')commandPayload.ttsText=text;
+  if(row.command_kind==='roulette_spin'||row.command_kind==='donation_ceremony')commandPayload.ttsText=text;
   const ttsAuthorization=text?createOverlayTtsAuthorization(payload.wid,clientId,row.command_id,row.attempt_count,text,{env}):null;
   return {invalid:false,clientVersion:ROULETTE_OVERLAY_CLIENT_VERSION,command:{id:row.command_id,kind:row.command_kind,payload:commandPayload,attemptCount:row.attempt_count,leaseExpiresAt:row.lease_expires_at,ttsAuthorization}};
 }

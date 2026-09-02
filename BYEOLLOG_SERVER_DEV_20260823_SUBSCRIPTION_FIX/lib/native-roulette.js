@@ -10,11 +10,11 @@ export const NATIVE_ROULETTE_MAX_SPINS=100;
 export const NATIVE_ROULETTE_MAX_SERIES_SPINS=1_000;
 export const NATIVE_ROULETTE_TTS_KEY_DOMAIN='native-roulette-result-v1|';
 export const NATIVE_ROULETTE_SOUND_KEYS=Object.freeze(['roulette_spin_v1']);
-// Follow-up chat is a playback grace period, not a streamer preference. Keep
-// it identical across saved drafts, active services and OBS clients so a stale
-// draft can never hold the common overlay longer than the product contract.
-export const NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS=15;
-export const NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS=15;
+// Weflab-compatible donor message window. Keep this identical across saved
+// drafts, active services and OBS clients so delayed donor chat is correlated
+// consistently without keeping the visual alert on screen for the full window.
+export const NATIVE_ROULETTE_DEFAULT_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS=30;
+export const NATIVE_ROULETTE_MAX_FOLLOWUP_CHAT_TTS_WINDOW_SECONDS=30;
 export const NATIVE_ROULETTE_MAX_CHAT_TTS_CHARACTERS=300;
 export const NATIVE_ROULETTE_TRIGGER_KINDS=Object.freeze(['single','series']);
 export const SOOP_DONATION_TYPE_LABELS=Object.freeze(['별풍선','대결미션','도전미션']);

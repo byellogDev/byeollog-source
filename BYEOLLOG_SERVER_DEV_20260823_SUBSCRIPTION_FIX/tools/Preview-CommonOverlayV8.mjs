@@ -21,19 +21,19 @@ const basePayload={eventId:'514ff4e5-dcc3-4541-887c-f9b18eecaf59',eventOccurredA
 if(demoCase==='donation152'){
   basePayload.actor.name='후원 테스트';basePayload.amount=152;basePayload.ceremony={source:'soop_default',url:'https://res.sooplive.com/new_player/items/ba_step4.png',providerFallbackUrl:null,defaultFallbackUrl:null};
   const ceremonyCommand={id:'5d66048f-d838-4efc-b2b1-6123d37c3468',kind:'donation_ceremony',payload:basePayload};
-  await ceremony(ceremonyCommand);clearCeremonyCloseTimer();await sleep(180);showCeremonyMessage('오늘도 응원합니다!');await sleep(700);
+  await presentCeremony(ceremonyCommand);clearCeremonyCloseTimer();await sleep(180);showCeremonyMessage('오늘도 응원합니다!');await sleep(700);
   document.documentElement.dataset.previewOpenCount='1';document.documentElement.dataset.previewReady='true';return;
 }
 if(demoCase==='donation-name-fit'){
   basePayload.actor.name='후원 테스트';basePayload.amount=12486;basePayload.ceremony={source:'signature',url:'/assets/roulette-previews/roulette-01-navy-gold.png',providerFallbackUrl:null,defaultFallbackUrl:null};
   const ceremonyCommand={id:'9d66048f-d838-4efc-b2b1-6123d37c3468',kind:'donation_ceremony',payload:basePayload};
-  await ceremony(ceremonyCommand);clearCeremonyCloseTimer();await sleep(180);showCeremonyMessage('후바록보맛잖아 관측계정A바보잖아');await sleep(700);
+  await presentCeremony(ceremonyCommand);clearCeremonyCloseTimer();await sleep(180);showCeremonyMessage('후바록보맛잖아 관측계정A바보잖아');await sleep(700);
   document.documentElement.dataset.previewOpenCount='1';document.documentElement.dataset.previewReady='true';return;
 }
 if(demoCase==='signature'){
   basePayload.amount=100;basePayload.ceremony={source:'signature',url:'/assets/roulette-previews/roulette-01-navy-gold.png',providerFallbackUrl:null};
   const ceremonyCommand={id:'7d66048f-d838-4efc-b2b1-6123d37c3468',kind:'donation_ceremony',payload:basePayload};
-  await ceremony(ceremonyCommand);await sleep(180);
+  await presentCeremony(ceremonyCommand);await sleep(180);
   showCeremonyMessage('시그니처풍 이미지와 후원 정보, 후원 멘트가 한 화면에 유지되는지 확인하는 백이십 자 이내 방송용 테스트 문장입니다. 티티에스가 끝날 때까지 이 카드가 사라지지 않습니다.');
   await sleep(700);
   document.documentElement.dataset.previewOpenCount='1';document.documentElement.dataset.previewReady='true';return;
@@ -41,7 +41,7 @@ if(demoCase==='signature'){
 if(demoCase==='ordinary-no-image'){
   basePayload.actor.name='후원테스트';basePayload.amount=99;basePayload.ceremony={source:'none',url:null,providerFallbackUrl:null,defaultFallbackUrl:null};
   const ceremonyCommand={id:'6d66048f-d838-4efc-b2b1-6123d37c3468',kind:'donation_ceremony',payload:basePayload};
-  await ceremony(ceremonyCommand);await sleep(180);
+  await presentCeremony(ceremonyCommand);await sleep(180);
   showCeremonyMessage('공식 이미지를 불러오지 못해도 후원 정보와 메시지는 정상적으로 표시됩니다.');
   document.documentElement.dataset.previewOpenCount='1';document.documentElement.dataset.previewReady='true';return;
 }
@@ -55,12 +55,12 @@ const positions=[];
 if(demoCase==='series'){
   for(let index=0;index<11;index++){
     basePayload.spinIndex=index;basePayload.presentationIndex=index;basePayload.presentationCount=11;
-    setMeta(basePayload);setSeriesCounter(basePayload);startSlot(basePayload.rouletteItems);await sleep(80);stopSlot();setWinner(basePayload.resultText);
+    setMeta(basePayload);setSeriesCounter(basePayload);clearMessage();document.getElementById('resultPanel').classList.add('spinning');await sleep(80);setWinner(basePayload.resultText);
     if(index===5)showMessage('눈치챙겨');
     await sleep(90);const rect=document.getElementById('rouletteCard').getBoundingClientRect();positions.push({x:rect.x,y:rect.y,width:rect.width});
   }
 }else{
-  startSlot(basePayload.rouletteItems);await sleep(720);stopSlot();setWinner(basePayload.resultText);
+  await sleep(720);setWinner(basePayload.resultText);
   if(demoCase==='long')showMessage('가나다라마바사아자차카타파하 이것은 숲 채팅 제한에 맞춘 백이십 자 후원 멘트가 카드 아래에서 단 한 글자도 잘리지 않고 여러 줄로 안전하게 보이는지 확인하기 위한 실제 방송용 긴 문장 테스트입니다. 끝까지 보입니다.');
 }
 await sleep(900);

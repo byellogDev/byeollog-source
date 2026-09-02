@@ -202,7 +202,7 @@ function correlationScenario(caseCount,seed){
     events.push({kind:'donation',payload:donation,arrivalMs:donationArrival});
     if(index%17===0)events.push({kind:'donation',payload:clone(donation),arrivalMs:donationArrival+1});
     if(pattern===0){expected.donationMessages++;continue}
-    const chatAt=pattern===2?donationAt+15_000:pattern===3?donationAt+15_001:donationAt+1_000+randomBetween(rng,0,700);
+    const chatAt=pattern===2?donationAt+30_000:pattern===3?donationAt+30_001:donationAt+1_000+randomBetween(rng,0,700);
     if(pattern===4){
       events.push({kind:'chat',arrivalMs:donationArrival+10,payload:{
         eventId:`wrong-chat-${index}`,actor:{id:`other-${index}`,name:'다른 시청자'},

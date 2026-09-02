@@ -87,7 +87,7 @@ test('draft normalization binds WebP, sound, exact TTS keys, and direct upbo spl
   const value=normalizeNativeRouletteDraft(draft());
   assert.equal(value.overlayAssetSha256,NATIVE_ROULETTE_ASSETS[0].contentSha256);
   assert.equal(value.overlayAssetBytes,NATIVE_ROULETTE_ASSETS[0].byteSize);
-  assert.equal(value.followupChatTtsWindowSeconds,15);
+  assert.equal(value.followupChatTtsWindowSeconds,30);
   assert.deepEqual(value.items[0].outputTypes,['노래','춤']);
   assert.equal(value.items[0].ttsText,null);assert.equal(value.items[0].ttsVoiceKey,null);
   assert.equal(value.items[1].ttsText,'간식 당첨');
@@ -212,7 +212,7 @@ test('message-less donation binds only the same viewer first chat inside the con
     profile,donation,chat:{...chat,actor:{id:'other',name:'다른 시청자'}}
   }),/후원자와 채팅 작성자가 다릅니다/);
   assert.throws(()=>buildNativeRouletteSponsoredChatDispatch({
-    profile,donation,chat:{...chat,eventId:'late',occurredAt:'2026-08-26T00:36:46.217Z'}
+    profile,donation,chat:{...chat,eventId:'late',occurredAt:'2026-08-26T00:37:01.217Z'}
   }),/유효시간/);
 });
 
@@ -231,10 +231,10 @@ test('donation message is dispatched once without arming a follow-up chat',()=>{
   assert.equal(dispatch.ttsText,'후원과 함께 보낸 메시지');
 });
 
-test('follow-up chat TTS window is fixed at 15 seconds regardless of stale draft input',()=>{
-  assert.equal(normalizeNativeRouletteDraft(draft({followupChatTtsWindowSeconds:61})).followupChatTtsWindowSeconds,15);
+test('follow-up chat TTS window is fixed at the Weflab-compatible 30 seconds regardless of stale draft input',()=>{
+  assert.equal(normalizeNativeRouletteDraft(draft({followupChatTtsWindowSeconds:61})).followupChatTtsWindowSeconds,30);
   const profile=normalizeNativeRouletteDraft(draft({followupChatTtsWindowSeconds:0}));
-  assert.equal(profile.followupChatTtsWindowSeconds,15);
+  assert.equal(profile.followupChatTtsWindowSeconds,30);
   const dispatch=buildNativeRouletteSponsoredChatDispatch({
     profile,
     donation:{eventId:'d',actor:{id:'viewer'},amount:30,occurredAt:'2026-08-26T00:00:00.000Z'},
