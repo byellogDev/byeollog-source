@@ -57,13 +57,15 @@ test('catalog pins exactly the seven final wheel-only WebP identities',async t=>
         .ensureAlpha()
         .raw()
         .toBuffer({resolveWithObject:true});
-      let lowerAlphaMax=0;
-      for(let y=720;y<info.height;y+=1){
+      let minY=info.height;let maxY=-1;
+      for(let y=0;y<info.height;y+=1){
         for(let x=0;x<info.width;x+=1){
-          lowerAlphaMax=Math.max(lowerAlphaMax,data[(y*info.width+x)*info.channels+3]);
+          if(data[(y*info.width+x)*info.channels+3]<=4)continue;
+          minY=Math.min(minY,y);maxY=Math.max(maxY,y);
         }
       }
-      assert.equal(lowerAlphaMax,0,'result bar area must remain fully transparent');
+      assert.equal((minY+maxY)/2,540,'wheel artwork must be vertically centered');
+      assert.ok(maxY<900,'removed result bar area must remain transparent');
     });
     assert.equal(asset.mimeType,'image/webp');
     assert.equal(asset.widthPx,1920);assert.equal(asset.heightPx,1080);

@@ -77,5 +77,5 @@ test('binary deployment assets are served through a verified compatibility endpo
   dataHandler({method:'GET',query:{operation:'deployment-asset',name:'roulette-01-navy-gold.webp'}},response);
   assert.equal(statusCode,200);
   assert.equal(headers.get('Content-Type'),'image/webp');
-  assert.equal(body.length,60_736);
+  assert.equal(body.length,61_282);
 });

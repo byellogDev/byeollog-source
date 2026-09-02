@@ -59,6 +59,16 @@ test('wheel-only asset migration replaces all seven catalog identities without r
   assert.doesNotMatch(sql,/grant |create policy|security definer/i);
 });
 
+test('centered wheel migration advances exactly seven immutable catalog assets',async()=>{
+  const sql=await source('../supabase/migrations/20260902180815_center_native_roulette_wheel_assets.sql');
+  assert.equal((sql.match(/'roulette_[a-z0-9_]+_v1'/g)||[]).length,14);
+  assert.equal((sql.match(/assets\/native-roulette\/[0-9a-f]{64}\.webp/g)||[]).length,14);
+  assert.match(sql,/update byeollog_automation\.native_roulette_assets asset set/);
+  assert.match(sql,/if v_ready<>7 then/);
+  assert.doesNotMatch(sql,/update byeollog_automation\.native_roulette_revisions/);
+  assert.doesNotMatch(sql,/grant |create policy|security definer/i);
+});
+
 test('native roulette draws one cryptographic uint32 and rejects the biased tail',async()=>{
   const sql=await source('../supabase/dormant-migrations/20260825110000_native_roulette_sdk_skeleton.sql');
   const start=sql.indexOf('create or replace function byeollog_automation.native_roulette_sample_ppm_v1');

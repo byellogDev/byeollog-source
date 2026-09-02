@@ -1,19 +1,44 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-02T17:51:06.105Z",
-  "gitCommit": "d1b6c2ce439eadb0b7302087d2f4c8f628da881b",
+  "generatedAt": "2026-09-02T18:14:41.198Z",
+  "gitCommit": "31f787b4a0f711db51b4bde39d9107a5c53d1e98",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 5,
+  "dirtyPathCount": 30,
   "dirtyPaths": [
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-01-navy-gold.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-02-royal-purple-rose-gold.png",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-02-royal-purple-rose-gold.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-03-emerald-champagne.png",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-03-emerald-champagne.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-04-burgundy-pale-gold.png",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-04-burgundy-pale-gold.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-05-graphite-cyan.png",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-05-graphite-cyan.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-06-powder-blue-peach.png",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-06-powder-blue-peach.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-07-lavender-butter.png",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-07-lavender-butter.webp",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/native-roulette-assets.js",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/soop-roulette-service.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-1.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-2.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-3.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-4.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-5.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-6.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-7.js",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/release-manifest.json",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/soop-roulette-service.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Preview-CommonOverlayV8.mjs",
-    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/common-overlay-v8.js"
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260902180815_center_native_roulette_wheel_assets.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/g3a-production-bridge.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/native-roulette-contract.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/native-roulette-digital-twin.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/native-roulette.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Center-NativeRouletteWheelAssets.mjs",
+    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-01-navy-gold.png"
   ],
-  "sourceDigest": "dd8acb2248c70769cefa479002b87afd0919d6ba9ea82d2a27426c33be49ea73",
-  "fileCount": 345,
+  "sourceDigest": "1e08d05d3403ee434554a969f68d89ae3f1ec8adfc6337ec8a5ac7d2a8b10b47",
+  "fileCount": 347,
   "files": [
     {
       "path": "agent-updates/release-asset-storage.json",
@@ -432,73 +457,73 @@
     },
     {
       "path": "assets/roulette-previews/roulette-01-navy-gold.png",
-      "bytes": 452485,
-      "sha256": "a960badf0f14292f8b2662d45fa174fb72b433647088cfe06f060a330009e3b7"
+      "bytes": 454362,
+      "sha256": "d92725b698d900ac50cc65fcd56d58f72108b33be3c88aa42cd2d9e5bf26910a"
     },
     {
       "path": "assets/roulette-previews/roulette-01-navy-gold.webp",
-      "bytes": 60736,
-      "sha256": "e7533d8e3b2a0b7640905d8ac1af6a95dad7a14e7a94dbbc931c406ef66b5d9d"
+      "bytes": 61282,
+      "sha256": "2c4f45de0b1d4928bf08aaa8cd62f1869e57d25bcaa25a09ca8f0556e9a3ae71"
     },
     {
       "path": "assets/roulette-previews/roulette-02-royal-purple-rose-gold.png",
-      "bytes": 397540,
-      "sha256": "1c053f17ea2619ead8e1b880ab1191dc76c2c9f33c17379a65d2371dbf2fc77f"
+      "bytes": 398123,
+      "sha256": "25cc2403a85311f360cea9ca571da58b4d8e98acd914a6df7808625383390ccb"
     },
     {
       "path": "assets/roulette-previews/roulette-02-royal-purple-rose-gold.webp",
-      "bytes": 57922,
-      "sha256": "fc67d3eff80189669abfadc5884d024362e22d829c9da6584c7894e55e9360d7"
+      "bytes": 58830,
+      "sha256": "a682d32556c0f71a3371870bb771aec249f262f840b8da934e264a8371236303"
     },
     {
       "path": "assets/roulette-previews/roulette-03-emerald-champagne.png",
-      "bytes": 386618,
-      "sha256": "9cb7075e5fcdb14985c1f200c6466eee086b70932477aab380d80fa3001205ec"
+      "bytes": 388866,
+      "sha256": "f7e5f5a5c7aa0e9b530bfca9d04923fb7953d59c791c3389e0f78cedaafbdcb4"
     },
     {
       "path": "assets/roulette-previews/roulette-03-emerald-champagne.webp",
-      "bytes": 61796,
-      "sha256": "8a459e1afac16125941c6c9ff39a887a110bcb5c9192562b6f97be6b758cb960"
+      "bytes": 62556,
+      "sha256": "65df2ee8f0d6b2bd26dc2dbc65de1cfc14b67f9c683c6e88a16398b97b85474c"
     },
     {
       "path": "assets/roulette-previews/roulette-04-burgundy-pale-gold.png",
-      "bytes": 382615,
-      "sha256": "19c1da24c7e1a3f732c30a0eb557286157505f8f3919c8b13bf59761f2c7b647"
+      "bytes": 384676,
+      "sha256": "93c8646eefc768262dfbd76ba7034227b59420c8abc9d83f85052b22b7db350c"
     },
     {
       "path": "assets/roulette-previews/roulette-04-burgundy-pale-gold.webp",
-      "bytes": 58302,
-      "sha256": "f40c7ef5c5ef3e10f717ea9a86228f47a722345c153d4d6d6241336a4fd59563"
+      "bytes": 59042,
+      "sha256": "bf7f22fbc7fe2efb15f33f4525d7da8d244cb17534a579724fdf73d95f9dd1ed"
     },
     {
       "path": "assets/roulette-previews/roulette-05-graphite-cyan.png",
-      "bytes": 381031,
-      "sha256": "91d80fee2adc0c82844679e80e67b3afdbb47e27a8f1ce406389682a18284f3d"
+      "bytes": 382049,
+      "sha256": "38d3499d69e8dba0df8bb3f5e2162b17ed12c25d42e64711a86766ab71be8de7"
     },
     {
       "path": "assets/roulette-previews/roulette-05-graphite-cyan.webp",
-      "bytes": 58852,
-      "sha256": "752ed5270cbd9e50a135e241d2f4ed59ad589d5d6f73092492e260c08a4cb99d"
+      "bytes": 60236,
+      "sha256": "cebfcdde8b517c3a20454936ca841ece08ae0a618b72150f938b4a7f8a9194b5"
     },
     {
       "path": "assets/roulette-previews/roulette-06-powder-blue-peach.png",
-      "bytes": 401854,
-      "sha256": "1fee48e7055fe2fcbc493c92ac1e6a343389d89f9025f7373bfd533b4f8d46b5"
+      "bytes": 403293,
+      "sha256": "a81a295f701a0d59e0a86762fe0db0fb11409bebe5d9b37c775d2f3bcb4e279a"
     },
     {
       "path": "assets/roulette-previews/roulette-06-powder-blue-peach.webp",
-      "bytes": 55668,
-      "sha256": "20bcb116644c914b2762dddddb4cdcb23ed2aa10fb13fb32402e219c4a89ab39"
+      "bytes": 57094,
+      "sha256": "55d366eac4f2dcdc56888d01ea368710184d9b566d36dc538297638732871cc0"
     },
     {
       "path": "assets/roulette-previews/roulette-07-lavender-butter.png",
-      "bytes": 397951,
-      "sha256": "2db41a6d36f41ca839d0ec8333e7d548eb7e55028e3c304aac1ec2cb919eab49"
+      "bytes": 398479,
+      "sha256": "6250365083ee1754ab40a4307b150f411fdee68e3a23004b26649d37d14b8703"
     },
     {
       "path": "assets/roulette-previews/roulette-07-lavender-butter.webp",
-      "bytes": 55012,
-      "sha256": "7b445c31b2c697ceeacc5975cffebb4b770e188f370ad729294d86c9e8c0c7ea"
+      "bytes": 55854,
+      "sha256": "345259343b656659d2592e6adaa2c0436e4f629ce925f9e5f34e8153fd805d53"
     },
     {
       "path": "assets/signup-page.js",
@@ -597,8 +622,8 @@
     },
     {
       "path": "lib/native-roulette-assets.js",
-      "bytes": 5377,
-      "sha256": "010f866e51eebd665f4dd26edacaa09326fece04562aeb5123e0de07cc9c543e"
+      "bytes": 5381,
+      "sha256": "8e9353ec930008d431b5feedffb459cb351c6ace8c762c10138124a288023ea4"
     },
     {
       "path": "lib/native-roulette-settings-html.js",
@@ -667,8 +692,8 @@
     },
     {
       "path": "lib/soop-roulette-service.js",
-      "bytes": 13024,
-      "sha256": "a30015841d30ddcf304da01d4eee0580a3f64a63abf2f7e0866834671e2736e1"
+      "bytes": 13030,
+      "sha256": "3a5a40b5caa59502c6fd31d0b53133c9039dfa8a0b3c6b31dcaf4af74d9d7f2c"
     },
     {
       "path": "lib/soop-sdk-relay.js",
@@ -717,38 +742,38 @@
     },
     {
       "path": "lib/vercel-binary-assets/preview-1.js",
-      "bytes": 81166,
-      "sha256": "0054f88e0b5cc05c01bc3036ab5cd2609095b4ede3a0e45349e761b8bea6a220"
+      "bytes": 81894,
+      "sha256": "8c115631a8db4ae727f24e099cf1a683059bd6709d05b6e99c72027065b38706"
     },
     {
       "path": "lib/vercel-binary-assets/preview-2.js",
-      "bytes": 77427,
-      "sha256": "ecefb4c3c5e3537b72a4397b9a113d7cdcbedfdf8e9dbac80848bd4c5270743d"
+      "bytes": 78635,
+      "sha256": "e6c11e807fe5773c024b6477dea8caaafc8d682c7a80beb8bb00679aeccb3539"
     },
     {
       "path": "lib/vercel-binary-assets/preview-3.js",
-      "bytes": 82586,
-      "sha256": "b32fb2c16d2de169b929cd82b8a24d6f63f4a56d3585572544a7aad09bddefd0"
+      "bytes": 83598,
+      "sha256": "00515c97b875e4ace3d07ced63fad62fc61485a18c8f4077122347ceeda0a862"
     },
     {
       "path": "lib/vercel-binary-assets/preview-4.js",
-      "bytes": 77927,
-      "sha256": "f40d1e0d01716d0cfb1f0bfc1165210004106a9d5a6cfa6e4ae352927bf0ec48"
+      "bytes": 78915,
+      "sha256": "1a1aefeca780469eab799eb7b85d47f02adc8815f4fb701e3c23c33e1722d535"
     },
     {
       "path": "lib/vercel-binary-assets/preview-5.js",
-      "bytes": 78658,
-      "sha256": "32ab114db29eaf76048adfa8bcfa08d26b2a3d09c98333568a8a6a7cff03df2d"
+      "bytes": 80502,
+      "sha256": "1a6a7e152dfd292384cc7da25acd8cbf9a161a6e7cfbf7fcfc06620598eefc96"
     },
     {
       "path": "lib/vercel-binary-assets/preview-6.js",
-      "bytes": 74414,
-      "sha256": "7d902e8848a9d65f3cd31fe4991423b0cfc630cc72b27efe81cd095673e0c54f"
+      "bytes": 76318,
+      "sha256": "27b482efef65a67dd90b20594f690268c6e6ecd3866aa48b869c2df68d4c69b3"
     },
     {
       "path": "lib/vercel-binary-assets/preview-7.js",
-      "bytes": 73540,
-      "sha256": "abbff8d435061d3e2694fd199b215da2389da5148e00791814b91037e7f41b4f"
+      "bytes": 74660,
+      "sha256": "0905437291c263e77dd4b3ceb829be15f4e058afbabddc27a3e256eedbaa3c06"
     },
     {
       "path": "lib/vercel-binary-assets/preview-assets.js",
@@ -1341,6 +1366,11 @@
       "sha256": "7119996f9459e088c0a2e67c55f340fc55188c7f83f3e69ba6fe7bc750274cbf"
     },
     {
+      "path": "supabase/migrations/20260902180815_center_native_roulette_wheel_assets.sql",
+      "bytes": 5056,
+      "sha256": "c4370ceea81f7a0ea72dd2c075bd27344636da50b7dae0f6dc23d79b62dffced"
+    },
+    {
       "path": "tools/__pycache__/Generate-NativeRouletteAudioCandidates.cpython-312.pyc",
       "bytes": 22649,
       "sha256": "16b3f7e71d4bb9da2cf24d98faba817914583c9222776a3f297234e737a9316f"
@@ -1419,6 +1449,11 @@
       "path": "tools/Capture-ObsSourceScreenshot.mjs",
       "bytes": 2526,
       "sha256": "04c017c6656bb28f6d8cf07ef102ef305fc66cca405fc50db4185064b4bdee91"
+    },
+    {
+      "path": "tools/Center-NativeRouletteWheelAssets.mjs",
+      "bytes": 7337,
+      "sha256": "08b903042bda3cb2783976386b9271a80632ca3869f45658a6408c76541c5a1f"
     },
     {
       "path": "tools/Ensure-SoopGatewayRunning.ps1",
