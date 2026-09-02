@@ -71,11 +71,11 @@ test('default donation image ranges validate one scoped upload and ignore client
   assert.throws(()=>normalizeDefaultDonationImageInput({minAmount:100,maxAmount:99,pcImage:image('default-pc')},workspaceId),/작을 수 없습니다/);
   assert.throws(()=>normalizeDefaultDonationImageInput({minAmount:1,maxAmount:99,pcImage:image('pc')},workspaceId),/다른 워크스페이스 또는 용도/);
   const open=normalizeDefaultDonationImageInput({minAmount:'',maxAmount:'',pcImage:image('default-pc')},workspaceId);
-  assert.deepEqual([open.minAmount,open.maxAmount],[0,null]);
-  assert.deepEqual([normalizeDefaultDonationImageInput({maxAmount:99,pcImage:image('default-pc')},workspaceId).minAmount,normalizeDefaultDonationImageInput({minAmount:100,pcImage:image('default-pc')},workspaceId).maxAmount],[0,null]);
+  assert.deepEqual([open.minAmount,open.maxAmount],[1,null]);
+  assert.deepEqual([normalizeDefaultDonationImageInput({maxAmount:99,pcImage:image('default-pc')},workspaceId).minAmount,normalizeDefaultDonationImageInput({minAmount:100,pcImage:image('default-pc')},workspaceId).maxAmount],[1,null]);
   assert.equal(defaultDonationImageForAmount([{minAmount:100,maxAmount:null}],999999999)?.minAmount,100);
-  assert.equal(defaultDonationImageRangesOverlap({minAmount:0,maxAmount:99},{min_amount:100,max_amount:null}),false);
-  assert.equal(defaultDonationImageRangesOverlap({minAmount:0,maxAmount:null},{min_amount:100,max_amount:199}),true);
+  assert.equal(defaultDonationImageRangesOverlap({minAmount:1,maxAmount:99},{min_amount:100,max_amount:null}),false);
+  assert.equal(defaultDonationImageRangesOverlap({minAmount:1,maxAmount:null},{min_amount:100,max_amount:199}),true);
 });
 
 test('official SOOP default ceremony tiers cover every positive donation count',()=>{
@@ -104,6 +104,7 @@ test('default image migrations keep ranges private while limiting custom images 
   const sql=await readFile(new URL('../supabase/migrations/20260902150936_add_default_donation_image_ranges.sql',import.meta.url),'utf8');
   const followup=await readFile(new URL('../supabase/migrations/20260902154301_stop_default_donation_wallpaper_assets.sql',import.meta.url),'utf8');
   const openRanges=await readFile(new URL('../supabase/migrations/20260902155513_allow_open_default_donation_ranges.sql',import.meta.url),'utf8');
+  const correctedMinimum=await readFile(new URL('../supabase/migrations/20260902155847_correct_open_default_donation_minimum.sql',import.meta.url),'utf8');
   assert.match(sql,/create table public\.byeollog_default_donation_images/i);
   assert.match(sql,/pg_advisory_xact_lock/i);
   assert.match(sql,/int4range\(existing\.min_amount,existing\.max_amount,'\[\]'\)[\s\S]*&&/i);
@@ -121,4 +122,7 @@ test('default image migrations keep ranges private while limiting custom images 
   assert.match(openRanges,/alter column min_amount set default 0/i);
   assert.match(openRanges,/max_amount is null/i);
   assert.match(openRanges,/int8range[\s\S]*max_amount is null then null/i);
+  assert.match(correctedMinimum,/where min_amount=0/i);
+  assert.match(correctedMinimum,/alter column min_amount set default 1/i);
+  assert.match(correctedMinimum,/min_amount between 1 and 2147483647/i);
 });

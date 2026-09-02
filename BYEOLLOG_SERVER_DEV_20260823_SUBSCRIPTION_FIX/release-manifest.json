@@ -1,21 +1,19 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-02T15:58:20.406Z",
-  "gitCommit": "0c777ac896791d950b7d86834a7b5ac373708249",
+  "generatedAt": "2026-09-02T16:02:19.214Z",
+  "gitCommit": "cd53023155c21bb572b304707dd9f6650e3a53b6",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 7,
+  "dirtyPathCount": 5,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/default-donation-images.js",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/product-dashboard-html.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/soop-roulette-service.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260902155513_allow_open_default_donation_ranges.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260902155847_correct_open_default_donation_minimum.sql",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/product-control-center.test.mjs",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/signature-balloon-common-overlay.test.mjs",
-    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/api/admin.js"
+    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/default-donation-images.js"
   ],
-  "sourceDigest": "6c1570776d7c4830593fcbe802a059692952a6b1ee316f91d77a1c84cfe5248b",
-  "fileCount": 341,
+  "sourceDigest": "9a6823381e319a349608cb837cf233398b4a41718e70901c58c2c7a2bf4b487e",
+  "fileCount": 342,
   "files": [
     {
       "path": "agent-updates/release-asset-storage.json",
@@ -575,7 +573,7 @@
     {
       "path": "lib/default-donation-images.js",
       "bytes": 2415,
-      "sha256": "9241ae9b9863ec72717ae5a42255b7926c9707c19e79258cf8847fd1d65e58ba"
+      "sha256": "bae2d0b0f273650ec214e1ef99c2d63d309e57ef6e68f26d596004e70ea5f3de"
     },
     {
       "path": "lib/deployment-assets.js",
@@ -620,7 +618,7 @@
     {
       "path": "lib/product-dashboard-html.js",
       "bytes": 155948,
-      "sha256": "0c00581b2851fa94742849472ff358ee1ca6fa71383249c3ee173e7d05e5a0f1"
+      "sha256": "2f1d15b3ee7d3f7303a97423d449842a334f009eb7bb47bff344d78b7ff02b39"
     },
     {
       "path": "lib/rate-limit.js",
@@ -1326,6 +1324,11 @@
       "path": "supabase/migrations/20260902155513_allow_open_default_donation_ranges.sql",
       "bytes": 1921,
       "sha256": "a4520d508426e8dc9993bd0ded8ecd032a94c0bb8c32b70d49fdfaf80ec5703c"
+    },
+    {
+      "path": "supabase/migrations/20260902155847_correct_open_default_donation_minimum.sql",
+      "bytes": 663,
+      "sha256": "d3caf9b46090a0367635776b7693b000c0e052f82ffca584281ae89bdb2d6d97"
     },
     {
       "path": "tools/__pycache__/Generate-NativeRouletteAudioCandidates.cpython-312.pyc",

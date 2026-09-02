@@ -313,9 +313,9 @@ test('signature registration and common OBS source replace web overlay placement
   assert.match(signatures,/공통 OBS 이미지 우선순위[\s\S]*시그풍[\s\S]*SOOP이 전달한 실제 이벤트 이미지[\s\S]*기본 후원 이미지[\s\S]*SOOP 공식 기본 이미지/);
   assert.match(signatures,/기본 후원 이미지 설정은 풍벽지·도전미션·구독에 적용되지 않습니다/);
   assert.match(signatures,/움직이는 GIF 원본도 그대로 표시/);
-  assert.match(signatures,/id="defaultDonationMin"[^>]*placeholder="공란이면 0"/);
+  assert.match(signatures,/id="defaultDonationMin"[^>]*placeholder="공란이면 1"/);
   assert.match(signatures,/id="defaultDonationMax"[^>]*placeholder="공란이면 제한 없음"/);
-  assert.match(signatures,/두 칸 모두 비우면 0개부터 제한 없이 적용/);
+  assert.match(signatures,/두 칸 모두 비우면 1개부터 제한 없이 적용/);
   assert.doesNotMatch(signatures,/id="defaultDonationWallpaperPreview"|renderSignaturePreview/);
   assert.doesNotMatch(signatures,/별록 기본 이미지가 표시/);
   assert.match(roulette,/460×450/);
