@@ -1,22 +1,16 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-02T18:36:48.884Z",
-  "gitCommit": "1f97a7126a2774f9d6c29652677e81e016d48d7e",
+  "generatedAt": "2026-09-02T18:38:40.302Z",
+  "gitCommit": "925dcbfd5c06d25163ec07bd41ed984d9e798503",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 9,
+  "dirtyPathCount": 3,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/native-roulette.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/soop-roulette-service.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260903032716_weflab_overlay_baseline.sql",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/native-roulette-readiness-lab.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/native-roulette.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260902183554_weflab_overlay_baseline.sql",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/soop-roulette-service.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Preview-CommonOverlayV8.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/native-roulette-readiness-lab.mjs",
-    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/common-overlay-v8.js"
+    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260903032716_weflab_overlay_baseline.sql"
   ],
-  "sourceDigest": "718e4bdfe5b9c6b5efca41eb80dc113ba961cabc6cfbc77c69320a57ec340e52",
+  "sourceDigest": "424298862095ca82f90b29c25b7a8dc38edf5ef1a0786d3ceea116c6608dc1e4",
   "fileCount": 348,
   "files": [
     {
@@ -1350,7 +1344,7 @@
       "sha256": "c4370ceea81f7a0ea72dd2c075bd27344636da50b7dae0f6dc23d79b62dffced"
     },
     {
-      "path": "supabase/migrations/20260903032716_weflab_overlay_baseline.sql",
+      "path": "supabase/migrations/20260902183554_weflab_overlay_baseline.sql",
       "bytes": 5542,
       "sha256": "14a77739b24376819e9a9586284ea912cf6dc04e32b86579be87602dfda8934e"
     },

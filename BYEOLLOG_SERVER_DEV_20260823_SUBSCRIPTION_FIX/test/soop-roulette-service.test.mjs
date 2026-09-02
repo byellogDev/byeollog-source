@@ -371,7 +371,7 @@ test('roulette result TTS normalization migration authorizes only the exact prod
 });
 
 test('Weflab baseline migration extends donor chat capture and safely authorizes donation-summary TTS',async()=>{
-  const sql=await readFile(new URL('../supabase/migrations/20260903032716_weflab_overlay_baseline.sql',import.meta.url),'utf8');
+  const sql=await readFile(new URL('../supabase/migrations/20260902183554_weflab_overlay_baseline.sql',import.meta.url),'utf8');
   assert.match(sql,/\{followupChatTtsWindowSeconds\}','30'::jsonb/i);
   assert.match(sql,/expires_at=wait\.opens_at\+interval '30 seconds'/i);
   assert.match(sql,/command\.command_kind in \('roulette_spin','donation_chat_tts','donation_ceremony'\)/i);
