@@ -103,10 +103,6 @@ export async function deriveSignatureWallpaperAsset(value,sourceReference){
   return deriveWallpaperAsset(value,sourceReference,'pc','wallpaper');
 }
 
-export async function deriveDefaultDonationWallpaperAsset(value,sourceReference){
-  return deriveWallpaperAsset(value,sourceReference,'default-pc','default-wallpaper');
-}
-
 async function deriveWallpaperAsset(value,sourceReference,sourceKind,outputKind){
   const id=workspaceId(value);
   const source=normalizeSignatureImageReference(sourceReference,id,sourceKind);

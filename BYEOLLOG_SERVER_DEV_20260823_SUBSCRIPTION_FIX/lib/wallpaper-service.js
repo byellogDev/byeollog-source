@@ -108,18 +108,11 @@ export async function loadWallpaperState(workspaceId,{sbImpl=sb,environment=proc
   const ordered=(Array.isArray(rows)?rows:[]).reverse();
   const amounts=[...new Set(ordered.map(row=>Number(row.amount)).filter(value=>Number.isSafeInteger(value)&&value>0))];
   const signatureRows=amounts.length?await sbImpl('byeollog_signature_balloons',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&balloon_count=in.(${amounts.join(',')})&select=balloon_count,wallpaper_image,updated_at`).catch(()=>[]):[];
-  const defaultRows=amounts.length?await sbImpl('byeollog_default_donation_images',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&select=min_amount,max_amount,wallpaper_image,updated_at&order=min_amount.asc&limit=50`).catch(()=>[]):[];
   const currentSignatures=(Array.isArray(signatureRows)?signatureRows:[]).filter(row=>row.wallpaper_image?.storagePath);
-  const currentDefaults=(Array.isArray(defaultRows)?defaultRows:[]).filter(row=>row.wallpaper_image?.storagePath);
-  let hydrated=[],hydratedDefaults=[];
-  if(currentSignatures.length||currentDefaults.length){
+  let hydrated=[];
+  if(currentSignatures.length){
     try{
-      const combined=await hydrateSignatureAssetPreviewsImpl(workspaceId,[
-        ...currentSignatures.map(row=>({kind:'wallpaper',reference:row.wallpaper_image})),
-        ...currentDefaults.map(row=>({kind:'default-wallpaper',reference:row.wallpaper_image}))
-      ]);
-      hydrated=combined.slice(0,currentSignatures.length);
-      hydratedDefaults=combined.slice(currentSignatures.length);
+      hydrated=await hydrateSignatureAssetPreviewsImpl(workspaceId,currentSignatures.map(row=>({kind:'wallpaper',reference:row.wallpaper_image})));
     }catch(error){
       console.error('[wallpaper] private preview unavailable',{name:error?.name||'Error',status:error?.status||null});
     }
@@ -128,10 +121,6 @@ export async function loadWallpaperState(workspaceId,{sbImpl=sb,environment=proc
     imageUrl:hydrated[index]?.previewUrl||null,
     imageKey:wallpaperAssetKey('signature',row.wallpaper_image,hydrated[index]?.previewUrl)
   }]));
-  const defaultImages=currentDefaults.map((row,index)=>({
-    min:Number(row.min_amount),max:Number(row.max_amount),imageUrl:hydratedDefaults[index]?.previewUrl||null,
-    imageKey:wallpaperAssetKey('workspace_default',row.wallpaper_image,hydratedDefaults[index]?.previewUrl)
-  })).filter(item=>item.imageUrl&&Number.isSafeInteger(item.min)&&Number.isSafeInteger(item.max));
   const rouletteAssets=currentRouletteAssets(first(serviceRows)?.activation_snapshot),rouletteImages=new Map();
   for(const [amount,value] of rouletteAssets){
     const imageUrl=publicAssetUrl(workspaceId,{asset_source:value.source,asset:value.asset},environment);
@@ -144,7 +133,7 @@ export async function loadWallpaperState(workspaceId,{sbImpl=sb,environment=proc
     if(imageUrl)latestImages.set(Number(row.amount),{imageUrl,imageKey:wallpaperAssetKey(row.asset_source,row.asset,imageUrl),source:row.asset_source});
   }
   const display=ordered.map(row=>{
-    const amount=Number(row.amount)||0,displayKind=row.display_kind==='challenge_success'?'challenge_success':row.display_kind==='subscription'?'subscription':'donation',signatureImage=signatureImages.get(amount),rouletteImage=rouletteImages.get(amount),latest=latestImages.get(amount),defaultImage=defaultImages.find(item=>amount>=item.min&&amount<=item.max);
+    const amount=Number(row.amount)||0,displayKind=row.display_kind==='challenge_success'?'challenge_success':row.display_kind==='subscription'?'subscription':'donation',signatureImage=signatureImages.get(amount),rouletteImage=rouletteImages.get(amount),latest=latestImages.get(amount);
     const officialEventUrl=(displayKind==='challenge_success'||displayKind==='subscription')?publicAssetUrl(workspaceId,row,environment):null;
     const selected=displayKind==='subscription'
       ?{imageUrl:officialEventUrl,imageKey:wallpaperAssetKey('soop',row.asset,officialEventUrl),source:officialEventUrl?'soop':'none'}
@@ -152,8 +141,7 @@ export async function loadWallpaperState(workspaceId,{sbImpl=sb,environment=proc
       ?{imageUrl:officialEventUrl,imageKey:wallpaperAssetKey('soop',row.asset,officialEventUrl),source:'soop'}
       :signatureImage?.imageUrl?{...signatureImage,source:'signature'}
       :rouletteImage?.imageUrl?{...rouletteImage,source:'roulette'}
-      :latest?.imageUrl?latest
-      :defaultImage?.imageUrl?{...defaultImage,source:'workspace_default'}:null;
+      :latest?.imageUrl?latest:null;
     const imageUrl=selected?.imageUrl||(displayKind==='subscription'?null:soopDefaultCeremonyImageUrl(row.amount));
     const source=selected?.source||(displayKind==='subscription'?'none':'soop_default');
     const imageKey=selected?.imageKey||(displayKind==='subscription'?null:wallpaperAssetKey('soop_default',{url:imageUrl},imageUrl));

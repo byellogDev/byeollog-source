@@ -94,8 +94,9 @@ test('database migration enforces exact-count signature priority and service-onl
   assert.match(common,/donation_ceremony/i);
 });
 
-test('default image migration enforces non-overlapping private ranges and wakes Agent wallpaper snapshots',async()=>{
+test('default image migrations keep ranges private while limiting custom images to the common overlay',async()=>{
   const sql=await readFile(new URL('../supabase/migrations/20260902150936_add_default_donation_image_ranges.sql',import.meta.url),'utf8');
+  const followup=await readFile(new URL('../supabase/migrations/20260902154301_stop_default_donation_wallpaper_assets.sql',import.meta.url),'utf8');
   assert.match(sql,/create table public\.byeollog_default_donation_images/i);
   assert.match(sql,/pg_advisory_xact_lock/i);
   assert.match(sql,/int4range\(existing\.min_amount,existing\.max_amount,'\[\]'\)[\s\S]*&&/i);
@@ -104,4 +105,9 @@ test('default image migration enforces non-overlapping private ranges and wakes 
   assert.match(sql,/default-wallpaper/i);
   assert.match(sql,/enable row level security/i);
   assert.doesNotMatch(sql,/grant [^;]+ to anon/i);
+  assert.match(followup,/alter column wallpaper_image drop not null/i);
+  assert.match(followup,/set wallpaper_image=null/i);
+  assert.match(followup,/drop trigger if exists bump_wallpaper_for_default_image_v1/i);
+  assert.doesNotMatch(followup,/defaultDonationImages/i);
+  assert.match(followup,/return public\.g3a_get_wallpaper_snapshot_v1/i);
 });

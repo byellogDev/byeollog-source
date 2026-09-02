@@ -22,7 +22,7 @@ import {
 } from '../lib/signature-balloon-registry.js';
 import {
   createSignatureAssetUploadTicket,verifySignatureAssetUpload,
-  deriveSignatureWallpaperAsset,deriveDefaultDonationWallpaperAsset,
+  deriveSignatureWallpaperAsset,
   hydrateSignatureAssetPreview,hydrateSignatureAssetPreviews,removeSignatureAssets
 } from '../lib/signature-balloon-assets.js';
 import {
@@ -413,13 +413,11 @@ async function handleSignatureAsset(req,res,operation){
 
 async function publicDefaultDonationImages(rows,workspaceId){
   const source=Array.isArray(rows)?rows:[];
-  const previews=await hydrateSignatureAssetPreviews(workspaceId,source.flatMap(row=>[
-    {kind:'default-pc',reference:row.pc_image},{kind:'default-wallpaper',reference:row.wallpaper_image}
-  ]));
+  const previews=await hydrateSignatureAssetPreviews(workspaceId,source.map(row=>({kind:'default-pc',reference:row.pc_image})));
   let cursor=0;
   return source.map(row=>({
     id:row.id,minAmount:row.min_amount,maxAmount:row.max_amount,
-    pcImage:previews[cursor++],wallpaperImage:previews[cursor++],
+    pcImage:previews[cursor++],wallpaperImage:null,
     versionNumber:row.version_number,createdAt:row.created_at,updatedAt:row.updated_at
   }));
 }
@@ -427,9 +425,7 @@ async function publicDefaultDonationImages(rows,workspaceId){
 async function verifyDefaultDonationImageAssets(workspaceId,normalized){
   const verified=await verifySignatureAssetUpload(workspaceId,normalized.pcImage.storagePath,'default-pc');
   const {previewUrl:_preview,...pcImage}=verified;
-  const derived=await deriveDefaultDonationWallpaperAsset(workspaceId,pcImage);
-  const {previewUrl:_wallpaperPreview,...wallpaperImage}=derived;
-  return {...normalized,pcImage,wallpaperImage};
+  return {...normalized,pcImage,wallpaperImage:null};
 }
 
 async function handleDefaultDonationImageRegistry(req,res){

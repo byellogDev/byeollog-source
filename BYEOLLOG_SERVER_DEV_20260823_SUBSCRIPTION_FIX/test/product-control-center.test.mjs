@@ -310,8 +310,10 @@ test('signature registration and common OBS source replace web overlay placement
   assert.match(signatures,/id="signatureWallpaperPreview"/);
   assert.match(signatures,/풍벽지용 이미지[\s\S]*자동 생성/);
   assert.doesNotMatch(signatures,/id="signatureWallpaperUpload"/);
-  assert.match(signatures,/시그풍[\s\S]*SOOP이 전달한 실제 이벤트 이미지[\s\S]*기본 후원 이미지[\s\S]*SOOP 공식 기본 이미지/);
-  assert.match(signatures,/도전미션과 구독 이미지는 이 설정으로 바뀌지 않습니다/);
+  assert.match(signatures,/공통 OBS 이미지 우선순위[\s\S]*시그풍[\s\S]*SOOP이 전달한 실제 이벤트 이미지[\s\S]*기본 후원 이미지[\s\S]*SOOP 공식 기본 이미지/);
+  assert.match(signatures,/기본 후원 이미지 설정은 풍벽지·도전미션·구독에 적용되지 않습니다/);
+  assert.match(signatures,/움직이는 GIF 원본도 그대로 표시/);
+  assert.doesNotMatch(signatures,/id="defaultDonationWallpaperPreview"|renderSignaturePreview/);
   assert.doesNotMatch(signatures,/별록 기본 이미지가 표시/);
   assert.match(roulette,/460×450/);
   assert.match(roulette,/후원 종류 강조 영역과 최대 120자 후원 멘트를 수용하는 고정 경계/);

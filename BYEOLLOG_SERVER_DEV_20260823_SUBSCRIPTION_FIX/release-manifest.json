@@ -1,27 +1,21 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-02T15:27:27.103Z",
-  "gitCommit": "c61d4e7a642db448e7462b8d1b0ac1f1980603aa",
+  "generatedAt": "2026-09-02T15:49:23.788Z",
+  "gitCommit": "20356166d17df67cb545c200a091cd19e885a24d",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 13,
+  "dirtyPathCount": 7,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.139/release-provenance.json",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/stable/win-x64.json",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/api/admin.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/default-donation-images.js",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/product-dashboard-html.js",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/signature-balloon-assets.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/soop-roulette-service.js",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/wallpaper-service.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260902150936_add_default_donation_image_ranges.sql",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-release-storage.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-update-feed.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260902154301_stop_default_donation_wallpaper_assets.sql",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/product-control-center.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/signature-balloon-common-overlay.test.mjs"
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/signature-balloon-common-overlay.test.mjs",
+    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/api/admin.js"
   ],
-  "sourceDigest": "7b1d5feef6e3ad1b11ba811f19af80ab06efb68f8d4b33d5675c1b9bb5ceea13",
-  "fileCount": 339,
+  "sourceDigest": "d2b02f0194927633d3bb89530935e34284e0e6f63abb512ba3751830aa496ba9",
+  "fileCount": 340,
   "files": [
     {
       "path": "agent-updates/release-asset-storage.json",
@@ -345,8 +339,8 @@
     },
     {
       "path": "api/admin.js",
-      "bytes": 74106,
-      "sha256": "5cb6407d52b436ea45d199ded7e96ed37fc09dd1127af2567fa2bbf78beea448"
+      "bytes": 73846,
+      "sha256": "bd265e2c861271ce7944bb201805b82a822db1a9722ba9a02b71150a68b127a8"
     },
     {
       "path": "api/backups.js",
@@ -625,8 +619,8 @@
     },
     {
       "path": "lib/product-dashboard-html.js",
-      "bytes": 155868,
-      "sha256": "eb4032333b64815405962ae4b0b1a1cda06673b096a14c30a022498261ec2a92"
+      "bytes": 155278,
+      "sha256": "dc118605557637c6b7a5c66b841cb305e484a00196b0fa0085617556b0f92b72"
     },
     {
       "path": "lib/rate-limit.js",
@@ -645,8 +639,8 @@
     },
     {
       "path": "lib/signature-balloon-assets.js",
-      "bytes": 9097,
-      "sha256": "cb4acc2cc53501e5fb5f81783a53d1ad0773d5aa4d13144542882cb6b1313bcb"
+      "bytes": 8925,
+      "sha256": "b2d392e3158355a9b1c858f937a6500cbd9794d371ae804fc77284a0f6ca85de"
     },
     {
       "path": "lib/signature-balloon-registry.js",
@@ -780,8 +774,8 @@
     },
     {
       "path": "lib/wallpaper-service.js",
-      "bytes": 15499,
-      "sha256": "112338a8c3b4d805108dce90e741c9f21022e5c4736c568f6dd931f272eb5362"
+      "bytes": 14326,
+      "sha256": "5dbb63ef295e582dff41fdbc6015c9578a5d4fa39f4cc80cb2fe06fad260de09"
     },
     {
       "path": "lib/weflab-public-roulette-import.js",
@@ -1322,6 +1316,11 @@
       "path": "supabase/migrations/20260902150936_add_default_donation_image_ranges.sql",
       "bytes": 7349,
       "sha256": "9ffa605d6b08a6576ff8444f5ad2929ef055847b25d42cbdaeb1b867719284a5"
+    },
+    {
+      "path": "supabase/migrations/20260902154301_stop_default_donation_wallpaper_assets.sql",
+      "bytes": 2152,
+      "sha256": "3a2d7c75f9c1e81448457159ab62f6da135e98aeb4b22bc193b63063af821438"
     },
     {
       "path": "tools/__pycache__/Generate-NativeRouletteAudioCandidates.cpython-312.pyc",
