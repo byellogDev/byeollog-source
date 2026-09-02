@@ -1,43 +1,18 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-02T17:30:40.785Z",
-  "gitCommit": "e79dc9ebb2b8c2d1b65680520b60d507916518d0",
+  "generatedAt": "2026-09-02T17:51:06.105Z",
+  "gitCommit": "d1b6c2ce439eadb0b7302087d2f4c8f628da881b",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 30,
+  "dirtyPathCount": 5,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-01-navy-gold.webp",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-02-royal-purple-rose-gold.png",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-02-royal-purple-rose-gold.webp",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-03-emerald-champagne.png",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-03-emerald-champagne.webp",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-04-burgundy-pale-gold.png",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-04-burgundy-pale-gold.webp",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-05-graphite-cyan.png",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-05-graphite-cyan.webp",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-06-powder-blue-peach.png",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-06-powder-blue-peach.webp",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-07-lavender-butter.png",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-07-lavender-butter.webp",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/native-roulette-assets.js",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/soop-roulette-service.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-1.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-2.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-3.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-4.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-5.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-6.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/vercel-binary-assets/preview-7.js",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/release-manifest.json",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260902172649_replace_native_roulette_result_bar_assets.sql",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/g3a-production-bridge.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/native-roulette-contract.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/native-roulette-digital-twin.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/native-roulette.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Remove-NativeRouletteResultBars.mjs",
-    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/assets/roulette-previews/roulette-01-navy-gold.png"
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/soop-roulette-service.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Preview-CommonOverlayV8.mjs",
+    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/common-overlay-v8.js"
   ],
-  "sourceDigest": "01cf6578ed5ddff106cdfe9fc5d458ffd738eec4ff8067498eb4b53adb4a2fc3",
+  "sourceDigest": "dd8acb2248c70769cefa479002b87afd0919d6ba9ea82d2a27426c33be49ea73",
   "fileCount": 345,
   "files": [
     {
@@ -587,8 +562,8 @@
     },
     {
       "path": "lib/common-overlay-v8.js",
-      "bytes": 39675,
-      "sha256": "a90b332f45d3aeb923471dda0cd8bf928110f6cc69bd4079ffcc66643d1b2a2e"
+      "bytes": 40720,
+      "sha256": "b43289fd035ebc489e0d150ee89730e12e547f474b07834dc13085cffb239f95"
     },
     {
       "path": "lib/dashboard-navigation.js",
@@ -692,8 +667,8 @@
     },
     {
       "path": "lib/soop-roulette-service.js",
-      "bytes": 13019,
-      "sha256": "c77ecceda571f13976b5c0160670ef8262d096977d4b0579fd32d1b12187d72f"
+      "bytes": 13024,
+      "sha256": "a30015841d30ddcf304da01d4eee0580a3f64a63abf2f7e0866834671e2736e1"
     },
     {
       "path": "lib/soop-sdk-relay.js",
@@ -1507,8 +1482,8 @@
     },
     {
       "path": "tools/Preview-CommonOverlayV8.mjs",
-      "bytes": 6769,
-      "sha256": "d6db55663de7bf4905b09457051a3ff1e4f5446cee0dd09c415c6ef6e1a8f8d6"
+      "bytes": 7419,
+      "sha256": "410f9842543eba9a197532bb618f9f0362ac5e8b31ce4d029f50809699ee9c5d"
     },
     {
       "path": "tools/Preview-ProductDashboard.mjs",

@@ -24,6 +24,12 @@ if(demoCase==='donation152'){
   await ceremony(ceremonyCommand);clearCeremonyCloseTimer();await sleep(180);showCeremonyMessage('오늘도 응원합니다!');await sleep(700);
   document.documentElement.dataset.previewOpenCount='1';document.documentElement.dataset.previewReady='true';return;
 }
+if(demoCase==='donation-name-fit'){
+  basePayload.actor.name='후원 테스트';basePayload.amount=12486;basePayload.ceremony={source:'signature',url:'/assets/roulette-previews/roulette-01-navy-gold.png',providerFallbackUrl:null,defaultFallbackUrl:null};
+  const ceremonyCommand={id:'9d66048f-d838-4efc-b2b1-6123d37c3468',kind:'donation_ceremony',payload:basePayload};
+  await ceremony(ceremonyCommand);clearCeremonyCloseTimer();await sleep(180);showCeremonyMessage('후바록보맛잖아 관측계정A바보잖아');await sleep(700);
+  document.documentElement.dataset.previewOpenCount='1';document.documentElement.dataset.previewReady='true';return;
+}
 if(demoCase==='signature'){
   basePayload.amount=100;basePayload.ceremony={source:'signature',url:'/assets/roulette-previews/roulette-01-navy-gold.png',providerFallbackUrl:null};
   const ceremonyCommand={id:'7d66048f-d838-4efc-b2b1-6123d37c3468',kind:'donation_ceremony',payload:basePayload};

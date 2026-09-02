@@ -260,8 +260,10 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/@keyframes glyphLand/);
   assert.match(html,/@keyframes counterFlip/);
   assert.match(html,/@keyframes messageReveal/);
-  assert.match(html,/MAX_DISPLAY_NAME_GRAPHEMES=12,MAX_RESULT_NAME_GRAPHEMES=20/);
-  assert.match(html,/parts\.slice\(0,MAX_DISPLAY_NAME_GRAPHEMES-1\)[\s\S]*\+'…'/);
+  assert.match(html,/MAX_DISPLAY_NAME_GRAPHEMES=120,MAX_RESULT_NAME_GRAPHEMES=20/);
+  assert.match(html,/function displayName\(value\)[\s\S]*\.slice\(0,MAX_DISPLAY_NAME_GRAPHEMES\)\.join\(''\)/);
+  assert.doesNotMatch(html,/text-overflow:ellipsis[^}]*donorName|donorName[^}]*text-overflow:ellipsis/);
+  assert.match(html,/function fitMetaLine\(lineId\)/);
   assert.match(html,/function limitResultName\(value\)[\s\S]*slice\(0,MAX_RESULT_NAME_GRAPHEMES\)/);
   assert.match(html,/fitTextClass\(slot,value,9,12\)/);
   assert.match(html,/\.slotValue\.medium\{font-size:32px\}\.slotValue\.long\{font-size:27px/);
@@ -271,7 +273,7 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/counter\.textContent='\['\+position\.current\+'\]'/);
   assert.match(html,/if\(length<=22\)return 32/);
   assert.match(html,/panel\.style\.height=\(100\+height\)\+'px'/);
-  assert.match(html,/function standaloneChatText\(payload\)[\s\S]*limitDisplayName\(payload\.actor&&payload\.actor\.name\)/);
+  assert.match(html,/function standaloneChatText\(payload\)[\s\S]*displayName\(payload\.actor&&payload\.actor\.name\)/);
   assert.match(html,/Math\.max\(3600/);
   assert.match(html,/object-fit:contain/);
   assert.doesNotMatch(html,/style\.opacity='\.82'/);
@@ -299,8 +301,8 @@ test('chatbot dry-run migration is reveal-gated, idempotent and cannot send live
 
 test('v8 uses the maximum rendered card envelope as a stable OBS source boundary',()=>{
   const html=getRouletteServiceOverlayHtml('nonce');
-  assert.equal(COMMON_OVERLAY_MAX_DISPLAY_NAME_GRAPHEMES,12);
-  assert.deepEqual(COMMON_OVERLAY_V8_LAYOUT,{logicalWidth:460,logicalHeight:450,cardWidth:420,artWidth:420,artHeight:166,cardTop:15,basePanelHeight:100,maxMessageHeight:154,maxDisplayNameGraphemes:12,maxResultNameGraphemes:20});
+  assert.equal(COMMON_OVERLAY_MAX_DISPLAY_NAME_GRAPHEMES,120);
+  assert.deepEqual(COMMON_OVERLAY_V8_LAYOUT,{logicalWidth:460,logicalHeight:450,cardWidth:420,artWidth:420,artHeight:166,cardTop:15,basePanelHeight:100,maxMessageHeight:154,maxDisplayNameGraphemes:120,maxResultNameGraphemes:20});
   assert.equal(computeCommonOverlayScale(460,450),1);
   assert.equal(computeCommonOverlayScale(920,900),2);
   assert.equal(computeCommonOverlayScale(1920,1080),1080/450);
