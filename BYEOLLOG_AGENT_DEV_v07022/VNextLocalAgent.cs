@@ -95,7 +95,6 @@ internal sealed class VNextLocalAgent : IDisposable
     private readonly FlashbangOverlayActionAdapter _flashbangOverlayActions;
     private readonly ScreenActionAdapter _screenActions;
     private readonly VisualEffectOverlayActionAdapter _visualEffectActions;
-    private readonly RaffleWinnerSpeechCache _raffleWinnerSpeechCache;
     private readonly string _deviceId;
     private string _deviceSecret;
     private string? _pendingDeviceSecret;
@@ -110,7 +109,6 @@ internal sealed class VNextLocalAgent : IDisposable
     private readonly SemaphoreSlim _displayObservationGate = new(1, 1);
     private readonly SemaphoreSlim _outboxFlushGate = new(1, 1);
     private readonly SemaphoreSlim _executionSlots = new(MaximumConcurrentExecutions, MaximumConcurrentExecutions);
-    private readonly SemaphoreSlim _raffleSpeechPrewarmGate = new(1, 1);
     private readonly WallpaperSyncRequestTracker _wallpaperRequests = new();
     private readonly object _executionGate = new();
     private readonly HashSet<Task> _inflightExecutions = [];
@@ -160,9 +158,6 @@ internal sealed class VNextLocalAgent : IDisposable
             _overlay.DisplayObserved += QueueDisplayObservation;
             _overlay.TryStart();
             _timedMuteActions = new TimedMuteActionAdapter(collectorStorage, _overlay);
-            _raffleWinnerSpeechCache = new RaffleWinnerSpeechCache(
-                Path.Combine(collectorStorage.RootPath, "raffle-winner-speech-cache-v2"),
-                collectorStorage.Log);
             _raffleOverlayActions = new RaffleOverlayActionAdapter(
                 _overlay,
                 async token =>
@@ -175,70 +170,41 @@ internal sealed class VNextLocalAgent : IDisposable
                             token)
                         : 0;
                 },
-                (_, _) => Task.FromResult(new RafflePreparedAudio(
-                    ByeollogRaffleAudio.TicketAudioForPreflight(),
-                    ByeollogRaffleAudio.TicketSha256,
-                    RaffleOverlayActionAdapter.TicketAudioBindingKey)),
+                async (executionId, attemptNo, _, token) =>
+                {
+                    var download = await _client.DownloadRaffleActionSpeechAsync(
+                        _deviceId,
+                        _deviceSecret,
+                        executionId,
+                        attemptNo,
+                        "ticket",
+                        0,
+                        RaffleOverlayActionAdapter.TicketAudioBindingKey,
+                        token);
+                    return new RafflePreparedAudio(
+                        download.Audio,
+                        download.AudioSha256,
+                        download.VoiceKey,
+                        "managed_donation_tts",
+                        null);
+                },
                 async (executionId, attemptNo, winnerOrdinal, expectedVoiceKey, volumePercent, token) =>
                 {
-                    try
-                    {
-                        byte[] audio;
-                        string audioSha256;
-                        if (_raffleWinnerSpeechCache.TryRead(expectedVoiceKey, out var cached)
-                            && cached is not null)
-                        {
-                            audio = cached.Audio;
-                            audioSha256 = cached.AudioSha256;
-                            collectorStorage.Log(
-                                "당첨 음성 캐시 사용 · key=" + expectedVoiceKey[..12]
-                                + " · version=" + cached.VoiceVersion);
-                        }
-                        else
-                        {
-                            var download = await _client.DownloadRaffleWinnerSpeechAsync(
-                                _deviceId,
-                                _deviceSecret,
-                                executionId,
-                                attemptNo,
-                                winnerOrdinal,
-                                expectedVoiceKey,
-                                token);
-                            await _raffleWinnerSpeechCache.StoreAsync(
-                                expectedVoiceKey,
-                                download,
-                                token);
-                            audio = download.Audio;
-                            audioSha256 = download.AudioSha256;
-                        }
-                        return new RafflePreparedAudio(
-                            audio,
-                            audioSha256,
-                            expectedVoiceKey,
-                            "custom_winner",
-                            null);
-                    }
-                    catch (OperationCanceledException) when (token.IsCancellationRequested)
-                    {
-                        throw;
-                    }
-                    catch (Exception ex)
-                    {
-                        // The fallback is generic and never names a viewer, so a
-                        // failed/mismatched custom response cannot announce the
-                        // wrong winner. Keep the execution-bound binding key so
-                        // the Browser Source token remains tied to this exact draw.
-                        collectorStorage.Log(
-                            "당첨 맞춤 음성 대신 내장 예비 음성 사용 · key="
-                            + expectedVoiceKey[..12]
-                            + " · type=" + ex.GetType().Name);
-                        return new RafflePreparedAudio(
-                            ByeollogRaffleAudio.WinnerFallbackAudioForPreflight(),
-                            ByeollogRaffleAudio.WinnerFallbackSha256,
-                            expectedVoiceKey,
-                            "embedded_fallback",
-                            ex.GetType().Name);
-                    }
+                    var download = await _client.DownloadRaffleActionSpeechAsync(
+                        _deviceId,
+                        _deviceSecret,
+                        executionId,
+                        attemptNo,
+                        "winner",
+                        winnerOrdinal,
+                        expectedVoiceKey,
+                        token);
+                    return new RafflePreparedAudio(
+                        download.Audio,
+                        download.AudioSha256,
+                        download.VoiceKey,
+                        "managed_donation_tts",
+                        null);
                 },
                 async token =>
                 {
@@ -361,6 +327,7 @@ internal sealed class VNextLocalAgent : IDisposable
         return (actionSources, wallpaperSources);
     }
 
+#if false // Retired: raffle speech now uses donation-alert managed TTS on demand.
     public async Task<VNextRaffleSpeechPrewarmResult> PrewarmRaffleWinnerSpeechAsync(
         string drawId,
         Func<int, int, Task>? progress = null,
@@ -472,6 +439,7 @@ internal sealed class VNextLocalAgent : IDisposable
         }
     }
 
+#endif
     public VNextLocalAgentStatus Status
     {
         get { lock (_statusGate) return _status; }

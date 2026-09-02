@@ -943,7 +943,7 @@ internal static class Program
             var unavailableSpeechCalls = 0;
             var unavailableAdapter = new RaffleOverlayActionAdapter(
                 unavailableService,
-                prepareTicketSpeech: (_, _) =>
+                prepareTicketSpeech: (_, _, _, _) =>
                 {
                     Interlocked.Increment(ref unavailableSpeechCalls);
                     return Task.FromResult(PreparedTestAudio(
@@ -994,7 +994,7 @@ internal static class Program
         var winnerPlaybackSawActiveDraw = false;
         var adapter = new RaffleOverlayActionAdapter(
             readyService,
-            prepareTicketSpeech: (_, _) =>
+            prepareTicketSpeech: (_, _, _, _) =>
             {
                 Interlocked.Increment(ref speechCalls);
                 return Task.FromResult(PreparedTestAudio(
@@ -1253,7 +1253,7 @@ internal static class Program
         var ttsFailureLogs = new List<string>();
         var ttsFailureAdapter = new RaffleOverlayActionAdapter(
             readyService,
-            prepareTicketSpeech: (_, _) => throw new IOException("simulated TTS failure"),
+            prepareTicketSpeech: (_, _, _, _) => throw new IOException("simulated TTS failure"),
             log: message => ttsFailureLogs.Add(message));
         var ttsFailureOutcome = await ttsFailureAdapter.ExecuteAsync(
             "44444444-4444-4444-8444-444444444444",
@@ -1293,7 +1293,7 @@ internal static class Program
         var queuedSpeechSawRaffle = false;
         var queuedAdapter = new RaffleOverlayActionAdapter(
             readyService,
-            prepareTicketSpeech: (_, _) =>
+            prepareTicketSpeech: (_, _, _, _) =>
             {
                 Interlocked.Increment(ref queuedSpeechCalls);
                 return Task.FromResult(PreparedTestAudio(
@@ -1350,7 +1350,7 @@ internal static class Program
         var expiredQueuedSpeechCalls = 0;
         var expiredQueuedAdapter = new RaffleOverlayActionAdapter(
             readyService,
-            prepareTicketSpeech: (_, _) =>
+            prepareTicketSpeech: (_, _, _, _) =>
             {
                 Interlocked.Increment(ref expiredQueuedSpeechCalls);
                 return Task.FromResult(PreparedTestAudio(
@@ -2652,6 +2652,21 @@ internal static class Program
             var overlayHtml = await http.GetStringAsync(service.OverlayUrl);
             True(overlayHtml.Contains("/overlay/display-observed?kind=", StringComparison.Ordinal),
                 "the Browser Source reports a privacy-safe local display observation");
+            using (var foreignHost = new HttpRequestMessage(HttpMethod.Get, service.OverlayUrl))
+            {
+                foreignHost.Headers.Host = "attacker.example";
+                using var rejected = await http.SendAsync(foreignHost);
+                Equal(HttpStatusCode.Forbidden, rejected.StatusCode,
+                    "localhost overlay rejects DNS-rebinding host headers");
+            }
+            using (var foreignOrigin = new HttpRequestMessage(HttpMethod.Get, service.OverlayUrl))
+            {
+                foreignOrigin.Headers.TryAddWithoutValidation("Origin", "https://attacker.example");
+                foreignOrigin.Headers.TryAddWithoutValidation("Sec-Fetch-Site", "cross-site");
+                using var rejected = await http.SendAsync(foreignOrigin);
+                Equal(HttpStatusCode.Forbidden, rejected.StatusCode,
+                    "localhost overlay rejects cross-site browser origins");
+            }
             True(overlayHtml.Contains("requestAnimationFrame(() => requestAnimationFrame(resolve))", StringComparison.Ordinal),
                 "display telemetry waits through two paint frames instead of measuring DOM mutation");
             True(overlayHtml.Contains("typeof image.decode === 'function'", StringComparison.Ordinal),

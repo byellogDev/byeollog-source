@@ -1,5 +1,7 @@
 import {clearSessionCookie,getSession} from './auth.js';
 import {isRateLimited,clientIp} from './rate-limit.js';
+import {isJsonRequest,isTrustedMutationOrigin} from './request-origin.js';
+import {sb} from './supabase-rest.js';
 import crypto from 'node:crypto';
 
 function bodyOf(req){if(typeof req.body==='string'){try{return JSON.parse(req.body)}catch{return {}}}return req.body||{}}
@@ -52,6 +54,20 @@ async function signIn(email,password){
   const data=await response.json().catch(()=>({}));
   return response.ok&&data?.access_token?data:null;
 }
+async function authenticatedUser(accessToken){
+  const {url,anon}=config();
+  const response=await fetch(`${url}/auth/v1/user`,{headers:{apikey:anon,Authorization:'Bearer '+accessToken},cache:'no-store'});
+  const data=await response.json().catch(()=>({}));
+  return response.ok&&data?.id?data:null;
+}
+async function revokeWebSessions(userId){
+  let lastError;
+  for(let attempt=0;attempt<2;attempt++){
+    try{return await sb('rpc/revoke_web_sessions_v1','',{method:'POST',body:{p_user_id:userId}})}
+    catch(error){lastError=error}
+  }
+  throw lastError||new Error('웹 세션을 폐기하지 못했습니다.');
+}
 async function updatePassword(accessToken,password){
   const {url,anon}=config();
   const response=await fetch(`${url}/auth/v1/user`,{method:'PUT',headers:{apikey:anon,Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({password}),cache:'no-store'});
@@ -62,6 +78,8 @@ async function updatePassword(accessToken,password){
 export default async function handlePassword(req,res){
   res.setHeader('Cache-Control','no-store');
   if(req.method!=='POST')return res.status(405).json({message:'Method not allowed'});
+  if(!isTrustedMutationOrigin(req))return res.status(403).json({message:'허용되지 않은 요청 출처입니다.'});
+  if(!isJsonRequest(req))return res.status(415).json({message:'JSON 요청만 사용할 수 있습니다.'});
   const operation=String(req.query?.operation||''),body=bodyOf(req);
   try{
     if(operation==='request-reset'){
@@ -79,6 +97,9 @@ export default async function handlePassword(req,res){
       const accessToken=String(body.access_token||''),password=String(body.password||'');
       if(!accessToken)return res.status(400).json({message:'재설정 링크가 없거나 만료되었습니다.'});
       try{validateNewPassword(password);await assertPasswordNotLeaked(password)}catch(passwordError){return res.status(Number(passwordError?.status)||400).json({message:String(passwordError?.message||passwordError)})}
+      const resetUser=await authenticatedUser(accessToken);
+      if(!resetUser)return res.status(401).json({message:'재설정 링크가 없거나 만료되었습니다.'});
+      await revokeWebSessions(resetUser.id);
       await updatePassword(accessToken,password);
       clearSessionCookie(res);
       return res.status(200).json({ok:true,message:'비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.'});
@@ -93,6 +114,8 @@ export default async function handlePassword(req,res){
       if(currentPassword===password)return res.status(400).json({message:'현재 비밀번호와 다른 비밀번호를 입력해주세요.'});
       const auth=await signIn(session.email,currentPassword);
       if(!auth)return res.status(401).json({message:'현재 비밀번호가 올바르지 않습니다.'});
+      if(auth.user?.id!==session.user_id)return res.status(401).json({message:'현재 로그인 계정을 다시 확인해주세요.'});
+      await revokeWebSessions(session.user_id);
       await updatePassword(auth.access_token,password);
       clearSessionCookie(res);
       return res.status(200).json({ok:true,message:'비밀번호가 변경되었습니다. 새 비밀번호로 다시 로그인해주세요.'});

@@ -2153,16 +2153,64 @@ internal sealed class ByeollogOverlayService : IDisposable
         }
     }
 
-    private static async Task DrainHeadersAsync(StreamReader reader, CancellationToken cancellationToken)
+    private readonly record struct OverlayRequestHeaders(
+        string? Host,
+        string? Origin,
+        string? FetchSite,
+        bool Invalid);
+
+    private static async Task<OverlayRequestHeaders> ReadSecurityHeadersAsync(
+        StreamReader reader,
+        CancellationToken cancellationToken)
     {
         var total = 0;
+        string? host = null;
+        string? origin = null;
+        string? fetchSite = null;
+        var invalid = false;
         while (true)
         {
             var line = await reader.ReadLineAsync(cancellationToken);
-            if (line is null || line.Length == 0) return;
+            if (line is null || line.Length == 0)
+                return new OverlayRequestHeaders(host, origin, fetchSite, invalid);
             total += line.Length;
             if (total > 16_384) throw new InvalidDataException("HTTP request headers are too large.");
+            var separator = line.IndexOf(':');
+            if (separator <= 0)
+            {
+                invalid = true;
+                continue;
+            }
+            var name = line[..separator].Trim();
+            var value = line[(separator + 1)..].Trim();
+            if (name.Equals("Host", StringComparison.OrdinalIgnoreCase))
+            {
+                if (host is not null) invalid = true;
+                else host = value;
+            }
+            else if (name.Equals("Origin", StringComparison.OrdinalIgnoreCase))
+            {
+                if (origin is not null) invalid = true;
+                else origin = value;
+            }
+            else if (name.Equals("Sec-Fetch-Site", StringComparison.OrdinalIgnoreCase))
+            {
+                if (fetchSite is not null) invalid = true;
+                else fetchSite = value;
+            }
         }
+    }
+
+    private bool IsTrustedLoopbackRequest(OverlayRequestHeaders headers)
+    {
+        if (headers.Invalid || string.IsNullOrWhiteSpace(headers.Host)) return false;
+        var hostAllowed = headers.Host.Equals($"127.0.0.1:{Port}", StringComparison.OrdinalIgnoreCase)
+            || headers.Host.Equals($"localhost:{Port}", StringComparison.OrdinalIgnoreCase);
+        if (!hostAllowed) return false;
+        if (string.Equals(headers.FetchSite, "cross-site", StringComparison.OrdinalIgnoreCase)) return false;
+        if (string.IsNullOrWhiteSpace(headers.Origin)) return true;
+        return headers.Origin.Equals($"http://127.0.0.1:{Port}", StringComparison.OrdinalIgnoreCase)
+            || headers.Origin.Equals($"http://localhost:{Port}", StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task HandleClientSafelyAsync(TcpClient client, CancellationToken serverCancellationToken)
@@ -2186,7 +2234,7 @@ internal sealed class ByeollogOverlayService : IDisposable
                     await WriteResponseAsync(stream, 400, "text/plain; charset=utf-8", Encoding.UTF8.GetBytes("Bad Request"), false, timeout.Token);
                     return;
                 }
-                await DrainHeadersAsync(reader, timeout.Token);
+                var requestHeaders = await ReadSecurityHeadersAsync(reader, timeout.Token);
 
                 var parts = requestLine.Split(' ', 3, StringSplitOptions.RemoveEmptyEntries);
                 var method = parts.Length == 3 ? parts[0] : "";
@@ -2195,6 +2243,11 @@ internal sealed class ByeollogOverlayService : IDisposable
                 if (!headOnly && !string.Equals(method, "GET", StringComparison.Ordinal))
                 {
                     await WriteResponseAsync(stream, 405, "text/plain; charset=utf-8", Encoding.UTF8.GetBytes("Method Not Allowed"), false, timeout.Token);
+                    return;
+                }
+                if (!IsTrustedLoopbackRequest(requestHeaders))
+                {
+                    await WriteResponseAsync(stream, 403, "text/plain; charset=utf-8", Encoding.UTF8.GetBytes("Forbidden"), headOnly, timeout.Token);
                     return;
                 }
 
@@ -2434,6 +2487,7 @@ internal sealed class ByeollogOverlayService : IDisposable
         {
             200 => "OK",
             400 => "Bad Request",
+            403 => "Forbidden",
             404 => "Not Found",
             405 => "Method Not Allowed",
             _ => "Error"

@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX
+    schedule:
+      interval: weekly
+    groups:
+      server-dependencies:
+        patterns: ["*"]
+  - package-ecosystem: npm
+    directory: /BYEOLLOG_TTS_RELAY
+    schedule:
+      interval: weekly
+    groups:
+      relay-dependencies:
+        patterns: ["*"]
+  - package-ecosystem: pip
+    directory: /BYEOLLOG_TTS_SERVICE
+    schedule:
+      interval: weekly
+    groups:
+      tts-dependencies:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

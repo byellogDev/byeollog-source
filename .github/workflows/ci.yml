@@ -28,8 +28,8 @@ jobs:
       run:
         shell: pwsh
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -39,10 +39,13 @@ jobs:
       - name: Install locked server dependencies
         working-directory: BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX
         run: npm ci
+      - name: Reject high-severity server dependency advisories
+        working-directory: BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX
+        run: npm audit --audit-level=high
       - name: Run server tests and source-manifest assertions
         working-directory: BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX
         run: npm test
-      - name: Execute collection-health migration behavior harness
+      - name: Execute migration behavior harnesses
         shell: bash
         working-directory: BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX
         env:
@@ -52,16 +55,18 @@ jobs:
           sudo apt-get install -y -qq postgresql-client
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d postgres \
             -f test/collection-health-migration-harness.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d postgres \
+            -f test/web-session-security-migration-harness.sql
 
   agent:
     name: Windows AgentStore tests and release compile
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: 8.0.x
       - name: Check repository boundary and Supabase migration policy
@@ -83,6 +88,10 @@ jobs:
         shell: pwsh
         working-directory: BYEOLLOG_AGENT_DEV_v07022
         run: dotnet restore HurogiCollector.csproj
+      - name: Reject vulnerable production Agent packages
+        shell: pwsh
+        working-directory: BYEOLLOG_AGENT_DEV_v07022
+        run: dotnet list HurogiCollector.csproj package --vulnerable --include-transitive
       - name: Compile production Agent release
         shell: pwsh
         working-directory: BYEOLLOG_AGENT_DEV_v07022
@@ -102,3 +111,32 @@ jobs:
           if ($expectedVersion -notmatch '^\d+\.\d+\.\d+\.\d+$') { throw 'A four-part Agent Version is required for update preflight.' }
           & .\ci-artifacts\agent\byeollog.exe --update-preflight $expectedVersion
           if ($LASTEXITCODE -ne 0) { throw 'Compiled Agent update preflight failed.' }
+
+  auxiliary:
+    name: TTS and Relay tests and supply-chain gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: BYEOLLOG_TTS_RELAY/package-lock.json
+      - uses: actions/setup-python@7f4fc3e22c37d6ff65e88745f38bd3157c663f7c # v4
+        with:
+          python-version: "3.11"
+      - name: Check repository boundary and Supabase migration policy
+        shell: pwsh
+        run: ./scripts/Test-RepositoryBaseline.ps1
+      - name: Run dependency-light TTS contract tests
+        working-directory: BYEOLLOG_TTS_SERVICE
+        run: python -m unittest discover -s tests -p 'test_*.py'
+      - name: Install locked Relay dependencies
+        working-directory: BYEOLLOG_TTS_RELAY
+        run: npm ci
+      - name: Reject high-severity Relay dependency advisories
+        working-directory: BYEOLLOG_TTS_RELAY
+        run: npm audit --audit-level=high
+      - name: Run Relay tests
+        working-directory: BYEOLLOG_TTS_RELAY
+        run: npm test

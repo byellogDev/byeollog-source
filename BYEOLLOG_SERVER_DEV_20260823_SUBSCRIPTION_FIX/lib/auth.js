@@ -34,6 +34,13 @@ function secret(){
 function b64url(value){return Buffer.from(value).toString('base64url')}
 function unb64url(value){return Buffer.from(value,'base64url').toString('utf8')}
 function hmac(value){return crypto.createHmac('sha256', secret()).update(value).digest('hex')}
+function normalizeSessionEpoch(value){
+  const epoch=Number(value);
+  return Number.isSafeInteger(epoch)&&epoch>=0?epoch:0;
+}
+function sessionEpochMatches(session,membership){
+  return normalizeSessionEpoch(session?.session_epoch)===normalizeSessionEpoch(membership?.web_session_epoch);
+}
 
 export function safeEqual(a,b){
   const ah=crypto.createHash('sha256').update(String(a)).digest();
@@ -51,6 +58,7 @@ export function createSessionToken(ctx={}){
     role:normalizeRole(ctx.role),
     email:ctx.email||null,
     collector_device_id:ctx.collector_device_id||null,
+    session_epoch:normalizeSessionEpoch(ctx.session_epoch),
   };
   const encoded=b64url(JSON.stringify(payload));
   return encoded+'.'+hmac(encoded);
@@ -66,6 +74,7 @@ export function verifySessionToken(token){
     const parsed=JSON.parse(unb64url(payload));
     if(!parsed?.exp || Number(parsed.exp)<Math.floor(Date.now()/1000))return null;
     parsed.role = normalizeRole(parsed.role);
+    parsed.session_epoch = normalizeSessionEpoch(parsed.session_epoch);
     return parsed;
   }catch{return null}
 }
@@ -190,11 +199,11 @@ export async function revalidateMembership(session,{sbImpl=sb,retryDelayMs=40}={
     if(!device || device.workspace_id!==session.workspace_id || !device.created_by_user_id) return null;
     const memberships=await membershipQuery(
       sbImpl,'byeollog_workspace_members',
-      `?select=role,workspace_id&user_id=eq.${encodeURIComponent(device.created_by_user_id)}`+
+      `?select=role,workspace_id,web_session_epoch&user_id=eq.${encodeURIComponent(device.created_by_user_id)}`+
       `&workspace_id=eq.${encodeURIComponent(session.workspace_id)}&limit=1`,retryDelayMs
     );
     const membership=Array.isArray(memberships)?memberships[0]:null;
-    if(!membership || membership.workspace_id!==session.workspace_id) return null;
+    if(!membership || membership.workspace_id!==session.workspace_id || !sessionEpochMatches(session,membership)) return null;
     const workspaces=await membershipQuery(
       sbImpl,'byeollog_workspaces',
       `?select=id,status&id=eq.${encodeURIComponent(session.workspace_id)}&status=eq.active&limit=1`,retryDelayMs
@@ -210,10 +219,10 @@ export async function revalidateMembership(session,{sbImpl=sb,retryDelayMs=40}={
   if(!session.user_id || !session.workspace_id) return null;
   const rows=await membershipQuery(
     sbImpl,'byeollog_workspace_members',
-    `?select=role,workspace_id&user_id=eq.${encodeURIComponent(session.user_id)}&workspace_id=eq.${encodeURIComponent(session.workspace_id)}&limit=1`,retryDelayMs
+    `?select=role,workspace_id,web_session_epoch&user_id=eq.${encodeURIComponent(session.user_id)}&workspace_id=eq.${encodeURIComponent(session.workspace_id)}&limit=1`,retryDelayMs
   );
   const m=Array.isArray(rows)?rows[0]:null;
-  if(!m) return null;
+  if(!m || !sessionEpochMatches(session,m)) return null;
   const ws=await membershipQuery(
     sbImpl,'byeollog_workspaces',
     `?select=id,status&id=eq.${encodeURIComponent(session.workspace_id)}&status=eq.active&limit=1`,retryDelayMs

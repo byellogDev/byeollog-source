@@ -28,7 +28,7 @@ async function betaLogin(id,password,requestedWorkspace){
   const data=await auth.json().catch(()=>({}));
   if(!auth.ok||!data?.user?.id)return null;
   const userId=data.user.id;
-  const memberships=await sb('byeollog_workspace_members',`?select=workspace_id,role,byeollog_workspaces(id,slug,display_name,status)&user_id=eq.${encodeURIComponent(userId)}`);
+  const memberships=await sb('byeollog_workspace_members',`?select=workspace_id,role,web_session_epoch,byeollog_workspaces(id,slug,display_name,status)&user_id=eq.${encodeURIComponent(userId)}`);
   let rows=Array.isArray(memberships)?memberships.filter(x=>x?.byeollog_workspaces?.status==='active'):[];
   if(requestedWorkspace)rows=rows.filter(x=>x.workspace_id===requestedWorkspace||x.byeollog_workspaces?.slug===requestedWorkspace);
   if(!rows.length){
@@ -39,7 +39,7 @@ async function betaLogin(id,password,requestedWorkspace){
     return {error:'이 계정에 연결된 별록 워크스페이스가 없습니다.'};
   }
   const m=rows[0],w=m.byeollog_workspaces;
-  return {token:createSessionToken({mode:'beta',user_id:userId,email:data.user.email,workspace_id:m.workspace_id,workspace_slug:w?.slug,role:m.role}),workspace:w,role:m.role};
+  return {token:createSessionToken({mode:'beta',user_id:userId,email:data.user.email,workspace_id:m.workspace_id,workspace_slug:w?.slug,role:m.role,session_epoch:m.web_session_epoch}),workspace:w,role:m.role};
 }
 
 
@@ -47,6 +47,8 @@ async function handleInquirySubmit(req,res){
   res.setHeader('Cache-Control','no-store');
   res.setHeader('Content-Type','application/json; charset=utf-8');
   if(req.method!=='POST')return res.status(405).json({message:'Method not allowed'});
+  if(!isTrustedMutationOrigin(req))return res.status(403).json({message:'허용되지 않은 요청 출처입니다.'});
+  if(!isJsonRequest(req))return res.status(415).json({message:'JSON 요청만 사용할 수 있습니다.'});
   if(await isRateLimited('inquiry:ip:'+clientIp(req),{limit:8,windowMs:15*60*1000}))return res.status(429).json({message:'문의 전송 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.'});
   const b=bodyOf(req);
   const contact=String(b.contact||'').trim();
@@ -72,6 +74,65 @@ async function handleInquirySubmit(req,res){
 function bearer(req){
   const match=String(req.headers?.authorization||'').match(/^Bearer\s+([^\s]+)$/i);
   return match?.[1]||'';
+}
+
+function managedTtsBridgeSecret(){
+  const secret=String(process.env.BYEOLLOG_MANAGED_TTS_BRIDGE_SECRET||'').trim();
+  if(secret.length<43||secret.length>200||!/^[A-Za-z0-9._~-]+$/.test(secret))return '';
+  return secret;
+}
+
+function pcm16MonoWav(pcm,sampleRate){
+  const audio=Buffer.from(pcm),header=Buffer.alloc(44);
+  header.write('RIFF',0);header.writeUInt32LE(36+audio.length,4);header.write('WAVE',8);
+  header.write('fmt ',12);header.writeUInt32LE(16,16);header.writeUInt16LE(1,20);
+  header.writeUInt16LE(1,22);header.writeUInt32LE(sampleRate,24);
+  header.writeUInt32LE(sampleRate*2,28);header.writeUInt16LE(2,32);header.writeUInt16LE(16,34);
+  header.write('data',36);header.writeUInt32LE(audio.length,40);
+  return Buffer.concat([header,audio]);
+}
+
+async function handleInternalRaffleTts(req,res){
+  if(req.method!=='POST')return res.status(405).json({message:'Method not allowed'});
+  if(!isJsonRequest(req))return res.status(415).json({message:'JSON 요청만 사용할 수 있습니다.'});
+  const secret=managedTtsBridgeSecret();
+  if(!secret)return res.status(503).json({message:'관리형 TTS 연결이 준비되지 않았습니다.'});
+  const b=bodyOf(req);
+  const workspaceId=String(b.workspaceId||'').trim().toLowerCase();
+  const executionId=String(b.executionId||'').trim().toLowerCase();
+  const speechKind=String(b.speechKind||'').trim();
+  const bindingKey=String(b.bindingKey||'').trim().toLowerCase();
+  const text=String(b.text||'').trim();
+  const attemptNo=Number(b.attemptNo);
+  const timestamp=String(req.headers?.['x-byeollog-timestamp']||'').trim();
+  const signature=String(req.headers?.['x-byeollog-signature']||'').trim().toLowerCase();
+  const timestampMs=Number(timestamp)*1000;
+  if(!UUID.test(workspaceId)||!UUID.test(executionId)||!['ticket','winner'].includes(speechKind)
+    ||!Number.isInteger(attemptNo)||attemptNo<1||attemptNo>10
+    ||!/^[0-9a-f]{64}$/.test(bindingKey)||text.length<1||text.length>240||/[\u0000-\u001f\u007f]/.test(text)
+    ||!/^\d{10}$/.test(timestamp)||!Number.isFinite(timestampMs)||Math.abs(Date.now()-timestampMs)>60_000
+    ||!/^[0-9a-f]{64}$/.test(signature))return res.status(400).json({message:'관리형 TTS 요청이 올바르지 않습니다.'});
+  const textHash=crypto.createHash('sha256').update(text,'utf8').digest('hex');
+  const canonical=[timestamp,workspaceId,executionId,String(attemptNo),speechKind,bindingKey,textHash].join('.');
+  const expected=crypto.createHmac('sha256',secret).update(canonical).digest();
+  if(!crypto.timingSafeEqual(expected,Buffer.from(signature,'hex')))return res.status(401).json({message:'관리형 TTS 요청 인증에 실패했습니다.'});
+  if(await isRateLimited(`raffle-managed-tts:${workspaceId}`,{limit:120,windowMs:60_000}))return res.status(429).json({message:'TTS 요청이 잠시 많습니다.'});
+  try{
+    const result=await managedOverlayTtsRuntime().synthesize({text,onAudioChunk:()=>{}});
+    const wav=pcm16MonoWav(result.pcm,MANAGED_TTS_SAMPLE_RATE);
+    const provider=result.provider==='cartesia'?'cartesia':'google';
+    res.setHeader('Content-Type','audio/wav');
+    res.setHeader('Content-Length',String(wav.length));
+    res.setHeader('Cache-Control','private, no-store');
+    res.setHeader('X-Content-Type-Options','nosniff');
+    res.setHeader('X-Byeollog-Audio-Sha256',crypto.createHash('sha256').update(wav).digest('hex'));
+    res.setHeader('X-Byeollog-Voice-Key',bindingKey);
+    res.setHeader('X-Byeollog-Voice-Version',`managed-${provider}-v1`);
+    return res.status(200).send(wav);
+  }catch(error){
+    console.error('[managed-raffle-tts] synthesis failed',{code:String(error?.code||'managed_tts_failed')});
+    return res.status(503).json({message:'관리형 TTS 합성에 실패했습니다.',code:'raffle_tts_unavailable'});
+  }
 }
 
 async function handleSoopRouletteOverlayPage(req,res){
@@ -223,6 +284,7 @@ export default async function handler(req,res){
   if(operation==='soop-roulette-overlay-poll')return handleSoopRouletteOverlayPoll(req,res);
   if(operation==='soop-roulette-overlay-sound')return handleSoopRouletteOverlaySound(req,res);
   if(operation==='soop-roulette-overlay-tts')return handleSoopRouletteOverlayTts(req,res);
+  if(operation==='internal-raffle-tts')return handleInternalRaffleTts(req,res);
   if(operation==='soop-wallpaper-page')return handleSoopWallpaperOverlayPage(req,res);
   if(operation==='soop-wallpaper-state')return handleSoopWallpaperState(req,res);
   if(operation==='signup')return handleSignup(req,res);
@@ -283,7 +345,7 @@ export default async function handler(req,res){
 
       const memberships=await sb(
         'byeollog_workspace_members',
-        `?select=role,workspace_id&user_id=eq.${encodeURIComponent(device.created_by_user_id)}`+
+        `?select=role,workspace_id,web_session_epoch&user_id=eq.${encodeURIComponent(device.created_by_user_id)}`+
         `&workspace_id=eq.${encodeURIComponent(workspace.id)}&limit=1`
       ).catch(()=>[]);
       const membership=Array.isArray(memberships)?memberships[0]:null;
@@ -300,6 +362,7 @@ export default async function handler(req,res){
         workspace_slug:workspace.slug,
         role:membership.role,
         collector_device_id:deviceId,
+        session_epoch:membership.web_session_epoch,
       }));
       return res.status(200).json({ok:true,mode:'collector_handoff',workspace,role:membership.role});
     }catch(e){
@@ -307,6 +370,8 @@ export default async function handler(req,res){
     }
   }
 
+  if(!isTrustedMutationOrigin(req))return res.status(403).json({message:'허용되지 않은 요청 출처입니다.'});
+  if(!isJsonRequest(req))return res.status(415).json({message:'JSON 요청만 사용할 수 있습니다.'});
   const body=bodyOf(req),id=String(body.id||'').trim(),password=String(body.password||'');
 
   // M-01: 로그인 rate limit (IP + 계정)

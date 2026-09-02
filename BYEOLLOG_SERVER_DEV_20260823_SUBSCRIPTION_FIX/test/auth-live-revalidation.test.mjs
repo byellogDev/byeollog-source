@@ -20,7 +20,7 @@ function response(){
   };
 }
 
-function session(){return {mode:'beta',user_id:userId,workspace_id:workspaceId,role:'owner'}}
+function session(){return {mode:'beta',user_id:userId,workspace_id:workspaceId,role:'owner',session_epoch:0}}
 function requestWithSession(value=session()){
   const previous=process.env.SESSION_SECRET;
   process.env.SESSION_SECRET='test-session-secret-that-is-longer-than-32-characters';
@@ -54,11 +54,25 @@ test('membership revalidation distinguishes a confirmed missing membership from 
   );
 });
 
+test('membership revalidation rejects a cookie from an older web session epoch without another query',async()=>{
+  let calls=0;
+  const revoked=await revalidateMembership({...session(),session_epoch:2},{
+    retryDelayMs:0,
+    sbImpl:async table=>{
+      calls+=1;
+      if(table==='byeollog_workspace_members')return [{workspace_id:workspaceId,role:'owner',web_session_epoch:3}];
+      return [{id:workspaceId,status:'active'}];
+    }
+  });
+  assert.equal(revoked,null);
+  assert.equal(calls,1,'epoch rejection must reuse the existing membership query');
+});
+
 test('collector handoff revalidation restores the device owner identity for existing cookies',async()=>{
   const deviceId='30000000-0000-4000-8000-000000000001';
   const tables=[];
   const result=await revalidateMembership({
-    mode:'collector_handoff',workspace_id:workspaceId,collector_device_id:deviceId,role:'owner'
+    mode:'collector_handoff',workspace_id:workspaceId,collector_device_id:deviceId,role:'owner',session_epoch:4
   },{
     retryDelayMs:0,
     sbImpl:async table=>{
@@ -66,7 +80,7 @@ test('collector handoff revalidation restores the device owner identity for exis
       if(table==='byeollog_collector_devices')return [{
         id:deviceId,workspace_id:workspaceId,status:'active',created_by_user_id:userId
       }];
-      if(table==='byeollog_workspace_members')return [{workspace_id:workspaceId,role:'editor'}];
+      if(table==='byeollog_workspace_members')return [{workspace_id:workspaceId,role:'editor',web_session_epoch:4}];
       if(table==='byeollog_workspaces')return [{id:workspaceId,status:'active'}];
       return [];
     }

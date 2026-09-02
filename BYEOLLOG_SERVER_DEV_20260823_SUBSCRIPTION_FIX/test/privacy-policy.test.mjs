@@ -4,18 +4,20 @@ import test from 'node:test';
 
 const sourceUrl=new URL('../privacy.html',import.meta.url);
 
-test('privacy policy publishes SOOP consent, dedicated TTS, and transfer disclosures',async()=>{
+test('privacy policy publishes SOOP consent, managed TTS, and transfer disclosures',async()=>{
   const html=await readFile(sourceUrl,'utf8');
   for(const phrase of [
-    '시행일: 2026년 8월 24일',
+    '시행일: 2026년 9월 2일',
     '방송 여부 체크',
     '방송국 정보 조회',
     '채팅 조회·발신',
     '접근·갱신 토큰',
-    '전용 TTS 서버',
+    '관리형 TTS',
     '음성 식별키',
     'Vercel Inc.',
     'Supabase 서비스 운영 법인',
+    'Google LLC',
+    'Cartesia, Inc.',
     'bangsel_admin_session',
     'redacted-contact@example.invalid',
   ])assert.ok(html.includes(phrase),`missing disclosure: ${phrase}`);

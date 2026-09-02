@@ -51,11 +51,17 @@ interface RotatedAgentDeviceSecret {
   previous_valid_until: string;
 }
 
+interface RaffleActionSpeechContext {
+  speech_text: string;
+  binding_key: string;
+}
+
+// Kept only so already-deployed legacy branches remain type-checkable during
+// the rollout. They are rejected by the operation allow-list above.
 interface RaffleWinnerSpeechContext {
   actor_name: string;
   voice_key: string;
 }
-
 interface RaffleTtsCandidateContext extends RaffleWinnerSpeechContext {
   actor_key: string;
   total_count: number;
@@ -185,8 +191,8 @@ async function sha256BytesHex(value: ArrayBuffer): Promise<string> {
 }
 
 function raffleTtsConfig(): { endpoint: URL; secret: string } {
-  const rawOrigin = Deno.env.get("BYEOLLOG_TTS_ORIGIN")?.trim() ?? "";
-  const secret = Deno.env.get("BYEOLLOG_TTS_SHARED_SECRET")?.trim() ?? "";
+  const rawOrigin = Deno.env.get("BYEOLLOG_MANAGED_TTS_BRIDGE_ORIGIN")?.trim() ?? "";
+  const secret = Deno.env.get("BYEOLLOG_MANAGED_TTS_BRIDGE_SECRET")?.trim() ?? "";
   let origin: URL;
   try {
     origin = new URL(rawOrigin);
@@ -200,25 +206,49 @@ function raffleTtsConfig(): { endpoint: URL; secret: string } {
     || !/^[A-Za-z0-9._~-]+$/.test(secret)) {
     throw new RaffleTtsUnavailableError("raffle TTS configuration is unavailable");
   }
-  return { endpoint: new URL("/v1/raffle-winner", origin), secret };
+  return { endpoint: new URL("/api/auth/internal/raffle-tts", origin), secret };
 }
 
-async function synthesizeRaffleWinnerSpeech(
-  actorName: string,
-  voiceKey: string
+async function hmacSha256Hex(secret: string, value: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(value));
+  return [...new Uint8Array(signature)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function synthesizeRaffleActionSpeech(
+  workspaceId: string,
+  executionId: string,
+  attemptNo: number,
+  speechKind: "ticket" | "winner",
+  speechText: string,
+  bindingKey: string
 ): Promise<{ audio: ArrayBuffer; sha256: string; voiceVersion: string }> {
   const config = raffleTtsConfig();
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 45_000);
+  const timeout = setTimeout(() => controller.abort(), 12_000);
   try {
+    const timestamp = String(Math.floor(Date.now() / 1000));
+    const textHash = await sha256Hex(speechText);
+    const canonical = [
+      timestamp, workspaceId, executionId, String(attemptNo), speechKind, bindingKey, textHash
+    ].join(".");
     const response = await fetch(config.endpoint, {
       method: "POST",
       headers: {
-        "authorization": `Bearer ${config.secret}`,
         "content-type": "application/json",
-        "accept": "audio/wav"
+        "accept": "audio/wav",
+        "x-byeollog-timestamp": timestamp,
+        "x-byeollog-signature": await hmacSha256Hex(config.secret, canonical)
       },
-      body: JSON.stringify({ actorName, voiceKey }),
+      body: JSON.stringify({
+        workspaceId, executionId, attemptNo, speechKind, text: speechText, bindingKey
+      }),
       signal: controller.signal
     });
     const contentType = response.headers.get("content-type")
@@ -231,7 +261,7 @@ async function synthesizeRaffleWinnerSpeech(
     const returnedVoiceKey = response.headers.get("x-byeollog-voice-key")?.trim() ?? "";
     const voiceVersion = response.headers.get("x-byeollog-voice-version")?.trim() ?? "";
     const serviceAudioHash = response.headers.get("x-byeollog-audio-sha256")?.trim() ?? "";
-    if (returnedVoiceKey !== voiceKey
+    if (returnedVoiceKey !== bindingKey
       || voiceVersion.length < 1 || voiceVersion.length > 80
       || !/^[A-Za-z0-9._-]+$/.test(voiceVersion)
       || !SHA256_PATTERN.test(serviceAudioHash)) {
@@ -287,6 +317,13 @@ async function synthesizeRaffleWinnerSpeech(
   }
 }
 
+async function synthesizeRaffleWinnerSpeech(
+  _actorName: string,
+  _voiceKey: string
+): Promise<{ audio: ArrayBuffer; sha256: string; voiceVersion: string }> {
+  throw new RaffleTtsUnavailableError("legacy raffle TTS path is retired");
+}
+
 function agentWorkerId(userId: string, deviceId: string): string {
   return `agent:${userId}:${deviceId}`;
 }
@@ -325,9 +362,7 @@ Deno.serve(async (request: Request) => {
       && operation !== "device_status" && operation !== "collection_health"
       && operation !== "wallpaper" && operation !== "claim"
       && operation !== "heartbeat" && operation !== "ack"
-      && operation !== "raffle_winner_tts"
-      && operation !== "raffle_tts_candidates"
-      && operation !== "raffle_candidate_tts") {
+      && operation !== "raffle_action_tts") {
       return json({ error: "invalid_operation" }, 400);
     }
     if (!validUuid(workspaceId)) return json({ error: "invalid_workspace" }, 400);
@@ -763,17 +798,19 @@ Deno.serve(async (request: Request) => {
       return json({ executionId: executionId.toLowerCase(), leaseExpiresAt });
     }
 
-    if (operation === "raffle_winner_tts") {
+    if (operation === "raffle_action_tts") {
+      const speechKind = body.speechKind;
       const winnerOrdinal = body.winnerOrdinal;
-      const expectedVoiceKey = body.expectedVoiceKey;
-      if (typeof winnerOrdinal !== "number" || !Number.isInteger(winnerOrdinal)
+      const expectedBindingKey = body.expectedBindingKey;
+      if ((speechKind !== "ticket" && speechKind !== "winner")
+        || typeof winnerOrdinal !== "number" || !Number.isInteger(winnerOrdinal)
         || winnerOrdinal < 0 || winnerOrdinal > 99
-        || typeof expectedVoiceKey !== "string"
-        || !SHA256_PATTERN.test(expectedVoiceKey)) {
-        return json({ error: "invalid_raffle_winner_ordinal" }, 400);
+        || typeof expectedBindingKey !== "string"
+        || !SHA256_PATTERN.test(expectedBindingKey)) {
+        return json({ error: "invalid_raffle_speech_request" }, 400);
       }
-      const rows = await runtime.rest<RaffleWinnerSpeechContext[]>(
-        "rpc/g3a_prepare_raffle_winner_tts_v1",
+      const rows = await runtime.rest<RaffleActionSpeechContext[]>(
+        "rpc/g3a_prepare_raffle_action_tts_v1",
         {
           method: "POST",
           body: JSON.stringify({
@@ -781,7 +818,9 @@ Deno.serve(async (request: Request) => {
             p_execution_id: executionId.toLowerCase(),
             p_worker_id: workerId,
             p_attempt_no: attemptNo,
+            p_speech_kind: speechKind,
             p_winner_ordinal: winnerOrdinal,
+            p_expected_binding_key: expectedBindingKey,
             p_agent_device_id: normalizedDeviceId,
             p_agent_secret_hash: deviceSecretHash,
             ...rpcContext
@@ -790,16 +829,20 @@ Deno.serve(async (request: Request) => {
       );
       const speechContext = rows[0];
       if (rows.length !== 1 || !speechContext
-        || typeof speechContext.actor_name !== "string"
-        || speechContext.actor_name.trim().length < 1
-        || speechContext.actor_name.length > 120
-        || typeof speechContext.voice_key !== "string"
-        || speechContext.voice_key !== expectedVoiceKey) {
-        throw new Error("Raffle winner speech context was invalid");
+        || typeof speechContext.speech_text !== "string"
+        || speechContext.speech_text.trim().length < 1
+        || speechContext.speech_text.length > 240
+        || typeof speechContext.binding_key !== "string"
+        || speechContext.binding_key !== expectedBindingKey) {
+        throw new Error("Raffle action speech context was invalid");
       }
-      const synthesized = await synthesizeRaffleWinnerSpeech(
-        speechContext.actor_name,
-        speechContext.voice_key
+      const synthesized = await synthesizeRaffleActionSpeech(
+        normalizedWorkspaceId,
+        executionId.toLowerCase(),
+        attemptNo,
+        speechKind,
+        speechContext.speech_text,
+        speechContext.binding_key
       );
       return new Response(synthesized.audio, {
         status: 200,
@@ -810,7 +853,7 @@ Deno.serve(async (request: Request) => {
           "cache-control": "private, no-store",
           "x-content-type-options": "nosniff",
           "x-byeollog-audio-sha256": synthesized.sha256,
-          "x-byeollog-voice-key": speechContext.voice_key,
+          "x-byeollog-voice-key": speechContext.binding_key,
           "x-byeollog-voice-version": synthesized.voiceVersion,
           "x-byeollog-runtime-revision": RUNTIME_REVISION
         }

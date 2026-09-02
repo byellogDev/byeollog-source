@@ -73,6 +73,10 @@
       "destination": "/api/login?operation=soop-roulette-overlay-tts"
     },
     {
+      "source": "/api/auth/internal/raffle-tts",
+      "destination": "/api/login?operation=internal-raffle-tts"
+    },
+    {
       "source": "/overlay/soop-roulette",
       "destination": "/api/login?operation=soop-roulette-overlay-page"
     },

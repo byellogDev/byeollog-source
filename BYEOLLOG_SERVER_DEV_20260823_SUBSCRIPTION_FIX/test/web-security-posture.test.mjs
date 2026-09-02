@@ -55,6 +55,17 @@ test('public mutations reject browser cross-site origins without breaking native
   assert.equal(isJsonRequest({headers:{'content-type':'text/plain'}}),false);
 });
 
+test('login, password, and inquiry mutations enforce origin and JSON guards',async()=>{
+  const [login,password]=await Promise.all([source('api/login.js'),source('lib/password.js')]);
+  const loginGuard="if(!isTrustedMutationOrigin(req))return res.status(403)";
+  const jsonGuard="if(!isJsonRequest(req))return res.status(415)";
+  assert.ok(login.split(loginGuard).length>=4,'normal login, handoff, and inquiry must enforce the origin guard');
+  assert.ok(login.split(jsonGuard).length>=5,'normal login, handoff, inquiry, and overlay mutations must require JSON');
+  assert.ok(login.indexOf(loginGuard,login.indexOf("if(operation==='handoff')"))<login.indexOf('const body=bodyOf(req),id='));
+  assert.match(password,/isTrustedMutationOrigin\(req\)/);
+  assert.match(password,/isJsonRequest\(req\)/);
+});
+
 test('static/auth responses do not advertise wildcard CORS and auth CSP hashes every inline style',async()=>{
   const config=await json('vercel.json');
   const global=headersFor(config,'/(.*)');

@@ -6,11 +6,10 @@ namespace HurogiCollector;
 internal sealed class RaffleOverlayActionAdapter
 {
     internal const string ActionType = "raffle.overlay";
-    internal const string TicketAudioBindingKey = "raffle-ticket-fixed-v1";
-    internal const string WinnerPreviewAudioBindingKey = "raffle-winner-preview-v1";
+    internal const string TicketAudioBindingKey = "3316a7aabfbb07f66319b3a20c1f749223de7fb39b586f69442fe31546101f32";
     private readonly ByeollogOverlayService _overlay;
     private readonly Func<CancellationToken, Task<int>>? _refreshBrowserSources;
-    private readonly Func<int, CancellationToken, Task<RafflePreparedAudio>>? _prepareTicketSpeech;
+    private readonly Func<string, int, int, CancellationToken, Task<RafflePreparedAudio>>? _prepareTicketSpeech;
     private readonly Func<
         string,
         int,
@@ -28,7 +27,7 @@ internal sealed class RaffleOverlayActionAdapter
     public RaffleOverlayActionAdapter(
         ByeollogOverlayService overlay,
         Func<CancellationToken, Task<int>>? refreshBrowserSources = null,
-        Func<int, CancellationToken, Task<RafflePreparedAudio>>? prepareTicketSpeech = null,
+        Func<string, int, int, CancellationToken, Task<RafflePreparedAudio>>? prepareTicketSpeech = null,
         Func<
             string,
             int,
@@ -74,7 +73,7 @@ internal sealed class RaffleOverlayActionAdapter
                         "",
                         Array.Empty<string>()),
                     sequence.TicketPlacement,
-                    TicketSpeechPreparation(sequence.TicketVolumePercent),
+                    TicketSpeechPreparation(executionId, attemptNo, sequence.TicketVolumePercent),
                     TicketAudioBindingKey,
                     sequence.TicketVolumePercent,
                     cancellationToken,
@@ -93,9 +92,9 @@ internal sealed class RaffleOverlayActionAdapter
                         executionId,
                         attemptNo,
                         0,
-                        RaffleWinnerSpeechCache.ComputeVoiceKey("테스트 시청자"),
+                        WinnerBindingKey("테스트 시청자"),
                         sequence.DrawVolumePercent),
-                    RaffleWinnerSpeechCache.ComputeVoiceKey("테스트 시청자"),
+                    WinnerBindingKey("테스트 시청자"),
                     sequence.DrawVolumePercent,
                     cancellationToken,
                     notAfterUtc);
@@ -185,7 +184,7 @@ internal sealed class RaffleOverlayActionAdapter
                     durationMs,
                     presentation,
                     placement,
-                    TicketSpeechPreparation(volumePercent),
+                    TicketSpeechPreparation(executionId, attemptNo, volumePercent),
                     TicketAudioBindingKey,
                     volumePercent,
                     cancellationToken,
@@ -386,10 +385,12 @@ internal sealed class RaffleOverlayActionAdapter
     internal const string TicketSpeechText = "추첨권을 드렸어요!";
 
     private Func<CancellationToken, Task<RafflePreparedAudio>>? TicketSpeechPreparation(
+        string executionId,
+        int attemptNo,
         int volumePercent) =>
         _prepareTicketSpeech is null
             ? null
-            : token => _prepareTicketSpeech(volumePercent, token);
+            : token => _prepareTicketSpeech(executionId, attemptNo, volumePercent, token);
 
     private Func<CancellationToken, Task<RafflePreparedAudio>>? WinnerSpeechPreparation(
         string executionId,
@@ -428,7 +429,7 @@ internal sealed class RaffleOverlayActionAdapter
                         character is >= '0' and <= '9' or >= 'a' and <= 'f')
                     && string.Equals(
                         value,
-                        RaffleWinnerSpeechCache.ComputeVoiceKey(actorName),
+                        WinnerBindingKey(actorName),
                         StringComparison.Ordinal))
                     keys[index] = value;
             }
@@ -438,6 +439,11 @@ internal sealed class RaffleOverlayActionAdapter
         }
         return keys;
     }
+
+    internal static string WinnerBindingKey(string actorName) =>
+        Convert.ToHexString(SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes("raffle-winner-voice-v1|" + actorName.Trim())))
+            .ToLowerInvariant();
 
     internal async Task EnsureCurrentOverlayDocumentAsync(CancellationToken cancellationToken)
     {

@@ -46,3 +46,8 @@
 - Keep invalid timestamp values fail-closed.
 - Prevent optional collection-health telemetry from blocking the primary automation heartbeat and execution claim loop.
 - Add regression coverage for an idle, non-collecting Agent so raffle and other local actions remain claimable.
+# 2026-09-02
+
+- 액션 추첨권·당첨 안내 TTS를 후원알림과 동일한 관리형 음성 경로로 통합했다.
+- 추첨 후보 음성 사전생성, Agent 영구 음성 캐시, 내장 예비 음성 및 별도 TTS 상태 폴링을 제거했다.
+- 추첨 문장은 실행 중인 Agent lease와 대상 키로 검증하고 Edge→Vercel 내부 호출은 HMAC으로 인증한다.

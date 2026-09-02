@@ -496,9 +496,6 @@ internal sealed class VNextAutomationSettingsForm : Form
                 case "testAutomationRule":
                     await TestRuleAsync(payload);
                     break;
-                case "previewRaffleTts":
-                    await PreviewRaffleTtsAsync(payload);
-                    break;
                 case "previewFlashbang":
                     await PreviewFlashbangAsync(payload);
                     break;
@@ -1018,28 +1015,6 @@ internal sealed class VNextAutomationSettingsForm : Form
         });
     }
 
-    private async Task PreviewRaffleTtsAsync(JsonElement payload)
-    {
-        var kind = PayloadText(payload, "kind", "TTS 종류", 1, 32);
-        if (kind is not ("ticket" or "draw"))
-            throw new VNextDevelopmentException("TTS 테스트 종류가 올바르지 않습니다.", code: "invalid_tts_preview");
-        var volumePercent = PayloadInt(payload, "volumePercent", 0, 100, "TTS 음량");
-        if (volumePercent == 0)
-        {
-            await ShowToastAsync("음량이 0%라 TTS가 재생되지 않아요.", "warning");
-            return;
-        }
-        if (kind == "draw")
-            await ByeollogRaffleAudio.PlayWinnerPreviewAsync(volumePercent, _lifetimeToken);
-        else
-            await ByeollogRaffleAudio.PlayTicketAsync(volumePercent, _lifetimeToken);
-        await ShowToastAsync(
-            kind == "draw"
-                ? $"이 PC에서 당첨 음성을 {volumePercent}%로 재생했어요."
-                : $"이 PC에서 추첨권 음성을 {volumePercent}%로 재생했어요.",
-            "success");
-    }
-
     private async Task PreviewFlashbangAsync(JsonElement payload)
     {
         var intensity = PayloadText(payload, "intensity", "섬광 강도", 1, 16);
@@ -1132,53 +1107,10 @@ internal sealed class VNextAutomationSettingsForm : Form
                 allowDuplicates,
                 _lifetimeToken);
             if (!CanCommit(ownerId, sessionEpoch)) return;
-            VNextRaffleSpeechPrewarmResult? prewarm = null;
-            string? prewarmFailure = null;
-            if (_localAgent is not null)
-            {
-                try
-                {
-                    await UpdateOperationAsync(
-                        ownerId,
-                        "추첨함 봉인 완료 · 당첨 후보 음성을 안전하게 준비하는 중이에요.");
-                    prewarm = await _localAgent.PrewarmRaffleWinnerSpeechAsync(
-                        receipt.DrawId,
-                        (completed, total) => UpdateOperationAsync(
-                            ownerId,
-                            $"당첨 후보 음성을 확인하는 중이에요. {completed}/{total}"),
-                        _lifetimeToken);
-                }
-                catch (OperationCanceledException) when (_lifetimeToken.IsCancellationRequested)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    prewarmFailure = ex.GetType().Name;
-                    _storage.Log("추첨 후보 음성 사전 준비 보류 · type=" + prewarmFailure);
-                }
-            }
             await LoadRaffleAndPushAsync(showToast: false, ownerId);
             if (!CanCommit(ownerId, sessionEpoch)) return;
-            if (prewarmFailure is not null)
-            {
-                await ShowToastAsync(
-                    $"추첨함은 봉인됐지만 후보 음성을 미리 준비하지 못했습니다. 당첨 화면은 정상 진행되며, 음성은 대상 검증에 성공한 경우에만 재생됩니다. ({prewarmFailure})",
-                    "warning");
-                return;
-            }
-            if (prewarm is not null && (prewarm.Failed > 0 || prewarm.Truncated))
-            {
-                await ShowToastAsync(
-                    $"추첨함을 봉인했어요. 후보 {prewarm.TotalCandidates}명 중 새 음성 {prewarm.Prepared}개·기존 음성 {prewarm.Reused}개를 확인했고 {prewarm.Failed}개는 보류했습니다. 미준비 후보가 당첨되면 대상 검증 후 생성하며, 검증 실패 시 화면만 송출됩니다.",
-                    "warning");
-                return;
-            }
-            var preparedCopy = prewarm is null
-                ? ""
-                : $" 후보 음성 {prewarm.Prepared + prewarm.Reused}개도 확인했습니다.";
             await ShowToastAsync(
-                $"추첨함을 봉인했어요.{preparedCopy} 이제 {receipt.WinnerTarget}장을 한 장씩 뽑을 수 있습니다.",
+                $"추첨함을 봉인했어요. 이제 {receipt.WinnerTarget}장을 한 장씩 뽑을 수 있습니다.",
                 "success");
         });
     }
@@ -1331,18 +1263,7 @@ internal sealed class VNextAutomationSettingsForm : Form
         var hasTtsResult = result.TryGetProperty("ttsPlayed", out var ttsValue)
             && ttsValue.ValueKind is JsonValueKind.True or JsonValueKind.False;
         if (hasTtsResult && ttsValue.GetBoolean())
-        {
-            var usedEmbeddedFallback = result.TryGetProperty("overlayEvidence", out var evidence)
-                && evidence.ValueKind == JsonValueKind.Array
-                && evidence.EnumerateArray().Any(item =>
-                    item.ValueKind == JsonValueKind.Object
-                    && item.TryGetProperty("TtsSource", out var source)
-                    && source.ValueKind == JsonValueKind.String
-                    && source.GetString() == "embedded_fallback");
-            if (usedEmbeddedFallback)
-                return ("오버레이와 예비 음성 송출 완료 · 맞춤 음성 연결을 확인해주세요.", "warning");
             return ("오버레이와 TTS 송출 완료", "success");
-        }
         if (!speechAttempted && hasTtsResult)
             return ("오버레이 송출 완료 · TTS 음량 0%로 생략", "success");
         return ("오버레이 출력은 확인됐지만 TTS 재생에 실패했습니다.", "warning");

@@ -520,7 +520,7 @@
       <div class="position-head"><div><h2 id="positionEditorTitle">오버레이 위치·크기 조정</h2><p>1920×1080 방송 화면에서 이미지를 드래그해 옮기고, 아래 조절 막대로 크기를 정하세요.</p></div><button class="square" id="closePositionEditorButton" type="button" aria-label="위치·크기 조정 닫기">×</button></div>
       <div class="position-canvas" id="positionCanvas"><img id="positionEditorImage" alt="드래그하여 위치를 조정할 오버레이" draggable="false"></div>
       <div class="position-controls"><label for="overlayScaleRange">이미지 크기</label><button class="scale-button" id="decreaseScaleButton" type="button" aria-label="이미지 작게">−</button><input class="scale-range" id="overlayScaleRange" type="range" min="25" max="200" step="5" value="100"><button class="scale-button" id="increaseScaleButton" type="button" aria-label="이미지 크게">＋</button><span class="scale-value" id="overlayScaleValue">100%</span></div>
-      <div class="position-controls" id="positionEditorSound" hidden><label for="overlayVolumeRange">TTS 음량</label><input class="scale-range" id="overlayVolumeRange" type="range" min="0" max="100" step="5" value="80"><span class="scale-value" id="overlayVolumeValue">80%</span><button class="sound-test" id="testOverlaySoundButton" type="button">▶ 테스트 재생</button></div>
+      <div class="position-controls" id="positionEditorSound" hidden><label for="overlayVolumeRange">TTS 음량</label><input class="scale-range" id="overlayVolumeRange" type="range" min="0" max="100" step="5" value="80"><span class="scale-value" id="overlayVolumeValue">80%</span><button class="sound-test" id="testOverlaySoundButton" type="button" disabled>전체 테스트에서 확인</button></div>
       <div class="position-foot"><span class="position-coordinates" id="positionCoordinates">위치: 가로 50% · 세로 50%</span><div class="confirm-actions" style="margin-top:0"><button class="manage-button" id="resetPositionButton" type="button">기본값</button><button class="manage-button" id="cancelPositionButton" type="button">취소</button><button class="manage-button primary" id="applyPositionButton" type="button">위치·크기 적용</button></div></div>
     </div>
   </div>
@@ -756,7 +756,7 @@
     const currentPosition=target==='raffle-ticket'?raffleTicketPosition:target==='raffle-draw'?raffleDrawPosition:overlayPosition;
     const currentScale=target==='raffle-ticket'?raffleTicketScalePercent:target==='raffle-draw'?raffleDrawScalePercent:overlayScalePercent;
     const currentVolume=target==='raffle-ticket'?raffleTicketVolumePercent:target==='raffle-draw'?raffleDrawVolumePercent:80;
-    positionBeforeEditor={...currentPosition};positionDraft={...currentPosition};scaleBeforeEditor=currentScale;scaleDraft=currentScale;volumeBeforeEditor=currentVolume;volumeDraft=currentVolume;elements.positionEditorSound.hidden=target==='abong';elements.testOverlaySoundButton.textContent=target==='raffle-draw'?'▶ 당첨 음성 듣기':'▶ 추첨권 음성 듣기';elements.positionEditorImage.src=asset.previewDataUrl;elements.positionEditorImage.alt=`${overlayDisplayName(asset)} 위치와 크기 조정`;elements.positionEditorLayer.hidden=false;requestAnimationFrame(updatePositionEditor);
+    positionBeforeEditor={...currentPosition};positionDraft={...currentPosition};scaleBeforeEditor=currentScale;scaleDraft=currentScale;volumeBeforeEditor=currentVolume;volumeDraft=currentVolume;elements.positionEditorSound.hidden=target==='abong';elements.testOverlaySoundButton.textContent='관리형 음성은 전체 테스트에서 확인';elements.positionEditorImage.src=asset.previewDataUrl;elements.positionEditorImage.alt=`${overlayDisplayName(asset)} 위치와 크기 조정`;elements.positionEditorLayer.hidden=false;requestAnimationFrame(updatePositionEditor);
   }
   function closePositionEditor(apply){
     const nextPosition=apply?positionDraft:positionBeforeEditor,nextScale=apply?scaleDraft:scaleBeforeEditor,nextVolume=apply?volumeDraft:volumeBeforeEditor;
@@ -1810,7 +1810,6 @@
   elements.increaseScaleButton.onclick=()=>changeScale(5);
   elements.overlayScaleRange.oninput=()=>{scaleDraft=asNumber(elements.overlayScaleRange.value,100);updatePositionEditor()};
   elements.overlayVolumeRange.oninput=()=>{volumeDraft=asNumber(elements.overlayVolumeRange.value,80);updatePositionEditor()};
-  elements.testOverlaySoundButton.onclick=()=>post('previewRaffleTts',{kind:positionEditorTarget==='raffle-draw'?'draw':'ticket',volumePercent:volumeDraft});
   let draggingPositionPointer=null;
   elements.positionEditorImage.onpointerdown=event=>{draggingPositionPointer=event.pointerId;elements.positionEditorImage.setPointerCapture(event.pointerId);event.preventDefault()};
   elements.positionEditorImage.onpointermove=event=>{if(draggingPositionPointer!==event.pointerId)return;const rect=elements.positionCanvas.getBoundingClientRect();if(!rect.width||!rect.height)return;positionDraft=clampPositionToCanvas((event.clientX-rect.left)/rect.width*10000,(event.clientY-rect.top)/rect.height*10000);updatePositionEditor();event.preventDefault()};

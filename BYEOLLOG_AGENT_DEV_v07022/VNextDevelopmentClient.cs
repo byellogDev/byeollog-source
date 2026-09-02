@@ -1215,42 +1215,46 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                 && assetsValue.GetArrayLength() <= 216;
     }
 
-    public Task<RaffleWinnerSpeechDownload> DownloadRaffleWinnerSpeechAsync(
+    public Task<RaffleWinnerSpeechDownload> DownloadRaffleActionSpeechAsync(
         string deviceId,
         string deviceSecret,
         string executionId,
         int attemptNo,
+        string speechKind,
         int winnerOrdinal,
-        string expectedVoiceKey,
+        string expectedBindingKey,
         CancellationToken cancellationToken = default)
     {
         if (!Guid.TryParseExact(deviceId, "D", out var parsedDeviceId)
             || !Guid.TryParseExact(executionId, "D", out var parsedExecutionId)
             || attemptNo is < 1 or > 10
+            || speechKind is not ("ticket" or "winner")
             || winnerOrdinal is < 0 or > 99
-            || !Sha256Pattern.IsMatch(expectedVoiceKey))
+            || !Sha256Pattern.IsMatch(expectedBindingKey))
             throw new VNextDevelopmentException(
-                "당첨 음성 실행 식별값이 올바르지 않습니다.",
+                "추첨 음성 실행 식별값이 올바르지 않습니다.",
                 code: "invalid_raffle_speech_request");
 
         return DownloadRaffleSpeechAsync(
             deviceId,
             deviceSecret,
-            expectedVoiceKey,
+            expectedBindingKey,
             new
             {
-                operation = "raffle_winner_tts",
+                operation = "raffle_action_tts",
                 workspaceId = WorkspaceId,
                 deviceId = parsedDeviceId.ToString("D"),
                 deviceSecret = NormalizeDeviceSecret(deviceSecret, "Agent 장치 키"),
                 executionId = parsedExecutionId.ToString("D"),
                 attemptNo,
+                speechKind,
                 winnerOrdinal,
-                expectedVoiceKey
+                expectedBindingKey
             },
             cancellationToken);
     }
 
+#if false // Retired with candidate pre-synthesis and local raffle speech cache.
     public async Task<RaffleTtsCandidateBatch> ListRaffleTtsCandidatesAsync(
         string deviceId,
         string deviceSecret,
@@ -1413,6 +1417,7 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
             cancellationToken);
     }
 
+#endif
     private async Task<RaffleWinnerSpeechDownload> DownloadRaffleSpeechAsync(
         string deviceId,
         string deviceSecret,

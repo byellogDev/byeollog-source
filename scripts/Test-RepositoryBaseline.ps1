@@ -15,7 +15,9 @@ $requiredPaths = @(
     (Join-Path $agentRoot 'AgentStoreTests\AgentStoreTests.csproj'),
     (Join-Path $serverRoot 'package.json'),
     (Join-Path $serverRoot 'SOURCE_FILE_SHA256SUMS.txt'),
-    (Join-Path $serverRoot 'test\security-hardening.test.mjs')
+    (Join-Path $serverRoot 'test\security-hardening.test.mjs'),
+    (Join-Path $repositoryRoot 'BYEOLLOG_TTS_SERVICE\requirements.txt'),
+    (Join-Path $repositoryRoot 'BYEOLLOG_TTS_RELAY\package-lock.json')
 )
 
 foreach ($path in $requiredPaths) {
@@ -30,7 +32,17 @@ if ($LASTEXITCODE -ne 0) {
     throw 'Unable to read the Git index for the repository boundary check.'
 }
 
-$protectedPathPattern = '(?i)(^|/)(\.env(?:\.|$)|node_modules/|\.vercel/|bin/|obj/|artifacts/|ci-artifacts/|dist/|publish[^/]*/|downloads/|supabase/\.temp/|__pycache__/|\.tmp[^/]*/|tmp/|release_[^/]*/|\.release-[^/]*/|\.deploy_[^/]*/|\.obsolete_[^/]*/)|\.(pfx|p12|pem|key|dpapi|protected|zip|7z|rar|exe|msi|msix|msixbundle|appx|appxbundle|nupkg|snupkg|sqlite|sqlite-shm|sqlite-wal)$'
+$protectedPathPattern = '(?i)(^|/)(\.env(?:\.|$)|node_modules/|\.vercel/|bin/|obj/|artifacts/|ci-artifacts/|dist/|publish(?!profiles(?:/|$))[^/]*/|downloads/|supabase/\.temp/|__pycache__/|\.tmp[^/]*/|tmp/|release_[^/]*/|\.release-[^/]*/|\.deploy_[^/]*/|\.obsolete_[^/]*/)|\.(pfx|p12|pem|key|dpapi|protected|zip|7z|rar|exe|msi|msix|msixbundle|appx|appxbundle|nupkg|snupkg|sqlite|sqlite-shm|sqlite-wal)$'
+$boundaryPatternFixtures = @{
+    'BYEOLLOG_AGENT_DEV_v07022/Properties/PublishProfiles/ByeollogBetaClickOnce.pubxml' = $false
+    'BYEOLLOG_AGENT_DEV_v07022/publish_candidate/byeollog.exe' = $true
+    'BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/publish/app.js' = $true
+}
+foreach ($fixture in $boundaryPatternFixtures.GetEnumerator()) {
+    if (($fixture.Key -match $protectedPathPattern) -ne $fixture.Value) {
+        throw 'Repository boundary pattern fixture failed.'
+    }
+}
 $protectedTrackedCount = @($trackedPaths | Where-Object { $_ -match $protectedPathPattern }).Count
 if ($protectedTrackedCount -gt 0) {
     throw "Git index contains $protectedTrackedCount protected path(s). Remove them from the index before publishing."
@@ -99,7 +111,28 @@ foreach ($migration in $migrationFiles) {
 }
 
 if ($missingSearchPathCount -gt 0) {
-    throw "Static Supabase audit found $missingSearchPathCount SECURITY DEFINER declaration(s) without a nearby empty search_path."
+    # Six immutable historical migrations used explicit trusted-schema paths.
+    # The current migration must harden all three affected live routines, and
+    # any newly introduced non-empty declaration must still fail this gate.
+    if ($missingSearchPathCount -ne 6) {
+        throw "Static Supabase audit found $missingSearchPathCount SECURITY DEFINER declaration(s) without an empty search_path."
+    }
+    $remediationFiles = @(Get-ChildItem -LiteralPath (Join-Path $serverRoot 'supabase\migrations') `
+        -Filter '*_harden_web_sessions_without_hot_path_latency.sql' -File)
+    if ($remediationFiles.Count -ne 1) {
+        throw 'The historical SECURITY DEFINER search_path remediation migration is missing or ambiguous.'
+    }
+    $remediationSql = Get-Content -LiteralPath $remediationFiles[0].FullName -Raw
+    $requiredRemediations = @(
+        '(?is)alter\s+function\s+public\.ensure_soop_runtime_controls_v1\s*\(\s*\)\s+set\s+search_path\s*=\s*''''',
+        '(?is)alter\s+function\s+private\.notify_soop_gateway_incident_v1\s*\(\s*text\s*,\s*uuid\s*,\s*uuid\s*,\s*timestamptz\s*\)\s+set\s+search_path\s*=\s*''''',
+        '(?is)alter\s+function\s+private\.check_soop_gateway_heartbeats_v1\s*\(\s*\)\s+set\s+search_path\s*=\s*'''''
+    )
+    foreach ($requiredRemediation in $requiredRemediations) {
+        if ($remediationSql -notmatch $requiredRemediation) {
+            throw 'The historical SECURITY DEFINER search_path remediation is incomplete.'
+        }
+    }
 }
 if ($publicExecutionGrantCount -gt 0) {
     throw "Static Supabase audit found $publicExecutionGrantCount direct EXECUTE grant(s) to PUBLIC or anon. Review with a live ACL snapshot before deployment."

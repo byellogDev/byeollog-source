@@ -817,3 +817,20 @@ test("v135 measures rendered latency without entering the action hot path", asyn
   assert.match(client, /g3a_agent_direct_display_observation_v1/);
   assert.match(agent, /_pendingDisplayObservations\) > 16/);
 });
+
+test("v136 ships the managed donation voice for raffle action speech", async () => {
+  const [build, notes, adapter, client, agent] = await Promise.all([
+    source("Build-v07136-AutoUpdate.ps1"),
+    source("RELEASE_v07136_UNIFIED_RAFFLE_MANAGED_TTS_KO.txt"),
+    source("RaffleOverlayActionAdapter.cs"),
+    source("VNextDevelopmentClient.cs"),
+    source("VNextLocalAgent.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7136/);
+  assert.match(build, /byeollog_agent_v07136_UNIFIED_RAFFLE_MANAGED_TTS_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.136'/);
+  assert.match(notes, /후원알림과 같은 관리형 음성/);
+  assert.match(adapter, /WinnerBindingKey/);
+  assert.match(client, /raffle_action_tts/);
+  assert.match(agent, /managed_donation_tts/);
+});
