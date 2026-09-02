@@ -22,8 +22,13 @@ import {
 } from '../lib/signature-balloon-registry.js';
 import {
   createSignatureAssetUploadTicket,verifySignatureAssetUpload,
-  deriveSignatureWallpaperAsset,hydrateSignatureAssetPreview,hydrateSignatureAssetPreviews,removeSignatureAssets
+  deriveSignatureWallpaperAsset,deriveDefaultDonationWallpaperAsset,
+  hydrateSignatureAssetPreview,hydrateSignatureAssetPreviews,removeSignatureAssets
 } from '../lib/signature-balloon-assets.js';
+import {
+  DEFAULT_DONATION_IMAGE_MAX_ITEMS,defaultDonationImageAssetPaths,
+  normalizeDefaultDonationImageInput
+} from '../lib/default-donation-images.js';
 import {isJsonRequest,isTrustedMutationOrigin} from '../lib/request-origin.js';
 import {refreshSoopConnection} from '../lib/soop-oauth.js';
 import {createRouletteServiceOverlayToken,rouletteOverlayUrl} from '../lib/soop-roulette-service.js';
@@ -396,13 +401,90 @@ async function handleSignatureAsset(req,res,operation){
   const workspaceId=await workspaceForSession(session);if(!workspaceId)return res.status(403).json({message:'Workspace not resolved'});
   const body=bodyOf(req);if(!body)return res.status(400).json({message:'Invalid JSON body'});
   try{
-    if(operation==='signature-image-upload-ticket')return res.status(200).json(await createSignatureAssetUploadTicket(workspaceId,body));
+    if(operation==='signature-image-upload-ticket'||operation==='default-donation-image-upload-ticket')return res.status(200).json(await createSignatureAssetUploadTicket(workspaceId,body));
     const image=await verifySignatureAssetUpload(workspaceId,body.path,body.kind);
     return res.status(200).json({ok:true,image});
   }catch(error){
     if(error instanceof SignatureBalloonValidationError)return res.status(error.status||400).json({message:error.message,code:error.code});
     console.error('[signature-balloon] image operation failed',{operation,name:error?.name||'Error',status:error?.status||null});
     return res.status(502).json({message:'시그풍 이미지를 처리하지 못했습니다.'});
+  }
+}
+
+async function publicDefaultDonationImages(rows,workspaceId){
+  const source=Array.isArray(rows)?rows:[];
+  const previews=await hydrateSignatureAssetPreviews(workspaceId,source.flatMap(row=>[
+    {kind:'default-pc',reference:row.pc_image},{kind:'default-wallpaper',reference:row.wallpaper_image}
+  ]));
+  let cursor=0;
+  return source.map(row=>({
+    id:row.id,minAmount:row.min_amount,maxAmount:row.max_amount,
+    pcImage:previews[cursor++],wallpaperImage:previews[cursor++],
+    versionNumber:row.version_number,createdAt:row.created_at,updatedAt:row.updated_at
+  }));
+}
+
+async function verifyDefaultDonationImageAssets(workspaceId,normalized){
+  const verified=await verifySignatureAssetUpload(workspaceId,normalized.pcImage.storagePath,'default-pc');
+  const {previewUrl:_preview,...pcImage}=verified;
+  const derived=await deriveDefaultDonationWallpaperAsset(workspaceId,pcImage);
+  const {previewUrl:_wallpaperPreview,...wallpaperImage}=derived;
+  return {...normalized,pcImage,wallpaperImage};
+}
+
+async function handleDefaultDonationImageRegistry(req,res){
+  res.setHeader('Cache-Control','no-store, private');
+  res.setHeader('Content-Type','application/json; charset=utf-8');
+  const capability=req.method==='GET'?'data:read':req.method==='DELETE'?'data:delete':'data:write';
+  const session=await requireCapabilityLive(req,res,capability);if(!session)return;
+  const workspaceId=await workspaceForSession(session);if(!workspaceId)return res.status(403).json({message:'Workspace not resolved'});
+  if(req.method==='GET'){
+    try{
+      const rows=await sb('byeollog_default_donation_images',`?workspace_id=eq.${q(workspaceId)}&select=id,min_amount,max_amount,pc_image,wallpaper_image,version_number,created_at,updated_at&order=min_amount.asc&limit=${DEFAULT_DONATION_IMAGE_MAX_ITEMS}`);
+      return res.status(200).json({ok:true,items:await publicDefaultDonationImages(rows,workspaceId)});
+    }catch(error){
+      console.error('[default-donation-image] registry load failed',{name:error?.name||'Error',status:error?.status||null});
+      return res.status(error?.status===404?503:502).json({message:error?.status===404?'기본 후원 이미지 저장소가 아직 준비되지 않았습니다.':'기본 후원 이미지 목록을 불러오지 못했습니다.'});
+    }
+  }
+  if(req.method!=='POST'&&req.method!=='PATCH'&&req.method!=='DELETE')return res.status(405).json({message:'Method not allowed'});
+  if(rejectMaintenanceWrite(req,res))return;
+  if(!requireSafeJsonMutation(req,res))return;
+  const body=bodyOf(req);if(!body)return res.status(400).json({message:'Invalid JSON body'});
+  const requestedId=String(body.id||req.query?.id||'').trim().toLowerCase();
+  try{
+    if(req.method==='DELETE'){
+      if(!UUID_PATTERN.test(requestedId))throw new SignatureBalloonValidationError('기본 후원 이미지 ID가 올바르지 않습니다.');
+      const removed=await sb('byeollog_default_donation_images',`?workspace_id=eq.${q(workspaceId)}&id=eq.${q(requestedId)}`,{method:'DELETE',prefer:'return=representation'});
+      if(!Array.isArray(removed)||removed.length!==1)return res.status(404).json({message:'기본 후원 이미지를 찾지 못했습니다.'});
+      await removeSignatureAssetsBestEffort(defaultDonationImageAssetPaths({pcImage:removed[0].pc_image,wallpaperImage:removed[0].wallpaper_image}),'default-delete');
+      return res.status(200).json({ok:true,id:requestedId});
+    }
+    const base=normalizeDefaultDonationImageInput(body,workspaceId);
+    const overlap=await sb('byeollog_default_donation_images',`?workspace_id=eq.${q(workspaceId)}&min_amount=lte.${base.maxAmount}&max_amount=gte.${base.minAmount}&select=id&limit=1`);
+    if((Array.isArray(overlap)?overlap:[]).some(row=>row.id!==requestedId))return res.status(409).json({message:'이미 등록된 다른 기본 이미지 범위와 겹칩니다.'});
+    const normalized=await verifyDefaultDonationImageAssets(workspaceId,base);
+    if(req.method==='PATCH'){
+      if(!UUID_PATTERN.test(requestedId))throw new SignatureBalloonValidationError('기본 후원 이미지 ID가 올바르지 않습니다.');
+      const expected=Number(body.expectedVersion);
+      if(!Number.isSafeInteger(expected)||expected<1)throw new SignatureBalloonValidationError('기본 후원 이미지 버전이 올바르지 않습니다.');
+      const previous=await sb('byeollog_default_donation_images',`?workspace_id=eq.${q(workspaceId)}&id=eq.${q(requestedId)}&version_number=eq.${expected}&select=pc_image,wallpaper_image&limit=1`);
+      if(!Array.isArray(previous)||previous.length!==1)return res.status(409).json({message:'다른 화면에서 설정이 변경되었습니다. 새로고침 후 다시 저장해주세요.'});
+      const updated=await sb('byeollog_default_donation_images',`?workspace_id=eq.${q(workspaceId)}&id=eq.${q(requestedId)}&version_number=eq.${expected}`,{method:'PATCH',prefer:'return=representation',body:{min_amount:normalized.minAmount,max_amount:normalized.maxAmount,pc_image:normalized.pcImage,wallpaper_image:normalized.wallpaperImage,version_number:expected+1,updated_at:new Date().toISOString()}});
+      if(!Array.isArray(updated)||updated.length!==1)return res.status(409).json({message:'다른 화면에서 설정이 변경되었습니다. 새로고침 후 다시 저장해주세요.'});
+      const retained=new Set(defaultDonationImageAssetPaths(normalized));
+      await removeSignatureAssetsBestEffort(defaultDonationImageAssetPaths({pcImage:previous[0].pc_image,wallpaperImage:previous[0].wallpaper_image}).filter(path=>!retained.has(path)),'default-replace');
+      return res.status(200).json({ok:true,items:await publicDefaultDonationImages(updated,workspaceId)});
+    }
+    const existing=await sb('byeollog_default_donation_images',`?workspace_id=eq.${q(workspaceId)}&select=id&limit=${DEFAULT_DONATION_IMAGE_MAX_ITEMS}`);
+    if(Array.isArray(existing)&&existing.length>=DEFAULT_DONATION_IMAGE_MAX_ITEMS)return res.status(409).json({message:`기본 후원 이미지는 최대 ${DEFAULT_DONATION_IMAGE_MAX_ITEMS}개까지 등록할 수 있습니다.`});
+    const inserted=await sb('byeollog_default_donation_images','?select=*',{method:'POST',prefer:'return=representation',body:{workspace_id:workspaceId,min_amount:normalized.minAmount,max_amount:normalized.maxAmount,pc_image:normalized.pcImage,wallpaper_image:normalized.wallpaperImage,created_by_user_id:session.user_id||null}});
+    return res.status(201).json({ok:true,items:await publicDefaultDonationImages(inserted,workspaceId)});
+  }catch(error){
+    if(error instanceof SignatureBalloonValidationError)return res.status(error.status||400).json({message:error.message,code:error.code});
+    if(error?.code==='23P01')return res.status(409).json({message:'이미 등록된 다른 기본 이미지 범위와 겹칩니다.'});
+    console.error('[default-donation-image] registry mutation failed',{method:req.method,name:error?.name||'Error',status:error?.status||null,code:error?.code||null});
+    return res.status(error?.status===404?503:500).json({message:error?.status===404?'기본 후원 이미지 저장소가 아직 준비되지 않았습니다.':'기본 후원 이미지를 저장하지 못했습니다.'});
   }
 }
 
@@ -889,8 +971,9 @@ export default async function handler(req,res){
   if(operation==='weflab-public-import')return handleWeflabPublicImport(req,res);
   if(operation==='roulette-image-upload-ticket'||operation==='roulette-image-confirm')return handleRouletteAsset(req,res,operation);
   if(operation==='roulette-draft')return handleRouletteDraft(req,res);
-  if(operation==='signature-image-upload-ticket'||operation==='signature-image-confirm')return handleSignatureAsset(req,res,operation);
+  if(['signature-image-upload-ticket','signature-image-confirm','default-donation-image-upload-ticket','default-donation-image-confirm'].includes(operation))return handleSignatureAsset(req,res,operation);
   if(operation==='signature-balloon-registry')return handleSignatureBalloonRegistry(req,res);
+  if(operation==='default-donation-image-registry')return handleDefaultDonationImageRegistry(req,res);
   if(operation==='wallpaper-control')return handleWallpaperControl(req,res);
   if(String(req.query?.view||'')==='agent-rollout')return handleAgentRolloutPage(req,res);
   if(['roulette','actions','signatures','wallpaper'].includes(String(req.query?.view||'')))return handleProductControlPage(req,res,String(req.query.view));

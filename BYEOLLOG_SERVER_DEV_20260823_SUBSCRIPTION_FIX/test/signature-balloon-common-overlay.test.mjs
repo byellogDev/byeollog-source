@@ -7,6 +7,7 @@ import {inspectRouletteImageBytes} from '../lib/roulette-custom-assets.js';
 import {normalizeSoopCeremonyImageUrl} from '../lib/native-roulette.js';
 import {normalizeSoopChatSdkCallback} from '../lib/soop-chat-gateway.js';
 import {resolveCeremonyForOverlay,soopDefaultCeremonyImageUrl} from '../lib/soop-roulette-service.js';
+import {normalizeDefaultDonationImageInput} from '../lib/default-donation-images.js';
 
 const workspaceId='10000000-0000-4000-8000-000000000001';
 const image=(kind)=>({
@@ -52,13 +53,23 @@ test('SOOP chat SDK donation retains the provider ceremony image URL',()=>{
   assert.equal(relay.relay.event.ceremonyImageUrl,'https://static.file.sooplive.com/path/balloon.png');
 });
 
-test('common overlay resolves signature, event image, then official SOOP default without inventing an asset',async()=>{
+test('common overlay resolves signature, event image, workspace range, then official SOOP default',async()=>{
   const signature=await resolveCeremonyForOverlay(workspaceId,{source:'signature',asset:image('pc'),providerUrl:'https://static.file.sooplive.com/path/balloon.png'},{amount:33,hydrate:async()=>({...image('pc'),previewUrl:'https://private.example/signed'})});
   assert.deepEqual(signature,{source:'signature',url:'https://private.example/signed',providerFallbackUrl:'https://static.file.sooplive.com/path/balloon.png',defaultFallbackUrl:'https://res.sooplive.com/new_player/items/ba_step2.png'});
   const soop=await resolveCeremonyForOverlay(workspaceId,{source:'soop',url:'https://static.file.sooplive.com/path/balloon.png'},{amount:330});
   assert.deepEqual(soop,{source:'soop',url:'https://static.file.sooplive.com/path/balloon.png',providerFallbackUrl:null,defaultFallbackUrl:'https://res.sooplive.com/new_player/items/ba_step4.png'});
-  const fallback=await resolveCeremonyForOverlay(workspaceId,{source:'soop',url:'https://example.com/untrusted.png'},{amount:1001});
+  const custom=await resolveCeremonyForOverlay(workspaceId,{source:'none'},{amount:50,sbImpl:async table=>table==='byeollog_default_donation_images'?[{pc_image:image('default-pc')}]:[],hydrate:async(_workspace,asset)=>({...asset,previewUrl:'https://private.example/default'})});
+  assert.deepEqual(custom,{source:'workspace_default',url:'https://private.example/default',providerFallbackUrl:null,defaultFallbackUrl:'https://res.sooplive.com/new_player/items/ba_step2.png'});
+  const fallback=await resolveCeremonyForOverlay(workspaceId,{source:'soop',url:'https://example.com/untrusted.png'},{amount:1001,sbImpl:async()=>[]});
   assert.deepEqual(fallback,{source:'soop_default',url:'https://res.sooplive.com/new_player/items/ba_step6.png',providerFallbackUrl:null,defaultFallbackUrl:null});
+});
+
+test('default donation image ranges validate one scoped upload and ignore client wallpaper references',()=>{
+  const normalized=normalizeDefaultDonationImageInput({minAmount:1,maxAmount:99,pcImage:image('default-pc'),wallpaperImage:image('default-wallpaper')},workspaceId);
+  assert.deepEqual([normalized.minAmount,normalized.maxAmount],[1,99]);
+  assert.equal(normalized.wallpaperImage,null);
+  assert.throws(()=>normalizeDefaultDonationImageInput({minAmount:100,maxAmount:99,pcImage:image('default-pc')},workspaceId),/작을 수 없습니다/);
+  assert.throws(()=>normalizeDefaultDonationImageInput({minAmount:1,maxAmount:99,pcImage:image('pc')},workspaceId),/다른 워크스페이스 또는 용도/);
 });
 
 test('official SOOP default ceremony tiers cover every positive donation count',()=>{
@@ -81,4 +92,16 @@ test('database migration enforces exact-count signature priority and service-onl
   assert.match(common,/when v_signature is not null[\s\S]*providerUrl[\s\S]*when p_ceremony_image_url is not null[\s\S]*source','none'/i);
   assert.doesNotMatch(common,/soop-default-balloon/i);
   assert.match(common,/donation_ceremony/i);
+});
+
+test('default image migration enforces non-overlapping private ranges and wakes Agent wallpaper snapshots',async()=>{
+  const sql=await readFile(new URL('../supabase/migrations/20260902150936_add_default_donation_image_ranges.sql',import.meta.url),'utf8');
+  assert.match(sql,/create table public\.byeollog_default_donation_images/i);
+  assert.match(sql,/pg_advisory_xact_lock/i);
+  assert.match(sql,/int4range\(existing\.min_amount,existing\.max_amount,'\[\]'\)[\s\S]*&&/i);
+  assert.match(sql,/bump_wallpaper_for_default_image_v1/i);
+  assert.match(sql,/defaultDonationImages/i);
+  assert.match(sql,/default-wallpaper/i);
+  assert.match(sql,/enable row level security/i);
+  assert.doesNotMatch(sql,/grant [^;]+ to anon/i);
 });

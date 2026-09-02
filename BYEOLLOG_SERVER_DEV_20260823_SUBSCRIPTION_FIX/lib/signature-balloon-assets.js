@@ -33,7 +33,7 @@ function workspaceId(value){
 }
 
 function validateUploadRequest(input={}){
-  const kind=input.kind==='pc'?'pc':input.kind==='mobile'?'mobile':null;
+  const kind=input.kind==='pc'?'pc':input.kind==='mobile'?'mobile':input.kind==='default-pc'?'default-pc':null;
   const mimeType=String(input.mimeType||'').trim().toLowerCase();
   const byteSize=Number(input.byteSize);
   if(!kind)throw new SignatureBalloonValidationError('이미지 용도를 확인할 수 없습니다.');
@@ -100,8 +100,16 @@ export async function buildSignatureWallpaperBuffer(input){
 }
 
 export async function deriveSignatureWallpaperAsset(value,sourceReference){
+  return deriveWallpaperAsset(value,sourceReference,'pc','wallpaper');
+}
+
+export async function deriveDefaultDonationWallpaperAsset(value,sourceReference){
+  return deriveWallpaperAsset(value,sourceReference,'default-pc','default-wallpaper');
+}
+
+async function deriveWallpaperAsset(value,sourceReference,sourceKind,outputKind){
   const id=workspaceId(value);
-  const source=normalizeSignatureImageReference(sourceReference,id,'pc');
+  const source=normalizeSignatureImageReference(sourceReference,id,sourceKind);
   const client=storageClient();
   await ensureBucket(client);
   const {data,error}=await client.storage.from(SIGNATURE_ASSET_BUCKET).download(source.storagePath);
@@ -113,12 +121,12 @@ export async function deriveSignatureWallpaperAsset(value,sourceReference){
     throw new SignatureBalloonValidationError('풍벽지용 이미지 자동 변환에 실패했습니다.',400,'signature_wallpaper_transform_failed');
   }
   const inspected=inspectRouletteImageBytes(output);
-  const path=`workspaces/${id}/wallpaper/${crypto.randomUUID()}.webp`;
+  const path=`workspaces/${id}/${outputKind}/${crypto.randomUUID()}.webp`;
   const {error:uploadError}=await client.storage.from(SIGNATURE_ASSET_BUCKET).upload(path,output,{
     contentType:'image/webp',cacheControl:'31536000',upsert:false
   });
   if(uploadError)throw new SignatureBalloonValidationError('풍벽지용 이미지를 저장하지 못했습니다.',503,'signature_wallpaper_storage_failed');
-  const reference=normalizeSignatureImageReference({storagePath:path,...inspected},id,'wallpaper');
+  const reference=normalizeSignatureImageReference({storagePath:path,...inspected},id,outputKind);
   return {...reference,previewUrl:await signedPreviewUrl(client,path)};
 }
 

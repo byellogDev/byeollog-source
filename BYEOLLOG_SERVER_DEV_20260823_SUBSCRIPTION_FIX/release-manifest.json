@@ -1,18 +1,27 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-02T13:20:58.851Z",
-  "gitCommit": "9c5f4a40084ad880f6f0951f3706b09dc516c9bc",
+  "generatedAt": "2026-09-02T15:27:27.103Z",
+  "gitCommit": "c61d4e7a642db448e7462b8d1b0ac1f1980603aa",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 4,
+  "dirtyPathCount": 13,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.138/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.139/release-provenance.json",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/stable/win-x64.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/api/admin.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/default-donation-images.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/product-dashboard-html.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/signature-balloon-assets.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/soop-roulette-service.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/wallpaper-service.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260902150936_add_default_donation_image_ranges.sql",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-release-storage.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-update-feed.test.mjs"
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-update-feed.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/product-control-center.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/signature-balloon-common-overlay.test.mjs"
   ],
-  "sourceDigest": "0b48c69846e236aa973c7aa8a4046fd6ea5fb9229322c7a9ea3c719cc02a709b",
-  "fileCount": 336,
+  "sourceDigest": "7b1d5feef6e3ad1b11ba811f19af80ab06efb68f8d4b33d5675c1b9bb5ceea13",
+  "fileCount": 339,
   "files": [
     {
       "path": "agent-updates/release-asset-storage.json",
@@ -180,6 +189,11 @@
       "sha256": "016488ef70e344d89019966a1a3ffdc721b34ead8ad84aaa548e77cd208bda04"
     },
     {
+      "path": "agent-updates/releases/0.7.0.139/release-provenance.json",
+      "bytes": 326,
+      "sha256": "cd6cff84f231b0302c0afe51150391d9895e6b2ccb7169c70a1d9a9202073cfe"
+    },
+    {
       "path": "agent-updates/releases/0.7.0.71/release-provenance.json",
       "bytes": 330,
       "sha256": "e42f2926a9d4cd3561865a3383b9b9ccc4a7d05aa4e1e074ea896a530c2b650a"
@@ -326,13 +340,13 @@
     },
     {
       "path": "agent-updates/stable/win-x64.json",
-      "bytes": 1590,
-      "sha256": "e3192959c3cb89ab2ab1e42d92dec0dda2878a610423f0ecdeb81f68dedb283f"
+      "bytes": 1595,
+      "sha256": "a115ee353d2ea29252af1f86132eb16fbb9d1ee545861b6afefe43fb80e93412"
     },
     {
       "path": "api/admin.js",
-      "bytes": 66469,
-      "sha256": "9e2b25029059e912ec0c1306e807e18b88b1ab03d96880ba79927e48fe7e7be9"
+      "bytes": 74106,
+      "sha256": "5cb6407d52b436ea45d199ded7e96ed37fc09dd1127af2567fa2bbf78beea448"
     },
     {
       "path": "api/backups.js",
@@ -565,6 +579,11 @@
       "sha256": "797660d317f37edae26894a149020ed3eb91fa631615352060f1c63894894f88"
     },
     {
+      "path": "lib/default-donation-images.js",
+      "bytes": 1582,
+      "sha256": "767778a1517aa283397af46811526c276e10f017ef2ddb8e898aabdec067007a"
+    },
+    {
       "path": "lib/deployment-assets.js",
       "bytes": 597814,
       "sha256": "eb3c974fbb33432595816694845ce23132a4627abaf83e7cdd3752cb16de9df1"
@@ -606,8 +625,8 @@
     },
     {
       "path": "lib/product-dashboard-html.js",
-      "bytes": 146506,
-      "sha256": "37fa6346a0519035916e13961134dc4d92293cf6935673e82c1dc26a44f711b0"
+      "bytes": 155868,
+      "sha256": "eb4032333b64815405962ae4b0b1a1cda06673b096a14c30a022498261ec2a92"
     },
     {
       "path": "lib/rate-limit.js",
@@ -626,8 +645,8 @@
     },
     {
       "path": "lib/signature-balloon-assets.js",
-      "bytes": 8721,
-      "sha256": "2ae186056a556940cdd34abfb4f5fa39b527ad87a875d3a3a655959a5114174f"
+      "bytes": 9097,
+      "sha256": "cb4acc2cc53501e5fb5f81783a53d1ad0773d5aa4d13144542882cb6b1313bcb"
     },
     {
       "path": "lib/signature-balloon-registry.js",
@@ -656,8 +675,8 @@
     },
     {
       "path": "lib/soop-roulette-service.js",
-      "bytes": 12262,
-      "sha256": "4e23caf2a2388a5cb783845125b4a21ec831f3f8708a4e06af812625f93a81b4"
+      "bytes": 13004,
+      "sha256": "717583972fea26b6f1dedd59103a159a3c129d377438991a0ae6dc8cf4d65d54"
     },
     {
       "path": "lib/soop-sdk-relay.js",
@@ -761,8 +780,8 @@
     },
     {
       "path": "lib/wallpaper-service.js",
-      "bytes": 14333,
-      "sha256": "2c3578d639b89f63a66cd2304e4fa7e783bf7662b05539dc1358262699dfaa8f"
+      "bytes": 15499,
+      "sha256": "112338a8c3b4d805108dce90e741c9f21022e5c4736c568f6dd931f272eb5362"
     },
     {
       "path": "lib/weflab-public-roulette-import.js",
@@ -1298,6 +1317,11 @@
       "path": "supabase/migrations/20260902123052_add_roulette_chat_dry_run_reveal_outbox.sql",
       "bytes": 6399,
       "sha256": "1111f9f79d78a992b28ced0a913c60bf084dcbc913058999bc3aa446942b9185"
+    },
+    {
+      "path": "supabase/migrations/20260902150936_add_default_donation_image_ranges.sql",
+      "bytes": 7349,
+      "sha256": "9ffa605d6b08a6576ff8444f5ad2929ef055847b25d42cbdaeb1b867719284a5"
     },
     {
       "path": "tools/__pycache__/Generate-NativeRouletteAudioCandidates.cpython-312.pyc",

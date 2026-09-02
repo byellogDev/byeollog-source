@@ -259,6 +259,18 @@ internal static class Program
               "height": 180
             }
           }],
+          "defaultDonationImages": [{
+            "minAmount": 40,
+            "maxAmount": 60,
+            "asset": {
+              "storagePath": "workspaces/11111111-1111-4111-8111-111111111111/default-wallpaper/basic.webp",
+              "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "mimeType": "image/webp",
+              "byteSize": 456,
+              "width": 320,
+              "height": 240
+            }
+          }],
           "activationSnapshot": null,
           "tiles": [
             {
@@ -286,7 +298,7 @@ internal static class Program
               "actorName": "기본풍",
               "amount": 50,
               "displayKind": "donation",
-              "assetSource": "soop",
+              "assetSource": "soop_default",
               "asset": {"url": "http://res.sooplive.com/new_player/items/ba_step2.png"},
               "receivedAt": "2026-09-01T10:02:00Z"
             },
@@ -327,9 +339,13 @@ internal static class Program
             "manual merge ranges match the Edge grouping contract");
         Equal("left", signature.GetProperty("layout").GetProperty("nextSide").GetString(),
             "manual layout fields survive direct transport");
-        Equal("https://res.sooplive.com/new_player/items/ba_step2.png",
-            state.GetProperty("tiles")[1].GetProperty("imageUrl").GetString(),
-            "SOOP image URLs receive the same HTTPS normalization");
+        Equal("workspace_default",
+            state.GetProperty("tiles")[1].GetProperty("source").GetString(),
+            "workspace amount-range default replaces only the built-in SOOP fallback");
+        True(state.GetProperty("tiles")[1].GetProperty("imageUrl").GetString()!.Contains(
+                "/storage/v1/object/authenticated/byeollog-signature-assets/",
+                StringComparison.Ordinal),
+            "workspace defaults use the authenticated Agent storage path");
         Equal(JsonValueKind.Null,
             state.GetProperty("tiles")[2].GetProperty("imageUrl").ValueKind,
             "image-free subscription cards remain image-free");

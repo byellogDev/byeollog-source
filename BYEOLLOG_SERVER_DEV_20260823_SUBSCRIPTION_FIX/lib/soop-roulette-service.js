@@ -108,7 +108,7 @@ export async function claimRouletteOverlayCommand(payload,clientId,{sbImpl=sb,en
   if(commandPayload.customImage?.storagePath){
     commandPayload.customImage={...commandPayload.customImage,previewUrl:rouletteAssetPublicUrl(commandPayload.customImage.storagePath,env)};
   }
-  commandPayload.ceremony=await resolveCeremonyForOverlay(payload.wid,commandPayload.ceremony,{amount:commandPayload.amount});
+  commandPayload.ceremony=await resolveCeremonyForOverlay(payload.wid,commandPayload.ceremony,{amount:commandPayload.amount,sbImpl});
   const text=overlayTtsText(row.command_kind,commandPayload);
   if(row.command_kind==='roulette_spin')commandPayload.ttsText=text;
   const ttsAuthorization=text?createOverlayTtsAuthorization(payload.wid,clientId,row.command_id,row.attempt_count,text,{env}):null;
@@ -159,7 +159,7 @@ export async function recordRouletteChatDryRun(payload,clientId,commandId,{sbImp
   return {invalid:false,result};
 }
 
-export async function resolveCeremonyForOverlay(workspaceId,ceremony,{hydrate=hydrateSignatureAssetPreview,amount=1}={}){
+export async function resolveCeremonyForOverlay(workspaceId,ceremony,{hydrate=hydrateSignatureAssetPreview,amount=1,sbImpl=sb}={}){
   const providerUrl=normalizeSoopCeremonyImageUrl(ceremony?.providerUrl||(ceremony?.source==='soop'?ceremony?.url:null));
   const defaultUrl=soopDefaultCeremonyImageUrl(amount);
   if(ceremony?.source==='signature'&&ceremony.asset?.storagePath){
@@ -169,6 +169,15 @@ export async function resolveCeremonyForOverlay(workspaceId,ceremony,{hydrate=hy
     }catch(error){console.error('[common-overlay] signature image unavailable',{name:error?.name||'Error',status:error?.status||null})}
   }
   if(providerUrl)return {source:'soop',url:providerUrl,providerFallbackUrl:null,defaultFallbackUrl:defaultUrl};
+  try{
+    const safeAmount=Math.max(1,Math.min(1_000_000,Math.trunc(Number(amount)||1)));
+    const rows=await sbImpl('byeollog_default_donation_images',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&min_amount=lte.${safeAmount}&max_amount=gte.${safeAmount}&select=pc_image&order=min_amount.desc&limit=1`);
+    const custom=first(rows);
+    if(custom?.pc_image?.storagePath){
+      const image=await hydrate(workspaceId,custom.pc_image,'default-pc');
+      return {source:'workspace_default',url:image.previewUrl,providerFallbackUrl:null,defaultFallbackUrl:defaultUrl};
+    }
+  }catch(error){console.error('[common-overlay] workspace default image unavailable',{name:error?.name||'Error',status:error?.status||null})}
   return {source:'soop_default',url:defaultUrl,providerFallbackUrl:null,defaultFallbackUrl:null};
 }
 

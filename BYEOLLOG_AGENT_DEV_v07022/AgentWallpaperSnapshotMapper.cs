@@ -64,6 +64,23 @@ internal static partial class AgentWallpaperSnapshotMapper
             signatureAssets[amount] = descriptor;
         }
 
+        var defaultAssets = new List<(int Min, int Max, JsonObject Asset)>();
+        foreach (var row in ObjectArray(raw, "defaultDonationImages"))
+        {
+            var min = Integer(row, "minAmount");
+            var max = Integer(row, "maxAmount");
+            var asset = ObjectProperty(row, "asset");
+            var path = Text(asset, "storagePath", 1000);
+            if (min < 1 || max < min || max > 1_000_000
+                || !path.StartsWith($"workspaces/{workspaceId}/default-wallpaper/", StringComparison.Ordinal))
+                continue;
+            var descriptor = AssetDescriptor(asset);
+            descriptor["imageUrl"] = supabaseUrl + SignatureBucketPath + EncodePath(path);
+            descriptor["imageKey"] = "workspace_default:" + path;
+            descriptor["source"] = "workspace_default";
+            defaultAssets.Add((min, max, descriptor));
+        }
+
         var rouletteAssets = RouletteAssets(raw, workspaceId, supabaseUrl);
         var rows = ObjectArray(raw, "tiles");
         var latestAssets = new Dictionary<int, JsonObject>();
@@ -71,7 +88,7 @@ internal static partial class AgentWallpaperSnapshotMapper
         {
             var displayKind = DisplayKind(row);
             if (displayKind is "challenge_success" or "subscription"
-                || Text(row, "assetSource", 40) == "signature") continue;
+                || Text(row, "assetSource", 40) != "soop") continue;
             var amount = Integer(row, "amount");
             var asset = ObjectProperty(row, "asset");
             var source = Text(row, "assetSource", 40);
@@ -123,6 +140,9 @@ internal static partial class AgentWallpaperSnapshotMapper
                 selected = (JsonObject)roulette.DeepClone();
             else if (latestAssets.TryGetValue(amount, out var latest))
                 selected = (JsonObject)latest.DeepClone();
+            else if (defaultAssets.FirstOrDefault(item => amount >= item.Min && amount <= item.Max) is var custom
+                && custom.Asset is not null)
+                selected = (JsonObject)custom.Asset.DeepClone();
             else
             {
                 var fallbackUrl = DefaultCeremonyUrl(amount);

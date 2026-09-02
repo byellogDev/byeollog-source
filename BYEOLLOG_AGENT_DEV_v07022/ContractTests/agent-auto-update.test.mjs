@@ -871,3 +871,18 @@ test("v138 keeps wallpaper current during Realtime outages without changing the 
   assert.match(realtime, /ReceiveSilenceTimeout = TimeSpan\.FromSeconds\(35\)/);
   assert.match(realtime, /if \(!connected\) _wallpaperWake\(\)/);
 });
+
+test("v139 maps workspace donation defaults inside the existing wallpaper snapshot", async () => {
+  const [build,notes,mapper]=await Promise.all([
+    source("Build-v07139-AutoUpdate.ps1"),
+    source("RELEASE_v07139_DEFAULT_DONATION_IMAGES_KO.txt"),
+    source("AgentWallpaperSnapshotMapper.cs")
+  ]);
+  assert.match(build,/\$releaseSequence = 7139/);
+  assert.match(build,/byeollog_agent_v07139_DEFAULT_DONATION_IMAGES_WIN_X64/);
+  assert.match(build,/Version = '0\.7\.0\.139'/);
+  assert.match(notes,/요청 횟수와 후원·액션 반응 경로는 변경하지 않습니다/);
+  assert.match(mapper,/defaultDonationImages/);
+  assert.match(mapper,/workspace_default/);
+  assert.match(mapper,/default-wallpaper/);
+});
