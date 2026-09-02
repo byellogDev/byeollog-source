@@ -7,7 +7,7 @@ import {inspectRouletteImageBytes} from '../lib/roulette-custom-assets.js';
 import {normalizeSoopCeremonyImageUrl} from '../lib/native-roulette.js';
 import {normalizeSoopChatSdkCallback} from '../lib/soop-chat-gateway.js';
 import {resolveCeremonyForOverlay,soopDefaultCeremonyImageUrl} from '../lib/soop-roulette-service.js';
-import {normalizeDefaultDonationImageInput} from '../lib/default-donation-images.js';
+import {defaultDonationImageForAmount,defaultDonationImageRangesOverlap,normalizeDefaultDonationImageInput} from '../lib/default-donation-images.js';
 
 const workspaceId='10000000-0000-4000-8000-000000000001';
 const image=(kind)=>({
@@ -70,6 +70,12 @@ test('default donation image ranges validate one scoped upload and ignore client
   assert.equal(normalized.wallpaperImage,null);
   assert.throws(()=>normalizeDefaultDonationImageInput({minAmount:100,maxAmount:99,pcImage:image('default-pc')},workspaceId),/작을 수 없습니다/);
   assert.throws(()=>normalizeDefaultDonationImageInput({minAmount:1,maxAmount:99,pcImage:image('pc')},workspaceId),/다른 워크스페이스 또는 용도/);
+  const open=normalizeDefaultDonationImageInput({minAmount:'',maxAmount:'',pcImage:image('default-pc')},workspaceId);
+  assert.deepEqual([open.minAmount,open.maxAmount],[0,null]);
+  assert.deepEqual([normalizeDefaultDonationImageInput({maxAmount:99,pcImage:image('default-pc')},workspaceId).minAmount,normalizeDefaultDonationImageInput({minAmount:100,pcImage:image('default-pc')},workspaceId).maxAmount],[0,null]);
+  assert.equal(defaultDonationImageForAmount([{minAmount:100,maxAmount:null}],999999999)?.minAmount,100);
+  assert.equal(defaultDonationImageRangesOverlap({minAmount:0,maxAmount:99},{min_amount:100,max_amount:null}),false);
+  assert.equal(defaultDonationImageRangesOverlap({minAmount:0,maxAmount:null},{min_amount:100,max_amount:199}),true);
 });
 
 test('official SOOP default ceremony tiers cover every positive donation count',()=>{
@@ -97,6 +103,7 @@ test('database migration enforces exact-count signature priority and service-onl
 test('default image migrations keep ranges private while limiting custom images to the common overlay',async()=>{
   const sql=await readFile(new URL('../supabase/migrations/20260902150936_add_default_donation_image_ranges.sql',import.meta.url),'utf8');
   const followup=await readFile(new URL('../supabase/migrations/20260902154301_stop_default_donation_wallpaper_assets.sql',import.meta.url),'utf8');
+  const openRanges=await readFile(new URL('../supabase/migrations/20260902155513_allow_open_default_donation_ranges.sql',import.meta.url),'utf8');
   assert.match(sql,/create table public\.byeollog_default_donation_images/i);
   assert.match(sql,/pg_advisory_xact_lock/i);
   assert.match(sql,/int4range\(existing\.min_amount,existing\.max_amount,'\[\]'\)[\s\S]*&&/i);
@@ -110,4 +117,8 @@ test('default image migrations keep ranges private while limiting custom images 
   assert.match(followup,/drop trigger if exists bump_wallpaper_for_default_image_v1/i);
   assert.doesNotMatch(followup,/defaultDonationImages/i);
   assert.match(followup,/return public\.g3a_get_wallpaper_snapshot_v1/i);
+  assert.match(openRanges,/alter column max_amount drop not null/i);
+  assert.match(openRanges,/alter column min_amount set default 0/i);
+  assert.match(openRanges,/max_amount is null/i);
+  assert.match(openRanges,/int8range[\s\S]*max_amount is null then null/i);
 });

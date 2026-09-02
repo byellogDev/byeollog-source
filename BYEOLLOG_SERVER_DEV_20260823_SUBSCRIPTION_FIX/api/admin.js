@@ -27,7 +27,7 @@ import {
 } from '../lib/signature-balloon-assets.js';
 import {
   DEFAULT_DONATION_IMAGE_MAX_ITEMS,defaultDonationImageAssetPaths,
-  normalizeDefaultDonationImageInput
+  defaultDonationImageRangesOverlap,normalizeDefaultDonationImageInput
 } from '../lib/default-donation-images.js';
 import {isJsonRequest,isTrustedMutationOrigin} from '../lib/request-origin.js';
 import {refreshSoopConnection} from '../lib/soop-oauth.js';
@@ -457,8 +457,8 @@ async function handleDefaultDonationImageRegistry(req,res){
       return res.status(200).json({ok:true,id:requestedId});
     }
     const base=normalizeDefaultDonationImageInput(body,workspaceId);
-    const overlap=await sb('byeollog_default_donation_images',`?workspace_id=eq.${q(workspaceId)}&min_amount=lte.${base.maxAmount}&max_amount=gte.${base.minAmount}&select=id&limit=1`);
-    if((Array.isArray(overlap)?overlap:[]).some(row=>row.id!==requestedId))return res.status(409).json({message:'이미 등록된 다른 기본 이미지 범위와 겹칩니다.'});
+    const existing=await sb('byeollog_default_donation_images',`?workspace_id=eq.${q(workspaceId)}&select=id,min_amount,max_amount&order=min_amount.asc&limit=${DEFAULT_DONATION_IMAGE_MAX_ITEMS}`);
+    if((Array.isArray(existing)?existing:[]).some(row=>row.id!==requestedId&&defaultDonationImageRangesOverlap(base,row)))return res.status(409).json({message:'이미 등록된 다른 기본 이미지 범위와 겹칩니다.'});
     const normalized=await verifyDefaultDonationImageAssets(workspaceId,base);
     if(req.method==='PATCH'){
       if(!UUID_PATTERN.test(requestedId))throw new SignatureBalloonValidationError('기본 후원 이미지 ID가 올바르지 않습니다.');
@@ -472,7 +472,6 @@ async function handleDefaultDonationImageRegistry(req,res){
       await removeSignatureAssetsBestEffort(defaultDonationImageAssetPaths({pcImage:previous[0].pc_image,wallpaperImage:previous[0].wallpaper_image}).filter(path=>!retained.has(path)),'default-replace');
       return res.status(200).json({ok:true,items:await publicDefaultDonationImages(updated,workspaceId)});
     }
-    const existing=await sb('byeollog_default_donation_images',`?workspace_id=eq.${q(workspaceId)}&select=id&limit=${DEFAULT_DONATION_IMAGE_MAX_ITEMS}`);
     if(Array.isArray(existing)&&existing.length>=DEFAULT_DONATION_IMAGE_MAX_ITEMS)return res.status(409).json({message:`기본 후원 이미지는 최대 ${DEFAULT_DONATION_IMAGE_MAX_ITEMS}개까지 등록할 수 있습니다.`});
     const inserted=await sb('byeollog_default_donation_images','?select=*',{method:'POST',prefer:'return=representation',body:{workspace_id:workspaceId,min_amount:normalized.minAmount,max_amount:normalized.maxAmount,pc_image:normalized.pcImage,wallpaper_image:normalized.wallpaperImage,created_by_user_id:session.user_id||null}});
     return res.status(201).json({ok:true,items:await publicDefaultDonationImages(inserted,workspaceId)});

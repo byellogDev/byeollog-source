@@ -171,7 +171,7 @@ export async function resolveCeremonyForOverlay(workspaceId,ceremony,{hydrate=hy
   if(providerUrl)return {source:'soop',url:providerUrl,providerFallbackUrl:null,defaultFallbackUrl:defaultUrl};
   try{
     const safeAmount=Math.max(1,Math.min(1_000_000,Math.trunc(Number(amount)||1)));
-    const rows=await sbImpl('byeollog_default_donation_images',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&min_amount=lte.${safeAmount}&max_amount=gte.${safeAmount}&select=pc_image&order=min_amount.desc&limit=1`);
+    const rows=await sbImpl('byeollog_default_donation_images',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&min_amount=lte.${safeAmount}&or=(max_amount.is.null,max_amount.gte.${safeAmount})&select=pc_image&order=min_amount.desc&limit=1`);
     const custom=first(rows);
     if(custom?.pc_image?.storagePath){
       const image=await hydrate(workspaceId,custom.pc_image,'default-pc');
