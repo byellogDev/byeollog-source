@@ -128,14 +128,14 @@ test('HTTP surface binds to loopback, serves immutable assets, and rejects forei
   assert.equal(preview.status,200);
   assert.equal(preview.headers.get('content-type'),'image/webp');
   const bytes=Buffer.from(await preview.arrayBuffer());
-  assert.equal(bytes.length,82_814);
-  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),'e87242e094b670f982de13617310947c18ba7fe3162374d17969ff44b7549e64');
+  assert.equal(bytes.length,60_736);
+  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),'e7533d8e3b2a0b7640905d8ac1af6a95dad7a14e7a94dbbc931c406ef66b5d9d');
   const animation=await fetch(`${base}/assets/roulette-animation/roulette_navy_gold_v1.webp`);
   assert.equal(animation.status,200);
   assert.equal(animation.headers.get('content-type'),'image/webp');
   const animationBytes=Buffer.from(await animation.arrayBuffer());
-  assert.equal(animationBytes.length,25_698_598);
-  assert.equal(crypto.createHash('sha256').update(animationBytes).digest('hex'),'8856a770937a71a7ee6bac5e54f15ff14ed1bac1cad4d67e6f7c20ca9694ac38');
+  assert.equal(animationBytes.length,5_646_192);
+  assert.equal(crypto.createHash('sha256').update(animationBytes).digest('hex'),'11a05b234cb85db274019754cd076ef8a3a3052ff6ca5dd4423d97c2dcc7061d');
   const rejected=await fetch(`${base}/api/reset`,{method:'POST',headers:{origin:'https://attacker.invalid','content-type':'application/json'},body:'{}'});
   assert.equal(rejected.status,403);
   const invalid=await fetch(`${base}/api/run`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({scenarioId:'unknown',speed:1})});

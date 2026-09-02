@@ -3,6 +3,7 @@ import {createHash} from 'node:crypto';
 import {createReadStream,existsSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import test from 'node:test';
+import sharp from 'sharp';
 import {
   NATIVE_ROULETTE_PROBABILITY_SCALE,
   NATIVE_ROULETTE_MAX_RESULT_CODE_POINTS,
@@ -40,7 +41,7 @@ function draft(overrides={}){
   };
 }
 
-test('catalog pins exactly the seven final clean-edge WebP identities',async t=>{
+test('catalog pins exactly the seven final wheel-only WebP identities',async t=>{
   assert.equal(NATIVE_ROULETTE_ASSETS.length,7);
   assert.equal(new Set(NATIVE_ROULETTE_ASSETS.map(asset=>asset.key)).size,7);
   for(const asset of NATIVE_ROULETTE_ASSETS){
@@ -52,6 +53,17 @@ test('catalog pins exactly the seven final clean-edge WebP identities',async t=>
       const hash=createHash('sha256');let bytes=0;
       for await(const chunk of createReadStream(fileURLToPath(previewUrl))){hash.update(chunk);bytes+=chunk.length}
       assert.equal(bytes,asset.previewByteSize);assert.equal(hash.digest('hex'),asset.previewSha256);
+      const {data,info}=await sharp(fileURLToPath(previewUrl))
+        .ensureAlpha()
+        .raw()
+        .toBuffer({resolveWithObject:true});
+      let lowerAlphaMax=0;
+      for(let y=720;y<info.height;y+=1){
+        for(let x=0;x<info.width;x+=1){
+          lowerAlphaMax=Math.max(lowerAlphaMax,data[(y*info.width+x)*info.channels+3]);
+        }
+      }
+      assert.equal(lowerAlphaMax,0,'result bar area must remain fully transparent');
     });
     assert.equal(asset.mimeType,'image/webp');
     assert.equal(asset.widthPx,1920);assert.equal(asset.heightPx,1080);
