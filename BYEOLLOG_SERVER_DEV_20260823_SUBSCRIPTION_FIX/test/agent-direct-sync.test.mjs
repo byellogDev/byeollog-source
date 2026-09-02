@@ -28,3 +28,19 @@ test("direct Agent transport removes idle Edge invocations without moving action
   assert.match(edge, /rpc\/g3a_finish_execution_v1/);
   assert.match(edge, /operation === "device_status"[\s\S]*normalizeCollectionHealth/);
 });
+
+test("existing authenticated pending probes keep compatible Agents live without extra requests", async () => {
+  const migration = await readFile(
+    new URL("supabase/migrations/20260902095644_keep_agent_online_from_existing_pending_probe.sql", root),
+    "utf8"
+  );
+
+  assert.match(migration, /create or replace function public\.g3a_agent_direct_pending_v1/i);
+  assert.match(migration, /agent_direct_runtime_context_v1\([\s\S]*p_device_secret_hash/);
+  assert.match(migration, /update byeollog_automation\.agent_device_status[\s\S]*set reported_at = v_now/i);
+  assert.match(migration, /reported_at < v_now - interval '1 minute'/i);
+  assert.match(migration, /supported_action_types @> p_supported_action_types/);
+  assert.match(migration, /p_supported_action_types @> status_row\.supported_action_types/);
+  assert.match(migration, /revoke all on function public\.g3a_agent_direct_pending_v1[\s\S]*from public, anon, authenticated/i);
+  assert.match(migration, /grant execute on function public\.g3a_agent_direct_pending_v1[\s\S]*to authenticated/i);
+});

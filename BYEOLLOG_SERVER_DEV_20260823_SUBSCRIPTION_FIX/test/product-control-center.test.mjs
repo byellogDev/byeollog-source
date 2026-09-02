@@ -322,7 +322,7 @@ test('signature registration and common OBS source replace web overlay placement
 
 test('web wallpaper editor stacks a merged 20-card range into two continuous 10-card columns',async()=>{
   const dashboard=await source('../lib/product-dashboard-html.js');
-  const start=dashboard.indexOf('function fitWallpaperDraftGroup');
+  const start=dashboard.indexOf('function wallpaperDraftBaseCardHeight');
   const end=dashboard.indexOf('\nfunction wallpaperCardStyle',start);
   assert.ok(start>=0&&end>start);
   const fit=new Function(`${dashboard.slice(start,end)};return fitWallpaperDraftGroup;`)();

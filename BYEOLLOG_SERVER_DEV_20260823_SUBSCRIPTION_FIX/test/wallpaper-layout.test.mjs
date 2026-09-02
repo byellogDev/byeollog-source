@@ -54,6 +54,18 @@ test('columns touch, cards fill from the lower left, and a saved next column sta
   assert.ok(fitted.contentWidth<=960);
 });
 
+test('fixed card widths round-trip through saved area rows and columns',()=>{
+  for(const compact of [false,true])for(const cardWidth of [80,181,240,333,480])for(const rows of [1,7,15]){
+    const count=Math.min(30,rows*3),slotColumns=Math.ceil(count/rows)+1;
+    const baseHeight=(compact?46:226)+Math.max(0,rows-1)*46;
+    const width=slotColumns*cardWidth,height=Math.max(60,Math.ceil(baseHeight*cardWidth/240));
+    const fitted=fitWallpaperGroupCards(count,{width,height,layoutColumns:slotColumns,layoutRows:rows,compact});
+    assert.equal(fitted.cardWidth,cardWidth,`${compact?'compact':'image'} ${cardWidth}px × ${rows} rows`);
+    assert.equal(fitted.rowsPerColumn,rows);
+    assert.equal(fitted.slotColumns,slotColumns);
+  }
+});
+
 test('clicking the next-column side flips card stacking to the opposite lower corner',()=>{
   const right=fitWallpaperGroupCards(10,{width:960,height:500,layoutColumns:4,layoutRows:4,nextSide:'right'});
   const left=fitWallpaperGroupCards(10,{width:960,height:500,layoutColumns:4,layoutRows:4,nextSide:'left'});

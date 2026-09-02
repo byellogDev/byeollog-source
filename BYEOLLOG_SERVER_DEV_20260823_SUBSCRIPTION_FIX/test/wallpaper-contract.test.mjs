@@ -392,7 +392,8 @@ test('wallpaper routes retire web OBS output and keep controls on the web dashbo
   assert.doesNotMatch(dashboard,/groupNode\.style\.pointerEvents=selected/);
   assert.doesNotMatch(dashboard,/state\.wallpaperSelectedGroup=state\.wallpaperDraft\[0\]/);
   assert.match(dashboard,/fitWallpaperDraftGroup/);
-  assert.match(dashboard,/const lane=Math\.floor\(index\/best\.rows\),row=index%best\.rows/);
+  assert.match(dashboard,/function layoutWallpaperDraftGroup\(group,\{cardWidth,rows,slotColumns\}\)/);
+  assert.match(dashboard,/const lane=Math\.floor\(index\/safeRows\),row=index%safeRows/);
   assert.doesNotMatch(dashboard,/amountRunCounts|columnCursor|for\(const run of merged\?runs/);
   assert.match(dashboard,/wallpaper-next-column/);
   assert.match(dashboard,/beginWallpaperPointer\(event,group,'move',groupNode,null,'next'\)/);
@@ -427,6 +428,13 @@ test('wallpaper routes retire web OBS output and keep controls on the web dashbo
   assert.match(dashboard,/wallpaperMergeList/);
   assert.match(dashboard,/installWallpaperResizeHandles/);
   assert.match(dashboard,/\['n','ne','e','se','s','sw','w','nw'\]|Object\.keys\(labels\)/);
+  assert.match(dashboard,/function wallpaperResizeMode\(group\)/);
+  assert.match(dashboard,/영역 조절/);
+  assert.match(dashboard,/카드 크기/);
+  assert.match(dashboard,/resizeMode:wallpaperResizeMode\(group\)/);
+  assert.match(dashboard,/pointer\.resizeMode==='area'/);
+  assert.match(dashboard,/layoutWallpaperDraftGroup\(candidate,\{cardWidth,rows,slotColumns:slots\}\)/);
+  assert.match(dashboard,/editorResizeMode:saved\.editorResizeMode/);
   assert.match(dashboard,/\.wallpaper-editor-canvas\{width:1920px;height:1080px\}/);
   assert.match(dashboard,/font:800 var\(--label-size,14px\)\/1\.05 Pretendard,"Noto Sans KR",system-ui,sans-serif/);
   assert.match(dashboard,/function wallpaperEditorCanvas\(preview\)/);
