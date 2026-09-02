@@ -183,6 +183,8 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/await sleep\(landingMs\);void reportResultReveal\(command\);await speak/);
   assert.match(html,/action:'result-revealed',commandId:command\.id/);
   assert.doesNotMatch(html,/await reportResultReveal\(command\)/);
+  const dryRunReporter=html.match(/async function reportResultReveal\(command\)\{[^\n]+/i)?.[0]||'';
+  assert.doesNotMatch(dryRunReporter,/stopped=true/);
   assert.match(html,/loadImage\(image,data\.url,'ceremony'\)/);
   assert.match(html,/id="ceremonyPanel" class="ceremonyPanel"/);
   assert.match(html,/id="ceremonyDonorName"/);
