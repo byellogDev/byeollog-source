@@ -189,6 +189,11 @@ internal sealed class VNextRealtimeWakeListener : IDisposable
                     throw new UnauthorizedAccessException("Supabase Realtime private 채널 참여가 거부됐습니다.");
                 SetConnected(true);
                 _wake();
+                // Broadcast는 내구 큐가 아닌 깨우기 힌트다. 연결이 끊긴
+                // 사이 wallpaper_changed를 놓쳤을 수 있으므로 채널 재가입
+                // 직후 현재 revision을 한 번 대조한다. 실제 payload는
+                // 별도 PostgREST 경로에서 받아 액션 claim을 막지 않는다.
+                _wallpaperWake();
                 continue;
             }
             if (eventName is "phx_error" or "phx_close")

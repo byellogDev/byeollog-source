@@ -176,7 +176,18 @@ public sealed class MainForm : Form
         _autoUploadTimer.Tick += async (_, _) => { _autoUploadTimer.Stop(); await AutoUploadTickAsync(); };
         _retryUploadTimer.Tick += async (_, _) => await RetryPendingUploadTickAsync();
         _vNextDevUploadTimer.Tick += async (_, _) => { _vNextDevUploadTimer.Stop(); await MirrorVNextDevelopmentAsync(); };
-        _vNextDevRetryTimer.Tick += async (_, _) => await MirrorVNextDevelopmentAsync();
+        _vNextDevRetryTimer.Tick += async (_, _) =>
+        {
+            // 시작 순간의 일시적인 DNS/네트워크 지연으로 8초 자동복구가
+            // 실패해도 프로그램을 다시 켜거나 재로그인하게 하지 않는다.
+            // 명시적 연결 해제는 vault tombstone 때문에 즉시 no-op이다.
+            if (!_vNextDevClient.IsSignedIn)
+            {
+                try { _ = _vNextDevClient.BeginRememberedSessionRestore(); }
+                catch (ObjectDisposedException) { }
+            }
+            await MirrorVNextDevelopmentAsync();
+        };
         Shown += async (_, _) =>
         {
             EnsureMainWindowVisible();

@@ -834,3 +834,23 @@ test("v136 ships the managed donation voice for raffle action speech", async () 
   assert.match(client, /raffle_action_tts/);
   assert.match(agent, /managed_donation_tts/);
 });
+
+test("v137 self-recovers the Byeollog session and reconciles missed wallpaper changes", async () => {
+  const [build, notes, main, client, agent, realtime] = await Promise.all([
+    source("Build-v07137-AutoUpdate.ps1"),
+    source("RELEASE_v07137_WALLPAPER_SESSION_RECOVERY_KO.txt"),
+    source("MainForm.cs"),
+    source("VNextDevelopmentClient.cs"),
+    source("VNextLocalAgent.cs"),
+    source("VNextRealtimeWakeListener.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7137/);
+  assert.match(build, /byeollog_agent_v07137_WALLPAPER_SESSION_RECOVERY_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.137'/);
+  assert.match(notes, /재설치 없이/);
+  assert.match(notes, /액션.*후원 알림.*경로는 변경하지 않았/);
+  assert.match(main, /BeginRememberedSessionRestore\(\)/);
+  assert.match(client, /_pendingRememberedSessionRestore is \{ IsCompleted: false \}/);
+  assert.match(agent, /WallpaperRecoveryInterval = TimeSpan\.FromMinutes\(10\)/);
+  assert.match(realtime, /SetConnected\(true\);[\s\S]{0,500}_wallpaperWake\(\)/);
+});

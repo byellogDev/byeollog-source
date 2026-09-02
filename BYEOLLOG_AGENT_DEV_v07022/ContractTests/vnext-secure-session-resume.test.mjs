@@ -24,12 +24,13 @@ function assertOrdered(contents, markers, label) {
 }
 
 test("general distribution restores only a DPAPI refresh token and never persists credentials or access tokens", async () => {
-  const [vault, client, project, program, login] = await Promise.all([
+  const [vault, client, project, program, login, main] = await Promise.all([
     source("VNextSessionVault.cs"),
     source("VNextDevelopmentClient.cs"),
     source("HurogiCollector.csproj"),
     source("Program.cs"),
-    source("CollectorLoginWebForm.cs")
+    source("CollectorLoginWebForm.cs"),
+    source("MainForm.cs")
   ]);
 
   assert.match(project, /System\.Security\.Cryptography\.ProtectedData/);
@@ -44,6 +45,8 @@ test("general distribution restores only a DPAPI refresh token and never persist
   assert.match(program, /_ = vNextDevClient\.BeginRememberedSessionRestore\(\)/);
   assert.doesNotMatch(program, /await vNextDevClient\.BeginRememberedSessionRestore\(\)/);
   assert.match(client, /TryRestoreRememberedSessionAsync\(/);
+  assert.match(client, /_pendingRememberedSessionRestore is \{ IsCompleted: false \} pending[\s\S]{0,120}return pending/);
+  assert.match(main, /_vNextDevRetryTimer\.Tick[\s\S]{0,600}!_vNextDevClient\.IsSignedIn[\s\S]{0,300}BeginRememberedSessionRestore\(\)/);
   assert.doesNotMatch(client, /SignInWithPasswordAsync|CreateAuthRequest\("password"/);
   assert.match(login, /automation_capability\s*=\s*VNextDevelopmentClient\.AutomationCapability/);
   assert.match(login, /BeginCollectorPairSessionAdoption/);

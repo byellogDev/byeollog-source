@@ -193,10 +193,14 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
     public Task<bool> BeginRememberedSessionRestore()
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
-        var restore = RestoreRememberedSessionWithTimeoutAsync();
         lock (_collectorPairAdoptionGate)
+        {
+            if (_pendingRememberedSessionRestore is { IsCompleted: false } pending)
+                return pending;
+            var restore = RestoreRememberedSessionWithTimeoutAsync();
             _pendingRememberedSessionRestore = restore;
-        return restore;
+            return restore;
+        }
     }
 
     public Task<bool> BeginCollectorPairSessionAdoption(

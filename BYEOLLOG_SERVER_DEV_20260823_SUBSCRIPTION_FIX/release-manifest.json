@@ -1,20 +1,18 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-01T23:53:23.782Z",
-  "gitCommit": "e7521a1aad8cca263e1d6da9ba9a65d02a7d7daf",
+  "generatedAt": "2026-09-02T08:49:16.378Z",
+  "gitCommit": "35316eff82d016106dbe8eac177769b7071d27ea",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 6,
+  "dirtyPathCount": 4,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.135/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.137/release-provenance.json",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/stable/win-x64.json",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260901232944_agent_display_latency_observations.sql",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-display-latency.test.mjs",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-release-storage.test.mjs",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-update-feed.test.mjs"
   ],
-  "sourceDigest": "91f3f2c77db3a47e56a7eb98134ee42bce7fff5aaa20825ae9857509277b8470",
-  "fileCount": 328,
+  "sourceDigest": "6bea0d8cbb2ff3911569b8bd6441d4467f8b658d1f06b75ea58e74d00d7b6d7d",
+  "fileCount": 332,
   "files": [
     {
       "path": "agent-updates/release-asset-storage.json",
@@ -167,6 +165,16 @@
       "sha256": "3fdb5900d0a71357a0072d842fd24388c41a641d0093fbf1c806005dcaf26a24"
     },
     {
+      "path": "agent-updates/releases/0.7.0.136/release-provenance.json",
+      "bytes": 329,
+      "sha256": "052856631d4da7c740a1a328b4bb2246739ed49da9d77cc884c8944b82b1245b"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.137/release-provenance.json",
+      "bytes": 329,
+      "sha256": "677ba99c6346d32aa91fc5d2fc556601479f0e4b341cb334351a11ccef5e3f90"
+    },
+    {
       "path": "agent-updates/releases/0.7.0.71/release-provenance.json",
       "bytes": 330,
       "sha256": "e42f2926a9d4cd3561865a3383b9b9ccc4a7d05aa4e1e074ea896a530c2b650a"
@@ -313,8 +321,8 @@
     },
     {
       "path": "agent-updates/stable/win-x64.json",
-      "bytes": 1702,
-      "sha256": "e0e9ae304132a5e0c22dc4a8b3b20a2490c6ca9f5d17e6b548b200c947948909"
+      "bytes": 1603,
+      "sha256": "0d725366b42551dc7227831274dfe404c973bbdc344d1ba5e3b63f3afb5c199b"
     },
     {
       "path": "api/admin.js",
@@ -358,8 +366,8 @@
     },
     {
       "path": "api/login.js",
-      "bytes": 22701,
-      "sha256": "35c65ee861e99a76f44dfca14d1d1278ab2470a034b65f62788725c6f4175fb1"
+      "bytes": 27157,
+      "sha256": "fc542e39bb9988b0136bd7927ff686982bcb8973ce59a33d90b9bd34e2088a6c"
     },
     {
       "path": "api/logout.js",
@@ -518,8 +526,8 @@
     },
     {
       "path": "lib/auth.js",
-      "bytes": 9785,
-      "sha256": "599beedb5355a03be575b0cbd90f5faf09aa84884a9f72dd7b5d85239a878f39"
+      "bytes": 10321,
+      "sha256": "5474c65702760285d64c03833e111af1a2ec4b9f4a6c9b66f173fe5563f50e3e"
     },
     {
       "path": "lib/backup.js",
@@ -588,8 +596,8 @@
     },
     {
       "path": "lib/password.js",
-      "bytes": 7642,
-      "sha256": "3a9043135d48b1279c7b34123b3157ba1e242237a2ee1c6219d015d9f721bfe9"
+      "bytes": 9010,
+      "sha256": "378c48e253dad7962e112add17be1448d4c2d06b5505dd1a47b1796cf61132fe"
     },
     {
       "path": "lib/product-dashboard-html.js",
@@ -798,8 +806,8 @@
     },
     {
       "path": "services/soop-chat-gateway/Dockerfile",
-      "bytes": 995,
-      "sha256": "d9dc44a19e2e6f04f742d48b64f2ae89d13c9568534c714223452bd3cf73ba58"
+      "bytes": 1067,
+      "sha256": "636f5efae3785ad9a3112b2256a313f4fd6b1b2a1128356ccfbb8ffeed32cbbe"
     },
     {
       "path": "services/soop-chat-gateway/index.mjs",
@@ -1262,6 +1270,16 @@
       "sha256": "0fc04fc7489ae8cdb221e897ff6d04539c9d603429e0d1befbb34605416ea3e4"
     },
     {
+      "path": "supabase/migrations/20260902010039_harden_web_sessions_without_hot_path_latency.sql",
+      "bytes": 1650,
+      "sha256": "c33a41a7d885266d936bed5b8edde1332551e15076dc50a91607e53c973da9de"
+    },
+    {
+      "path": "supabase/migrations/20260902015745_unify_raffle_action_managed_tts.sql",
+      "bytes": 4573,
+      "sha256": "4a485db321b38a127fd62558cf8bf6964904a08600350f605574cbfa9302f39f"
+    },
+    {
       "path": "tools/__pycache__/Generate-NativeRouletteAudioCandidates.cpython-312.pyc",
       "bytes": 22649,
       "sha256": "16b3f7e71d4bb9da2cf24d98faba817914583c9222776a3f297234e737a9316f"
@@ -1653,8 +1671,8 @@
     },
     {
       "path": "vercel.json",
-      "bytes": 9271,
-      "sha256": "ee447ba786e55f7d1257f17277d2595359349ea78128ce039b11ba7302ead822"
+      "bytes": 9397,
+      "sha256": "6f5e4e13084c22d6edf7a8ed0a3e950c3557f14938b2475d7bb6f266727092c0"
     }
   ]
 }
