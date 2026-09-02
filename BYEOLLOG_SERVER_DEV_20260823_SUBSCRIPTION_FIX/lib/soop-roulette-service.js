@@ -7,7 +7,7 @@ import {hydrateSignatureAssetPreview} from './signature-balloon-assets.js';
 import {sb} from './supabase-rest.js';
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-export const ROULETTE_OVERLAY_CLIENT_VERSION='20260902-common-overlay-v15-chat-dry-run-reveal';
+export const ROULETTE_OVERLAY_CLIENT_VERSION='20260903-common-overlay-v16-weflab-classic';
 export const SOOP_DEFAULT_CEREMONY_BASE_URL='https://res.sooplive.com/new_player/items/';
 
 export function soopDefaultCeremonyImageUrl(amount){

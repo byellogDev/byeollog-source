@@ -8,10 +8,10 @@ export const COMMON_OVERLAY_V8_LAYOUT=Object.freeze({
   logicalWidth:LOGICAL_WIDTH,
   logicalHeight:LOGICAL_HEIGHT,
   cardWidth:420,
-  artWidth:328,
-  artHeight:185,
-  cardTop:6,
-  basePanelHeight:132,
+  artWidth:420,
+  artHeight:166,
+  cardTop:15,
+  basePanelHeight:100,
   maxMessageHeight:154,
   maxDisplayNameGraphemes:COMMON_OVERLAY_MAX_DISPLAY_NAME_GRAPHEMES,
   maxResultNameGraphemes:NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES
@@ -38,71 +38,71 @@ export function getCommonOverlayV8Html(nonce,{assets={},clientVersion='common-ov
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="preload" href="https://fastly.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-7Bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="https://fastly.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-9Black.woff2" as="font" type="font/woff2" crossorigin>
 <title>별록 공통 오버레이</title>
 <style nonce="${n}">
-:root{--navy:#102746;--navy-2:#183858;--gold:#f6bd3b;--ink:#172a44;--paper:#fffefa;--muted:#66758b;--stage-scale:1}
+@font-face{font-family:"Freesentation";src:url("https://fastly.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-7Bold.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Freesentation";src:url("https://fastly.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-9Black.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
+:root{--navy:#102746;--navy-2:#183858;--gold:#ffc247;--ink:#172a44;--paper:#fffefa;--muted:#66758b;--stage-scale:1;--alert-outline:-2px -2px 0 rgba(0,0,0,.88),0 -2px 0 rgba(0,0,0,.88),2px -2px 0 rgba(0,0,0,.88),-2px 0 0 rgba(0,0,0,.88),2px 0 0 rgba(0,0,0,.88),-2px 2px 0 rgba(0,0,0,.88),0 2px 0 rgba(0,0,0,.88),2px 2px 0 rgba(0,0,0,.88)}
 *{box-sizing:border-box}
-html,body{width:100%;height:100%;margin:0;overflow:hidden;background:transparent;color:var(--ink);font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:transparent;color:var(--ink);font-family:"Freesentation","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif}
 body{-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
 .root{position:fixed;inset:0;overflow:hidden;pointer-events:none}
 .logicalStage{position:absolute;left:50%;top:50%;width:460px;height:450px;overflow:hidden;transform:translate(-50%,-50%) scale(var(--stage-scale));transform-origin:center}
 .hidden{visibility:hidden!important;opacity:0!important}
-.rouletteGroup{position:absolute;left:50%;top:6px;width:420px;min-height:432px;translate:-50% 0;visibility:hidden;opacity:0}
+.rouletteGroup{position:absolute;left:50%;top:15px;width:420px;height:420px;translate:-50% 0;visibility:hidden;opacity:0}
 .rouletteGroup.visible{visibility:visible;opacity:1}
 .rouletteGroup.entering{animation:cardEnter .48s cubic-bezier(.17,.82,.22,1) both}
 .rouletteGroup.exiting{animation:cardExit .28s cubic-bezier(.4,0,.8,.2) both}
-.rouletteCard{position:relative;width:420px;min-height:304px;isolation:isolate}
-.artShell{position:relative;z-index:2;width:328px;height:185px;margin:0 auto -7px;overflow:hidden;border-radius:13px;background:transparent;filter:drop-shadow(0 12px 17px rgba(3,10,24,.25));transform:translateZ(0)}
-.presentation{display:block;width:100%;height:100%;object-fit:contain;object-position:center;background:transparent}
+.rouletteCard{position:relative;display:flex;width:420px;height:420px;flex-direction:column;isolation:isolate}
+.artShell{position:relative;z-index:2;width:420px;min-height:166px;flex:1;margin:0 auto;overflow:hidden;background:transparent;transform:translateZ(0)}
+.presentation{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;background:transparent}
 .fallback{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(145deg,#f4f8ff,#eaf1fb)}
 .fallbackWheel{position:relative;width:150px;aspect-ratio:1;border:7px solid #fff;border-radius:50%;background:conic-gradient(var(--navy) 0 12.5%,var(--gold) 12.5% 25%,#2f9d82 25% 37.5%,#f3d271 37.5% 50%,var(--navy) 50% 62.5%,var(--gold) 62.5% 75%,#2f9d82 75% 87.5%,#f3d271 87.5% 100%);box-shadow:0 0 0 4px var(--navy),0 12px 24px rgba(6,20,42,.24)}
 .fallbackWheel:after{content:"";position:absolute;inset:39%;border:5px solid var(--navy);border-radius:50%;background:#fff}
 .fallbackPointer{position:absolute;z-index:3;left:50%;top:5px;translate:-50% 0;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:25px solid var(--gold);filter:drop-shadow(0 2px 1px rgba(0,0,0,.28))}
-.resultPanel{position:relative;z-index:3;width:420px;height:132px;overflow:hidden;border:2px solid rgba(21,42,68,.82);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,253,.99),rgba(250,252,255,.99));box-shadow:0 17px 34px rgba(2,8,20,.3),0 2px 0 rgba(255,255,255,.85) inset;transition:height .36s cubic-bezier(.2,.72,.2,1)}
-.resultPanel:before{content:"";position:absolute;z-index:4;left:22px;right:22px;top:0;height:3px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,transparent,var(--gold) 18% 82%,transparent);opacity:.82}
-.resultPanel:after{content:"";position:absolute;z-index:5;inset:-40% auto -40% -35%;width:26%;rotate:16deg;background:linear-gradient(90deg,transparent,rgba(255,207,96,.35),transparent);translate:-240% 0;opacity:0;pointer-events:none}
-.resultPanel.landing:after{animation:goldSweep .76s ease-out}
-.metaLine{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;padding:7px 13px 6px;overflow:hidden;border-bottom:1px solid rgba(31,56,86,.12);background:linear-gradient(180deg,#fffefa,#fff9e9);color:#48566a;font-size:19px;font-weight:850;letter-spacing:-.045em;line-height:1;white-space:nowrap;text-shadow:0 1px 0 #fff}
-.metaLine.compact{font-size:16.5px;gap:5px;padding-inline:9px}
-.metaLine.tight{font-size:14.5px;gap:4px;padding-inline:7px}
-.donorName{min-width:0;overflow:hidden;color:var(--navy);font-weight:950;text-overflow:ellipsis}
-.donationSummary{flex:0 0 auto;padding:6px 10px;border:1px solid #e8ad2e;border-radius:9px;background:linear-gradient(180deg,#ffd66f,#ffc44d);box-shadow:0 3px 9px rgba(210,143,10,.2);color:#172b47;font-weight:950}
-.metaLine.compact .donationSummary{padding:5px 8px}.metaLine.tight .donationSummary{padding:4px 6px}
-.seriesCounter{flex:0 0 auto;margin-left:auto;padding:5px 8px;border:1px solid #e7d49d;border-radius:8px;background:#fff;color:#76530a;font-variant-numeric:tabular-nums;font-weight:950}
+.resultPanel{position:relative;z-index:3;width:420px;height:100px;flex:none;overflow:hidden;background:transparent;transition:height .36s cubic-bezier(.2,.72,.2,1)}
+.metaLine{display:flex;align-items:center;justify-content:center;min-height:38px;padding:3px 12px 0;overflow:hidden;color:#fff;font-size:29px;font-weight:400;letter-spacing:-.025em;line-height:1.2;text-align:center;white-space:nowrap;text-shadow:var(--alert-outline)}
+.metaLine.compact{font-size:25px}.metaLine.tight{font-size:22px}
+.donorName,.donationSummary{min-width:0;overflow:hidden;color:var(--gold);font-weight:400;text-overflow:ellipsis}
+.donationSummary{flex:0 0 auto}
+.metaSuffix{flex:0 0 auto}
+.seriesCounter{flex:0 0 auto;margin-left:.28em;color:#fff;font-variant-numeric:tabular-nums;font-weight:400}
 .seriesCounter.hidden{display:none}
 .seriesCounter.bump{animation:counterFlip .36s cubic-bezier(.18,.75,.24,1.18)}
-.resultArea{position:relative;display:grid;place-items:center;height:80px;padding:2px 20px 9px;transition:height .36s cubic-bezier(.2,.72,.2,1),padding .36s cubic-bezier(.2,.72,.2,1)}
-.resultPanel.hasMessage .resultArea{height:48px;padding:0 20px 2px}
+.resultArea{position:relative;display:grid;height:62px;place-items:center;padding:0 20px 5px;transition:height .36s cubic-bezier(.2,.72,.2,1),padding .36s cubic-bezier(.2,.72,.2,1)}
+.resultPanel.hasMessage .resultArea{height:50px;padding:0 20px 2px}
 .resultReel{display:grid;width:100%;height:100%;place-items:center;overflow:hidden}
-.slotValue{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;max-width:100%;overflow:visible;color:var(--navy);font-size:42px;font-weight:950;letter-spacing:-.06em;line-height:1.06;text-align:center;text-wrap:balance;word-break:keep-all;overflow-wrap:anywhere;text-shadow:0 1px 0 #fff,0 3px 8px rgba(16,39,70,.13)}
+.slotValue{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;max-width:100%;overflow:visible;color:#fff;font-size:38px;font-weight:700;letter-spacing:-.035em;line-height:1.08;text-align:center;text-wrap:balance;word-break:keep-all;overflow-wrap:anywhere;text-shadow:var(--alert-outline)}
 .slotValue.medium{font-size:32px}.slotValue.long{font-size:27px;line-height:1.08}
-.resultPanel.hasMessage .slotValue.long{font-size:22px;line-height:1.04}
+.resultPanel.hasMessage .slotValue.long{font-size:24px;line-height:1.04}
 .slotValue.tick{animation:reelTick .115s cubic-bezier(.25,.65,.35,1)}
 .slotValue .glyph{display:inline-block;white-space:pre;animation:glyphLand .54s cubic-bezier(.16,.84,.2,1.16) both;animation-delay:calc(var(--glyph-index)*14ms)}
-.messageArea{position:absolute;left:16px;right:16px;top:100px;height:0;overflow:hidden;border-top:1px solid transparent;opacity:0;transition:height .36s cubic-bezier(.2,.72,.2,1),opacity .24s ease,border-color .28s ease}
-.resultPanel.hasMessage .messageArea{height:var(--message-height,72px);border-color:#dce2ea;opacity:1}
-.messageText{display:grid;width:100%;height:100%;place-items:center;padding:2px 10px 4px;color:#253952;font-size:22px;font-weight:900;letter-spacing:-.045em;line-height:1.2;text-align:center;word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance;text-shadow:0 1px 0 #fff,0 2px 5px rgba(16,39,70,.1)}
-.messageText.short2{font-size:20px}.messageText.medium{font-size:18px}.messageText.long{font-size:17px;line-height:1.34}.messageText.xlong{font-size:16px;line-height:1.34}
+.messageArea{height:0;overflow:hidden;opacity:0;transition:height .36s cubic-bezier(.2,.72,.2,1),opacity .24s ease}
+.resultPanel.hasMessage .messageArea{height:var(--message-height,72px);opacity:1}
+.messageText{display:grid;width:100%;height:100%;place-items:center;padding:2px 16px 4px;color:#fff;font-size:28px;font-weight:400;letter-spacing:-.025em;line-height:1.2;text-align:center;word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance;text-shadow:var(--alert-outline)}
+.messageText.short2{font-size:25px}.messageText.medium{font-size:22px}.messageText.long{font-size:20px;line-height:1.3}.messageText.xlong{font-size:18px;line-height:1.3}
 .messageText.reveal{animation:messageReveal .48s cubic-bezier(.16,.82,.22,1) both}
-.ceremony,.standaloneChat{position:absolute;left:50%;top:6px;translate:-50% 0;visibility:hidden;opacity:0}
+.ceremony,.standaloneChat{position:absolute;left:50%;top:15px;translate:-50% 0;visibility:hidden;opacity:0}
 .ceremony.visible,.standaloneChat.visible{visibility:visible;animation:cardEnter .48s cubic-bezier(.17,.82,.22,1) both}
 .ceremony.exiting,.standaloneChat.exiting{animation:cardExit .28s cubic-bezier(.4,0,.8,.2) both}
-.ceremonyCard{display:grid;justify-items:center;width:420px}
-.ceremonyImageWrap{position:relative;display:grid;width:316px;height:239px;place-items:center;overflow:hidden;border-radius:16px;background:transparent;filter:drop-shadow(0 14px 24px rgba(2,8,20,.28))}
-.ceremonyImage{display:block;width:100%;height:100%;object-fit:contain}
-.ceremony.imageUnavailable .ceremonyImageWrap{display:none}.ceremony.imageUnavailable .ceremonyPanel{margin-top:0}
-.ceremonyFallbackCount{position:absolute;right:18px;bottom:15px;z-index:2;min-width:62px;padding:6px 11px;border:3px solid #fff;border-radius:999px;background:#ed2024;box-shadow:0 3px 10px rgba(20,24,34,.3);color:#fff;font-size:26px;font-weight:950;letter-spacing:-.04em;line-height:1;text-align:center;text-shadow:0 2px 2px rgba(104,0,0,.35)}
-.ceremonyPanel,.standaloneChatBubble{position:relative;z-index:2;width:420px;margin-top:-7px;overflow:hidden;border:2px solid rgba(21,42,68,.78);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,253,.99),rgba(250,252,255,.99));box-shadow:0 17px 34px rgba(2,8,20,.3),0 2px 0 rgba(255,255,255,.85) inset;color:var(--navy)}
-.ceremonyPanel:before{content:"";position:absolute;z-index:4;left:22px;right:22px;top:0;height:3px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,transparent,var(--gold) 18% 82%,transparent);opacity:.82}
-.ceremonyMetaLine{display:flex;align-items:center;justify-content:center;gap:8px;height:56px;padding:8px 15px 7px;border-bottom:1px solid rgba(31,56,86,.12);background:linear-gradient(180deg,#fffefa,#fff9e9);color:#48566a;font-size:18px;font-weight:850;letter-spacing:-.045em;line-height:1;white-space:nowrap}
-.ceremonyDonorName{min-width:0;overflow:hidden;color:var(--navy);font-weight:950;text-overflow:ellipsis}
-.ceremonyDonationSummary{flex:0 0 auto;padding:6px 10px;border:1px solid #e8ad2e;border-radius:9px;background:linear-gradient(180deg,#ffd66f,#ffc44d);box-shadow:0 3px 9px rgba(210,143,10,.2);color:#172b47;font-weight:950}
-.ceremonyMetaLine.compact{font-size:15.5px;gap:5px;padding-inline:9px}.ceremonyMetaLine.compact .ceremonyDonationSummary{padding:5px 7px}
-.ceremonyMessageArea{display:none;height:0;place-items:center;padding:3px 22px 6px;transition:height .36s cubic-bezier(.2,.72,.2,1)}
+.ceremonyCard{display:flex;width:420px;height:420px;flex-direction:column;justify-items:center}
+.ceremonyImageWrap{position:relative;display:grid;width:420px;min-height:210px;flex:1;place-items:center;overflow:hidden;background:transparent}
+.ceremonyImage{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}
+.ceremony.imageUnavailable .ceremonyImageWrap{display:none}.ceremony.imageUnavailable .ceremonyPanel{min-height:160px}
+.ceremonyFallbackCount{position:absolute;left:50%;top:13%;z-index:2;translate:-50% 0;color:#f11b20;font-size:54px;font-weight:950;letter-spacing:-.04em;line-height:1;text-align:center;-webkit-text-stroke:5px #fff;paint-order:stroke fill;filter:drop-shadow(0 0 2px #000) drop-shadow(0 2px 1px #000)}
+.ceremonyPanel{position:relative;z-index:2;display:flex;width:420px;min-height:105px;flex:none;flex-direction:column;overflow:hidden;background:transparent;color:#fff}
+.ceremonyMetaLine{display:flex;align-items:center;justify-content:center;min-height:105px;flex:1;padding:4px 12px;color:#fff;font-size:29px;font-weight:400;letter-spacing:-.025em;line-height:1.2;text-align:center;white-space:nowrap;text-shadow:var(--alert-outline)}
+.ceremonyPanel.hasMessage .ceremonyMetaLine{min-height:42px;flex:0 0 42px}
+.ceremonyDonorName,.ceremonyDonationSummary{min-width:0;overflow:hidden;color:var(--gold);font-weight:400;text-overflow:ellipsis}
+.ceremonyDonationSummary{flex:0 0 auto}
+.ceremonyMetaLine.compact{font-size:24px}
+.ceremonyMessageArea{display:none;height:0;place-items:center;padding:3px 18px 6px;transition:height .36s cubic-bezier(.2,.72,.2,1)}
 .ceremonyPanel.hasMessage .ceremonyMessageArea{display:grid;height:var(--ceremony-message-height,56px)}
-.ceremonyMessageText{display:grid;width:100%;height:100%;place-items:center;color:#253952;font-size:22px;font-weight:900;letter-spacing:-.045em;line-height:1.2;text-align:center;word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance;text-shadow:0 1px 0 #fff,0 2px 5px rgba(16,39,70,.1)}
-.ceremonyMessageText.short2{font-size:20px}.ceremonyMessageText.medium{font-size:18px}.ceremonyMessageText.long{font-size:17px;line-height:1.34}.ceremonyMessageText.xlong{font-size:16px;line-height:1.34}.ceremonyMessageText.reveal{animation:messageReveal .48s cubic-bezier(.16,.82,.22,1) both}
-.standaloneChatBubble{margin:0;min-height:92px;display:grid;place-items:center;padding:17px 23px;font-size:25px;font-weight:950;line-height:1.28;text-align:center;word-break:keep-all;overflow-wrap:anywhere}
+.ceremonyMessageText{display:grid;width:100%;height:100%;place-items:center;color:#fff;font-size:28px;font-weight:400;letter-spacing:-.025em;line-height:1.2;text-align:center;word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance;text-shadow:var(--alert-outline)}
+.ceremonyMessageText.short2{font-size:25px}.ceremonyMessageText.medium{font-size:22px}.ceremonyMessageText.long{font-size:20px;line-height:1.3}.ceremonyMessageText.xlong{font-size:18px;line-height:1.3}.ceremonyMessageText.reveal{animation:messageReveal .48s cubic-bezier(.16,.82,.22,1) both}
+.standaloneChatBubble{position:relative;width:420px;margin:0;min-height:92px;display:grid;place-items:center;padding:17px 23px;border:2px solid rgba(21,42,68,.78);border-radius:16px;background:rgba(255,255,253,.98);box-shadow:0 17px 34px rgba(2,8,20,.3);color:var(--navy);font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;font-size:25px;font-weight:950;line-height:1.28;text-align:center;word-break:keep-all;overflow-wrap:anywhere}
 .ready{display:none!important}
 @keyframes cardEnter{0%{opacity:0;transform:translateY(24px) scale(.94)}68%{opacity:1;transform:translateY(-2px) scale(1.012)}100%{opacity:1;transform:none}}
 @keyframes cardExit{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-10px) scale(.98)}}
@@ -128,7 +128,9 @@ body{-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
         <div id="resultPanel" class="resultPanel">
           <header id="metaLine" class="metaLine">
             <strong id="donorName" class="donorName"></strong>
+            <span class="metaSuffix">님&nbsp;</span>
             <span id="donationSummary" class="donationSummary"></span>
+            <span class="metaSuffix">&nbsp;감사합니다!</span>
             <span id="seriesCounter" class="seriesCounter hidden"></span>
           </header>
           <div id="resultArea" class="resultArea"><div class="resultReel"><strong id="slotValue" class="slotValue">룰렛 결과</strong></div></div>
@@ -142,7 +144,9 @@ body{-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
         <div id="ceremonyPanel" class="ceremonyPanel">
           <header id="ceremonyMetaLine" class="ceremonyMetaLine">
             <strong id="ceremonyDonorName" class="ceremonyDonorName"></strong>
+            <span class="metaSuffix">님&nbsp;</span>
             <span id="ceremonyDonationSummary" class="ceremonyDonationSummary"></span>
+            <span class="metaSuffix">&nbsp;감사합니다!</span>
           </header>
           <div id="ceremonyMessageArea" class="ceremonyMessageArea"><span id="ceremonyMessageText" class="ceremonyMessageText"></span></div>
         </div>
@@ -194,12 +198,12 @@ function stopSlot(){if(slotTimer){clearInterval(slotTimer);slotTimer=null}}
 function setPlainResult(text,tick){const value=limitResultName(text);const slot=$('slotValue');slot.textContent=value;fitTextClass(slot,value,9,12);if(tick){slot.classList.remove('tick');void slot.offsetWidth;slot.classList.add('tick')}}
 function setWinner(text){const value=limitResultName(text),slot=$('slotValue');fitTextClass(slot,value,9,12);slot.replaceChildren();const glyphs=graphemes(value);glyphs.forEach((glyph,index)=>{const span=document.createElement('span');span.className='glyph';span.style.setProperty('--glyph-index',String(Math.min(index,20)));span.textContent=glyph;slot.append(span)});const panel=$('resultPanel');panel.classList.remove('landing');void panel.offsetWidth;panel.classList.add('landing');return 560+Math.min(Math.max(0,glyphs.length-1),20)*14}
 function startSlot(items){stopSlot();const values=(Array.isArray(items)&&items.length?items:['보너스 상품','아봉 10초','다음 보상 2배','시크릿 단컷']).map(limitResultName);let index=0;setPlainResult(values[0],true);slotTimer=setInterval(()=>{index=(index+1)%values.length;setPlainResult(values[index],true)},118)}
-function setSeriesCounter(payload){const position=seriesPosition(payload),counter=$('seriesCounter');counter.classList.toggle('hidden',position.total<=1);counter.textContent=position.current+' / '+position.total;counter.classList.remove('bump');void counter.offsetWidth;counter.classList.add('bump');return position}
-function setMeta(payload){const donor=limitDisplayName(payload.actor&&payload.actor.name),type=String(payload.donationTypeLabel||payload.balloonTypeLabel||'별풍선').trim()||'별풍선',amount=Math.max(0,Number(payload.amount)||0),position=seriesPosition(payload),budget=graphemeCount(donor+type+String(amount));$('donorName').textContent=donor+'님';$('donationSummary').textContent=type+' '+amount.toLocaleString()+'개';$('metaLine').classList.toggle('compact',position.total>1||budget>16);$('metaLine').classList.toggle('tight',budget>22)}
+function setSeriesCounter(payload){const position=seriesPosition(payload),counter=$('seriesCounter');counter.classList.toggle('hidden',position.total<=1);counter.textContent='['+position.current+']';counter.setAttribute('aria-label',position.current+' / '+position.total);counter.classList.remove('bump');void counter.offsetWidth;counter.classList.add('bump');return position}
+function setMeta(payload){const donor=limitDisplayName(payload.actor&&payload.actor.name),type=String(payload.donationTypeLabel||payload.balloonTypeLabel||'별풍선').trim()||'별풍선',amount=Math.max(0,Number(payload.amount)||0),position=seriesPosition(payload),budget=graphemeCount(donor+type+String(amount)+'감사합니다');$('donorName').textContent=donor;$('donationSummary').textContent=type+' '+amount.toLocaleString()+'개';$('metaLine').classList.toggle('compact',position.total>1||budget>20);$('metaLine').classList.toggle('tight',budget>28)}
 function showMessage(text){const normalized=String(text||'').trim();if(!normalized||normalized===lastMessage)return;lastMessage=normalized;const panel=$('resultPanel'),message=$('messageText'),height=messageHeight(normalized),length=graphemeCount(normalized);message.textContent=normalized;message.className='messageText';if(length>95)message.classList.add('xlong');else if(length>70)message.classList.add('long');else if(length>42)message.classList.add('medium');else if(length>22)message.classList.add('short2');panel.style.setProperty('--message-height',height+'px');panel.style.height=(100+height)+'px';panel.classList.add('hasMessage');void message.offsetWidth;message.classList.add('reveal')}
-function clearMessage(){lastMessage='';lastPeekCommandId=null;$('messageText').textContent='';$('messageText').className='messageText';const panel=$('resultPanel');panel.classList.remove('hasMessage','landing');panel.style.height='132px';panel.style.removeProperty('--message-height')}
+function clearMessage(){lastMessage='';lastPeekCommandId=null;$('messageText').textContent='';$('messageText').className='messageText';const panel=$('resultPanel');panel.classList.remove('hasMessage','landing');panel.style.height='100px';panel.style.removeProperty('--message-height')}
 function clearCeremonyCloseTimer(){ceremonyCloseGeneration++;if(ceremonyCloseTimer){clearTimeout(ceremonyCloseTimer);ceremonyCloseTimer=null}}
-function setCeremonyMeta(payload){const donor=limitDisplayName(payload.actor&&payload.actor.name),type=String(payload.donationTypeLabel||payload.balloonTypeLabel||'별풍선').trim()||'별풍선',amount=Math.max(0,Number(payload.amount)||0),budget=graphemeCount(donor+type+String(amount)+'후원');$('ceremonyDonorName').textContent=donor+'님';$('ceremonyDonationSummary').textContent=type+' '+amount.toLocaleString()+'개 후원';$('ceremonyMetaLine').classList.toggle('compact',budget>18)}
+function setCeremonyMeta(payload){const donor=limitDisplayName(payload.actor&&payload.actor.name),type=String(payload.donationTypeLabel||payload.balloonTypeLabel||'별풍선').trim()||'별풍선',amount=Math.max(0,Number(payload.amount)||0),budget=graphemeCount(donor+type+String(amount)+'감사합니다');$('ceremonyDonorName').textContent=donor;$('ceremonyDonationSummary').textContent=type+' '+amount.toLocaleString()+'개';$('ceremonyMetaLine').classList.toggle('compact',budget>20)}
 function clearCeremonyMessage(){const panel=$('ceremonyPanel'),message=$('ceremonyMessageText');message.textContent='';message.className='ceremonyMessageText';panel.classList.remove('hasMessage');panel.style.removeProperty('--ceremony-message-height')}
 function showCeremonyMessage(text){const normalized=String(text||'').trim();if(!normalized)return;const panel=$('ceremonyPanel'),message=$('ceremonyMessageText'),height=messageHeight(normalized),length=graphemeCount(normalized);message.textContent=normalized;message.className='ceremonyMessageText';if(length>95)message.classList.add('xlong');else if(length>70)message.classList.add('long');else if(length>42)message.classList.add('medium');else if(length>22)message.classList.add('short2');panel.style.setProperty('--ceremony-message-height',height+'px');panel.classList.add('hasMessage');void message.offsetWidth;message.classList.add('reveal')}
 async function loadImage(image,url,label){if(!url)return false;image.onload=null;image.onerror=null;image.src=url;try{const loaded=image.decode?image.decode():new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=reject});await withDeadline(loaded,8000,label+' image timed out',()=>image.removeAttribute('src'));image.onload=null;image.onerror=null;return true}catch{image.onload=null;image.onerror=null;image.removeAttribute('src');return false}}
@@ -233,7 +237,7 @@ function finalCloseDelay(payload){let delay=3600;const occurredAt=Date.parse(pay
 function scheduleFinalClose(payload){scheduleCloseAfter(finalCloseDelay(payload))}
 function scheduleCeremonyFinalClose(payload){scheduleCeremonyCloseAfter(finalCloseDelay(payload))}
 async function roulette(command){const payload=command.payload,eventId=eventIdOf(command),sameCard=cardVisible&&activeEventId&&activeEventId===eventId;clearCloseTimer();if(!sameCard)await openRoulette(command);else{setMeta(payload);setSeriesCounter(payload)}const position=seriesPosition(payload);startSlot(payload.rouletteItems);playSpinSound(payload.soundVolumePercent);await sleep(3000);resetSpinSound();stopSlot();const landingMs=setWinner(payload.resultText||'룰렛 결과');await sleep(landingMs);void reportResultReveal(command);await speak(command,payload.resultText||'',payload.ttsVolumePercent);if(position.current<position.total){scheduleCloseAfter(15000);await sleep(320);$('resultPanel').classList.remove('landing')}else scheduleFinalClose(payload)}
-async function ceremony(command){const payload=command.payload,data=payload.ceremony||{},image=$('ceremonyImage'),fallbackCount=$('ceremonyFallbackCount'),nextEventId=eventIdOf(command);abandonVisibleEventBefore(nextEventId);await hideRoulette();hideOtherPresentations();let loaded=false,usingDefault=false;if(data.url){loaded=await loadImage(image,data.url,'ceremony');usingDefault=loaded&&data.source==='soop_default'}if(!loaded&&data.providerFallbackUrl)loaded=await loadImage(image,data.providerFallbackUrl,'provider fallback');if(!loaded&&data.defaultFallbackUrl){loaded=await loadImage(image,data.defaultFallbackUrl,'SOOP default');usingDefault=loaded}fallbackCount.textContent=Math.max(1,Number(payload.amount)||1).toLocaleString();fallbackCount.classList.toggle('hidden',!usingDefault||!loaded);activeCeremonyEventId=nextEventId;ceremonyVisible=true;lastPeekCommandId=null;clearCeremonyMessage();setCeremonyMeta(payload);const view=$('ceremony');view.classList.toggle('imageUnavailable',!loaded);view.classList.remove('exiting');view.classList.add('visible');scheduleCeremonyFinalClose(payload);await sleep(360)}
+async function ceremony(command){const payload=command.payload,data=payload.ceremony||{},image=$('ceremonyImage'),fallbackCount=$('ceremonyFallbackCount'),nextEventId=eventIdOf(command);abandonVisibleEventBefore(nextEventId);await hideRoulette();hideOtherPresentations();let loaded=false,usingDefault=false;if(data.url){loaded=await loadImage(image,data.url,'ceremony');usingDefault=loaded&&data.source==='soop_default'}if(!loaded&&data.providerFallbackUrl)loaded=await loadImage(image,data.providerFallbackUrl,'provider fallback');if(!loaded&&data.defaultFallbackUrl){loaded=await loadImage(image,data.defaultFallbackUrl,'SOOP default');usingDefault=loaded}const fallbackAmount=Math.max(1,Number(payload.amount)||1).toLocaleString();fallbackCount.textContent=fallbackAmount;fallbackCount.dataset.count=fallbackAmount;fallbackCount.classList.toggle('hidden',!usingDefault||!loaded);activeCeremonyEventId=nextEventId;ceremonyVisible=true;lastPeekCommandId=null;clearCeremonyMessage();setCeremonyMeta(payload);const view=$('ceremony');view.classList.toggle('imageUnavailable',!loaded);view.classList.remove('exiting');view.classList.add('visible');scheduleCeremonyFinalClose(payload);await sleep(360)}
 function standaloneChatText(payload){const message=String(payload.message||payload.ttsText||'').trim();if(payload.sourceKind==='followup_chat'){const seconds=Math.max(0,Math.round(Number(payload.elapsedSeconds)||0)),donor=limitDisplayName(payload.actor&&payload.actor.name);return '['+seconds+'초 전] '+donor+' : '+message}return message||String(payload.displayText||'').trim()}
 async function chat(command){const payload=command.payload,eventId=eventIdOf(command);if(abandonedEventIds.has(eventId))return;const belongsToCard=cardVisible&&activeEventId&&activeEventId===eventId,belongsToCeremony=ceremonyVisible&&activeCeremonyEventId&&activeCeremonyEventId===eventId;if(belongsToCard){clearCloseTimer();showMessage(payload.message||payload.ttsText||'');await speak(command,payload.ttsText||payload.message||'',payload.ttsVolumePercent);await sleep(1050);await hideRoulette();return}if(belongsToCeremony){clearCeremonyCloseTimer();showCeremonyMessage(payload.message||payload.ttsText||'');await speak(command,payload.ttsText||payload.message||'',payload.ttsVolumePercent);await sleep(750);await hideCeremony();return}await hideRoulette();hideOtherPresentations();const view=$('standaloneChat');$('standaloneChatBubble').textContent=standaloneChatText(payload);view.classList.add('visible');await speak(command,payload.ttsText||payload.message||'',payload.ttsVolumePercent);await sleep(600);view.classList.add('exiting');await sleep(285);view.classList.remove('visible','exiting')}
 async function play(command){busy=true;let succeeded=false,failure=null;try{if(command.kind==='roulette_spin')await roulette(command);else if(command.kind==='donation_ceremony')await ceremony(command);else if(command.kind==='donation_chat_tts')await chat(command);remember(command.id);succeeded=true}catch(error){failure=String(error&&error.message||error);await hideRoulette();await hideCeremony();await sleep(500)}finally{busy=false}await ack(command.id,succeeded,failure)}

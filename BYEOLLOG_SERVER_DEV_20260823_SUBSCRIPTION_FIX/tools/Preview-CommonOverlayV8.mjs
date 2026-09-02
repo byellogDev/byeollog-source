@@ -18,6 +18,12 @@ function fixtureScript(){
 void (async()=>{
 const demoCase=new URLSearchParams(location.search).get('case')||'single';
 const basePayload={eventId:'514ff4e5-dcc3-4541-887c-f9b18eecaf59',eventOccurredAt:new Date().toISOString(),actor:{name:'별빛테스터'},amount:330,donationTypeLabel:'별풍선',resultText:'행운 보너스',rouletteItems:['행운 보너스','윙크','뽀뽀','사랑해','아봉 10초'],overlayAssetKey:'roulette_navy_gold_v1',spinIndex:0,spinCount:1};
+if(demoCase==='donation152'){
+  basePayload.actor.name='후원 테스트';basePayload.amount=152;basePayload.ceremony={source:'soop_default',url:'https://res.sooplive.com/new_player/items/ba_step4.png',providerFallbackUrl:null,defaultFallbackUrl:null};
+  const ceremonyCommand={id:'5d66048f-d838-4efc-b2b1-6123d37c3468',kind:'donation_ceremony',payload:basePayload};
+  await ceremony(ceremonyCommand);clearCeremonyCloseTimer();await sleep(180);showCeremonyMessage('오늘도 응원합니다!');await sleep(700);
+  document.documentElement.dataset.previewOpenCount='1';document.documentElement.dataset.previewReady='true';return;
+}
 if(demoCase==='signature'){
   basePayload.amount=100;basePayload.ceremony={source:'signature',url:'/assets/roulette-previews/roulette-01-navy-gold.png',providerFallbackUrl:null};
   const ceremonyCommand={id:'7d66048f-d838-4efc-b2b1-6123d37c3468',kind:'donation_ceremony',payload:basePayload};

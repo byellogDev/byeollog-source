@@ -143,7 +143,7 @@ async function handleSoopRouletteOverlayPage(req,res){
   const assetSource=assetOrigin?` ${assetOrigin}`:'';
   res.setHeader('Content-Type','text/html; charset=utf-8');
   res.setHeader('Cache-Control','no-store, private');
-  res.setHeader('Content-Security-Policy',`default-src 'none'; script-src 'nonce-${nonce}'; script-src-attr 'none'; style-src 'nonce-${nonce}'; style-src-attr 'none'; img-src 'self' data:${assetSource} https://sooplive.com https://*.sooplive.com https://afreecatv.com https://*.afreecatv.com https://afreecatvcdn.com https://*.afreecatvcdn.com; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`);
+  res.setHeader('Content-Security-Policy',`default-src 'none'; script-src 'nonce-${nonce}'; script-src-attr 'none'; style-src 'nonce-${nonce}'; style-src-attr 'none'; font-src https://fastly.jsdelivr.net; img-src 'self' data:${assetSource} https://sooplive.com https://*.sooplive.com https://afreecatv.com https://*.afreecatv.com https://afreecatvcdn.com https://*.afreecatvcdn.com; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`);
   res.setHeader('X-Robots-Tag','noindex, noarchive');
   return res.status(200).send(getRouletteServiceOverlayHtml(nonce));
 }

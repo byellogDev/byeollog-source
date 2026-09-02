@@ -161,8 +161,13 @@ test('production common overlay keeps a series card alive and reads its tracked 
   for(const script of scripts)assert.doesNotThrow(()=>new Function(script));
   assert.match(html,/width:460px;height:450px/);
   assert.match(html,/width:420px/);
-  assert.match(html,/width:328px;height:185px/);
-  assert.match(html,/resultPanel\{[\s\S]*height:132px/);
+  assert.match(html,/\.artShell\{[^}]*width:420px;min-height:166px;flex:1/);
+  assert.match(html,/resultPanel\{[\s\S]*height:100px/);
+  assert.match(html,/@font-face\{font-family:"Freesentation"/);
+  assert.match(html,/--gold:#ffc247/);
+  assert.match(html,/text-shadow:var\(--alert-outline\)/);
+  assert.doesNotMatch(html,/\.resultPanel\{[^}]*border:/);
+  assert.doesNotMatch(html,/\.ceremonyPanel\{[^}]*border:/);
   assert.match(html,/await sleep\(3000\)/);
   assert.match(html,/donation_chat_tts/);
   assert.match(html,/payload\.ttsText\|\|payload\.message/);
@@ -191,7 +196,7 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/id="ceremonyDonationSummary"/);
   assert.match(html,/id="ceremonyMessageArea"/);
   assert.match(html,/id="ceremonyMessageText"/);
-  assert.match(html,/\.ceremonyImageWrap\{[^}]*width:316px;height:239px/);
+  assert.match(html,/\.ceremonyImageWrap\{[^}]*width:420px;min-height:210px;flex:1/);
   assert.match(html,/function showCeremonyMessage\(text\)/);
   assert.match(html,/belongsToCeremony=ceremonyVisible&&activeCeremonyEventId&&activeCeremonyEventId===eventId/);
   assert.match(html,/if\(belongsToCeremony\)\{clearCeremonyCloseTimer\(\);showCeremonyMessage\(payload\.message\|\|payload\.ttsText\|\|''\);await speak/);
@@ -199,7 +204,7 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/scheduleCeremonyFinalClose\(payload\)/);
   assert.match(html,/trackedEventId=cardVisible&&activeEventId\?activeEventId:ceremonyVisible&&activeCeremonyEventId\?activeCeremonyEventId:null/);
   assert.match(html,/showCeremonyMessage\(peek\.message\);scheduleCeremonyCloseAfter\(15000\)/);
-  assert.match(html,/ceremonyDonationSummary'\)\.textContent=type\+' '\+amount\.toLocaleString\(\)\+'개 후원'/);
+  assert.match(html,/ceremonyDonationSummary'\)\.textContent=type\+' '\+amount\.toLocaleString\(\)\+'개'/);
   assert.match(html,/byeollogPlayedOverlayCommands/);
   assert.match(html,/function remember\(id\)[\s\S]*slice\(-4096\)/);
   assert.match(html,/if\(wasPlayed\(data\.command\.id\)\)await ack\(data\.command\.id,true\)/);
@@ -260,9 +265,10 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/function limitResultName\(value\)[\s\S]*slice\(0,MAX_RESULT_NAME_GRAPHEMES\)/);
   assert.match(html,/fitTextClass\(slot,value,9,12\)/);
   assert.match(html,/\.slotValue\.medium\{font-size:32px\}\.slotValue\.long\{font-size:27px/);
-  assert.match(html,/\.resultPanel\.hasMessage \.slotValue\.long\{font-size:22px/);
+  assert.match(html,/\.resultPanel\.hasMessage \.slotValue\.long\{font-size:24px/);
   assert.match(html,/\.seriesCounter\.hidden\{display:none\}/);
-  assert.match(html,/position\.total>1\|\|budget>16/);
+  assert.match(html,/position\.total>1\|\|budget>20/);
+  assert.match(html,/counter\.textContent='\['\+position\.current\+'\]'/);
   assert.match(html,/if\(length<=22\)return 32/);
   assert.match(html,/panel\.style\.height=\(100\+height\)\+'px'/);
   assert.match(html,/function standaloneChatText\(payload\)[\s\S]*limitDisplayName\(payload\.actor&&payload\.actor\.name\)/);
@@ -294,18 +300,18 @@ test('chatbot dry-run migration is reveal-gated, idempotent and cannot send live
 test('v8 uses the maximum rendered card envelope as a stable OBS source boundary',()=>{
   const html=getRouletteServiceOverlayHtml('nonce');
   assert.equal(COMMON_OVERLAY_MAX_DISPLAY_NAME_GRAPHEMES,12);
-  assert.deepEqual(COMMON_OVERLAY_V8_LAYOUT,{logicalWidth:460,logicalHeight:450,cardWidth:420,artWidth:328,artHeight:185,cardTop:6,basePanelHeight:132,maxMessageHeight:154,maxDisplayNameGraphemes:12,maxResultNameGraphemes:20});
+  assert.deepEqual(COMMON_OVERLAY_V8_LAYOUT,{logicalWidth:460,logicalHeight:450,cardWidth:420,artWidth:420,artHeight:166,cardTop:15,basePanelHeight:100,maxMessageHeight:154,maxDisplayNameGraphemes:12,maxResultNameGraphemes:20});
   assert.equal(computeCommonOverlayScale(460,450),1);
   assert.equal(computeCommonOverlayScale(920,900),2);
   assert.equal(computeCommonOverlayScale(1920,1080),1080/450);
   assert.equal(computeCommonOverlayScale(230,225),0.5);
-  const maximumCardHeight=COMMON_OVERLAY_V8_LAYOUT.artHeight-7+100+COMMON_OVERLAY_V8_LAYOUT.maxMessageHeight;
-  assert.equal(maximumCardHeight,432);
-  assert.equal(COMMON_OVERLAY_V8_LAYOUT.cardTop+maximumCardHeight,438);
+  const maximumCardHeight=COMMON_OVERLAY_V8_LAYOUT.artHeight+COMMON_OVERLAY_V8_LAYOUT.basePanelHeight+COMMON_OVERLAY_V8_LAYOUT.maxMessageHeight;
+  assert.equal(maximumCardHeight,420);
+  assert.equal(COMMON_OVERLAY_V8_LAYOUT.cardTop+maximumCardHeight,435);
   assert.equal((COMMON_OVERLAY_V8_LAYOUT.logicalWidth-COMMON_OVERLAY_V8_LAYOUT.cardWidth)/2,20);
-  assert.equal(COMMON_OVERLAY_V8_LAYOUT.logicalHeight-(COMMON_OVERLAY_V8_LAYOUT.cardTop+maximumCardHeight),12);
+  assert.equal(COMMON_OVERLAY_V8_LAYOUT.logicalHeight-(COMMON_OVERLAY_V8_LAYOUT.cardTop+maximumCardHeight),15);
   assert.match(html,/logicalStage\{[^}]*overflow:hidden/);
-  assert.match(html,/rouletteGroup\{[^}]*top:6px/);
+  assert.match(html,/rouletteGroup\{[^}]*top:15px/);
   assert.doesNotMatch(html,/innerWidth\/1920|innerHeight\/1080/);
 });
 
@@ -314,6 +320,8 @@ test('overlay page still renders when an optional asset origin is unavailable',a
   assert.match(source,/let assetOrigin='';\s*try\{assetOrigin=rouletteAssetOrigin\(\)\}catch\{\}/);
   assert.match(source,/const assetSource=assetOrigin\?` \$\{assetOrigin\}`:''/);
   assert.match(source,/img-src 'self' data:\$\{assetSource\}/);
+  assert.match(source,/font-src https:\/\/fastly\.jsdelivr\.net/);
+  assert.match(getRouletteServiceOverlayHtml('nonce'),/rel="preload"[^>]+Freesentation-7Bold\.woff2[^>]+as="font"/);
 });
 
 test('managed TTS migration stores metadata only and blocks browser execution',async()=>{
