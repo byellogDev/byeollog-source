@@ -7,6 +7,7 @@ const contract=await readFile(new URL('../lib/collector-automation-session-contr
 const pair=await readFile(new URL('../api/collector-pair.js',import.meta.url),'utf8');
 const assetHandler=await readFile(new URL('../api/data.js',import.meta.url),'utf8');
 const vercelConfig=await readFile(new URL('../vercel.json',import.meta.url),'utf8');
+const readinessScopeFix=await readFile(new URL('../supabase/migrations/20260902091718_fix_g3a_readiness_scope_for_direct_agent_rpcs.sql',import.meta.url),'utf8');
 
 test('production source is pinned to the exact dormant G3A contract',()=>{
   assert.match(contract,/AUTOMATION_SESSION_MODE='offsl-vnext-g3a-v1'/);
@@ -41,6 +42,14 @@ test('legacy Collector pairing remains the primary response path',()=>{
   assert.match(pair,/buildAccountAutomationFields/);
   assert.match(pair,/\.\.\.automationFields/);
   assert.match(pair,/Automation is additive/);
+});
+
+test('automation readiness validates its release contract without rejecting newer Agent RPCs',()=>{
+  assert.match(readinessScopeFix,/v_required_rpcs text\[\] := array\[/);
+  assert.match(readinessScopeFix,/foreach v_spec in array v_required_rpcs loop/);
+  assert.doesNotMatch(readinessScopeFix,/p\.proname like 'g3a/);
+  assert.match(readinessScopeFix,/revoke all on function public\.g3a_automation_schema_readiness_v1/);
+  assert.match(readinessScopeFix,/grant execute on function public\.g3a_automation_schema_readiness_v1\(uuid,uuid\)\s+to service_role/);
 });
 
 test('binary deployment assets are served through a verified compatibility endpoint',()=>{
