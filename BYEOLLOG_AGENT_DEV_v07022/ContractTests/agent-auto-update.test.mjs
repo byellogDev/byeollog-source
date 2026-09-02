@@ -854,3 +854,20 @@ test("v137 self-recovers the Byeollog session and reconciles missed wallpaper ch
   assert.match(agent, /WallpaperRecoveryInterval = TimeSpan\.FromMinutes\(10\)/);
   assert.match(realtime, /SetConnected\(true\);[\s\S]{0,500}_wallpaperWake\(\)/);
 });
+
+test("v138 keeps wallpaper current during Realtime outages without changing the action hot path", async () => {
+  const [build, notes, agent, realtime] = await Promise.all([
+    source("Build-v07138-AutoUpdate.ps1"),
+    source("RELEASE_v07138_WALLPAPER_REALTIME_FAILSAFE_KO.txt"),
+    source("VNextLocalAgent.cs"),
+    source("VNextRealtimeWakeListener.cs")
+  ]);
+  assert.match(build, /\$releaseSequence = 7138/);
+  assert.match(build, /byeollog_agent_v07138_WALLPAPER_REALTIME_FAILSAFE_WIN_X64/);
+  assert.match(build, /Version = '0\.7\.0\.138'/);
+  assert.match(notes, /연결 이상일 때만 5초/);
+  assert.match(notes, /액션 실행과 후원 알림/);
+  assert.match(agent, /_wakeListener\.Connected \? WallpaperRecoveryInterval : WallpaperSyncInterval/);
+  assert.match(realtime, /ReceiveSilenceTimeout = TimeSpan\.FromSeconds\(35\)/);
+  assert.match(realtime, /if \(!connected\) _wallpaperWake\(\)/);
+});

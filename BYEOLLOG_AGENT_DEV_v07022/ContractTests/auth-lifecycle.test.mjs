@@ -81,11 +81,11 @@ test("Collector disconnect revokes only its in-memory automation session and ver
     source("tools/package-complete-release-linux.mjs")
   ]);
   assert.match(client, /\/auth\/v1\/logout\?scope=local/);
-  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.137"/);
-  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.137"/);
-  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.137"/);
-  assert.match(project, /<Version>0\.7\.0\.137<\/Version>/);
-  assert.match(project, /<InformationalVersion>0\.7\.0\.137<\/InformationalVersion>/);
+  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.138"/);
+  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.138"/);
+  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.138"/);
+  assert.match(project, /<Version>0\.7\.0\.138<\/Version>/);
+  assert.match(project, /<InformationalVersion>0\.7\.0\.138<\/InformationalVersion>/);
   assert.match(program, /CollectorBuildVersion\s*=\s*BuildInfo\.InformationalVersion/);
   assert.match(main, /CollectorVersion\s*=\s*BuildInfo\.Version/);
   assert.match(publish, /byeollog_agent_v07032_AUTO_UPDATE_BOOTSTRAP_WIN_X64\.zip/);

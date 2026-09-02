@@ -82,8 +82,9 @@ internal sealed class VNextLocalAgent : IDisposable
     private static readonly TimeSpan RealtimeDisconnectedClaimFallback = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan WallpaperSyncInterval = TimeSpan.FromSeconds(5);
     // Realtime Broadcast는 저지연 힌트이므로 드물게 유실될 수 있다. 연결이
-    // 정상으로 보이는 동안에도 이 간격으로 revision만 대조해 OBS가 오래된
-    // 로컬 캐시에 머무르지 않게 한다. 조회는 액션 lease/claim과 분리된다.
+    // 정상으로 보이는 동안에는 이 간격으로 revision만 대조하고, 연결이
+    // 끊긴 동안에는 WallpaperSyncInterval로 전환한다. 조회는 액션
+    // lease/claim과 분리되어 후원 알림과 액션 반응 시간을 막지 않는다.
     private static readonly TimeSpan WallpaperRecoveryInterval = TimeSpan.FromMinutes(10);
     private static readonly TimeSpan DeviceSecretRotationInterval = TimeSpan.FromDays(90);
     private readonly VNextDevelopmentClient _client;
@@ -826,7 +827,8 @@ internal sealed class VNextLocalAgent : IDisposable
                     _wallpaper.Revision,
                     cancellationToken);
                 if (!_client.IsSessionEpochCurrent(sessionEpoch)) return;
-                _nextWallpaperSyncAtUtc = DateTimeOffset.UtcNow + WallpaperRecoveryInterval;
+                _nextWallpaperSyncAtUtc = DateTimeOffset.UtcNow
+                    + (_wakeListener.Connected ? WallpaperRecoveryInterval : WallpaperSyncInterval);
                 ScheduleWallpaperSync(sync, requestGeneration, cancellationToken);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }

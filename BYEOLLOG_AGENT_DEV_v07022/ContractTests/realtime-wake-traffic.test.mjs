@@ -17,10 +17,13 @@ test("Realtime is a private wake hint while authenticated claim remains authorit
   assert.match(listener, /@private = true/);
   assert.match(listener, /access_token = credentials\.AccessToken/);
   assert.match(listener, /HeartbeatInterval = TimeSpan\.FromSeconds\(20\)/);
+  assert.match(listener, /ReceiveSilenceTimeout = TimeSpan\.FromSeconds\(35\)/);
   assert.match(listener, /MaximumMessageBytes = 64 \* 1024/);
   assert.match(listener, /broadcastEvent == "wallpaper_changed"/);
   assert.match(listener, /_wallpaperWake\(\)/);
   assert.match(listener, /SetConnected\(true\);[\s\S]{0,500}_wake\(\);[\s\S]{0,500}_wallpaperWake\(\);/);
+  assert.match(listener, /if \(!connected\) _wallpaperWake\(\)/);
+  assert.match(listener, /receiveDeadline\.CancelAfter\(ReceiveSilenceTimeout\)/);
   assert.match(listener, /broadcastEvent != "execution_changed"/);
   assert.doesNotMatch(listener, /actionParams|action_params|deviceSecret|device_secret/);
 
@@ -38,7 +41,7 @@ test("Realtime is a private wake hint while authenticated claim remains authorit
   assert.match(agent, /knownWallpaperRevision:\s*null/);
   assert.match(agent, /RequestWallpaperSync\(\)[\s\S]{0,500}ScheduleDirectWallpaperSync/);
   assert.match(agent, /DateTimeOffset\.UtcNow >= _nextWallpaperSyncAtUtc[\s\S]{0,160}_wallpaperRequests\.Request\(\)/);
-  assert.match(agent, /_nextWallpaperSyncAtUtc = DateTimeOffset\.UtcNow \+ WallpaperRecoveryInterval/);
+  assert.match(agent, /_nextWallpaperSyncAtUtc = DateTimeOffset\.UtcNow[\s\S]{0,160}_wakeListener\.Connected \? WallpaperRecoveryInterval : WallpaperSyncInterval/);
   assert.match(agent, /CompleteThrough\(requestGeneration\)/);
   assert.match(agent, /if \(applied && _wallpaperRequests\.Pending\)[\s\S]{0,160}ScheduleDirectWallpaperSync/);
   assert.match(client, /g3a_agent_direct_pending_v1/);

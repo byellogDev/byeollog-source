@@ -12,6 +12,7 @@ namespace HurogiCollector;
 internal sealed class VNextRealtimeWakeListener : IDisposable
 {
     private static readonly TimeSpan HeartbeatInterval = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan ReceiveSilenceTimeout = TimeSpan.FromSeconds(35);
     private static readonly TimeSpan SessionRefreshInterval = TimeSpan.FromMinutes(40);
     private const int MaximumMessageBytes = 64 * 1024;
 
@@ -166,7 +167,19 @@ internal sealed class VNextRealtimeWakeListener : IDisposable
             WebSocketReceiveResult result;
             do
             {
-                result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+                using var receiveDeadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                receiveDeadline.CancelAfter(ReceiveSilenceTimeout);
+                try
+                {
+                    result = await socket.ReceiveAsync(
+                        new ArraySegment<byte>(buffer),
+                        receiveDeadline.Token);
+                }
+                catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+                {
+                    throw new WebSocketException(
+                        "Supabase Realtime heartbeat 응답이 지연됐습니다.");
+                }
                 if (result.MessageType == WebSocketMessageType.Close)
                     throw new WebSocketException("Supabase Realtime 연결이 종료됐습니다.");
                 if (result.MessageType != WebSocketMessageType.Text)
@@ -276,8 +289,9 @@ internal sealed class VNextRealtimeWakeListener : IDisposable
         if (Interlocked.Exchange(ref _connected, value) == value) return;
         _log(connected
             ? "Realtime 깨우기 연결됨 · 이벤트 즉시 수신 · 10분 누락 복구"
-            : "Realtime 깨우기 연결 해제 · 2초 안전 재조회");
+            : "Realtime 깨우기 연결 해제 · 액션 2초 · 풍벽지 5초 안전 재조회");
         _wake();
+        if (!connected) _wallpaperWake();
     }
 
     private static string StringProperty(JsonElement element, string name) =>

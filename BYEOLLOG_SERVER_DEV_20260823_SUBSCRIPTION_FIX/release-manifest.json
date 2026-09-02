@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-02T08:49:16.378Z",
-  "gitCommit": "35316eff82d016106dbe8eac177769b7071d27ea",
+  "generatedAt": "2026-09-02T13:20:58.851Z",
+  "gitCommit": "9c5f4a40084ad880f6f0951f3706b09dc516c9bc",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
   "dirtyPathCount": 4,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.137/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.138/release-provenance.json",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/stable/win-x64.json",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-release-storage.test.mjs",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-update-feed.test.mjs"
   ],
-  "sourceDigest": "6bea0d8cbb2ff3911569b8bd6441d4467f8b658d1f06b75ea58e74d00d7b6d7d",
-  "fileCount": 332,
+  "sourceDigest": "0b48c69846e236aa973c7aa8a4046fd6ea5fb9229322c7a9ea3c719cc02a709b",
+  "fileCount": 336,
   "files": [
     {
       "path": "agent-updates/release-asset-storage.json",
@@ -175,6 +175,11 @@
       "sha256": "677ba99c6346d32aa91fc5d2fc556601479f0e4b341cb334351a11ccef5e3f90"
     },
     {
+      "path": "agent-updates/releases/0.7.0.138/release-provenance.json",
+      "bytes": 330,
+      "sha256": "016488ef70e344d89019966a1a3ffdc721b34ead8ad84aaa548e77cd208bda04"
+    },
+    {
       "path": "agent-updates/releases/0.7.0.71/release-provenance.json",
       "bytes": 330,
       "sha256": "e42f2926a9d4cd3561865a3383b9b9ccc4a7d05aa4e1e074ea896a530c2b650a"
@@ -321,8 +326,8 @@
     },
     {
       "path": "agent-updates/stable/win-x64.json",
-      "bytes": 1603,
-      "sha256": "0d725366b42551dc7227831274dfe404c973bbdc344d1ba5e3b63f3afb5c199b"
+      "bytes": 1590,
+      "sha256": "e3192959c3cb89ab2ab1e42d92dec0dda2878a610423f0ecdeb81f68dedb283f"
     },
     {
       "path": "api/admin.js",
@@ -341,8 +346,8 @@
     },
     {
       "path": "api/collector-pair.js",
-      "bytes": 14730,
-      "sha256": "b27709a73ea501b38e223927eede149d25274b060dd1a444e2d617faa1726194"
+      "bytes": 15312,
+      "sha256": "a24ee6ace6bc7b1a55204942c507bf3953f5b15874345240d26b7dbfdcf2e555"
     },
     {
       "path": "api/collector-pairing-code.js",
@@ -366,8 +371,8 @@
     },
     {
       "path": "api/login.js",
-      "bytes": 27157,
-      "sha256": "fc542e39bb9988b0136bd7927ff686982bcb8973ce59a33d90b9bd34e2088a6c"
+      "bytes": 27740,
+      "sha256": "942f30b235fdb4fc3951c6a3a9a38032f821ad8d32d866c60b31530a29743619"
     },
     {
       "path": "api/logout.js",
@@ -551,8 +556,8 @@
     },
     {
       "path": "lib/common-overlay-v8.js",
-      "bytes": 39431,
-      "sha256": "513e9f70140c4733982452d67d7ef1335e603b984054f675c67952a71a220c89"
+      "bytes": 40099,
+      "sha256": "42df34e203fd69cd70f956838310e7cde15b2f5869f07a0d2db813498a74f6cf"
     },
     {
       "path": "lib/dashboard-navigation.js",
@@ -601,8 +606,8 @@
     },
     {
       "path": "lib/product-dashboard-html.js",
-      "bytes": 140664,
-      "sha256": "8353bae458c4489e2cb41761e22be8a656cafe0deecb326f4c29f869302e5ae9"
+      "bytes": 146506,
+      "sha256": "37fa6346a0519035916e13961134dc4d92293cf6935673e82c1dc26a44f711b0"
     },
     {
       "path": "lib/rate-limit.js",
@@ -651,8 +656,8 @@
     },
     {
       "path": "lib/soop-roulette-service.js",
-      "bytes": 11924,
-      "sha256": "7bde2732178ff26bc247cfeeb625526a1e3009e12d4d839904cdd7b60d10179e"
+      "bytes": 12262,
+      "sha256": "4e23caf2a2388a5cb783845125b4a21ec831f3f8708a4e06af812625f93a81b4"
     },
     {
       "path": "lib/soop-sdk-relay.js",
@@ -1280,6 +1285,21 @@
       "sha256": "4a485db321b38a127fd62558cf8bf6964904a08600350f605574cbfa9302f39f"
     },
     {
+      "path": "supabase/migrations/20260902091718_fix_g3a_readiness_scope_for_direct_agent_rpcs.sql",
+      "bytes": 4469,
+      "sha256": "e400f0bf5fbc2c8a956569e8360b3f76dc9c220dee5f3efe65bbbc0a52e49c5a"
+    },
+    {
+      "path": "supabase/migrations/20260902095644_keep_agent_online_from_existing_pending_probe.sql",
+      "bytes": 2778,
+      "sha256": "9b71cf127cc5de7eeb819d388cbf311f2c73803d1b104fd3f890ed48fc9dc831"
+    },
+    {
+      "path": "supabase/migrations/20260902123052_add_roulette_chat_dry_run_reveal_outbox.sql",
+      "bytes": 6399,
+      "sha256": "1111f9f79d78a992b28ced0a913c60bf084dcbc913058999bc3aa446942b9185"
+    },
+    {
       "path": "tools/__pycache__/Generate-NativeRouletteAudioCandidates.cpython-312.pyc",
       "bytes": 22649,
       "sha256": "16b3f7e71d4bb9da2cf24d98faba817914583c9222776a3f297234e737a9316f"
@@ -1671,8 +1691,8 @@
     },
     {
       "path": "vercel.json",
-      "bytes": 9397,
-      "sha256": "6f5e4e13084c22d6edf7a8ed0a3e950c3557f14938b2475d7bb6f266727092c0"
+      "bytes": 9459,
+      "sha256": "9069ff447e1097e5bca5da248fe17471813fe95e0597d88ffbdc537b78c2caaf"
     }
   ]
 }
