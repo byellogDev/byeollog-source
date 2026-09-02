@@ -1,19 +1,16 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-02T16:02:19.214Z",
-  "gitCommit": "cd53023155c21bb572b304707dd9f6650e3a53b6",
+  "generatedAt": "2026-09-02T16:09:27.253Z",
+  "gitCommit": "f03ea1551e4e851d14fabbb6eec36f8f197ce20d",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 5,
+  "dirtyPathCount": 2,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/product-dashboard-html.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260902155847_correct_open_default_donation_minimum.sql",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/product-control-center.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/signature-balloon-common-overlay.test.mjs",
-    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/default-donation-images.js"
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260902160734_drop_legacy_default_donation_wallpaper_check.sql",
+    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/signature-balloon-common-overlay.test.mjs"
   ],
-  "sourceDigest": "9a6823381e319a349608cb837cf233398b4a41718e70901c58c2c7a2bf4b487e",
-  "fileCount": 342,
+  "sourceDigest": "eaf869afc4da4936ca66812185dd7bdf76e84c92c24175116870530cd6682abd",
+  "fileCount": 343,
   "files": [
     {
       "path": "agent-updates/release-asset-storage.json",
@@ -1329,6 +1326,11 @@
       "path": "supabase/migrations/20260902155847_correct_open_default_donation_minimum.sql",
       "bytes": 663,
       "sha256": "d3caf9b46090a0367635776b7693b000c0e052f82ffca584281ae89bdb2d6d97"
+    },
+    {
+      "path": "supabase/migrations/20260902160734_drop_legacy_default_donation_wallpaper_check.sql",
+      "bytes": 427,
+      "sha256": "dc6f97204aee5ba18b3b0a4d763dd85454de3a09b036c23762ce0cc2c1a28960"
     },
     {
       "path": "tools/__pycache__/Generate-NativeRouletteAudioCandidates.cpython-312.pyc",

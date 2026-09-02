@@ -105,6 +105,7 @@ test('default image migrations keep ranges private while limiting custom images 
   const followup=await readFile(new URL('../supabase/migrations/20260902154301_stop_default_donation_wallpaper_assets.sql',import.meta.url),'utf8');
   const openRanges=await readFile(new URL('../supabase/migrations/20260902155513_allow_open_default_donation_ranges.sql',import.meta.url),'utf8');
   const correctedMinimum=await readFile(new URL('../supabase/migrations/20260902155847_correct_open_default_donation_minimum.sql',import.meta.url),'utf8');
+  const legacyChecks=await readFile(new URL('../supabase/migrations/20260902160734_drop_legacy_default_donation_wallpaper_check.sql',import.meta.url),'utf8');
   assert.match(sql,/create table public\.byeollog_default_donation_images/i);
   assert.match(sql,/pg_advisory_xact_lock/i);
   assert.match(sql,/int4range\(existing\.min_amount,existing\.max_amount,'\[\]'\)[\s\S]*&&/i);
@@ -125,4 +126,6 @@ test('default image migrations keep ranges private while limiting custom images 
   assert.match(correctedMinimum,/where min_amount=0/i);
   assert.match(correctedMinimum,/alter column min_amount set default 1/i);
   assert.match(correctedMinimum,/min_amount between 1 and 2147483647/i);
+  assert.match(legacyChecks,/drop constraint if exists byeollog_default_donation_images_check[,;]/i);
+  assert.match(legacyChecks,/drop constraint if exists byeollog_default_donation_images_check2/i);
 });
