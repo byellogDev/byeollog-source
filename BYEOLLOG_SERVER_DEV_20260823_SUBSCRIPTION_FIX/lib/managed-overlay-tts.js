@@ -43,6 +43,9 @@ export function managedOverlayTtsConfig(environment=process.env){
     }:null,
     maxSessions:integer(environment.MANAGED_OVERLAY_TTS_MAX_SESSIONS,4,1,12),
     timeoutMs:integer(environment.MANAGED_OVERLAY_TTS_TIMEOUT_MS,30_000,5_000,60_000),
+    primaryFirstAudioTimeoutMs:integer(environment.MANAGED_OVERLAY_TTS_PRIMARY_FIRST_AUDIO_TIMEOUT_MS,4_000,100,10_000),
+    fallbackFirstAudioTimeoutMs:integer(environment.MANAGED_OVERLAY_TTS_FALLBACK_FIRST_AUDIO_TIMEOUT_MS,3_000,100,10_000),
+    primaryRetries:integer(environment.MANAGED_OVERLAY_TTS_PRIMARY_RETRIES,1,0,2),
     cacheTtlMs:integer(environment.MANAGED_OVERLAY_TTS_CACHE_TTL_MS,10*60_000,0,60*60_000),
     cacheEntries:integer(environment.MANAGED_OVERLAY_TTS_CACHE_ENTRIES,128,0,1000)
   };
@@ -147,8 +150,18 @@ class CartesiaSession{
     }).finally(()=>{this.opening=null});
     return this.opening;
   }
+  async readyWithin(signal){
+    if(!signal)return this.ready();
+    return new Promise((resolve,reject)=>{
+      let settled=false;
+      const finish=error=>{if(settled)return;settled=true;signal.removeEventListener?.('abort',abort);error?reject(error):resolve()};
+      const abort=()=>finish(signal.reason||asError('Cartesia request aborted','request_aborted',{provider:'cartesia'}));
+      signal.addEventListener?.('abort',abort,{once:true});if(signal.aborted){abort();return}
+      this.ready().then(()=>finish(),finish);
+    });
+  }
   async synthesize(text,{signal,onAudioChunk}){
-    await this.ready();
+    await this.readyWithin(signal);
     return new Promise((resolve,reject)=>{
       const contextId=crypto.randomUUID(),startedAt=performance.now();
       const abort=()=>{try{this.socket?.send?.(JSON.stringify({context_id:contextId,cancel:true}))}catch{}this.fail(signal?.reason||asError('Cartesia request aborted','request_aborted',{provider:'cartesia'}))};
@@ -199,12 +212,23 @@ export function createManagedOverlayTtsRuntime({environment=process.env,WebSocke
   const fallbackPool=config.fallback?new SessionPool(()=>new CartesiaSession(config.fallback,WebSocketImpl),config.maxSessions):null;
   const cache=new Map();
 
-  async function fromProvider(pool,provider,text,signal,onAudioChunk){
-    const session=await pool.acquire(signal);let emitted=0,discard=false;
+  async function fromProvider(pool,provider,text,signal,onAudioChunk,firstAudioTimeoutMs){
+    const providerController=new AbortController();
+    const forwardAbort=()=>providerController.abort(signal?.reason||asError('Managed TTS request aborted','request_aborted',{provider}));
+    signal?.addEventListener?.('abort',forwardAbort,{once:true});if(signal?.aborted)forwardAbort();
+    let emitted=0,discard=false,firstAudioTimer=setTimeout(()=>providerController.abort(
+      asError(`${provider} did not produce audio in time`,'provider_first_audio_timeout',{provider})
+    ),firstAudioTimeoutMs);
+    const firstAudio=()=>{if(firstAudioTimer){clearTimeout(firstAudioTimer);firstAudioTimer=null}};
+    let session=null;
     try{
-      return await session.synthesize(text,{signal,onAudioChunk:chunk=>{emitted+=chunk.length;onAudioChunk(chunk,provider)}});
+      session=await pool.acquire(providerController.signal);
+      return await session.synthesize(text,{signal:providerController.signal,onAudioChunk:chunk=>{firstAudio();emitted+=chunk.length;onAudioChunk(chunk,provider)}});
     }catch(error){discard=true;throw Object.assign(error,{provider,emittedBytes:emitted})}
-    finally{pool.release(session,{discard:discard||signal?.aborted||false})}
+    finally{
+      firstAudio();signal?.removeEventListener?.('abort',forwardAbort);
+      if(session)pool.release(session,{discard:discard||providerController.signal.aborted||false});
+    }
   }
   function cacheKey(text){return crypto.createHash('sha256').update(text,'utf8').digest('hex')}
   function prune(){
@@ -213,7 +237,7 @@ export function createManagedOverlayTtsRuntime({environment=process.env,WebSocke
   }
   return {
     config:{enabled:true,primary:config.primary?.id||null,fallback:config.fallback?.id||null,sampleRate:SAMPLE_RATE,channels:CHANNELS},
-    async synthesize({text,signal,onAudioChunk}){
+    async synthesize({text,signal,onAudioChunk,onProviderAttempt}){
       const normalized=String(text||'').trim();if(!normalized||normalized.length>240)throw asError('TTS text is invalid','invalid_tts_text');
       const requestController=new AbortController();
       const forwardAbort=()=>requestController.abort(signal?.reason||asError('Managed TTS request aborted','request_aborted'));
@@ -223,15 +247,21 @@ export function createManagedOverlayTtsRuntime({environment=process.env,WebSocke
       const key=cacheKey(normalized);prune();const cached=cache.get(key);
       try{
         if(cached){for(let offset=0;offset<cached.pcm.length;offset+=9600)onAudioChunk(cached.pcm.subarray(offset,Math.min(offset+9600,cached.pcm.length)),cached.provider);return {...cached,firstAudioMs:0,totalMs:0,cached:true}}
-        const providers=[];if(primaryPool)providers.push({pool:primaryPool,id:'google'});if(fallbackPool)providers.push({pool:fallbackPool,id:'cartesia'});
+        const providers=[];
+        if(primaryPool)for(let attempt=1;attempt<=1+config.primaryRetries;attempt++)providers.push({pool:primaryPool,id:'google',attempt,firstAudioTimeoutMs:config.primaryFirstAudioTimeoutMs});
+        if(fallbackPool)providers.push({pool:fallbackPool,id:'cartesia',attempt:1,firstAudioTimeoutMs:config.fallbackFirstAudioTimeoutMs});
         let lastError=null;
         for(const candidate of providers){
+          if(candidate.id==='google'&&candidate.attempt>1&&lastError?.code==='provider_first_audio_timeout')continue;
+          const attemptStartedAt=performance.now();
           try{
-            const result=await fromProvider(candidate.pool,candidate.id,normalized,requestController.signal,onAudioChunk);
+            const result=await fromProvider(candidate.pool,candidate.id,normalized,requestController.signal,onAudioChunk,candidate.firstAudioTimeoutMs);
+            try{onProviderAttempt?.({provider:candidate.id,attempt:candidate.attempt,outcome:'succeeded',elapsedMs:Math.round(performance.now()-attemptStartedAt),firstAudioMs:result.firstAudioMs})}catch{}
             if(config.cacheEntries>0&&config.cacheTtlMs>0){cache.set(key,{provider:result.provider,pcm:result.pcm,expiresAt:Date.now()+config.cacheTtlMs});prune()}
             return {...result,cached:false};
           }catch(error){
             lastError=error;
+            try{onProviderAttempt?.({provider:candidate.id,attempt:candidate.attempt,outcome:'failed',elapsedMs:Math.round(performance.now()-attemptStartedAt),errorCode:String(error?.code||'provider_failed').slice(0,80),emittedBytes:Number(error?.emittedBytes||0)})}catch{}
             if(requestController.signal.aborted)throw requestController.signal.reason||error;
             if(Number(error?.emittedBytes||0)>0)throw asError('Managed TTS stream stopped after playback began','partial_stream_failed',{provider:candidate.id,emittedBytes:error.emittedBytes,cause:error});
           }

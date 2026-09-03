@@ -1,15 +1,17 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-03T04:48:47.334Z",
-  "gitCommit": "8b97c628b82928df3d279ee0e089a563660ca60a",
+  "generatedAt": "2026-09-03T05:39:13.564Z",
+  "gitCommit": "2165ce25ee525c38c149be1b2d09d40ef59f3fd9",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 2,
+  "dirtyPathCount": 4,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/native-roulette-digital-twin.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Run-NativeRouletteDigitalTwin.mjs"
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/managed-overlay-tts.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/release-manifest.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/managed-overlay-tts.test.mjs",
+    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/api/login.js"
   ],
-  "sourceDigest": "93b79cc1e8bc1cbaa0696b804abe947bc24cceb46fbe4792faf72bfedc307a99",
+  "sourceDigest": "5b9661261e235c55297e5dd25eb90b4d92e0b80c697e95d92d8caef477cc860c",
   "fileCount": 358,
   "files": [
     {
@@ -389,8 +391,8 @@
     },
     {
       "path": "api/login.js",
-      "bytes": 27778,
-      "sha256": "6a4f35a7f27858d4a225d40efae46d25fb9450be5cb053849eec1c1187d4d5b4"
+      "bytes": 28397,
+      "sha256": "5c931c5da5e625e1c170f6eee64958086dcd88e7c489c1c2af65ddcb541649c1"
     },
     {
       "path": "api/logout.js",
@@ -604,8 +606,8 @@
     },
     {
       "path": "lib/managed-overlay-tts.js",
-      "bytes": 16291,
-      "sha256": "9b4111687e4142694d32ec425aa5fe108e6780910dbea67429e25742343ddb80"
+      "bytes": 18864,
+      "sha256": "b283b111e500e76d5a7d8be879adb9c03523288ae150450b1cc971d18be8895a"
     },
     {
       "path": "lib/native-roulette-assets.js",

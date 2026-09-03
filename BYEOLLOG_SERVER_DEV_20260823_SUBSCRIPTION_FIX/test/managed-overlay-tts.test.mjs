@@ -14,11 +14,15 @@ class FakeGoogleAuthClient{
 }
 
 class FakeGoogleStream extends EventEmitter{
-  constructor(){super();this.requests=[]}
+  constructor(callNumber){super();this.requests=[];this.callNumber=callNumber}
   write(value){this.requests.push(value);return true}
   end(){
     queueMicrotask(()=>{
-      if(FakeGoogleClient.failures>0){FakeGoogleClient.failures--;this.emit('error',Object.assign(new Error('primary unavailable'),{code:'primary_unavailable'}));return}
+      if(FakeGoogleClient.hangingCalls.has(this.callNumber))return;
+      if(FakeGoogleClient.failures>0||FakeGoogleClient.failureCalls.has(this.callNumber)){
+        if(FakeGoogleClient.failures>0)FakeGoogleClient.failures--;
+        this.emit('error',Object.assign(new Error('primary unavailable'),{code:'primary_unavailable'}));return;
+      }
       this.emit('data',{audioContent:Buffer.from([1,0,2,0,3,0,4,0])});
       this.emit('end');
     });
@@ -29,18 +33,22 @@ class FakeGoogleStream extends EventEmitter{
 
 class FakeGoogleClient{
   static failures=0;
+  static streamCalls=0;
+  static failureCalls=new Set();
+  static hangingCalls=new Set();
   static clients=[];
   constructor(options){this.options=options;this.streams=[];FakeGoogleClient.clients.push(this)}
-  streamingSynthesize(){const stream=new FakeGoogleStream();this.streams.push(stream);return stream}
+  streamingSynthesize(){const stream=new FakeGoogleStream(++FakeGoogleClient.streamCalls);this.streams.push(stream);return stream}
   async close(){this.closed=true}
 }
 
 class FakeWebSocket extends EventEmitter{
   static OPEN=1;
   static sends=[];
+  static hangOpen=false;
   constructor(url,options){
     super();this.url=url;this.options=options;this.readyState=0;
-    queueMicrotask(()=>{this.readyState=FakeWebSocket.OPEN;this.emit('open')});
+    if(!FakeWebSocket.hangOpen)queueMicrotask(()=>{this.readyState=FakeWebSocket.OPEN;this.emit('open')});
   }
   send(input,callback){
     const message=JSON.parse(String(input));FakeWebSocket.sends.push({url:this.url,message});callback?.();
@@ -76,7 +84,7 @@ function runtime(extra={}){
 }
 
 test.beforeEach(()=>{
-  FakeGoogleClient.failures=0;FakeGoogleClient.clients=[];FakeGoogleAuthClient.options=[];FakeWebSocket.sends=[];
+  FakeGoogleClient.failures=0;FakeGoogleClient.streamCalls=0;FakeGoogleClient.failureCalls=new Set();FakeGoogleClient.hangingCalls=new Set();FakeGoogleClient.clients=[];FakeGoogleAuthClient.options=[];FakeWebSocket.sends=[];FakeWebSocket.hangOpen=false;
 });
 
 test('configuration selects Google Leda then Cartesia Soojin without exposing credentials',()=>{
@@ -86,6 +94,9 @@ test('configuration selects Google Leda then Cartesia Soojin without exposing cr
   assert.equal(config.primary.authMode,'wif');
   assert.equal(config.fallback.id,'cartesia');
   assert.equal(config.fallback.voiceId,'cd6c48a9-774b-4397-98b4-9948c0a790f0');
+  assert.equal(config.primaryFirstAudioTimeoutMs,4000);
+  assert.equal(config.fallbackFirstAudioTimeoutMs,3000);
+  assert.equal(config.primaryRetries,1);
   assert.equal('apiKey' in config.primary,false);
 });
 
@@ -107,8 +118,20 @@ test('primary Google PCM16 audio streams at 24 kHz through Vercel OIDC federatio
   assert.equal(await auth.subject_token_supplier.getSubjectToken(),'vercel-oidc-token');
 });
 
-test('failure before Google audio falls back to Cartesia and replay uses cache',async()=>{
+test('transient failure before Google audio retries a fresh Google session',async()=>{
   FakeGoogleClient.failures=1;
+  const attempts=[],managed=runtime(),chunks=[];
+  const result=await managed.synthesize({text:'연속 룰렛 복구',onProviderAttempt:value=>attempts.push(value),onAudioChunk:chunk=>chunks.push(Buffer.from(chunk))});
+  assert.equal(result.provider,'google');
+  assert.equal(FakeGoogleClient.clients.length,2);
+  assert.equal(FakeWebSocket.sends.length,0);
+  assert.deepEqual(attempts.map(item=>[item.provider,item.attempt,item.outcome]),[
+    ['google',1,'failed'],['google',2,'succeeded']
+  ]);
+});
+
+test('two failures before Google audio fall back to Cartesia and replay uses cache',async()=>{
+  FakeGoogleClient.failures=2;
   const managed=runtime(),first=[];
   const result=await managed.synthesize({text:'예비 음성 테스트',onAudioChunk:chunk=>first.push(Buffer.from(chunk))});
   assert.equal(result.provider,'cartesia');
@@ -119,6 +142,53 @@ test('failure before Google audio falls back to Cartesia and replay uses cache',
   assert.equal(cached.provider,'cartesia');
   assert.equal(FakeWebSocket.sends.length,sendsAfterFirst);
   assert.deepEqual(Buffer.concat(second),Buffer.concat(first));
+});
+
+test('a silent Google stream is bounded and moves directly to the fallback',async()=>{
+  FakeGoogleClient.hangingCalls.add(1);
+  const managed=runtime({MANAGED_OVERLAY_TTS_PRIMARY_FIRST_AUDIO_TIMEOUT_MS:'100'}),attempts=[],startedAt=performance.now();
+  const result=await managed.synthesize({text:'무응답 제한 테스트',onProviderAttempt:value=>attempts.push(value),onAudioChunk:()=>{}});
+  assert.equal(result.provider,'cartesia');
+  assert.ok(performance.now()-startedAt<1000);
+  assert.equal(FakeGoogleClient.clients.length,1);
+  assert.deepEqual(attempts.map(item=>[item.provider,item.attempt,item.outcome,item.errorCode||null]),[
+    ['google',1,'failed','provider_first_audio_timeout'],
+    ['cartesia',1,'succeeded',null]
+  ]);
+});
+
+test('a stalled fallback connection cannot hold a roulette command open',async()=>{
+  FakeWebSocket.hangOpen=true;
+  const managed=runtime({
+    GOOGLE_TTS_WIF_AUDIENCE:'',GOOGLE_TTS_SERVICE_ACCOUNT_EMAIL:'',
+    MANAGED_OVERLAY_TTS_FALLBACK_FIRST_AUDIO_TIMEOUT_MS:'100'
+  });
+  const startedAt=performance.now();
+  await assert.rejects(
+    ()=>managed.synthesize({text:'예비 공급자 정지',onAudioChunk:()=>{}}),
+    error=>error.code==='provider_first_audio_timeout'&&error.provider==='cartesia'
+  );
+  assert.ok(performance.now()-startedAt<1000);
+});
+
+test('an 11-spin series recovers a transient tenth Google stream without blocking on fallback',async()=>{
+  FakeGoogleClient.failureCalls.add(10);
+  const managed=runtime(),attempts=[],providers=[];
+  for(let spin=1;spin<=11;spin++){
+    const result=await managed.synthesize({
+      text:`연차 결과 ${spin}`,
+      onProviderAttempt:value=>attempts.push({...value,spin}),
+      onAudioChunk:()=>{}
+    });
+    providers.push(result.provider);
+  }
+  assert.deepEqual(providers,Array(11).fill('google'));
+  assert.equal(FakeGoogleClient.streamCalls,12);
+  assert.equal(FakeGoogleClient.clients.length,2);
+  assert.equal(FakeWebSocket.sends.length,0);
+  assert.deepEqual(attempts.filter(item=>item.spin===10).map(item=>[item.provider,item.attempt,item.outcome]),[
+    ['google',1,'failed'],['google',2,'succeeded']
+  ]);
 });
 
 test('managed TTS fails closed when disabled or unconfigured',()=>{

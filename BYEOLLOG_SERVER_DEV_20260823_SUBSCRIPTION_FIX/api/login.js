@@ -245,7 +245,16 @@ async function handleSoopRouletteOverlayTts(req,res){
   res.flushHeaders?.();
   const startedAt=performance.now();
   try{
-    const result=await runtime.synthesize({text,signal:controller.signal,onAudioChunk:(chunk,selectedProvider)=>{
+    const result=await runtime.synthesize({text,signal:controller.signal,onProviderAttempt:attempt=>{
+      if(attempt.outcome==='failed')console.warn('[managed-overlay-tts] provider attempt failed',{
+        commandRef:ttsPayload.oid.slice(0,8),provider:attempt.provider,attempt:attempt.attempt,
+        code:attempt.errorCode,elapsedMs:attempt.elapsedMs,partial:attempt.emittedBytes>0
+      });
+      else if(attempt.attempt>1||attempt.elapsedMs>2000)console.info('[managed-overlay-tts] provider recovery',{
+        commandRef:ttsPayload.oid.slice(0,8),provider:attempt.provider,attempt:attempt.attempt,
+        elapsedMs:attempt.elapsedMs,firstAudioMs:attempt.firstAudioMs
+      });
+    },onAudioChunk:(chunk,selectedProvider)=>{
       if(responseClosed)return;
       provider=selectedProvider||provider;if(firstAudioAt===null)firstAudioAt=performance.now();audioBytes+=chunk.length;
       res.write(managedTtsFrame(MANAGED_TTS_AUDIO_FRAME,chunk));
