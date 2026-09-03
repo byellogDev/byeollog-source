@@ -3,7 +3,12 @@ name: source-ci
 on:
   pull_request:
   push:
-    branches: [master]
+    branches: [master, codex/public-release-v071]
+  workflow_dispatch:
+
+concurrency:
+  group: source-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -45,6 +50,9 @@ jobs:
       - name: Run server tests and source-manifest assertions
         working-directory: BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX
         run: npm test
+      - name: Run deterministic broadcast stability gate
+        working-directory: BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX
+        run: npm run stability:gate
       - name: Execute migration behavior harnesses
         shell: bash
         working-directory: BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX
@@ -140,3 +148,17 @@ jobs:
       - name: Run Relay tests
         working-directory: BYEOLLOG_TTS_RELAY
         run: npm test
+
+  production-smoke:
+    name: Read-only production smoke after all source gates
+    if: github.event_name == 'push'
+    needs: [server, agent, auxiliary]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Verify public production boundaries without mutations
+        working-directory: BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX
+        run: npm run stability:smoke

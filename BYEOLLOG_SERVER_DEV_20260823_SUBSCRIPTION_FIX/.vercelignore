@@ -27,6 +27,12 @@ tools/native-roulette-digital-twin-ui.mjs
 tools/Run-NativeRouletteDigitalTwin.mjs
 tools/Start-NativeRouletteDigitalTwin.ps1
 docs/NATIVE_ROULETTE_DIGITAL_TWIN_20260828_KO.md
+stability/
+tools/stability-event-replay-core.mjs
+tools/Run-StabilityEventReplay.mjs
+tools/Run-StabilityGate.mjs
+tools/Run-ProductionSmoke.mjs
+tools/Audit-SupabaseRuntimePressure.mjs
 **/__pycache__
 *.log
 *.tmp

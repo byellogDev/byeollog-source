@@ -1,31 +1,25 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-03T02:29:22.702Z",
-  "gitCommit": "b8e20a6fcdd690bc444930bae8adff52e6a37794",
+  "generatedAt": "2026-09-03T04:41:18.568Z",
+  "gitCommit": "7ebad64027c713d6f3528d1070eeec9637b8c8c7",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 17,
+  "dirtyPathCount": 11,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.140/release-provenance.json",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/stable/win-x64.json",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/api/admin.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/installer/ByeollogAgentSetup.iss",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/common-overlay-v8.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/product-dashboard-html.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/soop-roulette-service.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/wallpaper-service.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260903113000_multi_active_native_roulettes.sql",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-release-storage.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-update-feed.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/multi-active-roulette.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/product-control-center.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/soop-roulette-service.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Build-AgentInstaller.ps1",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Publish-AgentReleaseAssets.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/vercel.json"
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/.vercelignore",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/docs/STABILITY_SYSTEM_20260903_KO.md",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/package.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/release-manifest.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/stability/fixtures/soop-event-replay-v1.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/stability-system.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Audit-SupabaseRuntimePressure.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Run-ProductionSmoke.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Run-StabilityEventReplay.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Run-StabilityGate.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/stability-event-replay-core.mjs"
   ],
-  "sourceDigest": "1878e7ecf4d2c8b75043ca615d84a48a1c4f4b52444693ebb15f9778bc3c7c5a",
-  "fileCount": 353,
+  "sourceDigest": "3ed4a441428a4c8b292087ddf4f75034df06bde4444ac4f973230b48eeb1975a",
+  "fileCount": 358,
   "files": [
     {
       "path": "agent-updates/release-asset-storage.json",
@@ -819,8 +813,8 @@
     },
     {
       "path": "package.json",
-      "bytes": 1834,
-      "sha256": "bd6a37a1120a4f70a6206cb016d1f01b181bcd20f8c1b7d3bfeefeac3bde354f"
+      "bytes": 2129,
+      "sha256": "ce256b8a55c104bdfd1586aa5c58c617eea3a6e002ca28920b466bf3ccc3f549"
     },
     {
       "path": "scripts/generate-release-manifest.mjs",
@@ -1403,6 +1397,11 @@
       "sha256": "3e6a5e714b7f55d5959dd9b6762cb5185b2b061c533c897b1ac0d3010c365aad"
     },
     {
+      "path": "tools/Audit-SupabaseRuntimePressure.mjs",
+      "bytes": 4080,
+      "sha256": "14756fc48211349dee26b17544f6b5a13b6607ac3361cde18ec7b6218eea6977"
+    },
+    {
       "path": "tools/Backfill-SignatureWallpaperAssets.mjs",
       "bytes": 977,
       "sha256": "b9a8d5209ba8359f3623e42c2165ab50c230d54b006628c77a640d1afef3215c"
@@ -1613,6 +1612,11 @@
       "sha256": "be6b1ca08ba8e1ae0ecb16e2b9e2883983081e5d14009c9815a184de04c61b3d"
     },
     {
+      "path": "tools/Run-ProductionSmoke.mjs",
+      "bytes": 4888,
+      "sha256": "986f6c7cb4e66305b6de918c2da0548b3acbe441f3381aa077f5b6ecc258d3ed"
+    },
+    {
       "path": "tools/Run-SoopGatewayHidden.ps1",
       "bytes": 2334,
       "sha256": "c30d9c05d8ccb4a38853996954977195145c55f4b94ab4cc49dcefbc777329fc"
@@ -1626,6 +1630,16 @@
       "path": "tools/Run-SoopGatewaySoakHidden.ps1",
       "bytes": 561,
       "sha256": "e6e3800d43f5006c986c3a3fcdc46f47fa7c184d58849d3cae039ae38974e843"
+    },
+    {
+      "path": "tools/Run-StabilityEventReplay.mjs",
+      "bytes": 949,
+      "sha256": "0f872d0796acd660f74e66bbdb2d2458081cb661afa6a26caca7ce0f7a6a9946"
+    },
+    {
+      "path": "tools/Run-StabilityGate.mjs",
+      "bytes": 4326,
+      "sha256": "aaf6d7ada371b79fdebb757dbc944f786293974c40b40834e4d684d945c8d6bd"
     },
     {
       "path": "tools/Run-TtsWinkFinalBenchmark.ps1",
@@ -1651,6 +1665,11 @@
       "path": "tools/Simulate-NativeRouletteReliability.mjs",
       "bytes": 2546,
       "sha256": "273096f7b2a724a1007667c68fa3703de539698e440e00c3e1c9446b506ddb5b"
+    },
+    {
+      "path": "tools/stability-event-replay-core.mjs",
+      "bytes": 7688,
+      "sha256": "ab68c34d9fdef21f2ccd0e20f9722fa5e9f6d43cea2179ff9b313c1ab1d8964f"
     },
     {
       "path": "tools/Start-NativeRouletteDigitalTwin.ps1",
