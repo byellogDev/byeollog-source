@@ -158,7 +158,9 @@ function uploadAsset(releaseId, filePath, fileName, bytes) {
       method: "POST",
       headers: {
         ...apiHeaders,
-        "Content-Type": "application/zip",
+        "Content-Type": fileName.toLowerCase().endsWith(".exe")
+          ? "application/vnd.microsoft.portable-executable"
+          : "application/zip",
         "Content-Length": bytes
       }
     });
@@ -187,11 +189,11 @@ function publicAssetUrl(version, fileName) {
 }
 
 const allFiles = (await collectFiles(releaseRoot))
-  .filter((filePath) => filePath.toLowerCase().endsWith(".zip"))
+  .filter((filePath) => /\.(?:zip|exe)$/i.test(filePath))
   .filter((filePath) => uploadAll || relative(releaseRoot, filePath).split(sep)[0] === requestedVersion)
   .sort((left, right) => left.localeCompare(right, "en"));
 if (allFiles.length === 0) {
-  throw new Error(requestedVersion ? `no release ZIP found for ${requestedVersion}` : "no release ZIP files found");
+  throw new Error(requestedVersion ? `no release asset found for ${requestedVersion}` : "no release assets found");
 }
 
 let cursor = 0;
@@ -209,7 +211,7 @@ async function worker() {
     const version = releaseRelative[0];
     const fileName = releaseRelative.at(-1);
     if (releaseRelative.length !== 2 || !/^\d+\.\d+\.\d+\.\d+$/.test(version)) {
-      throw new Error(`unexpected release ZIP path: ${relative(releaseRoot, filePath)}`);
+      throw new Error(`unexpected release asset path: ${relative(releaseRoot, filePath)}`);
     }
 
     const info = await stat(filePath);

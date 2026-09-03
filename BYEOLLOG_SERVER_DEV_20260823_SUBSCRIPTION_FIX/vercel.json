@@ -126,12 +126,22 @@
   ],
   "redirects": [
     {
+      "source": "/agent/download",
+      "destination": "/agent-updates/releases/0.7.0.139/Byeollog-Agent-Setup-v0.7.0.139.exe",
+      "permanent": false
+    },
+    {
       "source": "/dashboard/overlay",
       "destination": "/dashboard/roulette",
       "permanent": true
     },
     {
       "source": "/agent-updates/releases/:version/:filename([^/]+\\.zip)",
+      "destination": "https://github.com/byellogDev/byeollog-releases/releases/download/agent-v:version/:filename",
+      "permanent": false
+    },
+    {
+      "source": "/agent-updates/releases/:version/:filename([^/]+\\.exe)",
       "destination": "https://github.com/byellogDev/byeollog-releases/releases/download/agent-v:version/:filename",
       "permanent": false
     }
@@ -261,6 +271,23 @@
     },
     {
       "source": "/agent-updates/releases/:version/:filename([^/]+\\.zip)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=300"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/agent-updates/releases/:version/:filename([^/]+\\.exe)",
       "headers": [
         {
           "key": "Cache-Control",
