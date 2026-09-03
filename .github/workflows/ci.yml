@@ -117,8 +117,9 @@ jobs:
           [xml]$project = Get-Content -Raw HurogiCollector.csproj
           $expectedVersion = @($project.Project.PropertyGroup | ForEach-Object { [string]$_.Version } | Where-Object { $_ })[0]
           if ($expectedVersion -notmatch '^\d+\.\d+\.\d+\.\d+$') { throw 'A four-part Agent Version is required for update preflight.' }
-          & .\ci-artifacts\agent\byeollog.exe --update-preflight $expectedVersion
-          if ($LASTEXITCODE -ne 0) { throw 'Compiled Agent update preflight failed.' }
+          $agentPath = (Resolve-Path .\ci-artifacts\agent\byeollog.exe).Path
+          $preflight = Start-Process -FilePath $agentPath -ArgumentList @('--update-preflight', $expectedVersion) -WindowStyle Hidden -Wait -PassThru
+          if ($preflight.ExitCode -ne 0) { throw "Compiled Agent update preflight failed with exit code $($preflight.ExitCode)." }
 
   auxiliary:
     name: TTS and Relay tests and supply-chain gates
