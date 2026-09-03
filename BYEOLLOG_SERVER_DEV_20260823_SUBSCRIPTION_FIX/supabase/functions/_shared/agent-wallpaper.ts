@@ -233,7 +233,10 @@ export async function buildAgentWallpaperState(
         x: coordinates[0], y: coordinates[1], width: coordinates[2], height: coordinates[3],
         columns: columns >= 1 ? columns : null,
         rows: layoutRows >= 1 ? layoutRows : null,
-        nextSide: row.layoutNextSide === "left" ? "left" : "right"
+        nextSide: row.layoutNextSide === "left" ? "left" : "right",
+        layer: integer(row.layoutLayer, 0) >= 1 && integer(row.layoutLayer, 0) <= 216
+          ? integer(row.layoutLayer)
+          : null
       }
       : null;
     tiles.push({

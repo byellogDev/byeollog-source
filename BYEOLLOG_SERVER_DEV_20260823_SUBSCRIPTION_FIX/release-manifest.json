@@ -1,18 +1,32 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-03T05:39:13.564Z",
-  "gitCommit": "2165ce25ee525c38c149be1b2d09d40ef59f3fd9",
+  "generatedAt": "2026-09-03T13:53:10.105Z",
+  "gitCommit": "176be9c8383ceadf8cc6337134ac62e5c86bbfec",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 4,
+  "dirtyPathCount": 18,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/managed-overlay-tts.js",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/release-manifest.json",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/managed-overlay-tts.test.mjs",
-    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/api/login.js"
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.141/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/stable/win-x64.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/api/admin.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/installer/ByeollogAgentSetup.iss",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/product-dashboard-html.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/wallpaper-layout.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/wallpaper-overlay.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/wallpaper-service.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/functions/_shared/agent-wallpaper.ts",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260903133204_wallpaper_layer_order.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-release-storage.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-update-feed.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/live-edge-recovery.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/stability-system.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/wallpaper-contract.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/wallpaper-layout.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Build-AgentInstaller.ps1",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/vercel.json"
   ],
-  "sourceDigest": "5b9661261e235c55297e5dd25eb90b4d92e0b80c697e95d92d8caef477cc860c",
-  "fileCount": 358,
+  "sourceDigest": "bb3a0523a16512ad4cacdb3e51cb3890f7979e02c2905acfcfacf5bb509f1328",
+  "fileCount": 361,
   "files": [
     {
       "path": "agent-updates/release-asset-storage.json",
@@ -200,6 +214,16 @@
       "sha256": "649ba08abf293282ae5324c5e7e9cc48da2a0c494c1742e00ec26dd9b2b25871"
     },
     {
+      "path": "agent-updates/releases/0.7.0.141/Byeollog-Agent-Setup-v0.7.0.141.exe",
+      "bytes": 2570339,
+      "sha256": "63ae0b93805566b63be7ecb25b7a666183b8cd7f6e7ca7480cfc74f418c52462"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.141/release-provenance.json",
+      "bytes": 324,
+      "sha256": "0dcc8d5051004b33fbe62fdd604869c0a3ff6cb9f72d83f057e7031b6317db7f"
+    },
+    {
       "path": "agent-updates/releases/0.7.0.71/release-provenance.json",
       "bytes": 330,
       "sha256": "e42f2926a9d4cd3561865a3383b9b9ccc4a7d05aa4e1e074ea896a530c2b650a"
@@ -346,13 +370,13 @@
     },
     {
       "path": "agent-updates/stable/win-x64.json",
-      "bytes": 1599,
-      "sha256": "d6ee7b815077d2872508984d47b6d1fcf5090613e139256ec7db9fc5ca7552f9"
+      "bytes": 1607,
+      "sha256": "df34238902632ce3c6571f898b74c27760ed2a624fb7c42a8d40c39196bdf307"
     },
     {
       "path": "api/admin.js",
-      "bytes": 75215,
-      "sha256": "a64a3d61ea97b1719de4c29706c637394550912daeec4de1b9ef097dfa5d594b"
+      "bytes": 75267,
+      "sha256": "102dbbf40f67550083e0e419177665ed37e848362d380e07dc1be355a6003106"
     },
     {
       "path": "api/backups.js",
@@ -631,8 +655,8 @@
     },
     {
       "path": "lib/product-dashboard-html.js",
-      "bytes": 157287,
-      "sha256": "e01c1f864d2a1c39512ecc24be11e902c00f3a77dd66d67067eed268d8bf9db3"
+      "bytes": 161277,
+      "sha256": "e047b046d628df38456d1565e0807b15bb81e191efb80e33110ba07773051c23"
     },
     {
       "path": "lib/rate-limit.js",
@@ -776,18 +800,18 @@
     },
     {
       "path": "lib/wallpaper-layout.js",
-      "bytes": 12892,
-      "sha256": "fc19adb51ff0dce7433996c7d97146102131a595f8f0326c442e1a700aed7f6a"
+      "bytes": 13301,
+      "sha256": "a7ed4efb027b1583bc6dba15ce898e68425e6b19a025658c3cd001acf2c86103"
     },
     {
       "path": "lib/wallpaper-overlay.js",
-      "bytes": 7806,
-      "sha256": "b0c619ee080ef23075a7ae79ac6075062f03537b13239979e3ef6d6da07875ab"
+      "bytes": 7867,
+      "sha256": "0133834184b121dfcc0f58ddd707eb906468f7d09200b10481a99ab30162ec98"
     },
     {
       "path": "lib/wallpaper-service.js",
-      "bytes": 14849,
-      "sha256": "7700e7e894543d6cf365bf39f5a6b232d1bb46e1b91a536201acb67f7f5c8a87"
+      "bytes": 14931,
+      "sha256": "19b3bd5821b4ab408136b8c557e34bf59a9eba999965d228ab0f2287f0940541"
     },
     {
       "path": "lib/weflab-public-roulette-import.js",
@@ -826,8 +850,8 @@
     },
     {
       "path": "services/soop-chat-gateway/browser-session.mjs",
-      "bytes": 19029,
-      "sha256": "e3c3e7b155f32bd21d2ca1bef6c708ddecfac517aa22c416329395634316ac52"
+      "bytes": 20328,
+      "sha256": "4a30d68c172e2667e169384709451041f7abf082d405acb32695c68b2dd2acb7"
     },
     {
       "path": "services/soop-chat-gateway/compose.example.yml",
@@ -1370,6 +1394,11 @@
       "sha256": "4c765c503c783672d2623bc74ca91e622c19df3e0166e3b94a5ac2c107eb56a8"
     },
     {
+      "path": "supabase/migrations/20260903133204_wallpaper_layer_order.sql",
+      "bytes": 13073,
+      "sha256": "63d6c36f76754c1ad6e50d70dbf81141d4b76f8d98ea3ca0df2b92c754b16023"
+    },
+    {
       "path": "tools/__pycache__/Generate-NativeRouletteAudioCandidates.cpython-312.pyc",
       "bytes": 22649,
       "sha256": "16b3f7e71d4bb9da2cf24d98faba817914583c9222776a3f297234e737a9316f"
@@ -1422,7 +1451,7 @@
     {
       "path": "tools/Build-AgentInstaller.ps1",
       "bytes": 1361,
-      "sha256": "e9160610ededc5d14744b9afdc2ffa7f7b3eb0d89b310c59ab1a02253fd6bb19"
+      "sha256": "d5fedd4b8a0ca0aeaa4626a4398a55c697b89fc683a2975e6f6cf13c8f18659a"
     },
     {
       "path": "tools/Build-CartesiaVoiceBlindPack.mjs",
@@ -1802,7 +1831,7 @@
     {
       "path": "vercel.json",
       "bytes": 10264,
-      "sha256": "4204388bbd33c8633bb7295881bce9a4f6795f67a0a62cad4e927155ba50b787"
+      "sha256": "4ac206d5019840aa960e75519a904ac969c131857b30619d5f976bb135d25394"
     }
   ]
 }

@@ -237,7 +237,10 @@ internal static partial class AgentWallpaperSnapshotMapper
             ["height"] = height,
             ["columns"] = columns >= 1 ? JsonValue.Create(columns) : null,
             ["rows"] = rows >= 1 ? JsonValue.Create(rows) : null,
-            ["nextSide"] = Text(row, "layoutNextSide", 10) == "left" ? "left" : "right"
+            ["nextSide"] = Text(row, "layoutNextSide", 10) == "left" ? "left" : "right",
+            ["layer"] = Integer(row, "layoutLayer", -1) is >= 1 and <= 216
+                ? JsonValue.Create(Integer(row, "layoutLayer"))
+                : null
         };
     }
 

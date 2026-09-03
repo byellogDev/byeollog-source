@@ -23,7 +23,7 @@ if ($LASTEXITCODE -ne 0) {
     throw "Inno Setup compilation failed with exit code $LASTEXITCODE."
 }
 
-$output = Join-Path $projectRoot "agent-updates\releases\0.7.0.140\Byeollog-Agent-Setup-v0.7.0.140.exe"
+$output = Join-Path $projectRoot "agent-updates\releases\0.7.0.141\Byeollog-Agent-Setup-v0.7.0.141.exe"
 if (-not (Test-Path -LiteralPath $output -PathType Leaf)) {
     throw "Installer output is missing: $output"
 }

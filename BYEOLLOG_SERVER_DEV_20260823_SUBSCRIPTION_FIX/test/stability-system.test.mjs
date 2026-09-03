@@ -25,7 +25,7 @@ test('production smoke is read-only and fails closed on a server error',async()=
     const path=new URL(url).pathname;
     if(path==='/dashboard/wallpaper')return new Response('',{status:302,headers:{location:'/login?expired=1'}});
     if(path==='/api/auth/soop/roulette-overlay/poll')return new Response('',{status:401});
-    if(path==='/agent-updates/stable/win-x64.json')return Response.json({version:'0.7.0.140',sequence:7140,signature:'signed'});
+    if(path==='/agent-updates/stable/win-x64.json')return Response.json({version:'0.7.0.141',sequence:7141,signature:'signed'});
     if(path==='/agent/download')return new Response('',{status:302,headers:{location:'https://example.invalid/installer.exe'}});
     return new Response('ok',{status:200});
   };

@@ -115,16 +115,16 @@ export function groupWallpaperTiles(input){
     const key=String(tile.groupKey||`${Number(tile.amount)||0}:${String(tile.source||'unknown')}`);
     let group=groups.get(key);
     if(!group){
-      group={id:key,amount:Number(tile.amount)||0,displayKind:tile.displayKind||'donation',source:tile.source,imageUrl:tile.imageUrl,imageKey:tile.imageKey||null,tiles:[],layout:null,firstReceivedAt:tile.receivedAt||null,mergeRange:tile.mergeRange||null,direction:'ltr',nextSide:tile.layout?.nextSide||'right'};
+      group={id:key,amount:Number(tile.amount)||0,displayKind:tile.displayKind||'donation',source:tile.source,imageUrl:tile.imageUrl,imageKey:tile.imageKey||null,tiles:[],layout:null,layer:Number.isSafeInteger(Number(tile.layout?.layer))?Number(tile.layout.layer):null,firstReceivedAt:tile.receivedAt||null,mergeRange:tile.mergeRange||null,direction:'ltr',nextSide:tile.layout?.nextSide||'right'};
       groups.set(key,group);
     }
     group.tiles.push(tile);
-    if(!group.layout&&tile.layout){group.layout=tile.layout;group.nextSide=tile.layout.nextSide||group.nextSide}
+    if(!group.layout&&tile.layout){group.layout=tile.layout;group.nextSide=tile.layout.nextSide||group.nextSide;group.layer=Number.isSafeInteger(Number(tile.layout.layer))?Number(tile.layout.layer):group.layer}
   }
   return [...groups.values()].map(group=>{
     if(group.mergeRange)group.tiles.sort((a,b)=>Number(a.amount)-Number(b.amount)||Date.parse(a.receivedAt||0)-Date.parse(b.receivedAt||0)||String(a.id).localeCompare(String(b.id)));
     return {...group,tileIds:group.tiles.map(tile=>tile.id)};
-  });
+  }).sort((a,b)=>(Number.isSafeInteger(a.layer)?a.layer:Number.MAX_SAFE_INTEGER)-(Number.isSafeInteger(b.layer)?b.layer:Number.MAX_SAFE_INTEGER));
 }
 
 function compactWallpaperGroup(group){
@@ -203,11 +203,11 @@ export function layoutWallpaperGroups(input,{canvasWidth=WALLPAPER_CANVAS_WIDTH,
   const occupied=manual.map(group=>group.layout);
   const automatic=source.filter(group=>!validWallpaperTileLayout(group.layout,{canvasWidth:width,canvasHeight:height}));
   const placements=placeAutomaticGroups(automatic,occupied,width,height,sizeRanges);
-  return source.map(group=>{
+  return source.map((group,index)=>{
     const isManual=validWallpaperTileLayout(group.layout,{canvasWidth:width,canvasHeight:height});
     const placement=isManual?expandManualPlacementForNextColumn(group,group.layout,width):placements.get(group.id);
     const fitted=fitWallpaperGroupCards(group.tiles.length,{width:placement.width,height:placement.height,columns:isManual?null:placement.columns,layoutColumns:isManual?placement.columns:null,layoutRows:isManual?placement.rows:null,amounts:group.mergeRange?group.tiles.map(tile=>tile.amount):null,direction:group.direction,nextSide:group.nextSide,compact:compactWallpaperGroup(group)});
-    return {...group,...placement,layoutColumns:isManual?fitted.slotColumns:null,layoutRows:isManual?fitted.rowsPerColumn:null,manualLayout:isManual,...fitted,cards:group.tiles.map((tile,index)=>({...tile,...fitted.cards[index]}))};
+    return {...group,...placement,layer:Number.isSafeInteger(group.layer)&&group.layer>=1?group.layer:index+1,layoutColumns:isManual?fitted.slotColumns:null,layoutRows:isManual?fitted.rowsPerColumn:null,manualLayout:isManual,...fitted,cards:group.tiles.map((tile,index)=>({...tile,...fitted.cards[index]}))};
   });
 }
 

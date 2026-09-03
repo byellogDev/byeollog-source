@@ -195,6 +195,16 @@ test('manual wallpaper groups preserve intentionally overlapping rectangles',()=
   assert.equal(wallpaperGroupsDoNotOverlap(laidOut),false);
 });
 
+test('saved layer order is stable and larger layers render above smaller layers',()=>{
+  const back={x:100,y:100,width:600,height:400,columns:3,rows:2,layer:1};
+  const front={x:300,y:250,width:600,height:400,columns:3,rows:2,layer:2};
+  const groups=groupWallpaperTiles([tile(1,300,'front',front),tile(2,100,'back',back)]);
+  const laidOut=layoutWallpaperGroups(groups);
+  assert.deepEqual(laidOut.map(group=>group.id),['back','front']);
+  assert.deepEqual(laidOut.map(group=>group.layer),[1,2]);
+  assert.equal(laidOut[1].amount,300);
+});
+
 test('saved off-canvas layout is rejected and falls back inside the OBS frame',()=>{
   const layout={x:-80,y:-45,width:600,height:420,columns:3,rows:2,nextSide:'right'};
   const [group]=layoutWallpaperGroups(groupWallpaperTiles([tile(1,50,'off-canvas',layout)]));

@@ -648,20 +648,20 @@ internal sealed class ByeollogOverlayService : IDisposable
         let group = map.get(tile.groupKey);
         if (!group) {
           const layout = validWallpaperLayout(tile.layout, canvasWidth, canvasHeight) ? tile.layout : null;
-          group = { id: tile.groupKey, amount: tile.amount, displayKind: tile.displayKind || 'donation', mergeRange: tile.mergeRange, tiles: [], layout, nextSide: layout?.nextSide === 'left' ? 'left' : 'right' };
+          group = { id: tile.groupKey, amount: tile.amount, displayKind: tile.displayKind || 'donation', mergeRange: tile.mergeRange, tiles: [], layout, layer: Number.isInteger(layout?.layer) ? layout.layer : null, nextSide: layout?.nextSide === 'left' ? 'left' : 'right' };
           map.set(tile.groupKey, group);
         }
         group.tiles.push(tile);
-        if (!group.layout && validWallpaperLayout(tile.layout, canvasWidth, canvasHeight)) { group.layout = tile.layout; group.nextSide = tile.layout.nextSide === 'left' ? 'left' : 'right'; }
+        if (!group.layout && validWallpaperLayout(tile.layout, canvasWidth, canvasHeight)) { group.layout = tile.layout; group.layer = Number.isInteger(tile.layout.layer) ? tile.layout.layer : group.layer; group.nextSide = tile.layout.nextSide === 'left' ? 'left' : 'right'; }
       }
-      const groups = [...map.values()];
+      const groups = [...map.values()].sort((a,b) => (Number.isInteger(a.layer) ? a.layer : Number.MAX_SAFE_INTEGER) - (Number.isInteger(b.layer) ? b.layer : Number.MAX_SAFE_INTEGER));
       for (const group of groups) if (group.mergeRange) group.tiles.sort((a,b) => a.amount-b.amount || Date.parse(a.receivedAt||0)-Date.parse(b.receivedAt||0));
       const manual=groups.filter(group=>!!group.layout), occupied=manual.map(group=>group.layout);
       const automatic=groups.filter(group=>!group.layout), placements=wallpaperAutoPlacements(automatic,occupied,canvasWidth,canvasHeight);
-      return groups.map(group => {
+      return groups.map((group, index) => {
         group.manual=!!group.layout;
         const placement=group.layout||placements.get(group.id);
-        return { ...group, ...wallpaperFit(group, placement) };
+        return { ...group, layer:Number.isInteger(group.layer) && group.layer >= 1 ? group.layer : index + 1, ...wallpaperFit(group, placement) };
       });
     }
     function renderWallpaper(state) {
@@ -682,6 +682,7 @@ internal sealed class ByeollogOverlayService : IDisposable
         const section = entry.node;
         section.style.left = group.x + 'px'; section.style.top = group.y + 'px';
         section.style.width = group.width + 'px'; section.style.height = group.height + 'px';
+        section.style.zIndex = String(Math.max(1, Number(group.layer) || 1));
         const incomingCards = new Set(group.cards.map(card => card.id));
         for (const [id, node] of entry.cards) if (!incomingCards.has(id)) { node.remove(); entry.cards.delete(id); }
         for (const card of group.cards) {

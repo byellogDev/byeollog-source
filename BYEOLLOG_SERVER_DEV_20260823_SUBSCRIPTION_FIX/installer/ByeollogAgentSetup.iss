@@ -1,8 +1,8 @@
-#define AppVersion "0.7.0.140"
-#define PackageFile "byeollog_agent_v07140_UNIFIED_NAVIGATION_WIN_X64.zip"
-#define PackageUrl "https://byeollog.com/agent-updates/releases/0.7.0.140/byeollog_agent_v07140_UNIFIED_NAVIGATION_WIN_X64.zip"
-#define PackageSha256 "d8f2a1273eb0254ecced7cbd291c794d9081dfb6d279b3660a621cf14ea6675d"
-#define PackageExpandedBytes "107900591"
+#define AppVersion "0.7.0.141"
+#define PackageFile "byeollog_agent_v07141_WALLPAPER_LAYER_ORDER_WIN_X64.zip"
+#define PackageUrl "https://byeollog.com/agent-updates/releases/0.7.0.141/byeollog_agent_v07141_WALLPAPER_LAYER_ORDER_WIN_X64.zip"
+#define PackageSha256 "3b6fdd1c92cafcc8111a1b81f47bd5eccb388f2d2b16d01223709c616d60a581"
+#define PackageExpandedBytes "107895902"
 
 [Setup]
 AppId={{6C58557A-D38B-42A4-9FB7-DF7DD7D22819}

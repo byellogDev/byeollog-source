@@ -360,7 +360,7 @@ test('wallpaper routes retire web OBS output and keep controls on the web dashbo
   assert.doesNotMatch(login,/loadWallpaperState\(payload\.wid/);
   assert.match(admin,/operation==='wallpaper-control'/);
   assert.match(admin,/select_wallpaper_sessions_v1/);
-  assert.match(admin,/save_wallpaper_overlay_layout_v3/);
+  assert.match(admin,/save_wallpaper_overlay_layout_v4/);
   assert.match(admin,/save_wallpaper_visible_keys_v1/);
   assert.match(admin,/save_wallpaper_merge_rules_v1/);
   assert.match(admin,/save_wallpaper_size_rules_v1/);
@@ -401,10 +401,10 @@ test('wallpaper routes retire web OBS output and keep controls on the web dashbo
   assert.match(dashboard,/group\.nextSide=group\.nextSide==='left'\?'right':'left'/);
   assert.match(dashboard,/scheduleWallpaperAutoSave/);
   assert.match(dashboard,/flushWallpaperAutoSave/);
-  assert.match(admin,/const WALLPAPER_LAYOUT_SAVE_PROTOCOL=2/);
+  assert.match(admin,/const WALLPAPER_LAYOUT_SAVE_PROTOCOL=3/);
   assert.match(admin,/Number\(body\.layoutSaveProtocol\)!==WALLPAPER_LAYOUT_SAVE_PROTOCOL/);
   assert.match(admin,/status\(428\)[\s\S]*wallpaper_editor_upgrade_required/);
-  assert.match(dashboard,/WALLPAPER_LAYOUT_SAVE_PROTOCOL=2/);
+  assert.match(dashboard,/WALLPAPER_LAYOUT_SAVE_PROTOCOL=3/);
   assert.match(dashboard,/layoutSaveProtocol:WALLPAPER_LAYOUT_SAVE_PROTOCOL/);
   assert.match(dashboard,/WALLPAPER_SAVE_MAX_CONFLICT_RETRIES=3/);
   assert.match(dashboard,/Math\.min\(500\*2\*\*\(state\.wallpaperSaveConflictCount-1\),4000\)/);
@@ -465,6 +465,8 @@ test('wallpaper routes retire web OBS output and keep controls on the web dashbo
   assert.match(dashboard,/WALLPAPER_SNAP_SCREEN_PX=7/);
   assert.match(dashboard,/WALLPAPER_GROUP_SNAP_SCREEN_PX=7/);
   assert.match(dashboard,/WALLPAPER_GROUP_CROSS_SNAP_SCREEN_PX=18/);
+  assert.match(dashboard,/WALLPAPER_VERTICAL_NEIGHBOR_SCREEN_PX=96/);
+  assert.match(dashboard,/WALLPAPER_VERTICAL_LOCK_RELEASE_SCREEN_PX=28/);
   assert.match(dashboard,/WALLPAPER_META_HEIGHT_RATIO=\.2035/);
   assert.match(dashboard,/function wallpaperDonationBoxBounds\(group\)/);
   assert.match(dashboard,/hasImage=Boolean\(card\.imageUrl\|\|group\.imageUrl\)/);
@@ -472,11 +474,16 @@ test('wallpaper routes retire web OBS output and keep controls on the web dashbo
   assert.match(dashboard,/moving=wallpaperDonationBoxBounds\(candidate\)/);
   assert.match(dashboard,/bounds=wallpaperDonationBoxBounds\(other\)/);
   assert.doesNotMatch(dashboard,/function wallpaperVisibleCardBounds/);
-  assert.match(dashboard,/snapWallpaperMove\(candidate,scale,movingId\)/);
+  assert.match(dashboard,/snapWallpaperMove\(candidate,scale,movingId,pointer=state\.wallpaperPointer\)/);
   assert.match(dashboard,/other\.id===movingId/);
-  assert.match(dashboard,/nearOverlaps\(moving\.top,moving\.bottom,top,bottom\)/);
+  assert.match(dashboard,/intervalGap\(moving\.top,moving\.bottom,top,bottom\)<=neighborThreshold/);
   assert.match(dashboard,/nearOverlaps\(moving\.left,moving\.right,left,right\)/);
   assert.match(dashboard,/options\.filter\(option=>option\.distance<=option\.threshold\)/);
+  assert.match(dashboard,/function bringWallpaperGroupToFront\(groupId\)/);
+  assert.match(dashboard,/wallpaper-bring-front/);
+  assert.match(dashboard,/function renderWallpaperSnapGuide\(pointer=state\.wallpaperPointer\)/);
+  assert.match(dashboard,/wallpaper-snap-guide/);
+  assert.match(dashboard,/layer:Number\(group\.layer\)\|\|index\+1/);
   assert.match(dashboard,/preview\.onpointerdown=deselectWallpaperGroup/);
   assert.match(dashboard,/function updateWallpaperImage/);
   assert.match(dashboard,/image\.dataset\.assetKey!==assetKey/);
@@ -501,4 +508,22 @@ test('wallpaper layout v3 cuts off legacy retry storms and treats identical save
   assert.match(sql,/is distinct from[\s\S]*tile\.next_side/i);
   assert.match(sql,/create or replace function public\.save_wallpaper_overlay_layout_v2[\s\S]*wallpaper editor upgrade required/i);
   assert.match(sql,/revoke all on function public\.save_wallpaper_overlay_layout_v3[\s\S]*grant execute[\s\S]*service_role/i);
+});
+
+test('wallpaper layout v4 persists bounded stacking order for web and Agent overlays',async()=>{
+  const [sql,service,edgeMapper]=await Promise.all([
+    readFile(new URL('../supabase/migrations/20260903133204_wallpaper_layer_order.sql',import.meta.url),'utf8'),
+    readFile(new URL('../lib/wallpaper-service.js',import.meta.url),'utf8'),
+    readFile(new URL('../supabase/functions/_shared/agent-wallpaper.ts',import.meta.url),'utf8')
+  ]);
+  assert.match(sql,/add column if not exists layout_layer integer/i);
+  assert.match(sql,/create or replace function public\.save_wallpaper_overlay_layout_v4/i);
+  assert.match(sql,/p_protocol<>3/i);
+  assert.match(sql,/tile\.layer not between 1 and 216/i);
+  assert.match(sql,/layout_layer=tile\.layer/i);
+  assert.match(sql,/'layoutLayer', tile\.layout_layer/i);
+  assert.match(sql,/revoke all on function public\.save_wallpaper_overlay_layout_v4[\s\S]*grant execute[\s\S]*service_role/i);
+  assert.match(service,/layout_next_side,layout_layer/);
+  assert.match(service,/layer:Number\.isSafeInteger\(Number\(row\.layout_layer\)\)/);
+  assert.match(edgeMapper,/layer: integer\(row\.layoutLayer/);
 });

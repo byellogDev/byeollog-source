@@ -40,7 +40,7 @@ import {ingestNormalizedSoopDonation} from '../lib/soop-gateway-api.js';
 
 const UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DASHBOARD_NAVIGATION_AUTH={navigation:true,loginPath:'/login?expired=1',retryPath:'/login?check=retry'};
-const WALLPAPER_LAYOUT_SAVE_PROTOCOL=2;
+const WALLPAPER_LAYOUT_SAVE_PROTOCOL=3;
 
 function bodyOf(req){
   if(typeof req.body==='string'){try{return JSON.parse(req.body)}catch{return null}}
@@ -637,18 +637,18 @@ async function handleWallpaperControl(req,res){
         for(const tile of tiles){
           const id=String(tile?.id||'').trim().toLowerCase();
           const nextSide=tile?.nextSide==='left'?'left':tile?.nextSide==='right'?'right':null;
-          const values=['x','y','width','height','columns','rows'].map(key=>Number(tile?.[key]));
+          const values=['x','y','width','height','columns','rows','layer'].map(key=>Number(tile?.[key]));
           if(!UUID_PATTERN.test(id)||!nextSide||!values.every(Number.isSafeInteger)
             ||values[0]<-WALLPAPER_EDITOR_MARGIN_X||values[1]<-WALLPAPER_EDITOR_MARGIN_Y||values[2]<80||values[3]<60
             ||values[0]+values[2]>WALLPAPER_CANVAS_WIDTH+WALLPAPER_EDITOR_MARGIN_X
             ||values[1]+values[3]>WALLPAPER_CANVAS_HEIGHT+WALLPAPER_EDITOR_MARGIN_Y
-            ||values[4]<1||values[4]>217||values[5]<1||values[5]>216){
+            ||values[4]<1||values[4]>217||values[5]<1||values[5]>216||values[6]<1||values[6]>216){
             return res.status(400).json({message:'풍벽지 카드가 편집 가능 영역을 벗어났습니다.'});
           }
-          normalized.push({id,x:values[0],y:values[1],width:values[2],height:values[3],columns:values[4],rows:values[5],next_side:nextSide});
+          normalized.push({id,x:values[0],y:values[1],width:values[2],height:values[3],columns:values[4],rows:values[5],layer:values[6],next_side:nextSide});
         }
         if(new Set(normalized.map(tile=>tile.id)).size!==normalized.length)return res.status(400).json({message:'중복된 풍벽지 카드가 있습니다.'});
-        await sb('rpc/save_wallpaper_overlay_layout_v3','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id,p_expected_revision:expectedRevision,p_protocol:WALLPAPER_LAYOUT_SAVE_PROTOCOL,p_tiles:normalized}});
+        await sb('rpc/save_wallpaper_overlay_layout_v4','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id,p_expected_revision:expectedRevision,p_protocol:WALLPAPER_LAYOUT_SAVE_PROTOCOL,p_tiles:normalized}});
       }else if(action==='save-visibility'){
         const expectedRevision=Number(body.expectedRevision);
         const visibleKeys=Array.isArray(body.visibleKeys)?[...new Set(body.visibleKeys.map(value=>String(value||'').trim()))].sort():[];

@@ -37,6 +37,10 @@ test('recovered production Edge sources match the read-only capture manifest',as
     ['event-runtime/index.ts',{
       bytes:13111,
       sha256:'b6f322542acfbaa6dcbebff209fe78cfc10a5c478d7e82fc856c02c52f7c89d4'
+    }],
+    ['_shared/agent-wallpaper.ts',{
+      bytes:10950,
+      sha256:'f3498efa9c7adc1e86d4859ee54bb13c3a03d4744226aa97b34a915c2f93bcb6'
     }]
   ]);
   for(const file of manifest.files){

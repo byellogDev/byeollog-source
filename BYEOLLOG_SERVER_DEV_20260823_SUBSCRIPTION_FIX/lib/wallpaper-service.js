@@ -5,7 +5,7 @@ import {soopDefaultCeremonyImageUrl} from './soop-roulette-service.js';
 import {sb} from './supabase-rest.js';
 import {groupWallpaperTiles,layoutWallpaperGroups,WALLPAPER_MAX_VISIBLE_TILES} from './wallpaper-layout.js';
 
-export const WALLPAPER_OVERLAY_CLIENT_VERSION='20260901-wallpaper-v13-persistent-size-no-shadow';
+export const WALLPAPER_OVERLAY_CLIENT_VERSION='20260903-wallpaper-v14-layer-order';
 
 export function wallpaperOverlayUrl(token){
   return `/overlay/soop-wallpaper?v=${encodeURIComponent(WALLPAPER_OVERLAY_CLIENT_VERSION)}#token=${encodeURIComponent(token)}`;
@@ -105,7 +105,7 @@ export async function loadWallpaperState(workspaceId,{sbImpl=sb,environment=proc
   if(!selectedSessions.length)return {session:null,displayKey:'empty',revision,totalTiles:0,visibleTiles:0,hiddenTiles:0,visibility,catalog:[],merge,size,live:liveState,hasManualLayout:false,groups:[],tiles:[],sessions,selectedSessionIds:[]};
   const safeLimit=Math.max(1,Math.min(WALLPAPER_MAX_VISIBLE_TILES,Math.trunc(Number(limit)||WALLPAPER_MAX_VISIBLE_TILES)));
   const sessionFilter=selectedIds.map(id=>encodeURIComponent(id)).join(',');
-  const rows=await sbImpl('byeollog_wallpaper_tiles',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&session_id=in.(${sessionFilter})&select=id,sequence_no,session_id,actor_name,amount,display_kind,asset_source,asset,received_at,layout_x,layout_y,layout_width,layout_height,layout_columns,layout_rows,layout_next_side&order=received_at.desc,sequence_no.desc&limit=${safeLimit}`);
+  const rows=await sbImpl('byeollog_wallpaper_tiles',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&session_id=in.(${sessionFilter})&select=id,sequence_no,session_id,actor_name,amount,display_kind,asset_source,asset,received_at,layout_x,layout_y,layout_width,layout_height,layout_columns,layout_rows,layout_next_side,layout_layer&order=received_at.desc,sequence_no.desc&limit=${safeLimit}`);
   const ordered=(Array.isArray(rows)?rows:[]).reverse();
   const amounts=[...new Set(ordered.map(row=>Number(row.amount)).filter(value=>Number.isSafeInteger(value)&&value>0))];
   const signatureRows=amounts.length?await sbImpl('byeollog_signature_balloons',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&balloon_count=in.(${amounts.join(',')})&select=balloon_count,wallpaper_image,updated_at`).catch(()=>[]):[];
@@ -154,7 +154,7 @@ export async function loadWallpaperState(workspaceId,{sbImpl=sb,environment=proc
     const hasCapacity=row.layout_columns!==null&&row.layout_columns!==undefined&&row.layout_rows!==null&&row.layout_rows!==undefined;
     const capacity=[row.layout_columns,row.layout_rows].map(Number);
     const layout=coordinates.every(Number.isSafeInteger)
-      ?{x:coordinates[0],y:coordinates[1],width:coordinates[2],height:coordinates[3],columns:hasCapacity&&capacity.every(Number.isSafeInteger)?capacity[0]:null,rows:hasCapacity&&capacity.every(Number.isSafeInteger)?capacity[1]:null,nextSide:row.layout_next_side==='left'?'left':'right'}
+      ?{x:coordinates[0],y:coordinates[1],width:coordinates[2],height:coordinates[3],columns:hasCapacity&&capacity.every(Number.isSafeInteger)?capacity[0]:null,rows:hasCapacity&&capacity.every(Number.isSafeInteger)?capacity[1]:null,nextSide:row.layout_next_side==='left'?'left':'right',layer:Number.isSafeInteger(Number(row.layout_layer))?Number(row.layout_layer):null}
       :null;
     return {id:row.id,groupKey:grouping.key,mergeRange:grouping.mergeRange,visibilityKey:displayKind+':'+amount,sessionId:row.session_id,sequenceNo:Number(row.sequence_no)||0,actorName:String(row.actor_name||'익명'),amount,displayKind,source,imageUrl,imageKey,receivedAt:row.received_at,layout};
   });

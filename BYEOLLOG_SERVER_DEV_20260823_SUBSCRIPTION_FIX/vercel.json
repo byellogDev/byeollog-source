@@ -127,7 +127,7 @@
   "redirects": [
     {
       "source": "/agent/download",
-      "destination": "/agent-updates/releases/0.7.0.140/Byeollog-Agent-Setup-v0.7.0.140.exe",
+      "destination": "/agent-updates/releases/0.7.0.141/Byeollog-Agent-Setup-v0.7.0.141.exe",
       "permanent": false
     },
     {

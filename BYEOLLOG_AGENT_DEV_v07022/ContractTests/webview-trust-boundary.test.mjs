@@ -13,7 +13,7 @@ test("Agent 0.7.0.140 preserves explicit trust boundaries for every embedded Web
     readFile(new URL("HurogiCollector.csproj", root), "utf8")
   ]);
 
-  assert.match(project, /<Version>0\.7\.0\.140<\/Version>/);
+  assert.match(project, /<Version>0\.7\.0\.141<\/Version>/);
   assert.match(policy, /MaxUiMessageChars = 64 \* 1024/);
   assert.match(policy, /MaxWeflabMessageChars = 4 \* 1024 \* 1024/);
   assert.match(policy, /AllowedUiActions/);

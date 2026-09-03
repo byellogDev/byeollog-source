@@ -75,9 +75,9 @@ test("the Agent exposes one unified release label without the historical public-
     source("MainForm.cs"),
     source("Ui/byeollog_ui.html")
   ]);
-  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.140"/);
-  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.140"/);
-  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.140"/);
+  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.141"/);
+  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.141"/);
+  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.141"/);
   assert.match(main, /BuildInfo\.DisplayVersion/);
   assert.doesNotMatch(main, /nDev/);
   assert.match(main, /\$"별록 · \{text\.Replace\("상태: ", ""\)\}"/);

@@ -289,7 +289,8 @@ internal static class Program
               "layoutHeight": 400,
               "layoutColumns": 2,
               "layoutRows": 3,
-              "layoutNextSide": "left"
+              "layoutNextSide": "left",
+              "layoutLayer": 2
             },
             {
               "id": "44444444-4444-4444-8444-444444444444",
@@ -339,6 +340,8 @@ internal static class Program
             "manual merge ranges match the Edge grouping contract");
         Equal("left", signature.GetProperty("layout").GetProperty("nextSide").GetString(),
             "manual layout fields survive direct transport");
+        Equal(2, signature.GetProperty("layout").GetProperty("layer").GetInt32(),
+            "manual wallpaper stacking order survives direct transport");
         Equal("workspace_default",
             state.GetProperty("tiles")[1].GetProperty("source").GetString(),
             "workspace amount-range default replaces only the built-in SOOP fallback");
@@ -2693,6 +2696,8 @@ internal static class Program
                 "the action document keeps wallpaper rendering disabled");
             True(overlayHtml.Contains("body.wallpaper-only #wallpaper-layer { display:block; }", StringComparison.Ordinal),
                 "the wallpaper document enables only the lower wallpaper layer");
+            True(overlayHtml.Contains("section.style.zIndex = String(Math.max(1, Number(group.layer) || 1));", StringComparison.Ordinal),
+                "the local OBS wallpaper renders the persisted group stacking order");
             var wallpaperHtml = await http.GetStringAsync(service.WallpaperOverlayUrl);
             True(wallpaperHtml.Contains("location.pathname.replace(/\\/+$/,'') === '/overlay/wallpaper'", StringComparison.Ordinal),
                 "the dedicated wallpaper URL selects wallpaper-only mode");

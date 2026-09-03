@@ -904,3 +904,18 @@ test("v140 unifies Agent navigation and user-facing overlay language without tou
   assert.match(automationUi,/마이크 액션에 사용할 OBS 또는 Windows 마이크/);
   assert.doesNotMatch(automationUi,/별록 오버레이|아봉에 사용할 OBS 또는 Windows 마이크/);
 });
+
+test("v141 renders the persisted wallpaper group layer without touching donation latency", async () => {
+  const [build,notes,mapper,overlay]=await Promise.all([
+    source("Build-v07141-WallpaperLayerOrder.ps1"),
+    source("RELEASE_v07141_WALLPAPER_LAYER_ORDER_KO.txt"),
+    source("AgentWallpaperSnapshotMapper.cs"),
+    source("ByeollogOverlayService.cs")
+  ]);
+  assert.match(build,/\$releaseSequence = 7141/);
+  assert.match(build,/byeollog_agent_v07141_WALLPAPER_LAYER_ORDER_WIN_X64/);
+  assert.match(build,/Version = '0\.7\.0\.141'/);
+  assert.match(notes,/후원 수신, 룰렛, 액션 실행과 TTS의 처리 경로 및 타이밍은 변경하지 않습니다/);
+  assert.match(mapper,/\["layer"\] = Integer\(row, "layoutLayer"/);
+  assert.match(overlay,/section\.style\.zIndex = String\(Math\.max\(1, Number\(group\.layer\) \|\| 1\)\)/);
+});
