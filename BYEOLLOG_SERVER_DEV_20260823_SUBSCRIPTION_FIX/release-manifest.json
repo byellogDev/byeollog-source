@@ -1,24 +1,15 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-03T04:41:18.568Z",
-  "gitCommit": "7ebad64027c713d6f3528d1070eeec9637b8c8c7",
+  "generatedAt": "2026-09-03T04:48:47.334Z",
+  "gitCommit": "8b97c628b82928df3d279ee0e089a563660ca60a",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 11,
+  "dirtyPathCount": 2,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/.vercelignore",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/docs/STABILITY_SYSTEM_20260903_KO.md",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/package.json",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/release-manifest.json",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/stability/fixtures/soop-event-replay-v1.json",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/stability-system.test.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Audit-SupabaseRuntimePressure.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Run-ProductionSmoke.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Run-StabilityEventReplay.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Run-StabilityGate.mjs",
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/stability-event-replay-core.mjs"
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/native-roulette-digital-twin.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Run-NativeRouletteDigitalTwin.mjs"
   ],
-  "sourceDigest": "3ed4a441428a4c8b292087ddf4f75034df06bde4444ac4f973230b48eeb1975a",
+  "sourceDigest": "93b79cc1e8bc1cbaa0696b804abe947bc24cceb46fbe4792faf72bfedc307a99",
   "fileCount": 358,
   "files": [
     {
@@ -1598,8 +1589,8 @@
     },
     {
       "path": "tools/Run-NativeRouletteDigitalTwin.mjs",
-      "bytes": 11335,
-      "sha256": "82f60f897f38b56e65c2916b0366671942210dd6f32c28cdd692d686e6ecdc5d"
+      "bytes": 11784,
+      "sha256": "85ce4ebfa4bb02f15ef28ddd9222b71972246b239aec350b95c55db8064a3072"
     },
     {
       "path": "tools/Run-NativeRouletteReadinessLab.mjs",

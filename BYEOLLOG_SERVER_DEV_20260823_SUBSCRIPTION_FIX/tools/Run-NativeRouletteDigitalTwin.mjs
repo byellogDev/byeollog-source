@@ -124,10 +124,16 @@ async function serveAsset(pathname,res){
   const animationMatch=pathname.match(/^\/assets\/roulette-animation\/([a-z0-9_]+)\.webp$/);
   if(!animationMatch)return false;
   const asset=nativeRouletteTwinAssetByKey(animationMatch[1]);if(!asset)return false;
-  const body=await readFile(resolve(repoDir,'..',asset.sourceRelativePath));
+  let mode='full-animation';
+  let body=await readFile(resolve(repoDir,'..',asset.sourceRelativePath)).catch(async error=>{
+    if(error?.code!=='ENOENT')throw error;
+    mode='reviewed-preview-fallback';
+    return readFile(resolve(repoDir,asset.previewUrl.replace(/^\/assets\//,'assets/')));
+  });
   const digest=crypto.createHash('sha256').update(body).digest('hex');
-  if(body.length!==asset.byteSize||digest!==asset.contentSha256)throw new Error('local roulette WebP contract mismatch');
-  res.writeHead(200,{'content-type':'image/webp','content-length':body.length,'cache-control':'no-store','x-content-type-options':'nosniff'});res.end(body);return true;
+  if(mode==='full-animation'&&(body.length!==asset.byteSize||digest!==asset.contentSha256))throw new Error('local roulette WebP contract mismatch');
+  if(mode==='reviewed-preview-fallback'&&(body.length!==asset.previewByteSize||digest!==asset.previewSha256))throw new Error('local roulette preview contract mismatch');
+  res.writeHead(200,{'content-type':'image/webp','content-length':body.length,'cache-control':'no-store','x-content-type-options':'nosniff','x-byeollog-asset-mode':mode});res.end(body);return true;
 }
 
 export async function startNativeRouletteTwinServer({port=DEFAULT_PORT,seed=20260828,outputDir=defaultOutputDir}={}){

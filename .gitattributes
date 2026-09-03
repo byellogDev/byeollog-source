@@ -30,6 +30,9 @@ PROJECT_HANDOFF_20260825_NEXT_CHAT/*.txt text eol=lf
 *.mp3 binary
 *.zip binary
 *.exe binary
+# Embedded SVG files are integrity-checked byte-for-byte by the Windows Agent.
+# Treating them as text lets a runner's autocrlf setting invalidate the hash.
+BYEOLLOG_AGENT_DEV_v07022/Assets/*.svg binary
 
 # Preserve fetched Supabase migration-history references byte-for-byte so the
 # accompanying SHA-256 manifest remains valid across checkout platforms.

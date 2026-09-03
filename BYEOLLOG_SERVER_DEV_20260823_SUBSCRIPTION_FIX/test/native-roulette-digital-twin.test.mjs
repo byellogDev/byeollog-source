@@ -134,8 +134,15 @@ test('HTTP surface binds to loopback, serves immutable assets, and rejects forei
   assert.equal(animation.status,200);
   assert.equal(animation.headers.get('content-type'),'image/webp');
   const animationBytes=Buffer.from(await animation.arrayBuffer());
-  assert.equal(animationBytes.length,5_686_510);
-  assert.equal(crypto.createHash('sha256').update(animationBytes).digest('hex'),'5a0bf920ed23fd26fa08672b9d114e03dda503dd05aac8deaedea135da9c2b13');
+  const mode=animation.headers.get('x-byeollog-asset-mode');
+  assert.ok(['full-animation','reviewed-preview-fallback'].includes(mode));
+  if(mode==='full-animation'){
+    assert.equal(animationBytes.length,5_686_510);
+    assert.equal(crypto.createHash('sha256').update(animationBytes).digest('hex'),'5a0bf920ed23fd26fa08672b9d114e03dda503dd05aac8deaedea135da9c2b13');
+  }else{
+    assert.equal(animationBytes.length,61_282);
+    assert.equal(crypto.createHash('sha256').update(animationBytes).digest('hex'),'2c4f45de0b1d4928bf08aaa8cd62f1869e57d25bcaa25a09ca8f0556e9a3ae71');
+  }
   const rejected=await fetch(`${base}/api/reset`,{method:'POST',headers:{origin:'https://attacker.invalid','content-type':'application/json'},body:'{}'});
   assert.equal(rejected.status,403);
   const invalid=await fetch(`${base}/api/run`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({scenarioId:'unknown',speed:1})});
@@ -151,6 +158,7 @@ test('server source has no production clients and CLI artifacts stay outside sou
   ]);
   assert.match(source,/const HOST='127\.0\.0\.1'/);
   assert.match(source,/resolve\(repoDir,'\.\.','output','native-roulette-digital-twin'\)/);
+  assert.match(source,/reviewed-preview-fallback/);
   assert.doesNotMatch(source,/@supabase|supabaseClient|byeollog\.com|fetch\(/i);
   assert.match(source,/\/api\/shutdown/);
   assert.match(launcher,/WindowStyle Hidden/);
