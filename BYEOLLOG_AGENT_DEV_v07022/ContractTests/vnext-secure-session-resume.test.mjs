@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const source = (name) => readFile(new URL(`../${name}`, import.meta.url), "utf8");
+const source = (name) => readFile(new URL(`../${name}`, import.meta.url), "utf8")
+  .then((contents) => contents.replace(/\r\n?/g, "\n"));
 
 function section(contents, startMarker, endMarker) {
   const start = contents.indexOf(startMarker);
