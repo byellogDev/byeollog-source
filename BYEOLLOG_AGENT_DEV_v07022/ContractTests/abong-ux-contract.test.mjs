@@ -179,7 +179,7 @@ test("broadcast readiness keeps developer diagnostics out of the normal user sur
   assert.match(automation, /ndev\|vnext\|dev\|sqlite\|database\|schema\|session/);
   assert.match(automation, /현재 필요한 방송 기능이 없어요/);
   assert.match(automation, /OBS 연결/);
-  assert.match(automation, /별록 오버레이/);
+  assert.match(automation, /액션 오버레이/);
   assert.match(automation, /const groupedChecks=new Map/);
 });
 
@@ -212,7 +212,7 @@ test("v0.7.0.32 preserves rule deletion, split device views, inline URL copy, dr
 
   assert.doesNotMatch(automation, /id="copyOverlayUrlButton"[^>]*>OBS 주소 복사/);
   assert.match(automation, /class="local-url-row"[\s\S]*id="localOverlayUrl"[\s\S]*id="copyOverlayUrlButton"/);
-  assert.match(automation, /title="별록 오버레이 URL 복사"/);
+  assert.match(automation, /title="액션 오버레이 URL 복사"/);
 
   assert.match(automation, /id="positionEditorLayer"/);
   assert.match(automation, /onpointermove/);

@@ -702,11 +702,12 @@ async function loadSoopRuntimeStatus(liveSession){
   const workspaceId=await workspaceForSession(liveSession);
   if(!workspaceId)throw Object.assign(new Error('workspace unavailable'),{status:403});
   const filter=q(workspaceId);
-  const [connectionRows,controlRows,gatewayRows,serviceRows,observationRows,incidentRows]=await Promise.all([
+  const [connectionRows,controlRows,gatewayRows,serviceRows,activationRows,observationRows,incidentRows]=await Promise.all([
     sb('byeollog_soop_connections',`?workspace_id=eq.${filter}&select=status,access_token_expires_at,refreshed_at,last_error_code,updated_at&limit=1`),
     sb('byeollog_soop_runtime_controls',`?workspace_id=eq.${filter}&select=gateway_enabled,native_roulette_enabled,live_diagnostics_enabled,updated_at&limit=1`),
     sb('byeollog_soop_gateway_sessions',`?workspace_id=eq.${filter}&select=state,generation,reconnect_count,last_sequence,chat_number,token_expires_at,connected_at,last_event_at,heartbeat_at,last_error_code,updated_at&limit=1`),
     sb('byeollog_native_roulette_services',`?workspace_id=eq.${filter}&select=active_draft_id,active_draft_version,state,service_revision,overlay_token_version,sound_volume_percent,tts_volume_percent,activated_at,paused_at,updated_at&limit=1`).catch(error=>error?.status===404?[]:Promise.reject(error)),
+    sb('byeollog_native_roulette_activations',`?workspace_id=eq.${filter}&select=draft_id,draft_version,trigger_amounts,activated_at,updated_at&order=activated_at.asc`).catch(error=>error?.status===404?[]:Promise.reject(error)),
     sb('byeollog_soop_event_observations',`?workspace_id=eq.${filter}&select=event_type,provider_occurred_at,gateway_received_at,server_received_at,normalized_at,roulette_committed_at,overlay_queued_at,tts_queued_at,action_queued_at,deduplicated,outcome,details&order=server_received_at.desc&limit=20`),
     sb('byeollog_soop_gateway_incidents',`?workspace_id=eq.${filter}&resolved_at=is.null&select=id,kind,opened_at,last_observed_at,last_heartbeat_at,last_reported_state&order=opened_at.desc&limit=1`).catch(error=>error?.status===404?[]:Promise.reject(error)),
   ]);
@@ -729,8 +730,9 @@ async function loadSoopRuntimeStatus(liveSession){
       active:service.state==='active',state:service.state,activeDraftId:service.active_draft_id,
       activeDraftVersion:service.active_draft_version,serviceRevision:service.service_revision,
       soundVolumePercent:service.sound_volume_percent,ttsVolumePercent:service.tts_volume_percent,
-      activatedAt:service.activated_at,pausedAt:service.paused_at,updatedAt:service.updated_at
-    }:{active:false,state:'not_configured',activeDraftId:null,activeDraftVersion:null,serviceRevision:0},
+      activatedAt:service.activated_at,pausedAt:service.paused_at,updatedAt:service.updated_at,
+      activeDrafts:service.state==='active'?(Array.isArray(activationRows)?activationRows:[]).map(row=>({draftId:row.draft_id,draftVersion:row.draft_version,triggerAmounts:row.trigger_amounts||[],activatedAt:row.activated_at,updatedAt:row.updated_at})):[]
+    }:{active:false,state:'not_configured',activeDraftId:null,activeDraftVersion:null,serviceRevision:0,activeDrafts:[]},
     gateway:gateway?{
       state:gatewayFresh?gateway.state:'stale',reportedState:gateway.state,fresh:gatewayFresh,heartbeatAgeMs,
       generation:gateway.generation,reconnectCount:gateway.reconnect_count,lastSequence:gateway.last_sequence,
@@ -759,6 +761,12 @@ async function handleNativeRouletteService(req,res){
     if(action==='pause'){
       const result=await sb('rpc/pause_native_roulette_service_v2','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id}});
       return res.status(200).json({ok:true,active:false,result,message:'룰렛 운영을 일시정지했습니다.'});
+    }
+    if(action==='deactivate'){
+      const draftId=String(body.draftId||'').trim().toLowerCase();
+      if(!UUID_PATTERN.test(draftId))return res.status(400).json({message:'방송에서 해제할 룰렛을 선택해주세요.'});
+      const result=await sb('rpc/deactivate_native_roulette_draft_v3','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id,p_draft_id:draftId}});
+      return res.status(200).json({ok:true,result,message:'이 룰렛을 방송에서 해제했습니다.'});
     }
     if(action==='rotate-overlay'){
       const version=await sb('rpc/rotate_native_roulette_overlay_token_v2','',{method:'POST',body:{p_workspace_id:workspaceId,p_authorized_user_id:session.user_id}});
@@ -818,9 +826,10 @@ async function handleNativeRouletteService(req,res){
     const stored=firstRow(drafts);if(!stored)return res.status(404).json({message:'선택한 룰렛을 찾지 못했습니다.'});
     const snapshot=normalizeNativeRouletteWebDraft(stored.draft);
     await refreshSoopConnection(workspaceId,{force:false});
-    const activated=await sb('rpc/activate_native_roulette_service_v2','',{method:'POST',body:{
+    const activated=await sb('rpc/activate_native_roulette_draft_v3','',{method:'POST',body:{
       p_workspace_id:workspaceId,p_authorized_user_id:session.user_id,p_draft_id:draftId,
-      p_snapshot:snapshot,p_sound_volume_percent:Math.max(0,Math.min(100,Math.trunc(Number(body.soundVolumePercent??80)))),
+      p_snapshot:snapshot,p_expected_draft_version:stored.version_number,
+      p_sound_volume_percent:Math.max(0,Math.min(100,Math.trunc(Number(body.soundVolumePercent??80)))),
       p_tts_volume_percent:Math.max(0,Math.min(100,Math.trunc(Number(body.ttsVolumePercent??80))))
     }});
     const tokenVersion=activated?.overlayTokenVersion||activated?.overlay_token_version;
@@ -828,7 +837,8 @@ async function handleNativeRouletteService(req,res){
     return res.status(200).json({ok:true,active:true,draftId,rouletteName:stored.roulette_name,
       serviceRevision:activated?.serviceRevision||activated?.service_revision,
       overlayUrl:rouletteOverlayUrl(token),
-      message:'이 룰렛을 방송에 적용했습니다.'});
+      activeRouletteCount:activated?.activeRouletteCount||activated?.active_roulette_count,
+      message:'이 룰렛을 방송에 추가했습니다.'});
   }catch(error){
     if(error instanceof NativeRouletteValidationError)return res.status(error.status||400).json({message:error.message,code:error.code});
     if(action==='donation-test'&&error?.code==='P0001'){
@@ -836,6 +846,12 @@ async function handleNativeRouletteService(req,res){
     }
     if(action==='donation-test'&&error?.code==='55000'){
       return res.status(409).json({message:'먼저 방송에 적용할 룰렛을 선택해주세요.',code:'active_roulette_required'});
+    }
+    if(action==='activate'&&error?.code==='P0001'&&/draft version changed/i.test(error?.message||'')){
+      return res.status(409).json({message:'다른 화면에서 룰렛이 변경되었습니다. 최신 내용을 불러온 뒤 다시 적용해주세요.',code:'roulette_draft_stale'});
+    }
+    if(action==='activate'&&error?.code==='23505'&&/trigger amount overlaps/i.test(error?.message||'')){
+      return res.status(409).json({message:'같은 별풍선 개수를 사용하는 룰렛이 이미 방송에 적용되어 있습니다.',code:'roulette_trigger_overlap'});
     }
     console.error('[native-roulette-service] operation failed',{action,code:error?.code||'native_roulette_service_failed',status:error?.status||null});
     return res.status(error?.status===404?409:502).json({message:error?.status===404?'SOOP 연결을 다시 확인해주세요.':'룰렛 운영 상태를 변경하지 못했습니다.',code:error?.code||'native_roulette_service_failed'});
@@ -888,10 +904,8 @@ async function handleRouletteDraft(req,res){
   const requestedId=String(body.id||req.query?.id||'').trim().toLowerCase();
   if(req.method==='DELETE'){
     if(!UUID_PATTERN.test(requestedId))return res.status(400).json({message:'룰렛 초안 ID가 올바르지 않습니다.'});
-    const active=await sb('byeollog_native_roulette_services',`?workspace_id=eq.${q(workspaceId)}&active_draft_id=eq.${q(requestedId)}&select=state&limit=1`).catch(error=>error?.status===404?[]:Promise.reject(error));
-    const service=firstRow(active);
-    if(service?.state==='active')return res.status(409).json({message:'방송 적용 중인 룰렛은 삭제할 수 없습니다. 다른 룰렛을 적용하거나 먼저 일시정지해주세요.'});
-    if(service)await sb('byeollog_native_roulette_services',`?workspace_id=eq.${q(workspaceId)}&active_draft_id=eq.${q(requestedId)}&state=eq.paused`,{method:'PATCH',body:{active_draft_id:null,active_draft_version:null,activation_snapshot:null,updated_at:new Date().toISOString()}});
+    const active=await sb('byeollog_native_roulette_activations',`?workspace_id=eq.${q(workspaceId)}&draft_id=eq.${q(requestedId)}&select=draft_id&limit=1`).catch(error=>error?.status===404?[]:Promise.reject(error));
+    if(firstRow(active))return res.status(409).json({message:'방송 적용 중인 룰렛은 삭제할 수 없습니다. 먼저 해당 룰렛을 방송에서 해제해주세요.'});
     const removed=await sb('byeollog_roulette_drafts',`?workspace_id=eq.${q(workspaceId)}&id=eq.${q(requestedId)}`,{method:'DELETE',prefer:'return=representation'});
     if(!Array.isArray(removed)||removed.length!==1)return res.status(404).json({message:'룰렛 초안을 찾지 못했습니다.'});
     await removeDraftAssetsBestEffort(rouletteAssetPaths(removed[0]?.draft),'delete');

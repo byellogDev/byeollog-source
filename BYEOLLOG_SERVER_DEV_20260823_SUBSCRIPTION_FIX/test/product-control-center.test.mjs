@@ -255,6 +255,8 @@ test('roulette choices render the actual reviewed preview instead of a generic c
   assert.match(page,/preview\.src=asset\.previewUrl/);
   assert.match(page,/실제 룰렛 미리보기/);
   assert.doesNotMatch(page,/asset-swatch/);
+  assert.match(page,/grid-template-columns:repeat\(auto-fill,minmax\(145px,1fr\)\)/);
+  assert.match(page,/\.asset-preview\{width:52px;height:52px/);
 });
 
 test('roulette dashboard exposes production activation and OBS controls without test systems',async()=>{
@@ -282,7 +284,11 @@ test('roulette dashboard exposes production activation and OBS controls without 
   assert.match(page,/request\('soop-runtime-status'/);
   assert.match(page,/request\('native-roulette-service'/);
   assert.doesNotMatch(page,/syntheticE2eBtn|liveDiagnosticBtn|실험 오버레이|가상 후원/);
-  assert.match(admin,/activate_native_roulette_service_v2/);
+  assert.match(admin,/activate_native_roulette_draft_v3/);
+  assert.match(admin,/deactivate_native_roulette_draft_v3/);
+  assert.match(admin,/byeollog_native_roulette_activations/);
+  assert.match(page,/activeDonationTestDrafts/);
+  assert.match(page,/적용 해제/);
   assert.match(admin,/pause_native_roulette_service_v2/);
   assert.match(admin,/rotate_native_roulette_overlay_token_v2/);
   assert.match(admin,/action==='donation-test'/);

@@ -15,6 +15,14 @@ const source = async (name) => {
 
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+const sidebarLabels = (contents, className) => {
+  const start = contents.indexOf(`<aside class="${className}"`);
+  const end = contents.indexOf("</aside>", start);
+  assert.ok(start >= 0 && end > start, `${className} sidebar is missing`);
+  return [...contents.slice(start, end).matchAll(/<button\b[^>]*>([\s\S]*?)<\/button>/g)]
+    .map(([, label]) => label.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim());
+};
+
 const between = (contents, start, end, label) => {
   const from = contents.indexOf(start);
   const to = contents.indexOf(end, from + start.length);
@@ -67,9 +75,9 @@ test("the Agent exposes one unified release label without the historical public-
     source("MainForm.cs"),
     source("Ui/byeollog_ui.html")
   ]);
-  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.139"/);
-  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.139"/);
-  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.139"/);
+  assert.match(buildInfo, /Version\s*=\s*"0\.7\.0\.140"/);
+  assert.match(buildInfo, /InformationalVersion\s*=\s*"0\.7\.0\.140"/);
+  assert.match(buildInfo, /DisplayVersion\s*=\s*"0\.7\.0\.140"/);
   assert.match(main, /BuildInfo\.DisplayVersion/);
   assert.doesNotMatch(main, /nDev/);
   assert.match(main, /\$"별록 · \{text\.Replace\("상태: ", ""\)\}"/);
@@ -93,7 +101,7 @@ test("every normally approved streamer can use the public automation surface", a
   assert.match(access, /returnedUserId != authenticatedUserId/);
   assert.doesNotMatch(form, /owner\/admin만/);
   assert.doesNotMatch(automation, /owner\/admin/);
-  assert.match(uiStore, /UiVersion\s*=\s*"v0\.7\.0\.133"/);
+  assert.match(uiStore, /UiVersion\s*=\s*"v0\.7\.0\.140"/);
 });
 
 test("legacy Collector shortcut cleanup removes only the installer-owned target", async () => {
@@ -517,7 +525,7 @@ test("Agent-integrated PC and packaged overlay-image management is fail-closed a
     source("WebViewTrustPolicy.cs")
   ]);
 
-  for (const label of ["등록 PC 관리", "마이크 설정", "별록 오버레이", "이 PC 보호", "화면 준비", "연결 상태 새로고침"]) {
+  for (const label of ["등록 PC 관리", "마이크 설정", "액션 오버레이", "이 PC 보호", "화면 준비", "연결 상태 새로고침"]) {
     assert.match(automation, new RegExp(label));
   }
   assert.match(form, /VNextLocalAgent\? localAgent/);
@@ -791,6 +799,7 @@ test("automation data is rendered as text and the legacy collection and rule ent
     assert.match(shell, new RegExp(label));
   }
   assert.match(shell, /id=["']wallpaperShortcut["']/);
+  assert.match(shell, /id=["']wallpaperNav["']/);
   assert.match(shell, /openAutomationSettings.*view:['"]wallpaper['"]/s);
   assert.match(shell, /data-open=["']rules["']/);
   assert.match(shell, /data-screen=["']collection["']/);
@@ -799,9 +808,13 @@ test("automation data is rendered as text and the legacy collection and rule ent
   assert.match(shell, /<section\b[^>]*\bid=["']rules["']/);
   assert.match(automation, /id=["']wallpaperNav["'][^>]*>[\s\S]*?별록 풍벽지/);
   assert.match(automation, /data-view-panel=["']wallpaper["']/);
-  assert.match(automation, /별록 액션 URL/);
-  assert.match(automation, /별록 풍벽지 URL/);
-  assert.match(automation, /풍벽지는 액션 아래/);
+  const expectedSidebar = ["☷수집 목록", "⚙업보 규칙 설정", "✦별록 액션", "▦별록 풍벽지", "←메인으로"];
+  assert.deepEqual(sidebarLabels(shell, "sidebar"), expectedSidebar);
+  assert.deepEqual(sidebarLabels(automation, "app-sidebar"), expectedSidebar);
+  assert.match(automation, /별록 풍벽지란\?/);
+  assert.match(automation, /풍벽지 오버레이 주소/);
+  assert.match(automation, /OBS 설정 방법/);
+  assert.doesNotMatch(automation, /별록 액션 URL|풍벽지는 액션 아래|소스 목록 위쪽|풍벽지보다 항상 앞/);
   for (const action of [
     "refreshCollection",
     "upsertRoulette",

@@ -535,7 +535,7 @@ test("v117 separates action and wallpaper overlays and exposes the Agent guide",
   assert.match(notes, /액션 OBS 주소.*액션만/);
   assert.match(service, /WallpaperOverlayUrl/);
   assert.match(ui, /id="wallpaperNav"/);
-  assert.match(ui, /풍벽지는 액션 아래/);
+  assert.match(ui, /풍벽지 오버레이 주소/);
 });
 
 test("v118 seals the split-overlay guide layout fix", async () => {
@@ -885,4 +885,22 @@ test("v139 maps workspace donation defaults inside the existing wallpaper snapsh
   assert.match(mapper,/defaultDonationImages/);
   assert.match(mapper,/workspace_default/);
   assert.match(mapper,/default-wallpaper/);
+});
+
+test("v140 unifies Agent navigation and user-facing overlay language without touching the hot path", async () => {
+  const [build,notes,mainUi,automationUi]=await Promise.all([
+    source("Build-v07140-AutoUpdate.ps1"),
+    source("RELEASE_v07140_UNIFIED_NAVIGATION_KO.txt"),
+    source("Ui/byeollog_ui.html"),
+    source("Ui/agent_automation.html")
+  ]);
+  assert.match(build,/\$releaseSequence = 7140/);
+  assert.match(build,/byeollog_agent_v07140_UNIFIED_NAVIGATION_WIN_X64/);
+  assert.match(build,/Version = '0\.7\.0\.140'/);
+  assert.match(notes,/후원 수신, 액션 실행/);
+  assert.match(mainUi,/id="wallpaperNav"/);
+  assert.match(await source("UiAssetStore.cs"),/UiVersion = "v0\.7\.0\.140"/);
+  assert.match(automationUi,/액션 오버레이/);
+  assert.match(automationUi,/마이크 액션에 사용할 OBS 또는 Windows 마이크/);
+  assert.doesNotMatch(automationUi,/별록 오버레이|아봉에 사용할 OBS 또는 Windows 마이크/);
 });

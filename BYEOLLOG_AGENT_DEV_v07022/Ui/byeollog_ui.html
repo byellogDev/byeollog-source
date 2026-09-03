@@ -59,6 +59,7 @@
       <button class="nav active" data-screen="collection"><span>☷</span>수집 목록</button>
       <button class="nav" data-screen="rules"><span>⚙</span>업보 규칙 설정</button>
       <button class="nav" id="automationNav"><span>✦</span>별록 액션</button>
+      <button class="nav" id="wallpaperNav"><span>▦</span>별록 풍벽지</button>
       <button class="nav" id="goMain"><span>←</span>메인으로</button>
       <div class="side-status" id="sideStatus"><span class="dot"></span>별록 서버<strong id="sideServerStatus">정상 연결됨</strong></div>
     </aside>
@@ -203,6 +204,7 @@
   });
   document.querySelector('#saveRules').onclick=()=>post('saveRules');
   document.querySelector('#automationNav').onclick=()=>post('openAutomationSettings');
+  document.querySelector('#wallpaperNav').onclick=()=>post('openAutomationSettings',{view:'wallpaper'});
   document.querySelector('#wallpaperShortcut').onclick=()=>post('openAutomationSettings',{view:'wallpaper'});
   document.querySelector('#cancelRules').onclick=()=>post('cancelRules');
   ['#rouletteBalloons','#rouletteSpins','#rouletteEvent'].forEach(selector=>document.querySelector(selector).addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();document.querySelector('#addRoulette').click()}}));

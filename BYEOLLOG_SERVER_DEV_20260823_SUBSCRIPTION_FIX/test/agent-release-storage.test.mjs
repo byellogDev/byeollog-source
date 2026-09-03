@@ -32,7 +32,7 @@ test("GitHub release storage keeps Vercel deployments free of release binaries",
 
   const packagePath = new URL(payload.package.url).pathname.slice(1);
   const ignoreLines = ignore.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  assert.equal(packagePath, `agent-updates/releases/0.7.0.139/byeollog_agent_v07139_DEFAULT_DONATION_IMAGES_WIN_X64.zip`);
+  assert.equal(packagePath, `agent-updates/releases/0.7.0.140/byeollog_agent_v07140_UNIFIED_NAVIGATION_WIN_X64.zip`);
   assert.equal(ignoreLines.includes("agent-updates/releases"), true);
   assert.equal(ignoreLines.some((line) => line.startsWith("!agent-updates/releases/")), false);
 
@@ -59,7 +59,7 @@ test("GitHub release storage keeps Vercel deployments free of release binaries",
     source === "/agent-updates/releases/:version/:filename([^/]+\\.exe)"));
   assert.ok((vercel.redirects || []).some(({ source, destination, permanent }) =>
     source === "/agent/download" &&
-    destination === "/agent-updates/releases/0.7.0.139/Byeollog-Agent-Setup-v0.7.0.139.exe" &&
+    destination === "/agent-updates/releases/0.7.0.140/Byeollog-Agent-Setup-v0.7.0.140.exe" &&
     permanent === false));
 
   assert.match(publisher, /specify exactly one of --version <version> or --all/);
@@ -68,6 +68,8 @@ test("GitHub release storage keeps Vercel deployments free of release binaries",
   assert.match(publisher, /immutable GitHub release SHA-256 mismatch/);
   assert.match(publisher, /remote stream size mismatch/);
   assert.match(publisher, /portable-executable/);
+  assert.match(publisher, /const releasePromises = new Map\(\)/);
+  assert.match(publisher, /releasePromises\.set\(version, loadOrCreateRelease\(version\)/);
   assert.match(publisher, /\(\?:zip\|exe\)/);
   assert.match(publisher, /git", \["credential", "fill"\]/);
   assert.doesNotMatch(publisher, /assets\/\$\{asset\.id\}/);

@@ -86,7 +86,9 @@ async function githubJson(path, { method = "GET", body, allow404 = false } = {})
   throw new Error(`GitHub API ${method} ${path} failed: HTTP ${response?.status ?? "unknown"} ${detail}`);
 }
 
-async function ensureRelease(version) {
+const releasePromises = new Map();
+
+async function loadOrCreateRelease(version) {
   const tag = `${storageConfig.tagPrefix}${version}`;
   const encodedTag = encodeURIComponent(tag);
   const existing = await githubJson(
@@ -106,6 +108,16 @@ async function ensureRelease(version) {
       make_latest: "legacy"
     }
   });
+}
+
+function ensureRelease(version) {
+  if (!releasePromises.has(version)) {
+    releasePromises.set(version, loadOrCreateRelease(version).catch((error) => {
+      releasePromises.delete(version);
+      throw error;
+    }));
+  }
+  return releasePromises.get(version);
 }
 
 async function collectFiles(directory) {

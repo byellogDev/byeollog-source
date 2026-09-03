@@ -72,12 +72,13 @@ function currentRouletteAssets(snapshot){
 }
 
 export async function loadWallpaperState(workspaceId,{sbImpl=sb,environment=process.env,authorizedUserId=null,limit=WALLPAPER_MAX_VISIBLE_TILES,hydrateSignatureAssetPreviewsImpl=hydrateSignatureAssetPreviews}={}){
-  const [sessionRows,overlayRows,selectionRows,gatewayRows,serviceRows,userSettingRows]=await Promise.all([
+  const [sessionRows,overlayRows,selectionRows,gatewayRows,serviceRows,activationRows,userSettingRows]=await Promise.all([
     sbImpl('byeollog_wallpaper_sessions',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&select=id,label,state,canvas_width,canvas_height,revision,tile_count,started_at,closed_at,updated_at&order=started_at.desc&limit=50`),
     sbImpl('byeollog_wallpaper_overlay_states',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&select=revision,visible_group_keys,merge_ranges,size_ranges,active_settings_user_id,updated_at&limit=1`),
     sbImpl('byeollog_wallpaper_overlay_sessions',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&select=session_id,position,selected_at&order=position.asc,selected_at.asc&limit=20`),
     sbImpl('byeollog_soop_gateway_sessions',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&select=state,chat_number,heartbeat_at,connected_at,last_event_at&limit=1`).catch(()=>[]),
     sbImpl('byeollog_native_roulette_services',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&state=eq.active&select=activation_snapshot&limit=1`).catch(()=>[]),
+    sbImpl('byeollog_native_roulette_activations',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&select=activation_snapshot&order=activated_at.asc`).catch(()=>[]),
     authorizedUserId?sbImpl('byeollog_wallpaper_user_settings',`?workspace_id=eq.${encodeURIComponent(workspaceId)}&user_id=eq.${encodeURIComponent(authorizedUserId)}&select=merge_ranges,size_ranges,updated_at&limit=1`).catch(()=>[]):Promise.resolve([])
   ]);
   const allSessions=Array.isArray(sessionRows)?sessionRows:[];
@@ -121,7 +122,10 @@ export async function loadWallpaperState(workspaceId,{sbImpl=sb,environment=proc
     imageUrl:hydrated[index]?.previewUrl||null,
     imageKey:wallpaperAssetKey('signature',row.wallpaper_image,hydrated[index]?.previewUrl)
   }]));
-  const rouletteAssets=currentRouletteAssets(first(serviceRows)?.activation_snapshot),rouletteImages=new Map();
+  const activeSnapshots=(Array.isArray(activationRows)?activationRows:[]).map(row=>row.activation_snapshot).filter(Boolean);
+  if(!activeSnapshots.length&&first(serviceRows)?.activation_snapshot)activeSnapshots.push(first(serviceRows).activation_snapshot);
+  const rouletteAssets=new Map(),rouletteImages=new Map();
+  for(const snapshot of activeSnapshots)for(const [amount,value] of currentRouletteAssets(snapshot))rouletteAssets.set(amount,value);
   for(const [amount,value] of rouletteAssets){
     const imageUrl=publicAssetUrl(workspaceId,{asset_source:value.source,asset:value.asset},environment);
     if(imageUrl)rouletteImages.set(amount,{imageUrl,imageKey:wallpaperAssetKey('roulette',value.asset,imageUrl)});

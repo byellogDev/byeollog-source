@@ -171,7 +171,7 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/text-shadow:var\(--alert-outline\)/);
   assert.doesNotMatch(html,/\.resultPanel\{[^}]*border:/);
   assert.doesNotMatch(html,/\.ceremonyPanel\{[^}]*border:/);
-  assert.match(html,/await sleep\(3000\)/);
+  assert.match(html,/await animateRouletteNames\(payload,3000\)/);
   assert.match(html,/donation_chat_tts/);
   assert.match(html,/payload\.ttsText\|\|payload\.message/);
   assert.match(html,/\/api\/auth\/soop\/roulette-overlay\/tts/);
@@ -184,7 +184,10 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.doesNotMatch(html,/heartbeat\(\);poll\(\)/);
   assert.match(html,/if\(streamed\)\{console\.warn\([^)]*partial audio[^)]*\);return\}/);
   assert.match(html,/function resetSpinSound\(\)/);
-  assert.match(html,/await sleep\(3000\);resetSpinSound\(\)/);
+  assert.match(html,/await animateRouletteNames\(payload,3000\);resetSpinSound\(\)/);
+  assert.match(html,/function rouletteCandidates\(payload\)/);
+  assert.match(html,/Array\.isArray\(payload\.rouletteItems\)/);
+  assert.match(html,/items\[index%items\.length\]/);
   assert.match(html,/FOLLOWUP_WINDOW_MS=30000/);
   assert.match(html,/if\(position\.current<position\.total\)\{scheduleCloseAfter\(FOLLOWUP_WINDOW_MS\)/);
   assert.match(html,/const landingMs=setWinner\(payload\.resultText/);
@@ -243,8 +246,8 @@ test('production common overlay keeps a series card alive and reads its tracked 
   assert.match(html,/data\.clientVersion&&data\.clientVersion!==clientVersion/);
   assert.doesNotMatch(html,/applyPart\('resultPanel'/);
   assert.doesNotMatch(html,/rouletteCard\.builtin \.resultPanel\{position:absolute/);
-  assert.match(html,/\.resultPanel\.spinning\{height:42px\}/);
-  assert.doesNotMatch(html,/roulette\(command\)[^\n]*startSlot\(/);
+  assert.match(html,/\.resultPanel\.spinning\{height:100px\}/);
+  assert.match(html,/\.resultPanel\.spinning \.resultArea\{height:62px/);
   assert.match(html,/setWinner\(payload\.resultText/);
   assert.match(html,/await speak\(command,payload\.resultText\|\|''/);
   assert.doesNotMatch(html,/payload\.resultText\|\|''\)\+', 당첨!'/);

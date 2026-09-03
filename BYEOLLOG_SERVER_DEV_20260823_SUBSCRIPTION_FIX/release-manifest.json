@@ -1,17 +1,31 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-02T18:38:40.302Z",
-  "gitCommit": "925dcbfd5c06d25163ec07bd41ed984d9e798503",
+  "generatedAt": "2026-09-03T02:29:22.702Z",
+  "gitCommit": "b8e20a6fcdd690bc444930bae8adff52e6a37794",
   "gitBranch": "codex/public-release-v071",
   "workingTreeClean": false,
-  "dirtyPathCount": 3,
+  "dirtyPathCount": 17,
   "dirtyPaths": [
-    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260902183554_weflab_overlay_baseline.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/releases/0.7.0.140/release-provenance.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/agent-updates/stable/win-x64.json",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/api/admin.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/installer/ByeollogAgentSetup.iss",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/common-overlay-v8.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/product-dashboard-html.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/soop-roulette-service.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/lib/wallpaper-service.js",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260903113000_multi_active_native_roulettes.sql",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-release-storage.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/agent-update-feed.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/multi-active-roulette.test.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/product-control-center.test.mjs",
     "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/test/soop-roulette-service.test.mjs",
-    "YEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/supabase/migrations/20260903032716_weflab_overlay_baseline.sql"
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Build-AgentInstaller.ps1",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/tools/Publish-AgentReleaseAssets.mjs",
+    "BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/vercel.json"
   ],
-  "sourceDigest": "424298862095ca82f90b29c25b7a8dc38edf5ef1a0786d3ceea116c6608dc1e4",
-  "fileCount": 348,
+  "sourceDigest": "1878e7ecf4d2c8b75043ca615d84a48a1c4f4b52444693ebb15f9778bc3c7c5a",
+  "fileCount": 353,
   "files": [
     {
       "path": "agent-updates/release-asset-storage.json",
@@ -179,9 +193,24 @@
       "sha256": "016488ef70e344d89019966a1a3ffdc721b34ead8ad84aaa548e77cd208bda04"
     },
     {
+      "path": "agent-updates/releases/0.7.0.139/Byeollog-Agent-Setup-v0.7.0.139.exe",
+      "bytes": 2570339,
+      "sha256": "0514ffcf8b93c377c7817005bbee49e6a0d01016b609510e15c6dda181dda347"
+    },
+    {
       "path": "agent-updates/releases/0.7.0.139/release-provenance.json",
       "bytes": 326,
       "sha256": "cd6cff84f231b0302c0afe51150391d9895e6b2ccb7169c70a1d9a9202073cfe"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.140/Byeollog-Agent-Setup-v0.7.0.140.exe",
+      "bytes": 2570360,
+      "sha256": "00e578306e0e715bfc366ba3e3c9365461cd8e6f29cc2fbb64b51961f41723c0"
+    },
+    {
+      "path": "agent-updates/releases/0.7.0.140/release-provenance.json",
+      "bytes": 321,
+      "sha256": "649ba08abf293282ae5324c5e7e9cc48da2a0c494c1742e00ec26dd9b2b25871"
     },
     {
       "path": "agent-updates/releases/0.7.0.71/release-provenance.json",
@@ -330,13 +359,13 @@
     },
     {
       "path": "agent-updates/stable/win-x64.json",
-      "bytes": 1595,
-      "sha256": "a115ee353d2ea29252af1f86132eb16fbb9d1ee545861b6afefe43fb80e93412"
+      "bytes": 1599,
+      "sha256": "d6ee7b815077d2872508984d47b6d1fcf5090613e139256ec7db9fc5ca7552f9"
     },
     {
       "path": "api/admin.js",
-      "bytes": 73785,
-      "sha256": "20c55a85bde527cc2581a8bff3c1c0298d1a7ac71176017e6aee29fb8ff2296c"
+      "bytes": 75215,
+      "sha256": "a64a3d61ea97b1719de4c29706c637394550912daeec4de1b9ef097dfa5d594b"
     },
     {
       "path": "api/backups.js",
@@ -560,8 +589,8 @@
     },
     {
       "path": "lib/common-overlay-v8.js",
-      "bytes": 42255,
-      "sha256": "6edb2c804f9612006038362a687e48d11cd416124ecb0eb62154c533ae98e647"
+      "bytes": 43145,
+      "sha256": "9461644db7536f66d86e377a172775c606e423f24ba4f8c8df219e3ca1cbe0e1"
     },
     {
       "path": "lib/dashboard-navigation.js",
@@ -615,8 +644,8 @@
     },
     {
       "path": "lib/product-dashboard-html.js",
-      "bytes": 155948,
-      "sha256": "2f1d15b3ee7d3f7303a97423d449842a334f009eb7bb47bff344d78b7ff02b39"
+      "bytes": 157287,
+      "sha256": "e01c1f864d2a1c39512ecc24be11e902c00f3a77dd66d67067eed268d8bf9db3"
     },
     {
       "path": "lib/rate-limit.js",
@@ -665,8 +694,8 @@
     },
     {
       "path": "lib/soop-roulette-service.js",
-      "bytes": 13445,
-      "sha256": "dff047a0f94bee7accbd864a945241162d0c790221a564f5d23703ee63ad1134"
+      "bytes": 13570,
+      "sha256": "8fad79b53d292a5bf96fd93a194873796da992aba5a5bf3e3d3eb674ca0444c6"
     },
     {
       "path": "lib/soop-sdk-relay.js",
@@ -770,8 +799,8 @@
     },
     {
       "path": "lib/wallpaper-service.js",
-      "bytes": 14326,
-      "sha256": "5dbb63ef295e582dff41fdbc6015c9578a5d4fa39f4cc80cb2fe06fad260de09"
+      "bytes": 14849,
+      "sha256": "7700e7e894543d6cf365bf39f5a6b232d1bb46e1b91a536201acb67f7f5c8a87"
     },
     {
       "path": "lib/weflab-public-roulette-import.js",
@@ -1349,6 +1378,11 @@
       "sha256": "14a77739b24376819e9a9586284ea912cf6dc04e32b86579be87602dfda8934e"
     },
     {
+      "path": "supabase/migrations/20260903113000_multi_active_native_roulettes.sql",
+      "bytes": 28836,
+      "sha256": "4c765c503c783672d2623bc74ca91e622c19df3e0166e3b94a5ac2c107eb56a8"
+    },
+    {
       "path": "tools/__pycache__/Generate-NativeRouletteAudioCandidates.cpython-312.pyc",
       "bytes": 22649,
       "sha256": "16b3f7e71d4bb9da2cf24d98faba817914583c9222776a3f297234e737a9316f"
@@ -1392,6 +1426,11 @@
       "path": "tools/Build-AdminHtml.mjs",
       "bytes": 1195,
       "sha256": "4051c79a9b4eeb5c40b03747c4e8fc45d0ef4fe89c4a3dbf1c0540ddc0127fb6"
+    },
+    {
+      "path": "tools/Build-AgentInstaller.ps1",
+      "bytes": 1361,
+      "sha256": "e9160610ededc5d14744b9afdc2ffa7f7b3eb0d89b310c59ab1a02253fd6bb19"
     },
     {
       "path": "tools/Build-CartesiaVoiceBlindPack.mjs",
@@ -1510,8 +1549,8 @@
     },
     {
       "path": "tools/Publish-AgentReleaseAssets.mjs",
-      "bytes": 9917,
-      "sha256": "d309c5266634f2ac5cc058b8974978008ee57a785e5f2d84c706a44c3b9d034a"
+      "bytes": 10332,
+      "sha256": "1a9ac0dd45238468ab12779ef95db5b51df189696752ee6a0ac8bf5848689e36"
     },
     {
       "path": "tools/Publish-NativeRouletteAssets.mjs",
@@ -1750,8 +1789,8 @@
     },
     {
       "path": "vercel.json",
-      "bytes": 9459,
-      "sha256": "9069ff447e1097e5bca5da248fe17471813fe95e0597d88ffbdc537b78c2caaf"
+      "bytes": 10264,
+      "sha256": "4204388bbd33c8633bb7295881bce9a4f6795f67a0a62cad4e927155ba50b787"
     }
   ]
 }

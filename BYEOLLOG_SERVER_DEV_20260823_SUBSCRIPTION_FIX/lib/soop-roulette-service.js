@@ -7,7 +7,7 @@ import {hydrateSignatureAssetPreview} from './signature-balloon-assets.js';
 import {sb} from './supabase-rest.js';
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-export const ROULETTE_OVERLAY_CLIENT_VERSION='20260903-common-overlay-v20-weflab-baseline';
+export const ROULETTE_OVERLAY_CLIENT_VERSION='20260903-common-overlay-v21-product-reel';
 export const SOOP_DEFAULT_CEREMONY_BASE_URL='https://res.sooplive.com/new_player/items/';
 
 export function soopDefaultCeremonyImageUrl(amount){
@@ -109,7 +109,8 @@ export async function claimRouletteOverlayCommand(payload,clientId,{sbImpl=sb,en
   }
   if(row.command_kind==='roulette_spin'){
     commandPayload.resultText=unicodeGraphemes(String(commandPayload.resultText||'').trim()).slice(0,NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES).join('');
-    commandPayload.rouletteItems=(activationSnapshot.items||[]).map(item=>unicodeGraphemes(String(item?.resultText||'').trim()).slice(0,NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES).join('')).filter(Boolean).slice(0,200);
+    const rouletteItems=Array.isArray(commandPayload.rouletteItems)?commandPayload.rouletteItems:(activationSnapshot.items||[]).map(item=>item?.resultText);
+    commandPayload.rouletteItems=rouletteItems.map(item=>unicodeGraphemes(String(item||'').trim()).slice(0,NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES).join('')).filter(Boolean).slice(0,200);
   }
   if(commandPayload.customImage?.storagePath){
     commandPayload.customImage={...commandPayload.customImage,previewUrl:rouletteAssetPublicUrl(commandPayload.customImage.storagePath,env)};

@@ -1,8 +1,8 @@
-#define AppVersion "0.7.0.139"
-#define PackageFile "byeollog_agent_v07139_DEFAULT_DONATION_IMAGES_WIN_X64.zip"
-#define PackageUrl "https://byeollog.com/agent-updates/releases/0.7.0.139/byeollog_agent_v07139_DEFAULT_DONATION_IMAGES_WIN_X64.zip"
-#define PackageSha256 "f2d5d3b72b85703a79354ae6477f1c940c32038e4cf5de868da3d531fd594ddd"
-#define PackageExpandedBytes "107896414"
+#define AppVersion "0.7.0.140"
+#define PackageFile "byeollog_agent_v07140_UNIFIED_NAVIGATION_WIN_X64.zip"
+#define PackageUrl "https://byeollog.com/agent-updates/releases/0.7.0.140/byeollog_agent_v07140_UNIFIED_NAVIGATION_WIN_X64.zip"
+#define PackageSha256 "d8f2a1273eb0254ecced7cbd291c794d9081dfb6d279b3660a621cf14ea6675d"
+#define PackageExpandedBytes "107900591"
 
 [Setup]
 AppId={{6C58557A-D38B-42A4-9FB7-DF7DD7D22819}

@@ -11,6 +11,8 @@ test("action catalog is grouped and camera remains an honest placeholder", async
   const ui = await text("Ui/agent_automation.html");
   for (const label of ["마이크 액션", "화면 액션", "카메라 액션", "이펙트 액션", "룰렛 액션"])
     assert.match(ui, new RegExp(label));
+  assert.match(ui, /마이크 액션에 사용할 OBS 또는 Windows 마이크/);
+  assert.doesNotMatch(ui, /아봉에 사용할 OBS 또는 Windows 마이크/);
   for (const action of ["화면 뒤집기", "지진이야!", "물벼락", "축포"])
     assert.match(ui, new RegExp(action.replace(/[!]/g, "\\!")));
   assert.match(ui, /카메라 소스를 안전하게 식별하고 복구하는 기반부터 검증하고 있습니다/);
