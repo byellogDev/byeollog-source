@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {classifySoopChatSdkCallback,isSoopBroadcastOfflineError,normalizeSoopChatSdkCallback,shouldSendSoopGatewayHeartbeat,SOOP_GATEWAY_HEARTBEAT_POLICY,stableSoopGatewayStaggerMs,SoopGatewayReplayGuard,SoopRelevantChatGate} from '../lib/soop-chat-gateway.js';
-import {soopBrowserRuntimePolicy,soopBrowserShardCount} from '../services/soop-chat-gateway/browser-session.mjs';
+import {soopBrowserRuntimePolicy,soopBrowserShardCount,soopBrowserShardExpired} from '../services/soop-chat-gateway/browser-session.mjs';
 
 function callback(overrides={}){
   return {
@@ -173,6 +173,12 @@ test('browser sessions are partitioned into bounded failure-isolation shards',()
   assert.equal(soopBrowserShardCount(17,16),2);
   assert.equal(soopBrowserShardCount(100,16),7);
   assert.equal(soopBrowserShardCount(2,1),2);
-  assert.deepEqual(soopBrowserRuntimePolicy(),{browserProcesses:1,rendererProcessLimit:8,sessionsPerShard:16});
+  assert.deepEqual(soopBrowserRuntimePolicy(),{browserProcesses:1,rendererProcessLimit:8,sessionsPerShard:16,shardMaxAgeMs:300_000});
   assert.throws(()=>soopBrowserShardCount(-1,16),/Session count/);
+});
+
+test('browser SDK shards expire only after the configured refresh interval',()=>{
+  assert.equal(soopBrowserShardExpired(1_000,300_999,300_000),false);
+  assert.equal(soopBrowserShardExpired(1_000,301_000,300_000),true);
+  assert.equal(soopBrowserShardExpired(1_000,301_001,300_000),true);
 });

@@ -334,7 +334,7 @@ test('browser gateway follows the current SOOP Chat SDK lifecycle and resolves t
   assert.match(source,/chat\.handleReady\(message=>\{const room=chat\.getRoomInfo\(\)/);
   assert.match(source,/if\(payload&&'imageUrl' in message\)payload\.imageUrl=message\.imageUrl/);
   assert.doesNotMatch(source,/await chat\.connect\(\);[^\n]+chat\.getRoomInfo\(\)/);
-  assert.match(source,/SOOP_SHARED_BROWSER_POLICY=Object\.freeze\(\{browserProcesses:1,rendererProcessLimit:8,targetCreationConcurrency:8,sessionsPerShard:16\}\)/);
+  assert.match(source,/SOOP_SHARED_BROWSER_POLICY=Object\.freeze\(\{browserProcesses:1,rendererProcessLimit:8,targetCreationConcurrency:8,sessionsPerShard:16,shardMaxAgeMs:300_000\}\)/);
   assert.match(source,/startByeollogGateway=async\(sessionId,config\)/);
   assert.match(source,/const chats=new Map\(\)/);
   assert.match(source,/acquireShardSession/);

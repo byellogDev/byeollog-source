@@ -6,7 +6,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 
 const SDK_URL='https://static.sooplive.com/asset/app/chat-sdk/sooplive-chat-sdk.js';
-export const SOOP_SHARED_BROWSER_POLICY=Object.freeze({browserProcesses:1,rendererProcessLimit:8,targetCreationConcurrency:8,sessionsPerShard:16});
+export const SOOP_SHARED_BROWSER_POLICY=Object.freeze({browserProcesses:1,rendererProcessLimit:8,targetCreationConcurrency:8,sessionsPerShard:16,shardMaxAgeMs:300_000});
 
 let sharedBrowserHost=null,sharedBrowserHostPromise=null;
 
@@ -78,11 +78,24 @@ function configuredSessionsPerShard(){
     :SOOP_SHARED_BROWSER_POLICY.sessionsPerShard;
 }
 
+function configuredShardMaxAgeMs(){
+  const value=Math.trunc(Number(process.env.SOOP_GATEWAY_SHARD_MAX_AGE_MS));
+  return Number.isSafeInteger(value)&&value>=60_000&&value<=3_600_000
+    ?value
+    :SOOP_SHARED_BROWSER_POLICY.shardMaxAgeMs;
+}
+
+export function soopBrowserShardExpired(createdAt,now=Date.now(),maxAgeMs=configuredShardMaxAgeMs()){
+  const created=Number(createdAt),instant=Number(now),maximum=Number(maxAgeMs);
+  return Number.isFinite(created)&&Number.isFinite(instant)&&Number.isFinite(maximum)&&maximum>0&&instant-created>=maximum;
+}
+
 export function soopBrowserRuntimePolicy(){
   return Object.freeze({
     browserProcesses:SOOP_SHARED_BROWSER_POLICY.browserProcesses,
     rendererProcessLimit:configuredRendererLimit(),
-    sessionsPerShard:configuredSessionsPerShard()
+    sessionsPerShard:configuredSessionsPerShard(),
+    shardMaxAgeMs:configuredShardMaxAgeMs()
   });
 }
 
@@ -145,8 +158,17 @@ async function createSharedBrowserHost(){
   };
   host.acquireShardSession=async session=>await host.withShardLock(async()=>{
     if(!host.alive)throw Object.assign(new Error('Shared Chrome host is unavailable'),{code:'browser_host_closed'});
-    let shard=[...host.shards].find(candidate=>candidate.alive&&candidate.sessions.size<candidate.capacity);
+    const now=Date.now();
+    let shard=[...host.shards].find(candidate=>candidate.alive
+      &&candidate.sessions.size<candidate.capacity
+      &&!soopBrowserShardExpired(candidate.createdAt,now));
     if(!shard)shard=await createSharedBrowserShard(host);
+    // Keep live workspaces untouched. Once a replacement is ready, only empty
+    // expired shards are retired so offline polling periodically reloads the
+    // official SDK and its broadcast-discovery state.
+    const expiredEmpty=[...host.shards].filter(candidate=>candidate!==shard&&candidate.alive
+      &&candidate.sessions.size===0&&soopBrowserShardExpired(candidate.createdAt,now));
+    await Promise.allSettled(expiredEmpty.map(candidate=>candidate.close()));
     const sessionId=randomUUID();
     shard.sessions.set(sessionId,session);
     return {shard,sessionId};
@@ -167,7 +189,7 @@ async function createSharedBrowserHost(){
 async function createSharedBrowserShard(host){
   const target=await host.createTarget();let shard=null,cdp=null;
   try{
-    shard={target,cdp:null,alive:true,capacity:configuredSessionsPerShard(),sessions:new Map(),pageObjectId:null};
+    shard={target,cdp:null,alive:true,createdAt:Date.now(),capacity:configuredSessionsPerShard(),sessions:new Map(),pageObjectId:null};
     cdp=cdpClient(target.webSocketDebuggerUrl,message=>{
       if(message.method!=='Runtime.bindingCalled'||message.params?.name!=='byeollogGatewayEmit')return;
       try{
@@ -197,6 +219,7 @@ async function createSharedBrowserShard(host){
       shard.sessions.delete(sessionId);
       if(!shard.alive)return;
       await cdp.send('Runtime.callFunctionOn',{functionDeclaration:'function(sessionId){return this.stopByeollogGateway(sessionId)}',objectId:shard.pageObjectId,arguments:[{value:sessionId}],returnByValue:true}).catch(()=>{});
+      if(shard.sessions.size===0&&soopBrowserShardExpired(shard.createdAt))await shard.close();
     };
     shard.createProbeSessions=async count=>await cdp.send('Runtime.callFunctionOn',{functionDeclaration:'function(count){return this.createByeollogProbeSessions(count)}',objectId:shard.pageObjectId,arguments:[{value:count}],returnByValue:true});
     shard.close=async()=>{
