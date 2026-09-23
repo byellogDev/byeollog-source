@@ -1,0 +1,799 @@
+{
+  "capturedOn": "2026-09-23",
+  "schemaApplied": false,
+  "dataExported": false,
+  "migrations": [
+    {
+      "name": "20260814121415_p0_withdraw_transaction.sql",
+      "sha256": "5c4f5d1810ed0d6fe55b954c241f4d3ccfbc0ba8a63567ab88a20b7cc5806d4e"
+    },
+    {
+      "name": "20260814130048_stage6n7_existing_schema_baseline.sql",
+      "sha256": "5c4e6457742bd7821affcef0cf0d4088d5e2ce002aebaae78154fdb5d8af5e05"
+    },
+    {
+      "name": "20260814130058_p1_p2_account_security.sql",
+      "sha256": "3150eea5fe9acaeca9503c105f75ae067ff1bbe0879a68ca5b1d94ffe9608516"
+    },
+    {
+      "name": "20260814130408_p1_p2_collector_log_device_index.sql",
+      "sha256": "873bba1337064b9d892c7736c9bc3c43632842a6db0f2228eb031c109658ad36"
+    },
+    {
+      "name": "20260819031553_offsl_g3a_additive_runtime.sql",
+      "sha256": "8af4748fa9f76961e3e92cbcec4edd70fdc39b7bce669f166246fbe65d2fd1bc"
+    },
+    {
+      "name": "20260819165539_offsl_g3a_rc2_compat_surface.sql",
+      "sha256": "33af67656cc9dd359f4c662f3ea39df33962cb67510e7e59ee9a285164471cb7"
+    },
+    {
+      "name": "20260819173253_restore_collector_device_rotation_v1.sql",
+      "sha256": "a157cacfd53318a67289a9b40242923b168e205e2f3214054a9edd8b1c81e8fa"
+    },
+    {
+      "name": "20260819175814_offsl_g3a_public_release_surface.sql",
+      "sha256": "3ae94a1004ec972ca661a388487c3cc826240909879c57378fd62d1b8f94d0c6"
+    },
+    {
+      "name": "20260819175924_offsl_g3a_public_release_fk_index.sql",
+      "sha256": "cf2a47e2b41a9cd862f8d263d01a23e03ddc8e8a2b995b8a5ab5c08e0c215404"
+    },
+    {
+      "name": "20260819181307_offsl_g3a_public_enrollment_ambiguity_fix.sql",
+      "sha256": "7121c6fd78089491c81430aeb115ae38445693b317b70f028e40246214fe8b7d"
+    },
+    {
+      "name": "20260819181355_offsl_g3a_public_enrollment_ambiguity_fix_v2.sql",
+      "sha256": "13d81273b0424ddc6bb671a017f874a544c0629a5db48a8f7a7ab0941da1e219"
+    },
+    {
+      "name": "20260819195540_offsl_g3a_windows_overlay_contract.sql",
+      "sha256": "82df9f0a0c890cd4b7f2c0a6cb040746d53fe96fd4f31e40ffa2ec6a76254ff6"
+    },
+    {
+      "name": "20260819200906_fix_g3a_readiness_for_additive_service_rpcs.sql",
+      "sha256": "1bd64f1a8ccf9e0a9a12273103f6bbc7b20995c122dd9a960da868d69d0852d8"
+    },
+    {
+      "name": "20260819202726_fix_live_rule_edits_while_runtime_enabled.sql",
+      "sha256": "0e9e10621525da8e7a4ac721d43b48a64342f51e1b6f94da2d08549c5259d973"
+    },
+    {
+      "name": "20260819214942_allow_windows_overlay_and_custom_duration.sql",
+      "sha256": "9a5798c1a778e745a690550589d95d9925f7d512130a74fbdebc465f81e991ce"
+    },
+    {
+      "name": "20260819224602_add_mic_off_position_presets.sql",
+      "sha256": "9705094bbc8e48eaa5ed5d8a0ccc569bf447accbaa125a59422b6be0aa0f6d8c"
+    },
+    {
+      "name": "20260819230837_set_donation_exact_amount.sql",
+      "sha256": "7c87462525ea997721ed2e9e5691bceb27d03bb76af8513ee773968dfb8aa33b"
+    },
+    {
+      "name": "20260820014133_add_rule_delete_and_overlay_position.sql",
+      "sha256": "f31750ad7105a82bf2e5747028b20d02ec5ae67feeda27fccafb69c8628ff8c7"
+    },
+    {
+      "name": "20260820022345_add_overlay_scale_distinct_assets_and_safe_save.sql",
+      "sha256": "6bbb1558724e1ff39ceffbbf02ecec569d5a1f17b63fc9a5fecfbe5ba41f3db8"
+    },
+    {
+      "name": "20260820031753_remove_overlay_approval_and_save_guided_rule_v7.sql",
+      "sha256": "699ff546087aa20f540ad98893fe850115f069230860f98f120fb53dfb645c15"
+    },
+    {
+      "name": "20260820032324_fix_save_guided_rule_v7_mirror_key.sql",
+      "sha256": "8b9bcff8f1c48a5dcb4cdb4ec0e071268fe4da9d06f158def2173e72f458cb38"
+    },
+    {
+      "name": "20260820041150_add_action_test_dispatch.sql",
+      "sha256": "b61affa22a7f15f7649e6c055e0c3397fbb4b4307522bcd3b89f591d257e075f"
+    },
+    {
+      "name": "20260820045418_enforce_active_manager_session.sql",
+      "sha256": "2c246984cb0f5f6dc72e7883b18cd6c45de3f48f9116aa716acb74775604bc6d"
+    },
+    {
+      "name": "20260820052931_fix_save_guided_rule_v7_ambiguous_rule_id.sql",
+      "sha256": "b18b4c5cdf7543fa9e62312f603ccb217ed01b5b5d900a87245d901e5f29ef07"
+    },
+    {
+      "name": "20260822234535_next_roulette_reward_multiplier.sql",
+      "sha256": "00bde4e35c35b79a6bec327b654d43214a9f24ffecc3e26eea0764b1db05874e"
+    },
+    {
+      "name": "20260823010650_grant_public_rpc_service_role.sql",
+      "sha256": "ce6968e39b404531ed60db307e36370798b30c327e34ad02b8267548150a954d"
+    },
+    {
+      "name": "20260823011107_harden_public_rpc_and_rls.sql",
+      "sha256": "c8ef4bd3d9a25c56a463bb5951d13248c9e2023e933efaf47e4e5b8a46f19d4f"
+    },
+    {
+      "name": "20260823055539_harden_multiplier_rls_and_fk_indexes.sql",
+      "sha256": "b14b21fca265d5d75a3ba99272b45715b07284a068ad0b3f16a2b4d7ac7ebef1"
+    },
+    {
+      "name": "20260823060109_add_multiplier_explicit_deny_policies.sql",
+      "sha256": "84119bff01803c3d5fc31e013c3e649a91e7c8ef486a7d8d90d8fb12fc85304b"
+    },
+    {
+      "name": "20260823143902_add_raffle_action.sql",
+      "sha256": "3aab1faa0bfb8463ea193abe9c8ae90fd81fa47aef12656ebed9127981e9b36b"
+    },
+    {
+      "name": "20260823155316_refine_raffle_ticket_modes_and_overlay.sql",
+      "sha256": "fc79f03a577e2720e61b1d80fb5909a45eedeba8d850acd0ba1f4b5aacf1ca41"
+    },
+    {
+      "name": "20260823162627_restore_collector_rule_read_access.sql",
+      "sha256": "3d42969adb6e44d9ce5cc4d3439b53f9add6b2cc77f037b2db3a9e2a9d4c4268"
+    },
+    {
+      "name": "20260823172828_add_manual_raffle_draw_control.sql",
+      "sha256": "754c6741a588d069912267063a2a14048667b95067923ac5956b2fd4baccb5b9"
+    },
+    {
+      "name": "20260823191348_preserve_rule_version_names.sql",
+      "sha256": "1fc73290583d1c66665cac845211f86073e90659f3c9cf5d021a7978a834e551"
+    },
+    {
+      "name": "20260823201649_fix_save_guided_rule_v10_ambiguous_rule_id.sql",
+      "sha256": "4cdea5e47b4a3e42b4dd08e16093ea152e397ff1be9a321f318c22743078ced0"
+    },
+    {
+      "name": "20260823210530_add_raffle_tts_volume.sql",
+      "sha256": "b4004c778202d43bc1da0617dbadb214a8e5111e7a48b1fb9436c68866a527e8"
+    },
+    {
+      "name": "20260823235907_harden_raffle_delivery.sql",
+      "sha256": "bccd08daaf67a7e49caa5c0f0ec9891084abf3c6cc3dbedc9cb6873e035b3d44"
+    },
+    {
+      "name": "20260823235910_add_raffle_winner_reannounce.sql",
+      "sha256": "d834b6702810c988d1734cb2ee59ac79ee3cc1a6d53d0a77ec991373540a6adb"
+    },
+    {
+      "name": "20260823235913_harden_manual_raffle_draw_request.sql",
+      "sha256": "487f3192890515503fba63102ca5a398bc633db64e99accca6bf56dd1e1ac78c"
+    },
+    {
+      "name": "20260824003025_add_agent_rollout_dashboard_v1.sql",
+      "sha256": "59d773fe612e1937e2f01b07d7cb35e5e1f43e0f253c96c44a55a088e6394db1"
+    },
+    {
+      "name": "20260824033118_bind_raffle_tts_cache_identity.sql",
+      "sha256": "e4d425ee0445a549265e479db7c0894cd201439068d57552da97b55473f79987"
+    },
+    {
+      "name": "20260824040929_restore_raffle_winner_tts_gateway.sql",
+      "sha256": "5e3b8ce5295418518c853077b427831b947883bec57cad1df438894b05b9dce1"
+    },
+    {
+      "name": "20260824051310_add_missing_raffle_sealed_at.sql",
+      "sha256": "c4ea6a088aaec3b3cdeb8e92a9df288281ffff5033e7c7f051c03fe8450fafd3"
+    },
+    {
+      "name": "20260824163620_add_collection_health_and_event_decisions.sql",
+      "sha256": "644b4556da5fddc209b1c563554a3ed75269a0d9e7ef9d4a76cbf38a5be3e310"
+    },
+    {
+      "name": "20260824163629_revoke_superseded_agent_rpcs.sql",
+      "sha256": "2ac2658fde2ffd50c6c5272148561652eafc9d5f0019feaa4f3d57fe0dca8e40"
+    },
+    {
+      "name": "20260824175316_add_flashbang_action.sql",
+      "sha256": "5b2cbcd3d1595950d5f13050e18cedd10156feedaeceffca7af03530381b4414"
+    },
+    {
+      "name": "20260824192432_allow_flashbang_rule_action_target.sql",
+      "sha256": "e4ca92bfbf9a2dc5e2999ff23169c0652fa854147cdbd002f8dcde587db3e0b3"
+    },
+    {
+      "name": "20260824192955_fix_flashbang_timeout_contract.sql",
+      "sha256": "e481401be5685b4730ac8a4ff06e7f4ebf2e10b5ef991fbfc09b6b90fba90435"
+    },
+    {
+      "name": "20260824203517_allow_flashbang_exact_donation.sql",
+      "sha256": "bf61d6193750594e2db15347af35eed0e5e374600882e73b963608668d173dd9"
+    },
+    {
+      "name": "20260825064819_add_voice_anonymize_action_20260825.sql",
+      "sha256": "17d6d6cbf8a5ed0fb3c4c5c4d015c3e9db4c208bccf478fa0606ae5482f326c9"
+    },
+    {
+      "name": "20260825142054_add_voice_anonymizer_pitch_presets.sql",
+      "sha256": "cfe58d2d17cca4f44e7d74d408bf63efa46e213b15e9f9d5f8c9ebb006aa67d6"
+    },
+    {
+      "name": "20260826064000_add_screen_and_effect_actions.sql",
+      "sha256": "6766c4a4c3fdef77561a85d1b4e3eff369be821f7853077b5cde12f9e6f19ad4"
+    },
+    {
+      "name": "20260827164017_add_web_product_control_plane.sql",
+      "sha256": "83718c9ead4b8990cb6d86f75b69b059cb85096d636182a8aed2990da24fab76"
+    },
+    {
+      "name": "20260827164651_add_roulette_public_visibility.sql",
+      "sha256": "adad40d4f8030b82958a83f98fcacf88c8e66781e0626015169c465ec4247bf7"
+    },
+    {
+      "name": "20260828030938_harden_unbiased_random_sampling.sql",
+      "sha256": "9c0ccb4928e0c861d5b2a47793b839d7f16e54d643ff478774b759a8007f99f5"
+    },
+    {
+      "name": "20260828220044_promote_native_roulette_production_runtime.sql",
+      "sha256": "50795d0e644ba81b6c6593dfdbb608a25aa9f0218a4a54c98bfeef779a0eb2be"
+    },
+    {
+      "name": "20260828220131_retire_legacy_soop_test_switches.sql",
+      "sha256": "f2439e68d19211fe85cf1ae23af8694daa90a38c563241b9d2bd6301451934c8"
+    },
+    {
+      "name": "20260828220213_add_native_roulette_explicit_deny_policies.sql",
+      "sha256": "d2268d2e2536dbe9e96d89d40ebb36dce4637e14a390542f2702651f4d55e851"
+    },
+    {
+      "name": "20260828221324_publish_native_roulette_asset_catalog.sql",
+      "sha256": "40c9482f7389b7e661612434ef72902af3591eea2e469d882f74885acea5197a"
+    },
+    {
+      "name": "20260828221942_lock_native_roulette_overlay_client.sql",
+      "sha256": "8a2805ce07bb256684b4073ae319f880ccb2a46a162ecf8bb3ffb9f8c355992a"
+    },
+    {
+      "name": "20260828222516_add_soop_runtime_explicit_deny_policies.sql",
+      "sha256": "94446b4d6134c1a78cd9aa6b9d06b34871a5a331f12c860551b333a577e55620"
+    },
+    {
+      "name": "20260828235253_add_generic_overlay_part_layout_and_preview.sql",
+      "sha256": "ecadfddea61852090cf0c707bb5fe05bef77dc43206005b70649754117d7597a"
+    },
+    {
+      "name": "20260829004057_add_roulette_result_overlay_part_and_zero_scale.sql",
+      "sha256": "ab4c72e7f9ffe0d6cbbe15de58cc83520acb046ef04558f76753182db7091144"
+    },
+    {
+      "name": "20260829030000_add_ephemeral_soop_roulette_overlay_experiment.sql",
+      "sha256": "830f07e0eb63b4000b5d7d7e0a8d42d4feef3e6a79a4df02858eb2523fb62055"
+    },
+    {
+      "name": "20260829031658_add_signature_balloon_registry.sql",
+      "sha256": "36bfffae452c5c336f6ac0bfbcca91598ea46257a7e668b3417afc42c991d06e"
+    },
+    {
+      "name": "20260829033506_add_common_overlay_donation_ceremony.sql",
+      "sha256": "b542c7e0bf9af86cbce8d557c0b874342e8a0ca0e97c0773f473adfd2ad1db7c"
+    },
+    {
+      "name": "20260829114729_isolate_preapproval_native_roulette.sql",
+      "sha256": "e2784e13158b387b7c54f575aa1abc7a3f39ccab6a420c84bc88c992f6ea602a"
+    },
+    {
+      "name": "20260829122808_add_signature_wallpaper_asset.sql",
+      "sha256": "db2f399371a3c50b5683d7fb4f981036c909afd088a02992a955457fb5da060e"
+    },
+    {
+      "name": "20260829170252_add_soop_gateway_incident_monitor.sql",
+      "sha256": "4c7d67ef44b9f73893114d1dea1822eb789893782d1240107e04707be0970b5d"
+    },
+    {
+      "name": "20260829174918_add_managed_overlay_tts_runtime.sql",
+      "sha256": "4939bf882b1721c6d6d64212c8a179ad7b3df8c62247160b3de0f532a9198717"
+    },
+    {
+      "name": "20260829175136_add_managed_tts_explicit_deny_policy.sql",
+      "sha256": "0e66a66fb1b2cf1134c0541d530446ca530d5baeb1e338c72ae5227503966610"
+    },
+    {
+      "name": "20260829184331_add_overlay_donation_test_mode.sql",
+      "sha256": "43192bfa8b74d83bd7f61da527cfe6a955a4d5a87d0efe13f15de0033995d077"
+    },
+    {
+      "name": "20260829191044_normalize_roulette_result_tts_text.sql",
+      "sha256": "d9e80c95cedd447a19524ee6e42adc9e2473f8859415826e824b840e8d61ce7b"
+    },
+    {
+      "name": "20260829211652_rebuild_common_overlay_delivery_v8.sql",
+      "sha256": "fa499943007de4e6056404524b205446036f1e0967c72c3fde4cb0f4916e9388"
+    },
+    {
+      "name": "20260829232225_preserve_soop_donation_type_in_overlay.sql",
+      "sha256": "dbc693c133ec6dd2966e1f2c72f7ae66583e54c78f9377d69e9a9bea43014292"
+    },
+    {
+      "name": "20260830012515_promote_google_tts_primary.sql",
+      "sha256": "631df7dc0087ccec429e4a538bcd3a62f5fb87464baebedf8ee89fc2f68af33e"
+    },
+    {
+      "name": "20260830030133_enable_tts_for_all_donations.sql",
+      "sha256": "a87d26021f0793da012c6a86b6a645dca244d049a922770f1f8858c6a5b08264"
+    },
+    {
+      "name": "20260830035756_correlate_soop_donation_message_by_name.sql",
+      "sha256": "518c9f3be61f1630b07cfcb73093489ccf0ac9ddacfe1bccc2772ca7bf28e563"
+    },
+    {
+      "name": "20260830045639_fixed_followup_queue_and_complete_donation_test.sql",
+      "sha256": "e3325d1b73c3a17371347526630fa04dc04256eb93c83efa8977423f2bf4cb8c"
+    },
+    {
+      "name": "20260830175652_live_wallpaper_ledger.sql",
+      "sha256": "a53e53864b933e4a4101955cc2096c41a4bb8744fd27f0893a99066689b33249"
+    },
+    {
+      "name": "20260830181831_wallpaper_manual_layout.sql",
+      "sha256": "2fbf5140402cc3cb1a348e1d60c0cf2ea14706ff5a3c9207352817fe3552031f"
+    },
+    {
+      "name": "20260830183628_wallpaper_broadcast_rounds.sql",
+      "sha256": "61de73d779f824eb19dca13b3e9dd4e00322c02816dee3f2b785443a87617bb6"
+    },
+    {
+      "name": "20260830185221_repair_wallpaper_assets.sql",
+      "sha256": "5600b55ddaa3617b6a67d78034dd1ede27e0c07a3cc025150f17b22e100e4a70"
+    },
+    {
+      "name": "20260830211729_wallpaper_visibility_and_capacity.sql",
+      "sha256": "60b70035fc4552707b28bc17b0267f080d07c05b0af9e3a5f59781ec05ea5fa0"
+    },
+    {
+      "name": "20260830215415_wallpaper_merge_live_sessions_latest_assets.sql",
+      "sha256": "5aa42105693dfdb6d112fe014fa21074e1c0b30d50195e71c5ac4310e9f73843"
+    },
+    {
+      "name": "20260830215505_wallpaper_overlay_session_fk_index.sql",
+      "sha256": "e1b46fdf97a6e228a92ca59cccc04e7e647d8a571447661213b94668124e3f0c"
+    },
+    {
+      "name": "20260830222436_wallpaper_next_side_live_layout.sql",
+      "sha256": "8f1d473b61339cf77ed53d2817275ff6590865705968bafe75bf99363d5126bc"
+    },
+    {
+      "name": "20260830222858_wallpaper_challenge_success_cards.sql",
+      "sha256": "6dcaa62f14862ccfd5e457311aff85b9d9f8d15e05dcfa36097ec3dfcd1602e9"
+    },
+    {
+      "name": "20260830224145_wallpaper_visible_allowlist.sql",
+      "sha256": "ed97fc8dde69e3c0943a9eee3905fd7e5146e7c27f3802f3f4e5be9bb4679f03"
+    },
+    {
+      "name": "20260830231313_wallpaper_off_canvas_layout.sql",
+      "sha256": "e29af700ba3431ce0debe03a8498d1d1fb08a8478d19a301151249d01a1db634"
+    },
+    {
+      "name": "20260831005633_agent_wallpaper_snapshot.sql",
+      "sha256": "d83d7b4ee5ec6568f3775f895bf16332ff5f9811bfc0bcb9bfeb7650868b0ecc"
+    },
+    {
+      "name": "20260831020510_refresh_agent_signature_wallpaper_snapshots.sql",
+      "sha256": "457dcb1e1d84a0290031b4bbe8465acfaf80b080e86ced8e97b02e22b19cf6fc"
+    },
+    {
+      "name": "20260831045843_agent_realtime_wake_channel.sql",
+      "sha256": "e0677f175d38060debe425025b7788b8095fbe52e88fca1bf7bd8108c89d321c"
+    },
+    {
+      "name": "20260831081254_relax_offline_gateway_heartbeat_monitor.sql",
+      "sha256": "a2a26803717b0d2ae184f40fc75b869fed98c56980c8bdbbe09d728c82f10b01"
+    },
+    {
+      "name": "20260831143728_wallpaper_broadcast_connection_start_time.sql",
+      "sha256": "047f9915a34f8b3ef569deb8d3ba786645111f5de00f617dd1696e6c8de4d1d6"
+    },
+    {
+      "name": "20260831213146_wallpaper_subscription_cards.sql",
+      "sha256": "96e2081dd4e28bec9c201516baf8a6b59f880b8ac2a32ff9e80a2d51852badee"
+    },
+    {
+      "name": "20260831214147_backfill_matchable_wallpaper_subscriptions.sql",
+      "sha256": "c7351db3b1ac20e6cceca38c8107b91693427ad9680df08210e2dadd333deda1"
+    },
+    {
+      "name": "20260831223552_wallpaper_subscription_official_image.sql",
+      "sha256": "7f7cc3772a7bf8c02e496c77ac8374be83d9d354333111577647e939ba428635"
+    },
+    {
+      "name": "20260831225729_repair_subscription_official_image_layout.sql",
+      "sha256": "3a738fc45d66dbb5e1251db62dc0bf865823af7a1fe525c307e074c4e3d3852a"
+    },
+    {
+      "name": "20260901002108_rollback_wallpaper_off_canvas_layout.sql",
+      "sha256": "eede30001cedefcd3c2c7437b44bcebad747672f62508c2080a726e7972290c8"
+    },
+    {
+      "name": "20260901131515_wallpaper_persistent_size_ranges.sql",
+      "sha256": "71d758cceec1a09cff365f7473de6be5f1d65d7bb4eae1aaebc5c252043ec711"
+    },
+    {
+      "name": "20260901162952_stop_legacy_wallpaper_layout_retry_storm.sql",
+      "sha256": "f9638ce32896054494b7aefa054a61b409369c1ec7844b302778d476cfa31e08"
+    },
+    {
+      "name": "20260901165402_coalesce_live_gateway_heartbeat_without_hot_path_changes.sql",
+      "sha256": "5b621072af5449a4cba2dd5880dd3bb521d15561eb6dc7bb76aded4b6fc9e717"
+    },
+    {
+      "name": "20260901171939_bound_operational_data_retention_without_hot_path_changes.sql",
+      "sha256": "81bceef33098590e91d7ea3553f46ef1a8765a11b39ad4cd6caa3ce646fdfc70"
+    },
+    {
+      "name": "20260901182718_agent_direct_sync_transport.sql",
+      "sha256": "1daf42977cfe652497e1cf80692173cd802d6101f7f6af2f6bf31449da2da81c"
+    },
+    {
+      "name": "20260901221035_harden_operational_reliability_without_hot_path_changes.sql",
+      "sha256": "0d1d134ff19c58daf17822399ce5f00fc67cd86fe31a7b6fd1b55812a2a7474e"
+    },
+    {
+      "name": "20260901221132_cover_remaining_application_foreign_keys.sql",
+      "sha256": "6bbfa8c5ccaac49f8c048d07b008f619dbd415bd838057916bcb2c9cb0beb220"
+    },
+    {
+      "name": "20260901232944_agent_display_latency_observations.sql",
+      "sha256": "8751ff7ca34a5870ccccf1b5e812fe301261afbbb4ed07609e269c65321ef2cf"
+    },
+    {
+      "name": "20260902080813_harden_web_sessions_without_hot_path_latency.sql",
+      "sha256": "d308f70a4e5a7e2ac3c345d0dce1ebafea195df21b9a3d4400adeac6a81a8057"
+    },
+    {
+      "name": "20260902080823_unify_raffle_action_managed_tts.sql",
+      "sha256": "395c49f626ed8483eefe7323df910bbbc0a2802c77b3c818131db88c53dfde27"
+    },
+    {
+      "name": "20260902091840_fix_g3a_readiness_scope_for_direct_agent_rpcs.sql",
+      "sha256": "314edff09288efd8c31312dbeba22163a4e26497e7f4fffdfd2e0e8b2448e5a4"
+    },
+    {
+      "name": "20260902100648_keep_agent_online_from_existing_pending_probe.sql",
+      "sha256": "eea3d16098e5cc9b7b2f47036dd2af7187732d3bc6a7ebe4124adbf0974ee1ce"
+    },
+    {
+      "name": "20260902123052_add_roulette_chat_dry_run_reveal_outbox.sql",
+      "sha256": "001f8bb2d6999ed70d6dcf8802d40d8256b03fb3b465aa0b262052a8bcb68f7f"
+    },
+    {
+      "name": "20260902150936_add_default_donation_image_ranges.sql",
+      "sha256": "aee0d9acf87a3a10305a40273a0cbe5eeeec0b048dbefbc40c4f2f154445e55c"
+    },
+    {
+      "name": "20260902154301_stop_default_donation_wallpaper_assets.sql",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "20260902155513_allow_open_default_donation_ranges.sql",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "20260902155847_correct_open_default_donation_minimum.sql",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "20260902160734_drop_legacy_default_donation_wallpaper_check.sql",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "20260902172649_replace_native_roulette_result_bar_assets.sql",
+      "sha256": "8907bd57611ea9362f892d6fee3a98755622e9aa4a9abcf89a62f00a93a8e2ad"
+    },
+    {
+      "name": "20260902180815_center_native_roulette_wheel_assets.sql",
+      "sha256": "5be545267c3301ea24016a0197f3307e7ad47b68a8a4d8fcec2127653d27cac5"
+    },
+    {
+      "name": "20260902183554_weflab_overlay_baseline.sql",
+      "sha256": "14a77739b24376819e9a9586284ea912cf6dc04e32b86579be87602dfda8934e"
+    },
+    {
+      "name": "20260903135337_wallpaper_layer_order.sql",
+      "sha256": "5eeec3dd01c789bd469e9e50089bffc8ae6bcf0d5c937441dd82d6d022ff422b"
+    },
+    {
+      "name": "20260903153659_core_soop_collection_pivot.sql",
+      "sha256": "ae9f38d129a40a09987fc82f236995d69a0dc64ddd997203669f8c0fe6847561"
+    },
+    {
+      "name": "20260903162543_add_weflab_shadow_validation_ledger.sql",
+      "sha256": "9d0ae7a2677c596d015eb2c4aba585e5a4a41d4127e3a338d23f3c25214fa18c"
+    },
+    {
+      "name": "20260903165922_add_roulette_scoped_upbo_classification.sql",
+      "sha256": "39cb9dd597d5f53753f21148c34b717d39b4c4a09b54e2e8d161e962b9aae9bf"
+    },
+    {
+      "name": "20260903165949_harden_roulette_scoped_upbo_classification.sql",
+      "sha256": "c1ab3e1d73d631fcb7b91e4c4f911f384534cf3779b7ccf8721c6bd5c11fa67f"
+    },
+    {
+      "name": "20260903204133_stabilize_wallpaper_and_security_boundaries.sql",
+      "sha256": "fe65d0aed6de16f46e48d7397ab3c63bc2c57a215a555917b7f5a94bec282ce8"
+    },
+    {
+      "name": "20260903204346_finish_stability_security_cleanup.sql",
+      "sha256": "682565fd87451c58eb9007bec1cc0d07644111a702ccb54e173f749f509c4653"
+    },
+    {
+      "name": "20260903204449_fix_backup_lease_column_ambiguity.sql",
+      "sha256": "417b45f732b8f8c76422f06e6031193ca22789fe26126b7d56c34628f79bcabe"
+    },
+    {
+      "name": "20260904230000_bound_wallpaper_previous_sessions_to_24_hours.sql",
+      "sha256": "d00ce2de2a4ca423568f39101f95970481e8208efdeecc779eaac5f1d1e0193d"
+    },
+    {
+      "name": "20260904234500_allow_historical_wallpaper_sessions_without_soop_event_images.sql",
+      "sha256": "c395825bbec011137dad8b8b13ce4855a5524b5f4ab622deec4a34600fd56759"
+    },
+    {
+      "name": "20260905123553_wallpaper_snapshot_size_ranges.sql",
+      "sha256": "bb69f42a0e54bfbacaf43e9dbc1a59ef4fa78cbc806e9e6a6ce0f4da66ee5e8b"
+    },
+    {
+      "name": "20260905163907_roulette_mapping_expected_spins.sql",
+      "sha256": "cd9b591480b5e04608717b64f76992a374855c85165da69b278f208af490ceca"
+    },
+    {
+      "name": "20260905173003_add_core_agent_dashboard_handoffs.sql",
+      "sha256": "8331cbb3c889e6897306f25f9f2ca7386831e69b1b1f22ab6a697ca33fe805f6"
+    },
+    {
+      "name": "20260906014845_atomic_upbo_and_bounded_retry.sql",
+      "sha256": "306e3388ab94adf92e0e6607c280905c12acfc91287ed7a1333642587eda2f77"
+    },
+    {
+      "name": "20260906015736_enable_future_upbo_retries.sql",
+      "sha256": "3aaf47d0d8e4ed8ad4c4ac92edecf9f6e4ee7f47e7350930008068d069c9061e"
+    },
+    {
+      "name": "20260906021854_atomic_backup_restore.sql",
+      "sha256": "a681df10f0214347d66f3cb2b2d08ae955b6d9ddf1bda693ee8d3210801964c9"
+    },
+    {
+      "name": "20260906034228_expand_consistent_product_backup_v8.sql",
+      "sha256": "076cd4adc20840b704d7eb6231e968aeffc8538b210fdfc545da3702ff07fbd0"
+    },
+    {
+      "name": "20260906055347_fifo_expected_spin_correlation_v2.sql",
+      "sha256": "bfb7492b9cedd9bef95bfc255a910636570d7013c0b00c1715ccad9dd209ec16"
+    },
+    {
+      "name": "20260906125354_add_streamer_referral_credits.sql",
+      "sha256": "fe81ced90bfb3cb211f78ac08b41cb3943896cb78209db6444f20506ae284f1b"
+    },
+    {
+      "name": "20260906125408_make_wallpaper_control_retries_idempotent.sql",
+      "sha256": "bfe34ed4ddf1cf88f2a2b9ef008588fcb1716fcdffbf31737a61ed8ab3236f6e"
+    },
+    {
+      "name": "20260906134834_reconcile_cross_workspace_soop_incident.sql",
+      "sha256": "407bff4fd4b8ed3637d4273960cddd2ff255b2a0a1e00e08f48e4a3084616cf4"
+    },
+    {
+      "name": "20260906135013_diagnose_cross_workspace_reconciliation.sql",
+      "sha256": "140ac04f7b1ceda97ad270c01986f57ddeba119f282bbd10c92864cdf406a511"
+    },
+    {
+      "name": "20260906135043_fix_cross_workspace_reconciliation_pause_contract.sql",
+      "sha256": "a541a80ba5f6aa3badcdbb72a4d0ac56c550e119b085d8e799e9b50f63a8e7e1"
+    },
+    {
+      "name": "20260906135316_match_cross_workspace_duplicates_within_50ms.sql",
+      "sha256": "3b3d7634ed8c8092f6b22d71a4db027201925bc5e24776a0943f4a5c77fb7362"
+    },
+    {
+      "name": "20260906135720_retire_cross_workspace_reconciliation_rpc.sql",
+      "sha256": "1de6ac9d3ec0d386fe8aa8718ff5f03d7b2031370a6e5f6544261ae68e198bb4"
+    },
+    {
+      "name": "20260906140819_isolate_wallpaper_provider_images_by_live_room.sql",
+      "sha256": "245301f5bfbdec55e5229bc3145a94ce2cb6e16f8e3c568003392191a77b34ee"
+    },
+    {
+      "name": "20260906152929_enforce_soop_workspace_ownership.sql",
+      "sha256": "8b0695dad472df397d1c55eff4c5eb629080616690aa746e6e28d2ec42748920"
+    },
+    {
+      "name": "20260906153040_index_soop_event_ownership_workspace.sql",
+      "sha256": "2f10818d9e0a50359add234e11b35e1671d07e7539bedf7db4707bde4bbbf091"
+    },
+    {
+      "name": "20260906165356_retire_unattested_soop_ingest.sql",
+      "sha256": "45169c9668957bbe995be3c5477c40e4d50e5cceaf99ecfd638d146e87ed4c70"
+    },
+    {
+      "name": "20260906180513_oauth_verified_automatic_signup.sql",
+      "sha256": "8067c8f1ccd678d316cabe86e36d42d6fa97d764400d6426885da6f9700de3a8"
+    },
+    {
+      "name": "20260907142333_canonicalize_wallpaper_session_from_verified_room.sql",
+      "sha256": "5ea87791378b10de95546a3772084a22f3dd2fb11776dfe7a97f376742124987"
+    },
+    {
+      "name": "20260907144145_issue_persistent_soop_broadcast_instances.sql",
+      "sha256": "86e790acb3c9ddf0249014493f036e5ecd4c0eaa64d889c8f0c8d1b2fd3628e1"
+    },
+    {
+      "name": "20260907230924_enforce_historical_wallpaper_image_policy.sql",
+      "sha256": "3f4d6f0d04723ded84943877734f02f89fe1504bda4029d7b3c0180ca27660ea"
+    },
+    {
+      "name": "20260908103628_special_roulette_ingestion_receipts.sql",
+      "sha256": "0ff928e000b2a213282d77da7e00604d8c6579810a44bdc35d2bd79f965ebd2d"
+    },
+    {
+      "name": "20260908112830_roulette_mapping_activation.sql",
+      "sha256": "ab3eeebf98be75448e088018109ee0583a5e0ff03a0425e1e7805305af3fcfa2"
+    },
+    {
+      "name": "20260908120535_wallpaper_conflict_no_retry.sql",
+      "sha256": "01d4293d2465c4d3e882e6a8c88f55528bdffd0e4a29ec7fca591bb026b438ae"
+    },
+    {
+      "name": "20260908130752_roulette_exception_review.sql",
+      "sha256": "285d0651c81e9060ec34a57dcae6fbc69c410ff2857a29166f9c0e7f9e34a140"
+    },
+    {
+      "name": "20260908162704_roulette_exception_invoker_membership_fix.sql",
+      "sha256": "dfde64f8c66a888731ccb8e3842b621e53b3d81853bdb617fd4488cc3c3bd893"
+    },
+    {
+      "name": "20260909022409_user_experience_controls.sql",
+      "sha256": "6f0ad93e69d37b51331fe23a583707b6ef93094897d969bfc998120042c306c5"
+    },
+    {
+      "name": "20260909023008_exception_undo_source_identity.sql",
+      "sha256": "74494600af61b3e7db1456e16fba9b50e0d7d6f3aa273bbaf3d106f05563c573"
+    },
+    {
+      "name": "20260909040255_security_boundaries_and_retention.sql",
+      "sha256": "7466c09c9ecc273d92b78988d3726b43e9e1cc430f5233e6ee4966860adc659a"
+    },
+    {
+      "name": "20260909050020_efficient_public_viewer_snapshot.sql",
+      "sha256": "2c5a18d4e447e7043a164b8ec3d487c64a61e2cd0df101819357138e3ddfc15e"
+    },
+    {
+      "name": "20260909062144_operational_alerts_and_metrics.sql",
+      "sha256": "d4d165b164c4934c4d323a079d9cae08d5d4088610cd73f007368ece8687f061"
+    },
+    {
+      "name": "20260909063248_ops_alert_retention_index.sql",
+      "sha256": "aa43e1d95145e54eda4474adbc3e600fac4c8fe27c81dc0549897e03e13131a1"
+    },
+    {
+      "name": "20260909074226_backup_donation_recovery_and_sequence.sql",
+      "sha256": "33596f83a422f1e5b818779df46b11c6cc731de544a9e3c040c66ddae3e97b6d"
+    },
+    {
+      "name": "20260909081913_wallpaper_seven_day_retention.sql",
+      "sha256": "92dac67aa8cd0084905b7bb71c47b8e633355e4c3edf0b3e639d9d188b510f28"
+    },
+    {
+      "name": "20260909082204_wallpaper_retention_distinct_workspace.sql",
+      "sha256": "08b07b87bb817dde12e8ea078cd8a5151cd4f52642c436c685ed5eddd48231b2"
+    },
+    {
+      "name": "20260909203730_reverse_fan_day_private_calculator.sql",
+      "sha256": "12936f0245dabbca8a961681aa2d7ef79e950b887b8079f7d8f9863dbf9eac35"
+    },
+    {
+      "name": "20260910075015_discord_ops_snapshot.sql",
+      "sha256": "aaa5335e3d88327b37d0281da1233d5863092ff8fb8aa8f383681757c815b22c"
+    },
+    {
+      "name": "20260912210435_dashboard_notification_counts.sql",
+      "sha256": "ecb8d6bd973d0bd5a7983faf62490636e712326b2caf34f6d505ed862d028c8d"
+    },
+    {
+      "name": "20260912210445_roulette_amount_ranges.sql",
+      "sha256": "a3bcd410d39fdbe5466ff577a4dc2adc64cb28681030c2109cdd2e4b01c88318"
+    },
+    {
+      "name": "20260912210453_viewer_completed_visibility.sql",
+      "sha256": "51ab7cba995e45450068489e3ae427175164ffe0d679f38185bd7a7a42c1c5c2"
+    },
+    {
+      "name": "20260912210502_streamer_operational_requests.sql",
+      "sha256": "f6acd5ccfddac22839bc34c35a379de7498b2d8fe8bde4d3ac1d256725a12b91"
+    },
+    {
+      "name": "20260912220333_dashboard_exception_count.sql",
+      "sha256": "3645a8f8d0de968b1d70f6398eaa22c35b46cabb5dbe643df3d7ec72df1deeef"
+    },
+    {
+      "name": "20260913073429_broadcast_agent_readiness.sql",
+      "sha256": "b99665b0a595292b9fc38ed56def6c7c1ca37a6d95335aa4d33875863fcff069"
+    },
+    {
+      "name": "20260914143509_normalize_audited_product_contracts.sql",
+      "sha256": "0c2cea13f960fd3324781ed680dc1142eef7d5bc3270c35501fcf1b66fadb9f8"
+    },
+    {
+      "name": "20260919220712_wallpaper_editor_atomic_settings.sql",
+      "sha256": "5d166689794225a99af4869194ded94186690505c5fe4f2b64e772d8dbb48986"
+    },
+    {
+      "name": "20260919223250_wallpaper_adballoon_ingestion.sql",
+      "sha256": "d6cb37b4d8d8ee39eb91e2c22ae0ff47379c5e02b28416ed564a5b300a5f6495"
+    },
+    {
+      "name": "20260919225330_task_completion_history.sql",
+      "sha256": "4f6aaacb3f40cd487b08b242f87deebe6c0992a7664c9bb1c3a292e494d4a309"
+    },
+    {
+      "name": "20260919232936_incident_business_conflict_no_retry.sql",
+      "sha256": "05e1f2ca0e43911748176586a982f65d2df8b89c8b5c4910407162fe1544966b"
+    },
+    {
+      "name": "20260919232947_incident_retry_observability.sql",
+      "sha256": "8f2301e9e65dac5ae9a2d153241dabb4cceb38dcf62fe3169a6c43cd3e9d2ecb"
+    },
+    {
+      "name": "20260919235116_roulette_collection_gate.sql",
+      "sha256": "910c05a72cbb4459812ef790a6c4ac0578c0b1e65d92f90c09adaf8f50f941da"
+    },
+    {
+      "name": "20260920001736_bound_query_statistics_memory.sql",
+      "sha256": "d5f777821c650fb7eaa6bbe1ef86e665fdac74f627b618da17e1c8431eca7bc8"
+    },
+    {
+      "name": "20260920002419_skip_admin_utility_performance_stats.sql",
+      "sha256": "b362c7442396f5d8f6b935e26ef647c1bcc1a9d6a3f1d7dbfb110eaef5bc13dc"
+    },
+    {
+      "name": "20260920153935_public_read_least_privilege.sql",
+      "sha256": "3f31ff6fe172f06240453a12f840fa83ee18333de60fa8c507985b6c2532d197"
+    },
+    {
+      "name": "20260920160527_isolated_backup_worker.sql",
+      "sha256": "fd4ac3d7a50d821549b943833c7386f7a423b6d27d6467d6baf233813fe08559"
+    },
+    {
+      "name": "20260920222503_backfill_legacy_workspace_ownership.sql",
+      "sha256": "0918b491f14e633dfdaf5ead057e416a5270e103a52d38b37653e87e93c1c2c8"
+    },
+    {
+      "name": "20260920234635_align_signup_consent_versions.sql",
+      "sha256": "a44c91faebbd1f32a252d78ab83a777accb5514c675e4909de3cf13bb047f5fd"
+    },
+    {
+      "name": "20260920235424_fix_signup_runtime_controls_conflict.sql",
+      "sha256": "be8902c2dd6b135b815385b09fe496c36b3e2eed6b9ccffcd0f72c36bfee2a56"
+    },
+    {
+      "name": "20260921190000_add_game_identity_linking.sql",
+      "sha256": "e1badbbf151e550f292ee54190de02943abb2726c6ee28f8b0ab153e77725be1"
+    },
+    {
+      "name": "20260921190100_add_minecraft_server_scope.sql",
+      "sha256": "ceb502dc82571ec1d70f7cc90ee95155520af3e931fb14e54d900c87631d64b4"
+    },
+    {
+      "name": "20260922172203_backup_retention_source_timestamp.sql",
+      "sha256": "8168b25e92a6a613eb6c73432c3ae59c697a1bba8375d520a72683be7594df47"
+    }
+  ],
+  "functions": [
+    {
+      "slug": "agent-runtime-g3a",
+      "version": 29,
+      "bundleSha256": "904083afcab56d63fcbe1a9d72ed82a3f002d0220b9f129cc4704cb74d9029e8",
+      "entrypoint": "functions/agent-runtime-g3a/functions/agent-runtime/index.ts"
+    },
+    {
+      "slug": "event-runtime-g3a",
+      "version": 12,
+      "bundleSha256": "5c58748ee3bf0837f988ff4bc23b57b6a0cb5973c482270c46f78d2de377c502",
+      "entrypoint": "functions/event-runtime-g3a/event-runtime/index.ts"
+    },
+    {
+      "slug": "execution-worker-g3a",
+      "version": 5,
+      "bundleSha256": "e88cd6c8ccf3f5e8f48a2cf386f7f0c61489655b8a3388229b4418383eba5fcd",
+      "entrypoint": "functions/execution-worker-g3a/execution-worker/index.ts"
+    }
+  ]
+}

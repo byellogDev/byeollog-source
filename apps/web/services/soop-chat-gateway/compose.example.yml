@@ -1,0 +1,35 @@
+services:
+  soop-gateway:
+    build:
+      context: ../..
+      dockerfile: services/soop-chat-gateway/Dockerfile
+    restart: unless-stopped
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    pids_limit: 256
+    stop_grace_period: 120s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    mem_limit: 6g
+    mem_reservation: 512m
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=512m
+    env_file:
+      - path: .env.gateway
+        required: false
+    environment:
+      BYEOLLOG_SOOP_GATEWAY_URL: https://byeollog.com/api/auth/soop/gateway
+    volumes:
+      - soop-gateway-state:/var/lib/byeollog
+    ports:
+      - 127.0.0.1:47631:8080
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  soop-gateway-state:

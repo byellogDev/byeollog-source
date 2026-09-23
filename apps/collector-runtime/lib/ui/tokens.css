@@ -1,0 +1,6 @@
+:root{
+  --bl-navy:#08172f;--bl-navy-2:#0d213f;--bl-panel:#112746;--bl-panel-2:#152d4f;
+  --bl-line:#294564;--bl-line-soft:#1d3857;--bl-yellow:#ffc44d;--bl-yellow-2:#f2ae2e;
+  --bl-text:#f7f9fc;--bl-muted:#93afd0;--bl-green:#16b889;--bl-red:#ef5b67;
+  --bl-shadow:0 24px 70px rgba(0,8,24,.28);--bl-radius:22px;--bl-radius-sm:14px;
+}

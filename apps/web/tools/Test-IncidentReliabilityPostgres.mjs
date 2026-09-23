@@ -1,0 +1,82 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {isolatedSpecialPostgres} from '../test/helpers/special-postgres-runtime.mjs';
+const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
+const baseline=JSON.parse(await read('test/fixtures/incident-conflict-baseline.json'));
+const retryBaseline=JSON.parse(await read('test/fixtures/incident-retry-baseline.json'));
+const migration=await read('supabase/migrations/20260919232315_incident_business_conflict_no_retry.sql');
+const retryMigration=await read('supabase/migrations/20260919232622_incident_retry_observability.sql');
+for(const row of baseline)assert.ok(migration.includes(row.definition.replaceAll("errcode='40001'","errcode='PT409'")),'only the business-conflict SQLSTATE changes');
+const runtime=await isolatedSpecialPostgres(),sql=runtime.sql;
+const a='10000000-0000-4000-8000-000000000001',b='20000000-0000-4000-8000-000000000002',u='30000000-0000-4000-8000-000000000003',session='40000000-0000-4000-8000-000000000004',tile='50000000-0000-4000-8000-000000000005';
+let checks=0;
+const check=async(expr,label)=>{await sql(`do $$ begin if not coalesce((${expr}),false) then raise exception '${label}';end if;end $$;`);checks++};
+const fails=async(stmt,code)=>{await sql(`do $$ begin begin ${stmt};raise exception 'expected rejection';exception when sqlstate '${code}' then if sqlerrm='expected rejection' then raise;end if;end;end $$;`);checks++};
+const rpc=(name,rev,extra='')=>`perform public.${name}('${a}','${u}',${name.includes('overlay')||name.includes('visibility')?'':`'${session}',`}${rev}${extra})`;
+try{
+ await sql(`create role service_role;create role anon;create role authenticated;
+ create schema byeollog_automation;create schema private;create schema storage;create schema extensions;
+ create table public.byeollog_workspaces(id uuid primary key,status text);
+ insert into public.byeollog_workspaces values('${a}','active'),('${b}','active');
+ create function byeollog_automation.assert_native_roulette_member_v1(w uuid,u uuid,wr boolean) returns void language plpgsql as $$ begin if w<>'${a}' or u<>'${u}' then raise exception 'denied' using errcode='42501';end if;end $$;
+ create table public.byeollog_wallpaper_sessions(id uuid primary key,workspace_id uuid,state text,revision bigint,updated_at timestamptz);
+ insert into public.byeollog_wallpaper_sessions values('${session}','${a}','active',10,now());
+ create table public.byeollog_wallpaper_overlay_states(workspace_id uuid primary key,revision bigint,hide_below integer,hidden_amounts integer[],updated_at timestamptz);
+ insert into public.byeollog_wallpaper_overlay_states values('${a}',10,0,'{}',now()),('${b}',99,0,'{}',now());
+ create table public.byeollog_wallpaper_overlay_sessions(workspace_id uuid,session_id uuid);
+ insert into public.byeollog_wallpaper_overlay_sessions values('${a}','${session}');
+ create table public.byeollog_wallpaper_tiles(id uuid primary key,workspace_id uuid,session_id uuid,layout_x integer,layout_y integer,layout_width integer,layout_height integer,layout_columns integer,layout_rows integer,layout_next_side text,layout_layer integer,layout_updated_at timestamptz);
+ insert into public.byeollog_wallpaper_tiles(id,workspace_id,session_id,layout_x) values('${tile}','${a}','${session}',123);
+ create table public.bangsel_tasks(id uuid primary key default gen_random_uuid(),workspace_id uuid,fan text,fan_soop_id text,event text,type text,total_qty integer,done_qty integer,memo text,added_date date,source text,source_event_key text);
+ create table public.bangsel_task_import_items(workspace_id uuid,source_event_key text,task_id uuid,source text,primary key(workspace_id,source_event_key));
+ create table public.bangsel_roulette_invalidations(workspace_id uuid,source_uid text);
+ create table public.bangsel_collector_staging(workspace_id uuid,source_uid text,roulette_results jsonb default '[]',upbo_retry_protocol integer default 1,upbo_retry_attempts integer default 0,upbo_retry_after timestamptz default now(),process_status text default 'pending',processing_started_at timestamptz,process_error text,primary key(workspace_id,source_uid));
+ create table private.ops_monitor_v1(singleton boolean,token_sha256 text,last_seen_at timestamptz,usage jsonb,usage_at timestamptz);
+ create table private.ops_alert_delivery_v1(exhausted boolean,created_at timestamptz);
+ create table storage.objects(metadata jsonb);
+ create function extensions.digest(text,text) returns bytea language sql as $$ select decode(repeat('ab',32),'hex') $$;
+ create table public.byeollog_soop_gateway_sessions(workspace_id uuid,state text,heartbeat_at timestamptz);
+ create table public.byeollog_soop_runtime_controls(workspace_id uuid,gateway_enabled boolean);
+ create table byeollog_automation.executions(workspace_id uuid,status text,execution_target text,created_at timestamptz,next_attempt_at timestamptz);
+ insert into private.ops_monitor_v1 values(true,repeat('ab',32),null,'{}',null);`);
+ for(const row of baseline.concat(retryBaseline)){
+  await sql(row.definition);
+  await sql(`revoke all on function public.${row.signature} from public;grant execute on function public.${row.signature} to service_role;`);
+ }
+ await sql(`create trigger byeollog_upbo_retry_schedule before update on public.bangsel_collector_staging for each row execute function public.byeollog_upbo_retry_schedule_v1();`);
+ const calls=[rpc('save_wallpaper_layout_v1',9,",'[]'::jsonb"),rpc('clear_wallpaper_layout_v1',9),rpc('save_wallpaper_overlay_layout_v1',9,",'[]'::jsonb"),rpc('clear_wallpaper_overlay_layout_v1',9),rpc('save_wallpaper_visibility_v1',9,",0,'{}'::integer[]")];
+ for(const call of calls)await fails(call,'40001');
+ await sql(migration);
+ for(const call of calls)await fails(call,'PT409');
+ await check(`select revision=10 from public.byeollog_wallpaper_overlay_states where workspace_id='${a}'`,'conflicts preserve revision');
+ await check(`select layout_x=123 from public.byeollog_wallpaper_tiles where id='${tile}'`,'conflicts preserve layout');
+ await sql(`do $$ begin ${rpc('save_wallpaper_layout_v1',10,",'[]'::jsonb")};${rpc('clear_wallpaper_layout_v1',11)};${rpc('save_wallpaper_overlay_layout_v1',10,",'[]'::jsonb")};${rpc('clear_wallpaper_overlay_layout_v1',11)};${rpc('save_wallpaper_visibility_v1',12,",20,array[33]")};end $$;`);
+ await check(`select revision=13 and hide_below=20 and hidden_amounts=array[33] from public.byeollog_wallpaper_overlay_states where workspace_id='${a}'`,'valid saves preserve behavior');
+ await check(`select revision=99 from public.byeollog_wallpaper_overlay_states where workspace_id='${b}'`,'other workspace unchanged');
+ await fails(`perform public.clear_wallpaper_overlay_layout_v1('${b}','${u}',99)`,'42501');
+ await sql(`insert into public.bangsel_collector_staging(workspace_id,source_uid,roulette_results) values('${a}','receipt','[{"receipt_identity":"result:one"}]');`);
+ const group={keys:['receipt|0'],type:'fixture',fan:'fixture',soop_id:'fixture',event:'fixture',added_date:'2026-09-20'};
+ await fails(`perform public.byeollog_commit_upbo_group_v1('${a}','${JSON.stringify(group)}')`,'PT409');
+ group.receiptProtocol='2';group.keys=['receipt|result:one'];
+ await sql(`select public.byeollog_commit_upbo_group_v1('${a}','${JSON.stringify(group)}');select public.byeollog_commit_upbo_group_v1('${a}','${JSON.stringify(group)}');`);
+ await check('select count(*)=1 and sum(total_qty)=1 from public.bangsel_tasks','retry does not duplicate Upbo');
+ await sql(retryMigration);
+ await sql(`update public.bangsel_collector_staging set process_status='ignored';
+ insert into public.bangsel_collector_staging(workspace_id,source_uid,upbo_retry_attempts,process_status,processing_started_at,upbo_retry_after,upbo_retry_protocol) values
+ ('${a}','last-failure',5,'processing',now(),now(),1),('${a}','crash',5,'processing',now()-interval '12 minutes',now(),1),
+ ('${a}','live',5,'processing',now(),now(),1),('${a}','old-ignored',5,'ignored',null,null,1),
+ ('${a}','legacy',5,'failed',null,null,0),('${a}','fresh',0,'pending',null,now()-interval '1 minute',1);
+ update public.bangsel_collector_staging set process_status='failed',process_error='fixture failure' where source_uid='last-failure';`);
+ await check(`select process_status='needs_review' and upbo_retry_after is null from public.bangsel_collector_staging where source_uid='last-failure'`,'fifth failure stays visible');
+ await check(`select count(*)=1 from public.byeollog_claim_upbo_retries_v1(1)`,'claim one fresh item');
+ await check(`select process_status='needs_review' from public.bangsel_collector_staging where source_uid='crash'`,'crashed final attempt becomes review');
+ await check(`select process_status='processing' from public.bangsel_collector_staging where source_uid='live'`,'active lease untouched');
+ await check(`select process_status='ignored' from public.bangsel_collector_staging where source_uid='old-ignored'`,'historical ignored untouched');
+ await check(`select process_status='failed' and upbo_retry_protocol=0 from public.bangsel_collector_staging where source_uid='legacy'`,'legacy not enrolled');
+ await check(`select (public.byeollog_ops_observe_v1(repeat('a',64))->>'upboNeedsReview')::int=2`,'operator sees exhaustion');
+ await fails(`perform public.byeollog_ops_observe_v1('invalid')`,'42501');
+ for(const row of baseline.concat(retryBaseline))await check(`select not has_function_privilege('anon','public.${row.signature}','execute') and has_function_privilege('service_role','public.${row.signature}','execute')`,'permissions preserved');
+ await sql(migration);await sql(retryMigration);
+ await check('select count(*)=1 and sum(total_qty)=1 from public.bangsel_tasks','migration reapply does not mutate records');
+ console.log(JSON.stringify({passed:true,checks,productionDataUsed:false}));
+}finally{await runtime.stop()}

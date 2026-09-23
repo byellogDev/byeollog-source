@@ -1,0 +1,31 @@
+{
+  "id": "22b979ee-90c8-4584-97a5-4a87736893fc",
+  "slug": "execution-worker-g3a",
+  "name": "execution-worker-g3a",
+  "status": "ACTIVE",
+  "version": 5,
+  "created_at": 1787109560100,
+  "updated_at": 1787109560100,
+  "verify_jwt": true,
+  "import_map": false,
+  "entrypoint_path": "/tmp/user_fn_offslvwaugvjotkywlus_22b979ee-90c8-4584-97a5-4a87736893fc_1/source/execution-worker/index.ts",
+  "ezbr_sha256": "e88cd6c8ccf3f5e8f48a2cf386f7f0c61489655b8a3388229b4418383eba5fcd",
+  "files": [
+    {
+      "name": "execution-worker/index.ts",
+      "bytes": 4264
+    },
+    {
+      "name": "_shared/cors.ts",
+      "bytes": 279
+    },
+    {
+      "name": "_shared/execution-worker.ts",
+      "bytes": 9635
+    },
+    {
+      "name": "_shared/server-runtime.ts",
+      "bytes": 12156
+    }
+  ]
+}

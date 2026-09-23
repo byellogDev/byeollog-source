@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "google_chirp3_achernar",
+      "label": "Google Chirp 3 HD Achernar",
+      "kind": "google-chirp3-streaming-v1",
+      "endpoint": "https://texttospeech.googleapis.com",
+      "voiceName": "ko-KR-Chirp3-HD-Achernar",
+      "languageCode": "ko-KR",
+      "sampleRate": 24000,
+      "speakingRate": 1
+    },
+    {
+      "id": "google_chirp3_aoede",
+      "label": "Google Chirp 3 HD Aoede",
+      "kind": "google-chirp3-streaming-v1",
+      "endpoint": "https://texttospeech.googleapis.com",
+      "voiceName": "ko-KR-Chirp3-HD-Aoede",
+      "languageCode": "ko-KR",
+      "sampleRate": 24000,
+      "speakingRate": 1
+    },
+    {
+      "id": "google_chirp3_kore",
+      "label": "Google Chirp 3 HD Kore",
+      "kind": "google-chirp3-streaming-v1",
+      "endpoint": "https://texttospeech.googleapis.com",
+      "voiceName": "ko-KR-Chirp3-HD-Kore",
+      "languageCode": "ko-KR",
+      "sampleRate": 24000,
+      "speakingRate": 1
+    },
+    {
+      "id": "google_chirp3_leda",
+      "label": "Google Chirp 3 HD Leda",
+      "kind": "google-chirp3-streaming-v1",
+      "endpoint": "https://texttospeech.googleapis.com",
+      "voiceName": "ko-KR-Chirp3-HD-Leda",
+      "languageCode": "ko-KR",
+      "sampleRate": 24000,
+      "speakingRate": 1
+    },
+    {
+      "id": "google_chirp3_pulcherrima",
+      "label": "Google Chirp 3 HD Pulcherrima",
+      "kind": "google-chirp3-streaming-v1",
+      "endpoint": "https://texttospeech.googleapis.com",
+      "voiceName": "ko-KR-Chirp3-HD-Pulcherrima",
+      "languageCode": "ko-KR",
+      "sampleRate": 24000,
+      "speakingRate": 1
+    },
+    {
+      "id": "google_chirp3_zephyr",
+      "label": "Google Chirp 3 HD Zephyr",
+      "kind": "google-chirp3-streaming-v1",
+      "endpoint": "https://texttospeech.googleapis.com",
+      "voiceName": "ko-KR-Chirp3-HD-Zephyr",
+      "languageCode": "ko-KR",
+      "sampleRate": 24000,
+      "speakingRate": 1
+    }
+  ]
+}

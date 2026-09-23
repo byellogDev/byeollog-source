@@ -1,0 +1,278 @@
+/* Shared layout review, 2026-09-13. Keep presentation rules in one place. */
+body.admin-page[data-theme="light"]{--bl-muted:#526780;--bl-line:#d8e1eb;--bl-line-soft:#e1e8f0;--bl-text:#10213b;--bl-panel:#fff;--bl-panel-2:#f4f7fa;--bl-shadow:0 16px 44px rgba(20,40,66,.12)}
+/* shared:palette */
+.dashboard-page :is(.muted,.managementSub,.managementDetailSub,.recentCollectorSub,.fanIdLine,.rouletteRecordMeta,.backupSub){color:var(--ui-muted)!important;line-height:1.6}
+.dashboard-page input::placeholder,.dashboard-page textarea::placeholder{color:#677c93;opacity:1}
+.dashboard-page[data-theme="dark"] input::placeholder,.dashboard-page[data-theme="dark"] textarea::placeholder{color:#a0b2c9}
+.dashboard-page :is(input,select,textarea){min-width:0;max-width:100%}
+.dashboard-page :is(h1,h2,h3,h4,p,.rule-title,.mappingRule,.fixedRule,.exceptionResult,.fanName,.backupName){overflow-wrap:anywhere}
+.dashboard-page :is(.dashboardHeader,.fanCard){box-shadow:0 4px 18px rgba(15,35,60,.06)!important}
+.dashboard-page .dashboardNav a.active{box-shadow:none!important}
+.dashboard-page .dashboardHeaderButton{font-size:13px!important;min-height:44px!important;line-height:20px!important}
+.dashboard-page .dashboardConnectionState{max-width:26ch;overflow-wrap:anywhere;white-space:normal!important}
+.dashboard-page .managementIcon{color:#8a610d!important;background:#fff5db!important;border-color:#ead7a6!important}
+.dashboard-page[data-theme="dark"] .managementIcon{color:#ffd16e!important;background:#2c2b28!important;border-color:#625334!important}
+.dashboard-page .managementIcon .dashboardIcon{width:26px;height:26px;display:block;flex:none}
+.admin-page .managementDetailActions{align-self:start;width:auto;flex-wrap:wrap;justify-content:flex-end}
+.admin-page .managementDetailBody{min-height:0;overscroll-behavior:contain;scrollbar-gutter:stable}
+.admin-page .managementDetailBody>:is(.userBox,.collectorBox,.donationStatsBox,.settings){border:0!important;padding:0!important;background:transparent!important;border-radius:0!important}
+.admin-page .managementHead,.admin-page .managementDetailHead,.admin-page .recentCollectorHead{border-color:var(--ui-line)!important}
+.admin-page .managementBody,.admin-page .managementDetailBody{padding:20px!important}
+.admin-page .managementGrid{gap:12px!important}
+.admin-page .managementCard{padding:16px!important;gap:14px!important;box-shadow:none!important;text-align:left;align-items:center!important}
+.admin-page .managementCard b{font-size:16px!important;line-height:1.4!important}
+.admin-page .managementCard>span:last-child>span{font-size:13px!important;line-height:1.6!important;font-weight:500!important;color:var(--ui-muted)!important;margin-top:4px;display:block}
+.admin-page .managementDetailBody .previewTableWrap{max-height:none!important;overflow:visible}
+.admin-page .previewTable :is(th,td){white-space:normal;overflow-wrap:anywhere;max-width:none;text-overflow:clip;overflow:visible}
+.admin-page .previewTable th:last-child,.admin-page .previewTable td:last-child{position:static!important;box-shadow:none!important}
+.admin-page .previewTable td button{white-space:normal!important;min-height:44px}
+.admin-page .eventTaskTable :is(th,td){white-space:normal;overflow-wrap:anywhere}
+.admin-page .eventTaskTable td:nth-child(7) button{margin:3px 2px!important;min-height:40px;white-space:normal}
+.admin-page .fileDropZone{min-width:0!important;max-width:100%;white-space:normal!important}
+.admin-page #modal>.dialog{display:flex;flex-direction:column;max-height:calc(100dvh - 32px);overflow:hidden;padding:0!important}
+.admin-page .taskDialogHead{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--ui-line);flex-shrink:0}
+.admin-page .taskDialogHead h3{font-size:20px;margin:0}
+.admin-page #modal .grid{padding:18px 20px;overflow:auto;min-height:0;overscroll-behavior:contain}
+.admin-page #modal .actions{padding:12px 20px;margin:0;border-top:1px solid var(--ui-line);flex-shrink:0;background:var(--ui-surface)}
+.admin-page #modal .field label{font-size:13px;font-weight:700;line-height:1.5}
+.admin-page #modal textarea{resize:vertical;min-height:76px}
+.dashboard-page .accountDialog{max-height:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain}
+.dashboard-page .accountDialogHead>button{flex:0 0 auto;min-width:60px;white-space:nowrap;align-self:flex-start}
+.dashboard-page .accountDialogHead>div{min-width:0}
+.dashboard-page .accountDialogHead h2{font-size:20px;line-height:1.45;word-break:keep-all;margin:0}
+body:has(.modal.open),body:has(.accountModal:not(.hidden)),html:has(.modal.open),html:has(.accountModal:not(.hidden)){overflow:hidden}
+.dashboard-page .classificationTabs{gap:8px}
+.dashboard-page .classificationTabs button{font-size:14px;line-height:1.4;min-height:44px}
+.classificationPage .hero .eyebrow{display:none}
+.classificationPage .hero{margin:14px 0 18px}
+.classificationPage .hero h1{font-size:28px}
+.classificationPage .card>h2{margin-bottom:10px}
+.classificationPage .mappingForm,.classificationPage .fixedForm{gap:12px}
+.classificationPage .mappingForm :is(input,select),.classificationPage .fixedForm :is(input,select){min-height:44px}
+.classificationPage .fixedRule{row-gap:10px}
+.classificationPage .rf-intro{align-items:start;gap:12px}
+.classificationPage .rf-private{color:var(--ui-muted);border-color:var(--ui-line);white-space:normal}
+.product-page .notice{line-height:1.7}
+.dashboard-page button:focus-visible,.dashboard-page a:focus-visible{outline:2px solid #a16b00!important;outline-offset:3px}
+.dashboard-page[data-theme="dark"] :focus-visible{outline-color:#ffd16e!important}
+@media(max-width:900px){
+ .admin-page .readableTable{display:block!important;min-width:0!important;width:100%!important;table-layout:auto!important}
+ .admin-page .readableTable thead{display:none}
+ .admin-page .readableTable tbody{display:grid;gap:12px;width:100%}
+ .admin-page .readableTable tr{display:block;min-width:0;border:1px solid var(--ui-line);border-radius:12px;background:var(--ui-surface);padding:12px}
+ .admin-page .readableTable td,.admin-page #nonBangselPreview .readableTable td:last-child{display:block!important;position:static!important;width:100%!important;min-width:0!important;max-width:none!important;white-space:normal!important;overflow-wrap:anywhere!important;text-align:left!important;padding:8px 0!important;border:0!important;box-shadow:none!important;background:transparent!important}
+ .admin-page .readableTable td[data-label]::before{content:attr(data-label);display:block;font-size:11px;font-weight:700;line-height:1.5;color:var(--ui-muted);margin-bottom:4px}
+ .admin-page .readableTable td:first-child{padding-top:0!important;font-size:15px;font-weight:750}
+ .admin-page .readableTable td:last-child{padding-bottom:0!important}
+ .admin-page .readableTable td button{min-height:44px;margin:2px 4px 2px 0!important;max-width:100%;font-size:13px}
+ .admin-page .readableTable .inlineNoteBtn.hasValue{-webkit-line-clamp:unset;max-height:none;display:block}
+ .admin-page .eventBlock{padding:12px!important;overflow:visible!important}
+ .admin-page .previewTableWrap,.admin-page .statsTableWrap,.admin-page #nonBangselPreview{overflow:visible!important;max-height:none!important;border:0!important}
+}
+@media(max-width:680px){
+ .dashboard-page .dashboardHeader{padding:10px 12px!important;gap:4px 10px!important;border-radius:16px!important}
+ .dashboard-page .dashboardBrand{height:44px!important;min-height:44px!important;background-size:98px auto!important}
+ .dashboard-page .dashboardConnectionState{max-width:none;font-size:11px!important}
+ .dashboard-page .dashboardNav{gap:6px!important;margin:10px 0 14px!important}
+ .dashboard-page .dashboardNav a{min-height:64px!important;padding:9px 3px!important;font-size:12px!important;gap:5px!important;border-radius:12px!important}
+ .dashboard-page .dashboardNav .dashboardIcon{width:22px!important;height:22px!important}
+ .admin-page .stats{gap:8px!important;margin:12px 0!important}
+ .admin-page .stat{padding:10px 12px!important;border-radius:12px!important}
+ .admin-page .stat span{font-size:12px!important;font-weight:600}
+ .admin-page .stat b{font-size:22px!important;margin-top:2px!important}
+ .admin-page .toolbarMain{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding:0!important;margin:14px 0!important;align-items:stretch!important}
+ .admin-page .toolbarMain>button{margin:0!important;min-width:0;min-height:48px;padding:9px 8px!important;line-height:1.4!important;font-size:12px!important;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:nowrap}
+ .admin-page .toolbarMain>button:last-child{grid-column:1/-1}
+ .admin-page .toolbarMain .uxPendingBadge{flex-shrink:0;margin:0!important}
+ .admin-page .viewTabs{padding:6px!important;margin-top:12px;gap:5px!important}
+ .admin-page .viewTabs>.viewTab{flex:1;min-width:0;font-size:12px!important;padding:8px 4px!important}
+ .admin-page .pendingSortControls{width:100%;border:0!important;gap:4px;padding:0!important}
+ .admin-page .pendingSortControls button{font-size:12px!important}
+ .admin-page .fanHead{padding:12px!important;gap:8px}
+ .admin-page .managementHead,.admin-page .managementDetailHead,.admin-page .recentCollectorHead{padding:14px 16px!important;gap:10px!important}
+ .admin-page .managementTitle,.admin-page .managementDetailTitle{font-size:20px!important}
+ .admin-page .managementDetailHead{grid-template-columns:minmax(0,1fr)!important}
+ .admin-page .managementDetailActions{width:100%;justify-content:flex-end;grid-column:1!important;grid-row:auto!important}
+ .admin-page .managementBody,.admin-page .managementDetailBody{padding:16px!important}
+ .admin-page .managementCard{padding:14px!important;gap:12px!important;border-radius:14px!important}
+ .admin-page .managementIcon{width:44px!important;height:44px!important;min-width:44px!important;border-radius:12px!important}
+ .admin-page #modal{padding:10px!important}
+ .admin-page #modal>.dialog{max-height:calc(100dvh - 20px);border-radius:16px!important}
+ .admin-page #modal .grid{padding:14px;gap:12px}
+ .admin-page #modal .taskDialogHead,.admin-page #modal .actions{padding:12px 14px}
+ .admin-page #modal .actions button{flex:1;font-size:14px}
+ .dashboard-page .classificationTabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
+ .dashboard-page .classificationTabs button{padding:10px 3px!important;font-size:12px!important;min-height:44px}
+ .classificationPage .hero h1{font-size:24px!important}.classificationPage .hero{margin:12px 0!important}
+ .classificationPage .hero .muted{font-size:12px;line-height:1.65}
+ .classificationPage .rf-intro{margin:16px 0;display:flex;flex-direction:column;gap:8px}
+ .classificationPage .rf-intro h2{font-size:21px;margin:0 0 4px}.classificationPage .rf-intro p{margin:0}
+ .classificationPage .rf-private{padding:5px 9px;font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation-duration:.01ms!important}}
+
+@media(max-width:900px){
+ .admin-page .readableTable tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px}
+ .admin-page .readableTable td{grid-column:1/-1;min-width:0}
+ .admin-page .readableTable td[data-compact="true"]{grid-column:auto}
+ .admin-page .readableTable td:first-child,.admin-page .readableTable td:last-child{grid-column:1/-1}
+}
+@media(min-width:360px) and (max-width:680px){
+ .admin-page .stats{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
+ .admin-page .stat{padding:10px 8px!important}.admin-page .stat b{font-size:18px!important;overflow-wrap:anywhere}
+ .admin-page .stat span{font-size:11px!important}
+}
+@media(max-width:900px){
+ .legal-page .table-wrap{overflow:visible}
+ .legal-page .readableTable{display:block;min-width:0;width:100%;border:0}
+ .legal-page .readableTable thead{display:none}
+ .legal-page .readableTable tbody{display:grid;gap:12px}
+ .legal-page .readableTable tr{display:block;border:1px solid #d8e1eb;border-radius:12px;padding:12px;background:#f8fafc}
+ .legal-page .readableTable td{display:block;width:100%;padding:7px 0;border:0;overflow-wrap:anywhere;font-size:13px}
+ .legal-page .readableTable td::before{content:attr(data-label);display:block;font-size:11px;font-weight:750;color:#526780;margin-bottom:3px}
+ .legal-page .toc a{min-height:40px;display:flex;align-items:center;padding:9px 12px}
+}
+
+/* Keep filters compact enough to reach the history on a phone. */
+.admin-page .dialog.recentCollectorDialog{min-width:0;padding:0!important;overflow:hidden}
+.admin-page .dialog .recentCollectorBody{box-sizing:border-box;width:100%;min-width:0;max-width:100%;overflow-x:hidden;overflow-y:auto}
+.admin-page .recentCollectorBody>*,.admin-page .recentCollectorTools>*{min-width:0;max-width:100%}
+.admin-page .recentCollectorDateTools input[type=date]{box-sizing:border-box;min-inline-size:0;max-inline-size:100%}
+@media(max-width:800px){
+ .admin-page .recentCollectorHead{flex-direction:column;align-items:stretch}
+ .admin-page .recentCollectorHead>div{min-width:0;max-width:100%}
+}
+@media(max-width:680px){
+ .admin-page #recentCollectorModal{padding:0!important}
+ .admin-page .recentCollectorDialog{max-height:100dvh!important;border-radius:0!important}
+ .admin-page .recentCollectorDateTools{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px}
+ .admin-page .recentCollectorDateTools label{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:12px}
+ .admin-page .recentCollectorDateTools input{width:100%;min-width:0;flex:none;padding:10px 12px;font-size:16px}
+ .admin-page .recentCollectorDateTools input[type=date]{appearance:none;-webkit-appearance:none;display:block;min-height:48px}
+ .admin-page .recentCollectorDateTools input[type=date]::-webkit-date-and-time-value{min-width:0;text-align:left}
+ .admin-page .recentCollectorDateTools button{font-size:12px;min-height:44px;padding:8px;white-space:normal;overflow-wrap:anywhere}
+ .admin-page .recentCollectorBody>p.muted{font-size:12px;line-height:1.55;margin:10px 0}
+ .admin-page .recentCollectorCard{padding:8px 10px}
+ .admin-page .recentCollectorCard b{font-size:16px}
+ .admin-page #signupApplicationList [style*="grid-template-columns"]{grid-template-columns:minmax(0,1fr)!important;gap:5px!important}
+ .admin-page #signupApplicationList [style*="grid-template-columns"]>b:not(:first-child){margin-top:8px}
+ .admin-page #collectorDeviceList>div{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(max-width:480px){
+ .admin-page .recentCollectorDateTools{grid-template-columns:minmax(0,1fr)!important}
+ .admin-page .recentCollectorDateTools label,.admin-page .recentCollectorDateTools button{width:100%}
+}
+.admin-page :is(#signupApplicationList,#inquiryAdminList,#collectorDeviceList){overflow-wrap:anywhere}
+.admin-page :is(#signupApplicationList,#inquiryAdminList,#collectorDeviceList) :is(div,span,a){min-width:0}
+
+/* First-seen roulette results: panel, metadata and actions share the theme. */
+body.dashboard-page .ui-notice{background:var(--ui-warning-surface)!important;border:1px solid var(--ui-warning-line)!important;color:var(--ui-text)!important;border-radius:12px;padding:12px;line-height:1.65}
+.admin-page[data-theme] .collectorUnknownHead .muted,.admin-page[data-theme] .collectorUnknownMeta{color:var(--ui-muted)!important}
+.admin-page .collectorUnknownActions button.include{background:var(--ui-accent)!important;border-color:var(--ui-accent)!important;color:var(--ui-accent-text)!important}
+.admin-page .collectorUnknownActions button.include:hover{background:#ffd779!important;border-color:#ffd779!important}
+
+.admin-page[data-theme="dark"] .collectorWarn{color:var(--ui-warning-text)}
+.admin-page[data-theme="dark"] .collectorOk{color:var(--ui-success)}
+
+/* Native mobile focus stays at the same zoom; range fields remain equal width. */
+@media(max-width:680px){
+ .dashboard-page :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=hidden]),select,textarea){font-size:16px!important}
+}
+
+/* Detailed collection status, shared semantic palette in both themes. */
+.historyDiagnosticSteps{list-style:none;padding:0;display:grid;gap:12px}.historyDiagnosticSteps li{padding:16px;border:1px solid var(--ui-line);border-radius:14px;background:var(--ui-surface)}.historyDiagnosticSteps h3{font-size:15px;margin:0 0 10px}.historyDiagnosticSteps p{font-size:14px;line-height:1.7;color:var(--ui-muted);overflow-wrap:anywhere}.historyDiagnosticSteps button{max-width:100%;white-space:normal;min-height:44px}.historyDiagnosticBadge{font-weight:800;font-size:14px;color:var(--ui-text)}.historyDiagnosticBadge[data-ok=true]{color:var(--ui-success)}
+
+#historyDiagnostic{background:var(--ui-soft);color:var(--ui-text);border:1px solid var(--ui-line);box-shadow:0 20px 70px rgba(0,0,0,.3)}#historyDiagnostic::backdrop{background:rgba(0,8,24,.55)}.rf-draft-notice:not(:empty){padding:14px;border:1px solid var(--ui-line);border-radius:12px;margin-top:12px;color:var(--ui-text);font-size:14px;line-height:1.7}.rf-draft-notice button{margin:4px 8px 4px 0;max-width:100%;white-space:normal;min-height:44px}.rf-draft-notice p{margin:0 0 10px}
+/* Dashboard review menus share one position, shell and control rhythm. */
+#dashboardReviewPanels{min-width:0}
+#dashboardReviewPanels>.reviewPanel{margin:18px 0;padding:0;border:1px solid var(--ui-line);border-radius:20px;background:var(--ui-surface);color:var(--ui-text);overflow:clip;box-shadow:0 8px 28px rgba(0,0,0,.035);--line:var(--ui-line);--soft:var(--ui-soft)}
+#dashboardReviewPanels .reviewHeader{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding:24px;border-bottom:1px solid var(--ui-line);background:var(--ui-surface)}
+#dashboardReviewPanels .reviewHeading{display:flex;align-items:flex-start;gap:14px;min-width:0}
+#dashboardReviewPanels .reviewHeading>div{min-width:0}
+#dashboardReviewPanels .reviewIcon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border:1px solid var(--ui-line);border-radius:14px;background:var(--ui-soft);color:var(--ui-text)}
+#dashboardReviewPanels .reviewIcon svg{width:24px;height:24px}
+#dashboardReviewPanels .reviewHeader h2{font-size:20px;line-height:1.4;letter-spacing:-.4px;margin:0;font-weight:800;color:var(--ui-text)}
+#dashboardReviewPanels .reviewHeader p{font-size:14px;line-height:1.7;margin:6px 0 0;color:var(--ui-muted);overflow-wrap:anywhere}
+#dashboardReviewPanels .reviewHeaderActions{display:flex;flex-shrink:0;gap:8px}
+#dashboardReviewPanels button{min-height:44px;font-size:14px;line-height:1.4;padding:10px 15px;white-space:normal;max-width:100%;border-radius:12px}
+#dashboardReviewPanels .reviewHeaderActions button{white-space:nowrap}
+#dashboardReviewPanels .reviewBody{padding:22px 24px;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;min-width:0;font-size:14px;line-height:1.7}
+#dashboardReviewPanels .reviewBody>.muted{font-size:14px;line-height:1.75}
+#dashboardReviewPanels .reviewAuxActions{display:flex;justify-content:flex-end;gap:8px;margin-bottom:12px}
+#dashboardReviewPanels .reviewNotice{margin:0 0 18px;padding:14px 16px;background:var(--ui-soft);border:1px solid var(--ui-line);border-radius:12px;color:var(--ui-muted);font-size:14px;line-height:1.8;overflow-wrap:anywhere}
+#dashboardReviewPanels .reviewNotice b{color:var(--ui-text)}
+#dashboardReviewPanels .reviewBody>details{border:1px solid var(--ui-line);background:var(--ui-soft);border-radius:12px;padding:0 16px;margin:12px 0}
+#dashboardReviewPanels .reviewBody>details>summary{padding:14px 0;min-height:44px;cursor:pointer;font-weight:700;font-size:14px;color:var(--ui-text)}
+#dashboardReviewPanels .reviewBody>details>p{margin:0 0 16px;font-size:14px;line-height:1.8}
+#dashboardReviewPanels .reviewBody>details .saved{margin-bottom:16px}
+#dashboardReviewPanels .exceptionToolbar{gap:10px;margin:16px 0}
+#dashboardReviewPanels .reviewFilterGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:end}
+#dashboardReviewPanels .reviewFilterGrid label{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;font-size:13px;font-weight:700;color:var(--ui-muted)}
+#dashboardReviewPanels .reviewFilterGrid :is(input,select){box-sizing:border-box;width:100%;min-width:0;max-width:100%;min-height:44px;font-size:14px;color:var(--ui-text)}
+#dashboardReviewPanels .reviewBulkActions{padding-top:16px;border-top:1px solid var(--ui-line);display:flex;flex-wrap:wrap}
+#dashboardReviewPanels .reviewEmpty,#dashboardReviewPanels #collectorPreview>.muted{padding:24px!important;margin:0;border:1px dashed var(--ui-line);border-radius:12px;text-align:center;background:var(--ui-soft);color:var(--ui-muted);font-size:14px}
+#dashboardReviewPanels #collectorPreview:has(>.muted){border:0;background:transparent}
+#dashboardReviewPanels #collectorPendingActions{gap:12px!important;margin:16px 0!important}
+#dashboardReviewPanels .collectorSummary{gap:8px;margin:12px 0}
+#dashboardReviewPanels .collectorSummary>span{font-size:12px;padding:6px 10px}
+#dashboardReviewPanels #exceptionStatus:empty{display:none}
+#dashboardReviewPanels #exceptionList{margin-top:18px}
+#dashboardReviewPanels #uxStatusMessage{padding:12px 0;margin:0 0 12px;font-weight:600}
+@media(max-width:1000px){
+ #dashboardReviewPanels .reviewHeader{flex-wrap:wrap;gap:16px}
+ #dashboardReviewPanels .reviewHeaderActions{margin-left:58px}
+ #dashboardReviewPanels .reviewFilterGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+ #dashboardReviewPanels>.reviewPanel{margin:14px 0;border-radius:16px}
+ #dashboardReviewPanels .reviewHeader{padding:18px 16px;gap:14px}
+ #dashboardReviewPanels .reviewHeading{gap:12px}
+ #dashboardReviewPanels .reviewIcon{width:40px;height:40px;flex-basis:40px;border-radius:12px}
+ #dashboardReviewPanels .reviewHeader h2{font-size:18px}
+ #dashboardReviewPanels .reviewHeader p{font-size:13px}
+ #dashboardReviewPanels .reviewHeaderActions{margin-left:0;width:100%;display:grid;grid-template-columns:1fr 1fr}
+ #dashboardReviewPanels .reviewBody{padding:16px}
+ #dashboardReviewPanels .reviewAuxActions{justify-content:stretch}
+ #dashboardReviewPanels .reviewAuxActions button{width:100%}
+ #dashboardReviewPanels .reviewNotice{padding:12px;font-size:13px}
+ #dashboardReviewPanels .reviewBulkActions{display:grid;grid-template-columns:minmax(0,1fr)}
+ #dashboardReviewPanels .reviewFilterGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #dashboardReviewPanels #collectorPendingActions .primary{width:100%}
+ #dashboardReviewPanels .reviewEmpty,#dashboardReviewPanels #collectorPreview>.muted{padding:20px 12px!important}
+}
+@media(max-width:359px){#dashboardReviewPanels .reviewFilterGrid{grid-template-columns:minmax(0,1fr)}}
+
+#dashboardReviewPanels .reviewMeta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}#dashboardReviewPanels .reviewMeta .reviewAuxActions{margin:0}#dashboardReviewPanels .reviewFilterGrid :is(input,select){height:48px}#dashboardReviewPanels .exceptionRow>label{display:inline-flex;align-items:center;gap:6px;margin-right:10px}#dashboardReviewPanels .exceptionRow>label input{margin-right:0}
+@media(max-width:600px){#dashboardReviewPanels .reviewMeta{align-items:stretch}#dashboardReviewPanels .reviewMeta .reviewAuxActions{width:100%;order:1}}
+/* Notification counts must not move a menu or the panel below it. */
+.dashboard-page .toolbarMain>button:has(.notificationCount){position:relative}
+.dashboard-page .toolbarMain .notificationCount{position:absolute;top:-7px;right:-5px;margin:0;pointer-events:none}
+#dashboardReviewPanels .reviewHeader p{min-height:3.4em}
+
+/* Compact completion controls keep dense task rows readable. */
+.admin-page .completionControl{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;min-width:124px;padding:3px 8px;border:1px solid var(--ui-line);border-radius:10px;background:var(--ui-surface)}
+.admin-page .completionNumbers{min-width:0;font-variant-numeric:tabular-nums}
+.admin-page .completionNumbers strong{font-size:13px;line-height:20px;white-space:nowrap}
+.admin-page .completionNumbers strong span{color:var(--ui-muted);font-size:12px}
+.admin-page .completionArrows{display:flex;flex-direction:column;gap:2px;flex:none}
+.admin-page .eventTaskTable .completionStep{display:grid;place-items:center;width:28px;height:24px;min-width:28px!important;min-height:24px!important;margin:0!important;padding:0!important;border-radius:6px;touch-action:manipulation}
+.admin-page .completionStep svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.admin-page .completionStep:disabled{opacity:.35;cursor:default}
+@media(max-width:700px){.admin-page .eventTaskTable .completionCell{grid-column:1/-1!important}.admin-page .completionControl{min-width:132px;max-width:100%}.admin-page .eventTaskTable .completionStep{width:32px;height:28px;min-width:32px!important;min-height:28px!important}}
+
+@media(min-width:981px){.admin-page .eventTaskTable:not(.typeQueueTable) :is(th,td):nth-child(3){width:14%}.admin-page .eventTaskTable:not(.typeQueueTable) :is(th,td):nth-child(4){width:15%}.admin-page .eventTaskTable:not(.typeQueueTable) :is(th,td):nth-child(5){width:16%}}
+/* Review buttons share the selected yellow used by task filters, in both themes. */
+body.admin-page .toolbarMain .toggleBtn[aria-expanded="true"],body.admin-page[data-theme="light"] .toolbarMain .toggleBtn[aria-expanded="true"]{background:var(--ui-accent)!important;border-color:var(--ui-accent)!important;color:var(--ui-accent-text)!important;box-shadow:inset 0 -2px 0 #00000012}
+body.admin-page .toolbarMain .toggleBtn[aria-expanded="true"]:hover{background:#ffd779!important;border-color:#ffd779!important;color:#071831!important}
+body.admin-page .typeQueueCard .typeQueueHead{border:0!important;border-radius:0!important;padding:14px 16px!important;background:var(--ui-soft)!important;color:var(--ui-text)!important}
+body.admin-page .typeQueueCard .typeQueueHead:hover{background:var(--ui-surface)!important}
+.completionHistoryDialog{width:min(760px,calc(100vw - 32px));max-width:760px!important;max-height:90dvh;overflow:auto}
+.completionHistoryHead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--ui-line)}
+.completionHistoryHead h2{font-size:20px;margin:0}.completionHistoryHead p{margin:8px 0 0;font-size:13px;line-height:1.6}
+.completionHistoryActions{display:flex;gap:8px;flex-shrink:0}.completionHistoryActions button{white-space:nowrap}
+.completionHistoryContent{padding-top:12px;min-width:0}.completionHistoryContent>p{font-size:13px;line-height:1.6}
+.completionHistoryList{display:grid;gap:10px;margin:12px 0}.completionHistoryRow{padding:16px;border:1px solid var(--ui-line);background:var(--ui-soft);border-radius:12px;overflow-wrap:anywhere}
+.completionHistoryRowHead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.completionHistoryRow time{font-size:12px;color:var(--ui-muted)}
+.completionHistoryRow h3{font-size:16px;margin:12px 0 6px}.completionHistoryRow p{font-size:13px;margin:5px 0}
+.completionHistoryBadge{padding:5px 9px;border-radius:8px;background:var(--ui-surface);color:var(--ui-text);font-size:12px;font-weight:800}.completionHistoryBadge[data-kind="completion"]{background:#d9f6e9;color:#075f44}.completionHistoryBadge[data-kind="undo"]{background:#fff0ce;color:#805000}
+@media(max-width:600px){.completionHistoryHead{flex-direction:column;gap:12px}.completionHistoryActions{align-self:flex-end}.completionHistoryDialog{width:calc(100vw - 20px)}body.admin-page .typeQueueCard .typeQueueHead{padding:12px!important}}

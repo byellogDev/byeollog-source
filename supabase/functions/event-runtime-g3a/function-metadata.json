@@ -1,0 +1,35 @@
+{
+  "id": "1de961af-24ab-44b8-ae2a-cbe0896aa841",
+  "slug": "event-runtime-g3a",
+  "name": "event-runtime-g3a",
+  "status": "ACTIVE",
+  "version": 12,
+  "created_at": 1787109564890,
+  "updated_at": 1787726426111,
+  "verify_jwt": true,
+  "import_map": false,
+  "entrypoint_path": "/tmp/user_fn_offslvwaugvjotkywlus_1de961af-24ab-44b8-ae2a-cbe0896aa841_10/source/event-runtime/index.ts",
+  "ezbr_sha256": "5c58748ee3bf0837f988ff4bc23b57b6a0cb5973c482270c46f78d2de377c502",
+  "files": [
+    {
+      "name": "event-runtime/index.ts",
+      "bytes": 13013
+    },
+    {
+      "name": "_shared/rule-evaluator.ts",
+      "bytes": 2385
+    },
+    {
+      "name": "_shared/cors.ts",
+      "bytes": 281
+    },
+    {
+      "name": "_shared/execution-worker.ts",
+      "bytes": 9637
+    },
+    {
+      "name": "_shared/server-runtime.ts",
+      "bytes": 12158
+    }
+  ]
+}

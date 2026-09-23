@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>byeollog</AssemblyName>
+    <RootNamespace>HurogiCollector</RootNamespace>
+    <Version>1.0.0.40</Version>
+    <InformationalVersion>1.0.0.40</InformationalVersion>
+    <Product>별록 풍벽지</Product>
+    <AssemblyTitle>별록 풍벽지</AssemblyTitle>
+    <Description>OBS에 별록 풍벽지 화면을 연결하는 전용 프로그램</Description>
+    <ApplicationIcon>Assets\byeollog_app.ico</ApplicationIcon>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <DefineConstants>$(DefineConstants);BYEOLLOG_CORE_WALLPAPER</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4022.49" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="AgentStoreTests\**\*.cs" />
+  </ItemGroup>
+
+  <!--
+    Microsoft.Web.WebView2's shared targets add the WPF wrapper for every
+    net5+ managed project, including this WinForms-only app.  The wrapper is
+    unused here and brings a second WindowsBase assembly version (MSB3277).
+    Remove only that package-injected reference before assembly resolution;
+    Core and WinForms references remain unchanged.
+  -->
+  <Target Name="ExcludeUnusedWebView2WpfReference" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <Reference Remove="@(Reference)" Condition="'%(Reference.Filename)' == 'Microsoft.Web.WebView2.Wpf'" />
+    </ItemGroup>
+  </Target>
+
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\byeollog_app.ico" LogicalName="HurogiCollector.Assets.byeollog_app.ico" />
+    <EmbeddedResource Include="Assets\byeollog_symbol.png" LogicalName="HurogiCollector.Assets.byeollog_symbol.png" />
+    <EmbeddedResource Include="Ui\byeollog_ui.html" LogicalName="HurogiCollector.Ui.byeollog_ui.html" />
+    <EmbeddedResource Include="Ui\agent_automation.html" LogicalName="HurogiCollector.Ui.agent_automation.html" />
+    <EmbeddedResource Include="Ui\wallpaper_editor.html" LogicalName="HurogiCollector.Ui.wallpaper_editor.html" />
+    <EmbeddedResource Include="Ui\byeollog-theme.css" LogicalName="HurogiCollector.Ui.byeollog_theme.css" />
+    <EmbeddedResource Include="Ui\startup_loading.html" LogicalName="HurogiCollector.Ui.startup_loading.html" />
+    <EmbeddedResource Include="Ui\byeollog_logo_dark_safe.png" LogicalName="HurogiCollector.Ui.byeollog_logo_dark_safe.png" />
+    <EmbeddedResource Include="Ui\byeollog_logo_light_safe.png" LogicalName="HurogiCollector.Ui.byeollog_logo_light_safe.png" />
+    <None Update="Assets\hurogi_balloon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,13 @@
+# Current operating Edge entrypoints. Deploy explicitly; never deploy embedded historical web copies.
+
+[functions.agent-runtime-g3a]
+verify_jwt = true
+entrypoint = "./functions/agent-runtime-g3a/functions/agent-runtime/index.ts"
+
+[functions.event-runtime-g3a]
+verify_jwt = true
+entrypoint = "./functions/event-runtime-g3a/event-runtime/index.ts"
+
+[functions.execution-worker-g3a]
+verify_jwt = true
+entrypoint = "./functions/execution-worker-g3a/execution-worker/index.ts"

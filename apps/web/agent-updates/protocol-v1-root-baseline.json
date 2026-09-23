@@ -1,0 +1,59 @@
+{
+  "version": "1.0.0.36",
+  "files": [
+    {
+      "path": "LAUNCH_BYEOLLOG.cmd",
+      "role": "install_root",
+      "byteSize": 498,
+      "sha256": "4a5b377dac51fbfaac196dba8a9aa39a6e8137469f672235b275ec2ce7a8e01a"
+    },
+    {
+      "path": "Byeollog-Launcher.ps1",
+      "role": "install_root",
+      "byteSize": 10064,
+      "sha256": "c213a2f3eb0f2a6c0f92d1f72f427f352bc06effc276bacd9b977be880ca6cae"
+    },
+    {
+      "path": "Install-Byeollog.ps1",
+      "role": "install_root",
+      "byteSize": 35725,
+      "sha256": "c1c7b4873873f6f6fd28577132ac063a059807992974113d3ac2dbb1b6e832cb"
+    },
+    {
+      "path": "ROLLBACK_LAST_VERSION.cmd",
+      "role": "install_root",
+      "byteSize": 292,
+      "sha256": "f1081b10b103489c2e0ccaa92b439ba79a12ee267a636980b2fffc590ae6a253"
+    },
+    {
+      "path": "VERIFY_INSTALL.cmd",
+      "role": "install_root",
+      "byteSize": 379,
+      "sha256": "70c17462b6f9fbdd514c8d28db7d18fbce2201f30e263acfdaa374ea8910a260"
+    },
+    {
+      "path": "RESTORE_PREUPDATE_STATE.cmd",
+      "role": "install_root",
+      "byteSize": 316,
+      "sha256": "3d9456b01ed4e0559eb1b65ca9c93f04c4574a57ea63d6b6a1da95b16eb529bf"
+    },
+    {
+      "path": "CREATE_SUPPORT_BUNDLE.cmd",
+      "role": "install_root",
+      "byteSize": 332,
+      "sha256": "d5bf1ffc784cd434e194dca35c77fcc8bd2c00677d61b7b79ad0e6fef66ef71a"
+    },
+    {
+      "path": "RUN_REPLAY_CANDIDATE_CHECK.cmd",
+      "role": "install_root",
+      "byteSize": 885,
+      "sha256": "d7e7c3dc1d57eb34baf0234d001e3ba121c898bf2d45fe4e2e39f5a29dd325dc"
+    },
+    {
+      "path": "Collect-SupportBundle.ps1",
+      "role": "install_root",
+      "byteSize": 10945,
+      "sha256": "e398083caaf3172bc1e02fdc0871151bb4f5d7483febf2956ae938d5899b70f7"
+    }
+  ]
+}

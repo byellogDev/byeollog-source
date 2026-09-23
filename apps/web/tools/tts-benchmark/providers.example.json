@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "candidate_pcm",
+      "label": "후보 PCM 스트리밍 API",
+      "kind": "http-pcm-v1",
+      "endpoint": "https://tts-provider.example/v1/tts",
+      "sampleRate": 24000,
+      "channels": 1,
+      "textField": "text",
+      "body": {
+        "language": "ko-KR",
+        "voice": "replace-with-provider-voice"
+      },
+      "headers": {
+        "Authorization": {
+          "env": "TTS_CANDIDATE_AUTHORIZATION"
+        }
+      },
+      "metadata": {
+        "commercialUseReview": "required",
+        "purpose": "phase-2-real-provider-test"
+      }
+    }
+  ]
+}

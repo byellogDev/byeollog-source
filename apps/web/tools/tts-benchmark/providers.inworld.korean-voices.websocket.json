@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "inworld_hyunwoo_ws",
+      "label": "Inworld Hyunwoo persistent WebSocket",
+      "kind": "inworld-websocket-v1",
+      "endpoint": "wss://api.inworld.ai/tts/v1/voice:streamBidirectional",
+      "apiKeyEnv": "INWORLD_API_KEY",
+      "voiceId": "Hyunwoo",
+      "modelId": "inworld-tts-2-flash",
+      "sampleRate": 24000,
+      "language": "ko-KR",
+      "applyTextNormalization": "OFF",
+      "metadata": {"language":"ko-KR","transport":"Persistent WebSocket","evaluation":"blind voice quality"}
+    },
+    {
+      "id": "inworld_minji_ws",
+      "label": "Inworld Minji persistent WebSocket",
+      "kind": "inworld-websocket-v1",
+      "endpoint": "wss://api.inworld.ai/tts/v1/voice:streamBidirectional",
+      "apiKeyEnv": "INWORLD_API_KEY",
+      "voiceId": "Minji",
+      "modelId": "inworld-tts-2-flash",
+      "sampleRate": 24000,
+      "language": "ko-KR",
+      "applyTextNormalization": "OFF",
+      "metadata": {"language":"ko-KR","transport":"Persistent WebSocket","evaluation":"blind voice quality"}
+    },
+    {
+      "id": "inworld_seojun_ws",
+      "label": "Inworld Seojun persistent WebSocket",
+      "kind": "inworld-websocket-v1",
+      "endpoint": "wss://api.inworld.ai/tts/v1/voice:streamBidirectional",
+      "apiKeyEnv": "INWORLD_API_KEY",
+      "voiceId": "Seojun",
+      "modelId": "inworld-tts-2-flash",
+      "sampleRate": 24000,
+      "language": "ko-KR",
+      "applyTextNormalization": "OFF",
+      "metadata": {"language":"ko-KR","transport":"Persistent WebSocket","evaluation":"blind voice quality"}
+    },
+    {
+      "id": "inworld_yoona_ws",
+      "label": "Inworld Yoona persistent WebSocket",
+      "kind": "inworld-websocket-v1",
+      "endpoint": "wss://api.inworld.ai/tts/v1/voice:streamBidirectional",
+      "apiKeyEnv": "INWORLD_API_KEY",
+      "voiceId": "Yoona",
+      "modelId": "inworld-tts-2-flash",
+      "sampleRate": 24000,
+      "language": "ko-KR",
+      "applyTextNormalization": "OFF",
+      "metadata": {"language":"ko-KR","transport":"Persistent WebSocket","evaluation":"blind voice quality"}
+    }
+  ]
+}

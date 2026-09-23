@@ -1,0 +1,4 @@
+drop function if exists public.diagnose_cross_workspace_soop_incident_v1(
+  text,text,text,timestamptz,timestamptz);
+drop function if exists public.reconcile_cross_workspace_soop_incident_v1(
+  text,text,text,timestamptz,timestamptz);

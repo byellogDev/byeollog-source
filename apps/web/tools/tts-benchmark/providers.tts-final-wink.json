@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "final_inworld",
+      "label": "Final provider 1",
+      "kind": "inworld-websocket-v1",
+      "endpoint": "wss://api.inworld.ai/tts/v1/voice:streamBidirectional",
+      "apiKeyEnv": "INWORLD_API_KEY",
+      "voiceId": "Minji",
+      "modelId": "inworld-tts-2-flash",
+      "sampleRate": 24000,
+      "language": "ko-KR",
+      "applyTextNormalization": "OFF"
+    },
+    {
+      "id": "final_cartesia",
+      "label": "Final provider 2",
+      "kind": "cartesia-websocket-v1",
+      "endpoint": "wss://api.cartesia.ai/tts/websocket?cartesia_version=2026-08-14",
+      "apiKeyEnv": "CARTESIA_API_KEY",
+      "voiceId": "cd6c48a9-774b-4397-98b4-9948c0a790f0",
+      "modelId": "sonic-3.6",
+      "sampleRate": 24000
+    },
+    {
+      "id": "final_google",
+      "label": "Final provider 3",
+      "kind": "google-chirp3-streaming-v1",
+      "endpoint": "https://texttospeech.googleapis.com",
+      "voiceName": "ko-KR-Chirp3-HD-Leda",
+      "languageCode": "ko-KR",
+      "sampleRate": 24000,
+      "speakingRate": 1
+    }
+  ]
+}

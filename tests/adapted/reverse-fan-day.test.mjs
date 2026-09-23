@@ -1,0 +1,16 @@
+import {auditURL as _auditURL} from '../resolve-source.mjs';
+const auditURL=(value,base)=>_auditURL(value,base,"admin-runtime");
+import test from 'node:test';import assert from 'node:assert/strict';
+import {normalizeReverseFanDay,reverseFanDayRequest} from '../../apps/admin-runtime/lib/reverse-fan-day.js';
+import {getRouletteClassificationHtml} from '../../apps/admin-runtime/lib/roulette-classification-html.js';
+import {migrateBackup,BACKUP_TABLES,BACKUP_FORMAT_VERSION} from '../../apps/admin-runtime/lib/backup.js';
+const id='10000000-0000-4000-8000-000000000001';
+const campaign=()=>({name:'9월 역팬데이',startsAt:'2026-09-10T12:00:00+09:00',endsAt:'2026-09-11T02:00:00+09:00',rules:[{min:33,max:100,rateBp:1000},{min:101,max:500,rateBp:1250}]});
+test('reverse fan day ranges retain inclusive bounds, basis points and KST timestamps',()=>{const c=normalizeReverseFanDay(campaign());assert.equal(c.startsAt,'2026-09-10T03:00:00.000Z');assert.equal(c.endsAt,'2026-09-10T17:00:00.000Z');assert.equal(c.rules[1].rateBp,1250)});
+test('overlapping endpoints, fractional counts, inverted periods and unsafe rates are rejected',()=>{for(const rules of [[{min:1,max:100,rateBp:1000},{min:100,max:200,rateBp:500}],[{min:1.5,max:10,rateBp:1000}],[{min:20,max:10,rateBp:1000}],[{min:1,max:20,rateBp:10001}]])assert.throws(()=>normalizeReverseFanDay({...campaign(),rules}));assert.throws(()=>normalizeReverseFanDay({...campaign(),endsAt:campaign().startsAt}));});
+test('server session workspace and actor cannot be replaced by client input',async()=>{let call;const sb=async(...args)=>{call=args;return {ok:true}};await reverseFanDayRequest({sb,workspaceId:'server-workspace',userId:'server-user',method:'POST',body:{...campaign(),id,action:'create',workspace_id:'attacker',userId:'attacker',payments:{alice:999}}});assert.equal(call[2].body.p_workspace_id,'server-workspace');assert.equal(call[2].body.p_user_id,'server-user');assert.equal(call[2].body.p_payload.payments,undefined)});
+test('payment requires optimistic revision, expected amounts and identity',async()=>{let calls=0;const sb=async()=>{calls++;return {}};for(const extra of [{revision:0},{expectedRefund:-1},{expectedPaid:1.2},{fanId:''}]){const r=await reverseFanDayRequest({sb,workspaceId:'w',userId:'u',method:'POST',body:{action:'pay',id,revision:1,fanId:'alice',expectedRefund:30,expectedPaid:0,...extra}});assert.equal(r.status,400)}assert.equal(calls,0)});
+test('private tab has accessible controls and compiled inline script',()=>{const html=getRouletteClassificationHtml('test-nonce');assert.match(html,/id="reverseTab"/);assert.match(html,/시청자 비공개/);assert.match(html,/후원 건별 소수점/);new Function(html.match(/<script nonce="test-nonce">([\s\S]*?)<\/script>/)[1]);});
+test('v10 backup includes settlements and migrates v9 without mutating original',()=>{const old={format:'bangsel-db-backup',backup_version:9,tables:{bangsel_tasks:[]}},m=migrateBackup(old);assert.equal(BACKUP_FORMAT_VERSION,10);assert.equal(m.backup_version,10);assert.deepEqual(m.tables.byeollog_reverse_fan_days,[]);assert.equal(old.backup_version,9);assert(BACKUP_TABLES.some(t=>t.name==='byeollog_reverse_fan_days'))});
+
+test('impossible calendar dates are rejected rather than rolled into the next month',()=>assert.throws(()=>normalizeReverseFanDay({...campaign(),startsAt:'2026-02-31T12:00:00+09:00'})));

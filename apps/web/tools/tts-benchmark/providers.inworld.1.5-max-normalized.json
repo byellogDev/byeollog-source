@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "inworld_tts_1_5_max_ko_normalized",
+      "label": "Inworld TTS 1.5 Max Korean normalized",
+      "kind": "inworld-websocket-v1",
+      "endpoint": "wss://api.inworld.ai/tts/v1/voice:streamBidirectional",
+      "apiKeyEnv": "INWORLD_API_KEY",
+      "voiceIdEnv": "INWORLD_VOICE_ID",
+      "modelId": "inworld-tts-1.5-max",
+      "sampleRate": 24000,
+      "language": "ko-KR",
+      "applyTextNormalization": "ON",
+      "metadata": {
+        "purpose": "Production Korean roulette result and donation message validation",
+        "transport": "Persistent WebSocket with reusable context, streamed PCM16LE",
+        "normalization": "ON"
+      }
+    }
+  ]
+}

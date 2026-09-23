@@ -1,0 +1,71 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "node -e \"console.log(\\\"isolated runtime ready\\\")\"",
+  "outputDirectory": "public-dist",
+  "regions": [
+    "hnd1"
+  ],
+  "functions": {
+    "api/admin.js": {
+      "maxDuration": 30
+    },
+    "api/backups.js": {
+      "maxDuration": 300
+    },
+    "api/collector-process.js": {
+      "maxDuration": 30
+    },
+    "api/data.js": {
+      "maxDuration": 30
+    },
+    "api/game-link.js": {
+      "maxDuration": 60
+    },
+    "api/minecraft-server.js": {
+      "maxDuration": 60
+    },
+    "api/login.js": {
+      "maxDuration": 60
+    },
+    "api/logout.js": {
+      "maxDuration": 30
+    },
+    "api/restore.js": {
+      "maxDuration": 30
+    },
+    "api/roulette-void.js": {
+      "maxDuration": 30
+    },
+    "api/native-roulette.js": {
+      "maxDuration": 30
+    },
+    "api/discord-ops.js": {
+      "maxDuration": 30
+    }
+  },
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, private"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, noarchive"
+        },
+        {
+          "key": "X-Vercel-Enable-Rewrite-Caching",
+          "value": "0"
+        }
+      ]
+    }
+  ]
+}

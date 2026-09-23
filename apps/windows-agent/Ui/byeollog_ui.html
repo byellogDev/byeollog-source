@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; font-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>별록 풍벽지</title>
+  <style>
+    :root{color-scheme:dark;--shell:#17182d;--surface:#20213d;--line:#363957;--text:#f8f8ff;--muted:#a8abc7;--green:#43d6a2;--green-soft:#43d6a21b;--amber:#f3bd55;--amber-soft:#f3bd5518;--red:#ff7180;--red-soft:#ff718018}
+    *{box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden}body{margin:0;background:transparent;color:var(--text);font-family:Pretendard,"Noto Sans KR","Malgun Gothic","맑은 고딕","Segoe UI",sans-serif}button{font:inherit}button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+    .app{position:relative;width:420px;height:560px;overflow:hidden;border:1px solid #444765;border-radius:16px;background:linear-gradient(180deg,#1b1c32 0%,#17182d 100%);box-shadow:0 24px 70px #0008;transform-origin:top left}
+    .topbar{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 17px}.brand{display:flex;align-items:center;gap:9px;min-width:0}.brand img{width:27px;height:27px;object-fit:cover;object-position:left;border-radius:8px}.brand strong{font-size:16px;letter-spacing:-.02em}.window-actions{display:flex;gap:5px}.window-button{width:36px;height:34px;border:0;border-radius:9px;background:transparent;color:#d9dbed;font-size:19px;cursor:pointer}.window-button:hover{background:#ffffff0e}.window-button.close:hover{background:#e74b5a;color:#fff}
+    .status-view{position:relative;height:calc(100% - 58px);display:flex;flex-direction:column;align-items:center;padding:42px 32px 24px;text-align:center}.app:after{content:"";position:absolute;left:-34px;right:-34px;bottom:-54px;height:150px;background:linear-gradient(165deg,#272944 20%,#20213b 20% 49%,#292a49 49% 70%,#1e2038 70%);opacity:.9;transform:rotate(-2deg);pointer-events:none}
+    .status-orbit{position:relative;z-index:1;width:190px;height:190px;display:grid;place-items:center;border-radius:50%;background:var(--green-soft);transition:background .25s ease}.status-orbit:before,.status-orbit:after{content:"";position:absolute;border-radius:50%;border:1px solid #ffffff0b}.status-orbit:before{inset:19px}.status-orbit:after{inset:39px}.status-symbol{position:relative;z-index:1;width:72px;height:72px;display:grid;place-items:center;border-radius:50%;background:var(--green);color:#10251f;font-size:35px;font-weight:900;box-shadow:0 10px 32px #43d6a244}.status-orbit.connecting{background:var(--amber-soft)}.status-orbit.connecting .status-symbol{background:var(--amber);color:#35270c;box-shadow:0 10px 32px #f3bd5540}.status-orbit.offline{background:var(--red-soft)}.status-orbit.offline .status-symbol{background:var(--red);color:#3d1117;box-shadow:0 10px 32px #ff71803d}
+    .status-copy{position:relative;z-index:1;margin-top:34px}.status-copy h1{margin:0;font-size:27px;letter-spacing:-.045em}.status-copy p{max-width:320px;margin:11px auto 0;color:var(--muted);font-size:14px;line-height:1.55}.account{margin-top:21px;color:#7f83a6;font-size:12px;font-weight:700}.footer-note{position:relative;z-index:1;margin-top:auto;color:#8589aa;font-size:11px}.footer-note span{display:inline-flex;align-items:center;gap:7px}.footer-note i{width:6px;height:6px;border-radius:50%;background:var(--green)}.footer-note.connecting i{background:var(--amber)}.footer-note.offline i{background:var(--red)}
+    .status-view{padding-top:30px;overflow-y:auto}.status-orbit{width:180px;height:180px;flex-shrink:0}.status-copy{margin-top:24px}.account{margin-top:14px}.footer-note{padding-top:14px;flex-shrink:0}.has-update-warning .status-orbit{width:150px;height:150px}
+    .shortcut-actions{position:relative;z-index:1;display:flex;gap:10px;width:100%;margin-top:18px;flex-shrink:0}.shortcut-button{position:relative;flex:1 1 0;min-width:0;min-height:78px;padding:12px 9px 11px;border:1px solid #4a4d6d;border-radius:14px;background:linear-gradient(145deg,#2b2d49,#23253f);color:var(--text);cursor:pointer;text-align:center;box-shadow:0 5px 14px #08091425;transition:background .15s,border-color .15s,box-shadow .15s}.shortcut-title{display:block;font-size:12px;line-height:1.4;font-weight:800;white-space:nowrap}.shortcut-note{display:block;margin-top:4px;font-size:10px;line-height:1.4;color:#a8abc7;white-space:nowrap}.shortcut-icon{position:absolute;top:-11px;left:12px;width:25px;height:25px;display:grid;place-items:center;border:1px solid #4a4d6d;border-radius:8px;background:#30324f;color:#d2d5f3;font-size:16px}.editor-button{border-color:#ecc16a;background:linear-gradient(135deg,#f7d182,#efbc57);color:#30230b;box-shadow:0 5px 18px #f3bd5518}.editor-button .shortcut-note{color:#75551d}.editor-button .shortcut-icon{border-color:#e9bd63;background:#ffe0a0;color:#72501b}.shortcut-button:hover:not(:disabled){border-color:#888cbb;box-shadow:0 7px 20px #08091438}.editor-button:hover{border-color:#ffe2a0;background:linear-gradient(135deg,#ffdfa0,#f5c566)}.shortcut-button:active:not(:disabled){transform:translateY(1px)}.shortcut-button:disabled{opacity:.65;cursor:wait}.shortcut-actions:has(.hidden){display:none}
+    .toast{position:fixed;z-index:10;left:50%;bottom:18px;max-width:360px;translate:-50% 16px;opacity:0;padding:10px 14px;border-radius:10px;background:#080914e8;color:#fff;font-size:12px;pointer-events:none;transition:.2s}.toast.show{opacity:1;translate:-50% 0}
+    .app:has(.status-view.hidden):after{display:none}
+    .hidden{display:none!important}.login-view{height:calc(100% - 58px);padding:34px 34px 28px}.login-card{height:100%;display:flex;flex-direction:column;padding:28px;border:1px solid var(--line);border-radius:20px;background:#20213d}.login-card h1{margin:0 0 26px;font-size:25px;letter-spacing:-.04em}.login-field{margin-bottom:15px;text-align:left}.login-field label{display:block;margin:0 0 7px;color:#c7cae0;font-size:12px;font-weight:700}.login-input{width:100%;height:44px;border:1px solid #444867;border-radius:11px;background:#17182d;color:#fff;padding:0 13px;font:inherit;outline:none}.login-input:focus{border-color:var(--amber);box-shadow:0 0 0 3px #f3bd5514}.login-options{display:flex;align-items:center;justify-content:space-between;color:#9296b6;font-size:11px}.remember{display:flex;align-items:center;gap:6px}.login-status{min-height:34px;margin:15px 0 0!important;color:var(--red)!important;font-size:12px!important}.login-status[hidden]{display:none!important}.login-status.ok{color:var(--green)!important}.login-submit{flex:0 0 46px;height:46px;min-height:46px;margin-top:auto;border:0;border-radius:12px;background:var(--amber);color:#31240a;font-weight:900;cursor:pointer}.login-submit:disabled{opacity:.55;cursor:wait}.login-links{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:15px;color:#777b9c;font-size:11px}.login-links button{border:0;background:transparent;color:#a9acc7;cursor:pointer}
+    @media(prefers-reduced-motion:no-preference){.status-orbit.connecting .status-symbol{animation:pulse 1.7s ease-in-out infinite}@keyframes pulse{50%{scale:.92;opacity:.78}}}
+    .support-button{border:1px solid #f3bd5580;color:var(--amber);font-size:16px;font-weight:800}.support-panel{position:absolute;z-index:5;inset:58px 14px 14px;padding:22px;border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:auto;text-align:left}.support-panel h2{margin:0 0 12px;font-size:23px}.support-panel p{font-size:13px;line-height:1.6;color:var(--muted)}.support-panel label{display:block;margin:18px 0 8px;font-size:14px}.support-panel textarea{width:100%;resize:none;padding:12px;border:1px solid #5e6388;border-radius:10px;background:var(--shell);color:var(--text);font:inherit;font-size:14px}.support-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.support-actions button{min-height:42px;padding:10px 20px;border-radius:10px;border:1px solid #5e6388;background:var(--shell);color:var(--text)}#supportSend{background:var(--amber);color:#17182d;font-weight:800}.support-actions button:disabled{opacity:.5}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar" id="windowDragArea">
+    <div class="brand"><img src="byeollog_logo_dark_safe.png" alt=""><strong>별록 풍벽지</strong></div>
+    <div class="window-actions"><button class="window-button support-button hidden" id="supportButton" title="긴급 호출 · 무료 베타" aria-label="장애 내용 보내기">!</button><button class="window-button" id="minimize" title="최소화" aria-label="창 최소화">—</button><button class="window-button close" id="close" title="닫기" aria-label="창 닫기">×</button></div>
+  </header>
+  <main class="status-view" aria-live="polite">
+    <div class="status-orbit connecting" id="statusOrbit"><span class="status-symbol" id="statusSymbol">···</span></div>
+    <div class="status-copy"><h1 id="statusTitle">서버 연결 확인 중</h1><p id="statusMessage">별록 서버와 연결 상태를 확인하고 있습니다.</p><div class="account" id="accountName">별록 풍벽지</div><p id="updateWarning" class="hidden" style="color:var(--amber);font-size:11px;line-height:1.4" role="status"></p></div>
+    <div class="shortcut-actions" aria-label="바로가기">
+      <button class="shortcut-button editor-button hidden" id="editorButton" type="button"><span class="shortcut-icon" aria-hidden="true">▦</span><span class="shortcut-title">풍벽지 배치 편집</span><span class="shortcut-note">방송 화면 편집</span></button>
+      <button class="shortcut-button dashboard-button hidden" id="dashboardButton" type="button"><span class="shortcut-icon" aria-hidden="true">↗</span><span class="shortcut-title" id="dashboardLabel">대시보드 바로가기</span><span class="shortcut-note">웹에서 업보 · 이미지 관리</span></button>
+    </div>
+    <div class="footer-note connecting" id="footerNote"><span><i></i><b id="footerText">자동으로 연결하고 있어요</b></span></div>
+  </main>
+  <main class="login-view hidden" id="loginView">
+    <section class="login-card">
+      <h1>별록 서버 연결</h1>
+      <div class="login-field"><label for="loginId">이메일 또는 아이디</label><input class="login-input" id="loginId" autocomplete="username"></div>
+      <div class="login-field"><label for="loginPassword">비밀번호</label><input class="login-input" id="loginPassword" type="password" autocomplete="current-password"></div>
+      <div class="login-options"><label class="remember"><input id="rememberId" type="checkbox"> ID 저장</label><span>가입한 별록 계정으로 연결해주세요</span></div>
+      <p class="login-status" id="loginStatus" hidden></p>
+      <button class="login-submit" id="loginSubmit" type="button">연결하기</button>
+      <div class="login-links"><button id="forgotPassword" type="button">비밀번호 찾기</button><span>·</span><button id="signup" type="button">회원가입</button></div>
+    </section>
+  </main>
+  <section class="support-panel hidden" id="supportPanel" role="dialog" aria-modal="true" aria-labelledby="supportTitle">
+  <h2 id="supportTitle">긴급 호출</h2><p>무료 베타 기간의 장애 접수입니다. 어떤 상황에서 문제가 생겼는지 알려주세요. 스트리머명과 작성한 내용이 운영자 디스코드로 전달됩니다. 비밀번호나 인증번호는 적지 마세요.</p>
+  <label for="supportMessage">장애 내용</label><textarea id="supportMessage" maxlength="1000" rows="6" placeholder="예: 방금 받은 별풍선이 풍벽지에 보이지 않아요."></textarea>
+  <p id="supportStatus" role="status"></p><div class="support-actions"><button id="supportCancel" type="button">닫기</button><button id="supportSend" type="button">보내기</button></div>
+</section><div class="toast" id="toast"></div>
+</div>
+<script>
+  const app=document.querySelector('.app');
+  const orbit=document.querySelector('#statusOrbit');
+  const symbol=document.querySelector('#statusSymbol');
+  const title=document.querySelector('#statusTitle');
+  const message=document.querySelector('#statusMessage');
+  const account=document.querySelector('#accountName');
+  const editorButton=document.querySelector('#editorButton');
+  const dashboardButton=document.querySelector('#dashboardButton');
+  const footer=document.querySelector('#footerNote');
+  const footerText=document.querySelector('#footerText');
+  const toast=document.querySelector('#toast');
+  const loginMode=new URLSearchParams(location.search).get('mode')==='login';
+  let toastTimer=0,supportEpoch=0,supportOpenedEpoch=0,supportRequestId='',supportBusy=false;
+  const supportPanel=document.querySelector('#supportPanel'),supportMessage=document.querySelector('#supportMessage'),supportStatus=document.querySelector('#supportStatus');
+  supportMessage.addEventListener('input',()=>{if(!supportBusy)supportRequestId=crypto.randomUUID()});
+  function setSupportResult(result){supportBusy=false;supportMessage.readOnly=false;document.querySelector('#supportSend').disabled=false;document.querySelector('#supportCancel').disabled=false;supportStatus.textContent=result.message||'';if(result.ok){supportMessage.value='';supportRequestId='';supportPanel.classList.add('hidden');document.querySelector('#supportButton').focus();showToast(result.message)}}
+  document.querySelector('#supportButton').onclick=()=>{supportOpenedEpoch=supportEpoch;if(!supportRequestId)supportRequestId=crypto.randomUUID();supportPanel.classList.remove('hidden');supportStatus.textContent='';supportMessage.focus()};
+  document.querySelector('#supportCancel').onclick=()=>{if(!supportBusy){supportPanel.classList.add('hidden');document.querySelector('#supportButton').focus()}};
+  document.querySelector('#supportSend').onclick=()=>{if(supportBusy)return;if(supportMessage.value.trim().length<5){supportStatus.textContent='장애 내용을 5자 이상 입력해주세요.';supportMessage.focus();return}supportBusy=true;supportMessage.readOnly=true;document.querySelector('#supportSend').disabled=true;document.querySelector('#supportCancel').disabled=true;supportStatus.textContent='접수하는 중…';if(!post('supportRequest',{requestId:supportRequestId,message:supportMessage.value,sessionEpoch:supportOpenedEpoch}))setSupportResult({ok:false,message:'별록 프로그램에서 다시 보내주세요.'})};
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!supportBusy&&!supportPanel.classList.contains('hidden'))document.querySelector('#supportCancel').click()});
+  function fitAppToViewport(){const scale=Math.min(innerWidth/420,innerHeight/560);app.style.transform=`scale(${Math.max(.1,scale)})`}
+  addEventListener('resize',fitAppToViewport,{passive:true});fitAppToViewport();
+  function post(action,payload={}){try{if(!window.chrome?.webview?.postMessage)return false;window.chrome.webview.postMessage({action,payload});return true}catch(_){return false}}
+  function setDashboardBusy(busy){dashboardButton.disabled=!!busy;dashboardButton.setAttribute('aria-busy',String(!!busy));document.querySelector('#dashboardLabel').textContent=busy?'대시보드 여는 중…':'대시보드 바로가기'}
+  function showToast(text){clearTimeout(toastTimer);toast.textContent=String(text||'');toast.classList.add('show');toastTimer=setTimeout(()=>toast.classList.remove('show'),1700)}
+  function setMainState(state){
+    document.querySelector('#supportButton').classList.toggle('hidden',state?.betaSupportEnabled!==true||loginMode);supportEpoch=Number(state?.supportSessionEpoch||0);
+    const connected=!!state?.serverConnected;
+    const recovery=String(state?.developmentRecoveryState||'ready');
+    const waiting=!connected&&(recovery==='recovering'||recovery==='retrying');
+    const mode=connected?'connected':waiting?'connecting':'offline';
+    orbit.className='status-orbit '+mode;footer.className='footer-note '+mode;
+    symbol.textContent=connected?'✓':waiting?'···':'!';
+    title.textContent=connected?'서버 연결됨':waiting?'서버 재연결 중':'서버 연결 안 됨';
+    message.textContent=connected?'풍벽지를 자동으로 동기화하고 있습니다.':waiting?'연결이 돌아오면 자동으로 다시 시작합니다.':'네트워크 또는 로그인 상태를 확인해주세요.';
+    footerText.textContent=connected?'백그라운드에서 정상 실행 중':waiting?'자동으로 연결을 복구하고 있어요':'연결 상태를 다시 확인하고 있어요';
+    const streamer=String(state?.streamerName||'').trim().replace(/님$/,'');
+    const version=String(state?.releaseLabel||'').trim();
+    const owner=streamer?`${streamer}님`:'별록 풍벽지';
+    account.textContent=version?`${owner} · ${version}`:owner;
+    const warning=document.querySelector('#updateWarning');
+    warning.textContent=String(state?.updateWarning||'');warning.classList.toggle('hidden',!warning.textContent);app.classList.toggle('has-update-warning',!!warning.textContent);
+    editorButton.classList.remove('hidden');
+    dashboardButton.classList.remove('hidden');
+  }
+  function setTheme(){}
+  function setLoginState(state={}){
+    if(!loginMode)return;
+    const id=document.querySelector('#loginId'),password=document.querySelector('#loginPassword'),remember=document.querySelector('#rememberId'),status=document.querySelector('#loginStatus'),submit=document.querySelector('#loginSubmit');
+    if(typeof state.rememberedId==='string'&&state.rememberedId){id.value=state.rememberedId;remember.checked=true;password.focus()}
+    if(state.clearPassword)password.value='';
+    status.textContent=state.message||'';status.hidden=!state.message;status.classList.toggle('ok',!state.error);
+    submit.disabled=!!state.busy;id.disabled=!!state.busy;password.disabled=!!state.busy;
+    if(state.focus==='id')id.focus();if(state.focus==='password')password.focus();
+  }
+  function setCollection(){}
+  function setRules(){}
+  function openScreen(){}
+  function showMain(){}
+  document.querySelector('#minimize').onclick=()=>post('minimize');
+  document.querySelector('#close').onclick=()=>post('close');
+  editorButton.onclick=()=>post('openAutomationSettings',{view:'wallpaper'});
+  dashboardButton.onclick=()=>{if(dashboardButton.disabled)return;setDashboardBusy(true);if(!post('dashboard')){setDashboardBusy(false);showToast('별록 풍벽지 프로그램에서 열어주세요.')}};
+  document.querySelector('#windowDragArea').addEventListener('pointerdown',event=>{if(event.button===0&&!event.target.closest('button'))post('windowDrag')});
+  document.querySelector('#loginSubmit').onclick=()=>post('login',{id:document.querySelector('#loginId').value,password:document.querySelector('#loginPassword').value,remember:document.querySelector('#rememberId').checked});
+  document.querySelector('#loginPassword').addEventListener('keydown',event=>{if(event.key==='Enter')document.querySelector('#loginSubmit').click()});
+  document.querySelector('#forgotPassword').onclick=()=>post('forgotPassword');
+  document.querySelector('#signup').onclick=()=>post('signup');
+  if(loginMode){document.querySelector('.status-view').classList.add('hidden');document.querySelector('#loginView').classList.remove('hidden')}
+  window.byeollog=Object.freeze({setSupportResult,setLoginState,setMainState,setCollection,setRules,showToast,openScreen,showMain,setTheme,setDashboardBusy});
+</script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="legacy-fixtures/**/*.cs" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4022.49" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../NativeSqlite.cs" Link="NativeSqlite.cs" />
+    <Compile Include="../VNextOverlayAssets.cs" Link="VNextOverlayAssets.cs" />
+    <Compile Include="../VNextAgentStore.cs" Link="VNextAgentStore.cs" />
+    <Compile Include="../OverlayAssetCache.cs" Link="OverlayAssetCache.cs" />
+    <Compile Include="../ByeollogOverlayService.cs" Link="ByeollogOverlayService.cs" />
+    <Compile Include="../WallpaperOverlayState.cs" Link="WallpaperOverlayState.cs" />
+    <Compile Include="../WallpaperApplicationQueue.cs" Link="WallpaperApplicationQueue.cs" />
+    <Compile Include="../AgentUpdateNotice.cs" Link="AgentUpdateNotice.cs" />
+    <Compile Include="../BoundedDiagnosticLog.cs" Link="BoundedDiagnosticLog.cs" />
+    <Compile Include="../WallpaperEditorImageLocalizer.cs" Link="WallpaperEditorImageLocalizer.cs" />
+    <Compile Include="../WallpaperEditorCoordinator.cs" Link="WallpaperEditorCoordinator.cs" />
+    <Compile Include="../WallpaperWorkspaceContext.cs" Link="WallpaperWorkspaceContext.cs" />
+    <Compile Include="../WallpaperEditorForm.cs" Link="WallpaperEditorForm.cs" />
+    <Compile Include="../AgentWallpaperSnapshotMapper.cs" Link="AgentWallpaperSnapshotMapper.cs" />
+    <Compile Include="../RaffleOverlayActionAdapter.cs" Link="RaffleOverlayActionAdapter.cs" />
+    <Compile Include="../FlashbangOverlayActionAdapter.cs" Link="FlashbangOverlayActionAdapter.cs" />
+    <Compile Include="../RaffleWinnerSpeechCache.cs" Link="RaffleWinnerSpeechCache.cs" />
+    <Compile Include="../WindowsTextToSpeech.cs" Link="WindowsTextToSpeech.cs" />
+    <Compile Include="../ByeollogRaffleAudio.cs" Link="ByeollogRaffleAudio.cs" />
+    <Compile Include="../ActionSoundFactory.cs" Link="ActionSoundFactory.cs" />
+    <Compile Include="../AgentDataPaths.cs" Link="AgentDataPaths.cs" />
+    <Compile Include="../BuildInfo.cs" Link="BuildInfo.cs" />
+    <Compile Include="../TimedMuteActionCore.cs" Link="TimedMuteActionCore.cs" />
+    <Compile Include="../TimedMuteRecoveryStore.cs" Link="TimedMuteRecoveryStore.cs" />
+    <Compile Include="../CollectorAcceptanceCore.cs" Link="CollectorAcceptanceCore.cs" />
+    <Compile Include="../CollectorReplayAcceptance.cs" Link="CollectorReplayAcceptance.cs" />
+    <Compile Include="../VNextSourceIdentity.cs" Link="VNextSourceIdentity.cs" />
+    <Compile Include="../VNextAutomationRpcContract.cs" Link="VNextAutomationRpcContract.cs" />
+    <Compile Include="../VNextAgentCapabilities.cs" Link="VNextAgentCapabilities.cs" />
+    <Compile Include="../VNextActionFreshness.cs" Link="VNextActionFreshness.cs" />
+    <Compile Include="../WebViewTrustPolicy.cs" Link="WebViewTrustPolicy.cs" />
+    <Compile Include="../CollectorStateLifecycle.cs" Link="CollectorStateLifecycle.cs" />
+    <Compile Include="../RouletteResultParser.cs" Link="RouletteResultParser.cs" />
+    <Compile Include="../AgentUpdateCore.cs" Link="AgentUpdateCore.cs" />
+    <Compile Include="../VNextSessionVault.cs" Link="VNextSessionVault.cs" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_mic_off_overlay.svg"
+                      Link="Assets/byeollog_mic_off_overlay.svg"
+                      LogicalName="HurogiCollector.Assets.byeollog_mic_off_overlay.svg" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_mic_off_icon.png"
+                      Link="Assets/byeollog_mic_off_icon.png"
+                      LogicalName="HurogiCollector.Assets.byeollog_mic_off_icon.png" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_mic_off_badge.png"
+                      Link="Assets/byeollog_mic_off_badge.png"
+                      LogicalName="HurogiCollector.Assets.byeollog_mic_off_badge.png" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_mic_off_quiet.png"
+                      Link="Assets/byeollog_mic_off_quiet.png"
+                      LogicalName="HurogiCollector.Assets.byeollog_mic_off_quiet.png" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_mic_off_signal_panel.png"
+                      Link="Assets/byeollog_mic_off_signal_panel.png"
+                      LogicalName="HurogiCollector.Assets.byeollog_mic_off_signal_panel.png" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_mic_off_screenprint.png"
+                      Link="Assets/byeollog_mic_off_screenprint.png"
+                      LogicalName="HurogiCollector.Assets.byeollog_mic_off_screenprint.png" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_raffle_ticket_granted.gif"
+                      Link="Assets/byeollog_raffle_ticket_granted.gif"
+                      LogicalName="HurogiCollector.Assets.byeollog_raffle_ticket_granted.gif" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_raffle_draw.gif"
+                      Link="Assets/byeollog_raffle_draw.gif"
+                      LogicalName="HurogiCollector.Assets.byeollog_raffle_draw.gif" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_flashbang_soft.gif"
+                      Link="Assets/byeollog_flashbang_soft.gif"
+                      LogicalName="HurogiCollector.Assets.byeollog_flashbang_soft.gif" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_flashbang_standard.gif"
+                      Link="Assets/byeollog_flashbang_standard.gif"
+                      LogicalName="HurogiCollector.Assets.byeollog_flashbang_standard.gif" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_flashbang_strong.gif"
+                      Link="Assets/byeollog_flashbang_strong.gif"
+                      LogicalName="HurogiCollector.Assets.byeollog_flashbang_strong.gif" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_water_splash.png"
+                      Link="Assets/byeollog_water_splash.png"
+                      LogicalName="HurogiCollector.Assets.byeollog_water_splash.png" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_water_splash_flip_v4.webm"
+                      Link="Assets/byeollog_water_splash_flip_v4.webm"
+                      LogicalName="HurogiCollector.Assets.byeollog_water_splash_flip_v4.webm" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_fireworks.png"
+                      Link="Assets/byeollog_fireworks.png"
+                      LogicalName="HurogiCollector.Assets.byeollog_fireworks.png" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_photoreal_confetti_quad_v6.webm"
+                      Link="Assets/byeollog_photoreal_confetti_quad_v6.webm"
+                      LogicalName="HurogiCollector.Assets.byeollog_photoreal_confetti_quad_v6.webm" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_earthquake_audio.svg"
+                      Link="Assets/byeollog_earthquake_audio.svg"
+                      LogicalName="HurogiCollector.Assets.byeollog_earthquake_audio.svg" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_earthquake_natural.wav"
+                      Link="Assets/byeollog_earthquake_natural.wav"
+                      LogicalName="HurogiCollector.Assets.byeollog_earthquake_natural.wav" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_water_splash_natural.wav"
+                      Link="Assets/byeollog_water_splash_natural.wav"
+                      LogicalName="HurogiCollector.Assets.byeollog_water_splash_natural.wav" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_party_popper_natural.wav"
+                      Link="Assets/byeollog_party_popper_natural.wav"
+                      LogicalName="HurogiCollector.Assets.byeollog_party_popper_natural.wav" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_raffle_ticket_fixed.wav"
+                      Link="Assets/byeollog_raffle_ticket_fixed.wav"
+                      LogicalName="HurogiCollector.Assets.byeollog_raffle_ticket_fixed.wav" />
+    <EmbeddedResource Include="legacy-fixtures/Assets/byeollog_raffle_winner_fallback.wav"
+                      Link="Assets/byeollog_raffle_winner_fallback.wav"
+                      LogicalName="HurogiCollector.Assets.byeollog_raffle_winner_fallback.wav" />
+    <EmbeddedResource Include="Fixtures/update-primary-v07042.json"
+                      LogicalName="HurogiCollector.AgentStoreTests.update-primary-v07042.json" />
+    <EmbeddedResource Include="Fixtures/update-recovery-v07042.json"
+                      LogicalName="HurogiCollector.AgentStoreTests.update-recovery-v07042.json" />
+  </ItemGroup>
+  <Target Name="ExcludeUnusedWebView2WpfReference" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <Reference Remove="@(Reference)" Condition="'%(Reference.Filename)' == 'Microsoft.Web.WebView2.Wpf'" />
+    </ItemGroup>
+  </Target>
+</Project>

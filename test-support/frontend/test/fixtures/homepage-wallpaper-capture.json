@@ -1,0 +1,13 @@
+{
+  "rendererSha256": "e9f570ca58560adc7dab18d5c7b3843d87cd44170e8026df61f7abab02b4d0a7",
+  "fixtureSha256": "0d9fc0ee6b44cbd09a46c96f16adab2df6af2133251e4e89f2e00f52c56ab0d0",
+  "captureSha256": "2870ff5119b75d9eb1134554c32dc8992de7d08f33baf832e5720cada390e4bf",
+  "width": 960,
+  "height": 540,
+  "cardWidth": 273,
+  "cardHeight": 257,
+  "rowStep": 52,
+  "metaHeight": 52.296875,
+  "nameFontSize": 21,
+  "description": "960x540 excerpt captured at 1:1 pixels from the actual 1920x1080 Agent OBS HTML rendered in isolated Chromium with synthetic records and registered signature artwork. Navy backdrop and transparent capture locator only; renderer CSS and JS are unmodified. Not a live broadcast capture."
+}
