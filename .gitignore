@@ -23,3 +23,4 @@ test-results/
 *.log
 *.tmp
 NuGet.Config
+supabase/.temp/

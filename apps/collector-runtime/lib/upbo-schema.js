@@ -4,7 +4,7 @@ export function assertUpboSchema(schema){
   if(!schema?.definitions?.byeollog_roulette_amount_mappings?.properties?.enabled||!schema?.definitions?.byeollog_soop_core_donations?.properties?.roulette_enabled){
     throw new Error('Required DB activation migration is missing. Production promotion is blocked.');
   }
-  for(const name of ['byeollog_commit_upbo_group_v1','byeollog_claim_upbo_retries_v1',
+  for(const name of ['byeollog_commit_upbo_group_v1','byeollog_claim_upbo_retries_v1','byeollog_finish_upbo_retry_v1',
     'byeollog_export_backup_v8','byeollog_restore_backup_v2']){
     if(!schema?.paths?.[`/rpc/${name}`]?.post)throw new Error(`Required DB migration is missing: ${name}. Production promotion is blocked.`);
   }
