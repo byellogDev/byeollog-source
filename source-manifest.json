@@ -5939,6 +5939,22 @@
       "after": "2509605bc37ae0ae5237f24ecd3ae0e32d4c71a6f4b341e15395806171c86ba3",
       "status": "changed",
       "target": "services/soop-gateway/services/soop-chat-gateway/index.mjs"
+    },
+    {
+      "path": "collector-runtime/lib/upbo-retry.js",
+      "target": "apps/collector-runtime/lib/upbo-retry.js",
+      "before": "6c93f2390f6c0cd9dccc47840e2373fe713fde77607f89ee65ebfcfbb66cee02",
+      "after": "a1bba50874ae45991dc8a9b0b1eb5b156967d0329da994229a86c344bd65f7b9",
+      "status": "changed",
+      "release": "2026.09.23.1"
+    },
+    {
+      "path": "collector-runtime/lib/upbo-schema.js",
+      "target": "apps/collector-runtime/lib/upbo-schema.js",
+      "before": "7ec5477fd2639289d9132ca99d96ff28a0d90902046341724bb39f78814d6ee8",
+      "after": "be69c14c88820dd5e8063094b7f13a3d3f5c77431aef849cb14a832a5cbdc5ed",
+      "status": "changed",
+      "release": "2026.09.23.1"
     }
   ]
 }
