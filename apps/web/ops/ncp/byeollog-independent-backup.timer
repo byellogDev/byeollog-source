@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily independent backup and resumable retry
+
+[Timer]
+OnCalendar=*-*-* 19:10:00 UTC
+OnCalendar=*-*-* 20:10:00 UTC
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,451 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "npm run build:public",
+  "outputDirectory": "public-dist",
+  "regions": [
+    "hnd1"
+  ],
+  "functions": {
+    "api/discord-ops.js": {
+      "maxDuration": 30
+    },
+    "api/backups.js": {
+      "maxDuration": 300
+    },
+    "api/upbo-retry.js": {
+      "maxDuration": 60
+    },
+    "api/login.js": {
+      "maxDuration": 60
+    },
+    "api/collector-pair.js": {
+      "maxDuration": 30
+    },
+    "api/admin.js": {
+      "maxDuration": 30
+    },
+    "api/collector-process.js": {
+      "maxDuration": 30
+    },
+    "api/collector.js": {
+      "maxDuration": 30
+    },
+    "api/data.js": {
+      "maxDuration": 30
+    },
+    "api/logout.js": {
+      "maxDuration": 30
+    },
+    "api/restore.js": {
+      "maxDuration": 30
+    },
+    "api/roulette-void.js": {
+      "maxDuration": 30
+    }
+  },
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/assets/byeollog_app_icon.png",
+      "destination": "/api/data?operation=deployment-asset&name=byeollog_app_icon.png"
+    },
+    {
+      "source": "/assets/byeollog_favicon.png",
+      "destination": "/api/data?operation=deployment-asset&name=byeollog_favicon.png"
+    },
+    {
+      "source": "/assets/byeollog_logo_dark.png",
+      "destination": "/api/data?operation=deployment-asset&name=byeollog_logo_dark.png"
+    },
+    {
+      "source": "/assets/byeollog_logo_light.png",
+      "destination": "/api/data?operation=deployment-asset&name=byeollog_logo_light.png"
+    },
+    {
+      "source": "/assets/byeollog_mark.png",
+      "destination": "/api/data?operation=deployment-asset&name=byeollog_mark.png"
+    },
+    {
+      "source": "/assets/roulette-previews/:name.webp",
+      "destination": "/api/data?operation=deployment-asset&name=:name.webp"
+    },
+    {
+      "source": "/api/collector-log",
+      "destination": "/api/collector?operation=log"
+    },
+    {
+      "source": "/api/inquiry",
+      "destination": "/api/login?operation=inquiry"
+    },
+    {
+      "source": "/api/auth/soop/start",
+      "destination": "/api/login?operation=soop-start"
+    },
+    {
+      "source": "/api/auth/soop/signup/start",
+      "destination": "/api/login?operation=soop-signup-start"
+    },
+    {
+      "source": "/api/auth/soop/signup/status",
+      "destination": "/api/login?operation=soop-signup-status"
+    },
+    {
+      "source": "/api/auth/soop/callback",
+      "destination": "/api/login?operation=soop-callback"
+    },
+    {
+      "source": "/api/auth/soop/status",
+      "destination": "/api/login?operation=soop-status"
+    },
+    {
+      "source": "/api/auth/soop/diagnose",
+      "destination": "/api/login?operation=soop-diagnose"
+    },
+    {
+      "source": "/api/auth/soop/gateway",
+      "destination": "/api/login?operation=soop-gateway"
+    },
+    {
+      "source": "/api/auth/soop/wallpaper/state",
+      "destination": "/api/login?operation=soop-wallpaper-state"
+    },
+    {
+      "source": "/overlay/soop-wallpaper",
+      "destination": "/api/login?operation=soop-wallpaper-page"
+    },
+    {
+      "source": "/api/auth/soop/disconnect",
+      "destination": "/api/login?operation=soop-disconnect"
+    },
+    {
+      "source": "/api/agent/wallpaper-control",
+      "destination": "/api/login?operation=agent-wallpaper-control"
+    },
+    {
+      "source": "/dashboard/signatures",
+      "destination": "/api/admin?view=signatures"
+    },
+    {
+      "source": "/dashboard/roulette-rules",
+      "destination": "/api/admin?view=roulette-rules"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/api/admin"
+    },
+    {
+      "source": "/agent-rollout",
+      "destination": "/api/admin?view=agent-rollout"
+    },
+    {
+      "source": "/u/:workspace",
+      "destination": "/bangsel_public_workspace_isolation"
+    },
+    {
+      "source": "/api/game-link/soop/start",
+      "destination": "/api/login?operation=game-link-soop-start"
+    },
+    {
+      "source": "/api/game-link/soop/callback",
+      "destination": "/api/login?operation=game-link-soop-callback"
+    },
+    {
+      "source": "/api/game-link/microsoft/callback",
+      "destination": "/api/login?operation=game-link-microsoft-callback"
+    },
+    {
+      "source": "/api/game-link/status",
+      "destination": "/api/login?operation=game-link-status"
+    },
+    {
+      "source": "/api/game-link/health",
+      "destination": "/api/login?operation=game-link-health"
+    },
+    {
+      "source": "/api/minecraft-server/player",
+      "destination": "/api/login?operation=minecraft-server-player"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/u/observer_b_alias",
+      "destination": "/u/observer_b",
+      "permanent": false
+    },
+    {
+      "source": "/guide",
+      "destination": "/assets/manuals/byeollog-start-guide.pdf",
+      "permanent": false
+    },
+    {
+      "source": "/agent/download",
+      "destination": "/agent-updates/releases/1.0.0.40/Byeollog-Wallpaper-Setup-v1.0.0.40.exe",
+      "permanent": false
+    },
+    {
+      "source": "/dashboard/overlay",
+      "destination": "/dashboard/signatures",
+      "permanent": true
+    },
+    {
+      "source": "/dashboard/wallpaper",
+      "destination": "/dashboard/signatures",
+      "permanent": false
+    },
+    {
+      "source": "/dashboard/roulette",
+      "destination": "/dashboard/signatures",
+      "permanent": false
+    },
+    {
+      "source": "/dashboard/actions",
+      "destination": "/dashboard/signatures",
+      "permanent": false
+    },
+    {
+      "source": "/agent-updates/releases/:version/:filename([^/]+\\.zip)",
+      "destination": "https://github.com/byellogDev/byeollog-releases/releases/download/agent-v:version/:filename",
+      "permanent": false
+    },
+    {
+      "source": "/agent-updates/releases/:version/:filename([^/]+\\.exe)",
+      "destination": "https://github.com/byellogDev/byeollog-releases/releases/download/agent-v:version/:filename",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://byeollog.com"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
+        }
+      ]
+    },
+    {
+      "source": "/dashboard",
+      "has": [
+        {
+          "type": "query",
+          "key": "dashboard_view",
+          "value": "1"
+        }
+      ],
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        }
+      ]
+    },
+    {
+      "source": "/dashboard/:path*",
+      "has": [
+        {
+          "type": "query",
+          "key": "dashboard_view",
+          "value": "1"
+        }
+      ],
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self' 'sha256-nmDPzGzRr3JvicqklK69Jn5r+majh5n6CqUQoMPTHso='; script-src-attr 'none'; style-src 'self' 'sha256-LZM2uXySTsMNMqNIQACMeTp6tGsB1HVZyXqa2VHUCg0='; style-src-attr 'none'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        }
+      ]
+    },
+    {
+      "source": "/login",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'sha256-l44f7joE3TdNT79/FaCVNM2GHnyfuUQvGpFOph3oDUo='; style-src-attr 'none'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        }
+      ]
+    },
+    {
+      "source": "/signup",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'sha256-+l7ba9+JaDgDNsonVpAiCwtSKwPh2ouTpvMwFj+p2sA='; style-src-attr 'none'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        }
+      ]
+    },
+    {
+      "source": "/signup-status",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'sha256-xWWwBPlvsrnV7L5KrSl2KtZ/94aKE59kmzOGld9ESwg=' 'sha256-To6G85jzLhx7q0wvmFlAiUnj+B8wDqQ2fbyYF2tm5aA='; style-src-attr 'none'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        }
+      ]
+    },
+    {
+      "source": "/reset-password",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'sha256-Ttsv4G4gC7yQ4FpMhSaDByRfOQVu8NlnxSZ6ft6nEpg='; style-src-attr 'none'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        }
+      ]
+    },
+    {
+      "source": "/change-password",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'sha256-DMbH4LT+NWHSpxT6bQxL92IaMkaE+VlUXu1bl6f2DWs='; style-src-attr 'none'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        }
+      ]
+    },
+    {
+      "source": "/withdraw",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'sha256-zlR10eA/fLsupc7cY0ugzCH3YJyNSWwPnsP9Q21Gp3E='; style-src-attr 'none'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        }
+      ]
+    },
+    {
+      "source": "/assets/manuals/byeollog-start-guide.pdf",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=3600, must-revalidate"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "inline; filename=byeollog-start-guide.pdf"
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/security.txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=3600"
+        }
+      ]
+    },
+    {
+      "source": "/agent-updates/stable/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=60, must-revalidate"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/agent-updates/releases/:version/:filename([^/]+\\.zip)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=300"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/agent-updates/releases/:version/:filename([^/]+\\.exe)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=300"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/setup",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/credits",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/chat-studio",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        }
+      ]
+    }
+  ]
+}

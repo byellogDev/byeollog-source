@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "language": "ko-KR",
+  "cases": [
+    {"id":"short_chat","category":"dynamic_chat","displayText":"[1초전] 테스트 시청자 : 딸깍","ttsText":"딸깍"},
+    {"id":"roulette_result","category":"cached_result","displayText":"테스트 용돈","ttsText":"테스트 용돈, 당첨!"},
+    {"id":"number_unit","category":"numbers","displayText":"별풍선 33개 룰렛 1회","ttsText":"별풍선 삼십삼 개, 룰렛 한 번"},
+    {"id":"mixed_terms","category":"mixed_language","displayText":"OBS 브라우저 소스를 다시 연결해주세요","ttsText":"오비에스 브라우저 소스를 다시 연결해 주세요"},
+    {"id":"slang_laughter","category":"chat_slang","displayText":"ㅋㅋㅋㅋ 이게 진짜 되네","ttsText":"크크크, 이게 진짜 되네"},
+    {"id":"punctuation","category":"prosody","displayText":"아... 잠깐만! 이거 맞아?","ttsText":"아, 잠깐만! 이거 맞아?"},
+    {"id":"item_symbols","category":"roulette_item","displayText":"A 단컷 & A 움짤","ttsText":"에이 단컷과 에이 움짤, 당첨!"},
+    {"id":"long_message","category":"dynamic_chat","displayText":"오늘 방송 정말 재미있게 보고 있어요 다음 룰렛에서도 좋은 결과가 나오면 좋겠습니다","ttsText":"오늘 방송 정말 재미있게 보고 있어요. 다음 룰렛에서도 좋은 결과가 나오면 좋겠습니다."}
+  ]
+}

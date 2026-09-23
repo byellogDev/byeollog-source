@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>별록 회원 탈퇴</title>
+  <link rel="icon" href="/assets/byeollog_favicon.png">
+  <link rel="stylesheet" href="/assets/byeollog-theme.css">
+  <style>
+    body{background:var(--bl-bg,#f5f7fa);color:var(--bl-text,#1f2937)}
+    .withdraw-card{width:min(560px,calc(100% - 32px));margin:56px auto;padding:28px;background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 12px 30px rgba(15,23,42,.08)}
+    .withdraw-card h1{margin:18px 0 8px;font-size:24px}
+    .warning{padding:14px;border:1px solid #fecaca;border-radius:10px;background:#fff7f7;color:#991b1b;line-height:1.6}
+    .confirm-label{display:block;margin-top:20px;font-weight:700}
+    .confirm-input{box-sizing:border-box;width:100%;margin-top:8px;padding:12px;border:1px solid #cbd5e1;border-radius:9px;font:inherit}
+    .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+    .actions a,.actions button{box-sizing:border-box;min-height:42px;padding:10px 14px;border-radius:9px;font:inherit;font-weight:700;text-decoration:none}
+    .cancel{border:1px solid #cbd5e1;background:#fff;color:#334155}
+    .danger{border:1px solid #b42318;background:#b42318;color:#fff;cursor:pointer}
+    .danger:disabled{cursor:not-allowed;opacity:.45}
+    .message{min-height:24px;margin-top:14px;line-height:1.5}
+    .message.error{color:#b42318}
+    .message.success{color:#067647}
+  </style>
+</head>
+<body>
+  <main class="withdraw-card">
+    <a href="/dashboard" aria-label="대시보드로 돌아가기"><img class="brand-logo compact" src="/assets/byeollog_logo_dark.png" alt="별록 BYEOLLOG"></a>
+    <h1>회원 탈퇴</h1>
+    <p class="warning"><strong>이 작업은 되돌릴 수 없습니다.</strong><br>소유한 스트리머 계정 데이터, 백업 및 연결 정보가 삭제될 수 있습니다. 다른 구성원이 남아 있거나 백업이 진행 중이면 서버가 탈퇴를 안전하게 차단합니다.</p>
+    <form id="withdrawForm" novalidate>
+      <label class="confirm-label" for="withdrawConfirm">계속하려면 아래 입력란에 <strong>탈퇴합니다</strong>를 정확히 입력하세요.</label>
+      <input class="confirm-input" id="withdrawConfirm" name="confirm" type="text" autocomplete="off" spellcheck="false" aria-describedby="withdrawMessage">
+      <div class="actions">
+        <a class="cancel" href="/dashboard">취소</a>
+        <button class="danger" id="withdrawSubmit" type="submit" disabled>회원 탈퇴</button>
+      </div>
+      <div class="message" id="withdrawMessage" role="status" aria-live="polite"></div>
+    </form>
+  </main>
+  <footer class="byeollogSiteFooter">© 2026 BYEOLLOG</footer>
+  <script src="/assets/withdraw-page.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>별록 가입 상태 확인</title>
+<link rel="icon" href="/assets/byeollog_app_icon.png">
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f5f7fa;color:#1f2937;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:20px}.card{width:min(520px,100%);background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:28px;box-shadow:0 16px 45px #11182712}.brand-logo{display:block;max-width:168px;height:auto;margin-bottom:24px}h1{font-size:24px;margin:0 0 8px}.sub{font-size:13px;color:#64748b;line-height:1.6;margin-bottom:22px}.status{border:1px solid #e5e7eb;border-radius:14px;padding:20px;background:#f8fafc}.badge{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:850}.badge:before{content:'';width:8px;height:8px;border-radius:50%;background:currentColor}.pending{background:#fff7ed;color:#b54708}.approved{background:#ecfdf3;color:#067647}.rejected{background:#fff1f2;color:#b42318}.title{font-size:20px;font-weight:900;margin:15px 0 7px}.desc{color:#64748b;font-size:14px;line-height:1.7}.reason{margin-top:13px;padding:12px;border-radius:9px;background:#fff1f2;color:#b42318;font-size:13px;line-height:1.6}.actions{display:flex;gap:9px;margin-top:20px}.actions a,.actions button{flex:1;text-align:center;border-radius:9px;padding:12px;font:inherit;font-weight:800;text-decoration:none}.primary{border:0;background:#f4c542;color:#172033;cursor:pointer}.back{border:1px solid #d8dee8;background:#fff;color:#475569}.error{color:#b42318;font-size:13px;line-height:1.6}.hidden{display:none}@media(max-width:520px){.card{padding:21px}.actions{flex-direction:column}}
+</style>
+<link rel="stylesheet" href="/assets/byeollog-theme.css">
+<style>
+/* 공통 auth 테마의 밝은 글자색이 흰 카드에 적용되지 않도록 이 페이지에서만 고정 */
+body.auth-page.signup-status-page .card{background:#fff!important;border-color:#e5e7eb!important;color:#1f2937!important}
+body.auth-page.signup-status-page h1,
+body.auth-page.signup-status-page .status .title{color:#1f2937!important}
+body.auth-page.signup-status-page .sub,
+body.auth-page.signup-status-page .status .desc{color:#64748b!important}
+body.auth-page.signup-status-page .status{background:#f8fafc!important;border-color:#e5e7eb!important;color:#1f2937!important}
+body.auth-page.signup-status-page .status .badge.approved{background:#ecfdf3!important;color:#067647!important}
+body.auth-page.signup-status-page .status .badge.pending{background:#fff7ed!important;color:#b54708!important}
+body.auth-page.signup-status-page .status .badge.rejected{background:#fff1f2!important;color:#b42318!important}
+</style>
+</head>
+<body class="auth-page signup-status-page">
+<main class="card">
+  <a href="/"><img class="brand-logo compact" src="/assets/byeollog_logo_dark.png" alt="별록 BYEOLLOG"></a>
+  <h1>이전 가입 기록</h1>
+  <p class="sub">관리자 승인 방식은 종료되었습니다. 이전 신청 기록을 확인하거나 SOOP 계정 연결 방식으로 가입할 수 있습니다.</p>
+  <section id="statusBox" class="status"><div class="desc">가입 상태를 확인하고 있습니다...</div></section>
+  <div class="actions"><button id="refreshBtn" class="primary" type="button">기록 새로고침</button><a class="back" href="/signup">SOOP 연결 후 가입</a></div>
+</main>
+<footer class="byeollogSiteFooter">© 2026 BYEOLLOG</footer>
+<script src="/assets/signup-status-page.js" defer></script>
+</body>
+</html>

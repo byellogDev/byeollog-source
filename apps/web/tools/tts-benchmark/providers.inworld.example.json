@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "inworld_tts_2_flash",
+      "label": "Inworld TTS-2 Flash HTTP stream",
+      "kind": "inworld-http-stream-v1",
+      "endpoint": "https://api.inworld.ai/tts/v1/voice:stream",
+      "apiKeyEnv": "INWORLD_API_KEY",
+      "voiceIdEnv": "INWORLD_VOICE_ID",
+      "modelId": "inworld-tts-2-flash",
+      "sampleRate": 24000,
+      "language": "ko-KR",
+      "applyTextNormalization": "OFF",
+      "metadata": {
+        "language": "ko-KR",
+        "transport": "HTTP streamed JSON, per-chunk WAV PCM16LE",
+        "normalization": "OFF for latency measurement"
+      }
+    }
+  ]
+}

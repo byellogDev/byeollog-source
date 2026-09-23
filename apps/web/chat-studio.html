@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>채팅창 꾸미기 · 별록</title>
+<meta name="description" content="방송 채팅창의 색상, 말풍선, 이미지와 배치를 설정하고 CSS를 복사하는 편집기입니다.">
+<meta name="theme-color" content="#08172f">
+<link rel="stylesheet" href="/assets/chat-studio-core.css">
+<link rel="stylesheet" href="/assets/chat-studio.css">
+</head>
+<body class="chat-studio">
+<header class="studio-header"><a class="studio-brand" href="/" aria-label="별록 홈"><img src="/assets/chat-studio-logo.png" alt="별록 BYEOLLOG"></a><div class="studio-heading"><h1>채팅창 꾸미기</h1></div><nav aria-label="별록 서비스"><a href="/">풍벽지·업보 알아보기</a><a href="/login">로그인</a></nav></header>
+<div class="studio-toolbar"><div class="studio-privacy">이미지와 디자인은 이 기기에서만 처리합니다.</div><div class="studio-file-actions"><button id="loadDesign" type="button">디자인 불러오기</button><button id="saveDesignTop" type="button">디자인 저장</button><input type="file" id="designFile" accept=".json,application/json" hidden></div></div>
+<div class="mobile-studio-tabs" role="group" aria-label="작업 화면"><button id="showEditor" aria-pressed="true">꾸미기</button><button id="showPreview" aria-pressed="false">미리보기·적용</button></div>
+<p class="studio-status" id="studioStatus" role="status" aria-live="polite"></p>
+<div class="app">
+<aside class="panel">
+<div class="brand">채팅창 설정</div>
+<div class="sub">원하는 색과 모양을 고르고, 완성한 CSS를 복사하세요.</div>
+<div class="mode-switch legacy-mode-switch" style="display:none!important">
+<button class="active" id="easyMode">간편 편집</button>
+<button id="advancedMode">고급 편집</button>
+</div><section class="environment-card" id="environmentCard">
+<div class="environment-step">
+<span class="step-num">1</span>
+<div>
+<b>어디에서 사용할까요?</b>
+<span>먼저 사용 환경을 골라야 알맞은 적용 코드를 만들 수 있어요.</span>
+</div>
+</div>
+<div class="environment-options">
+<button class="environment-option" data-adapter-choice="generic">
+<span class="env-icon">HTML</span>
+<span class="env-copy"><b>직접 제작 HTML</b><small>직접 만든 HTML 채팅창에 적용할 때</small></span>
+<span class="env-check">✓</span>
+</button>
+<button class="environment-option" data-adapter-choice="weflab">
+<span class="env-icon">W</span>
+<span class="env-copy"><b>위플랩</b><small>위플랩 커스텀 CSS에 붙여 넣을 때</small></span>
+<span class="env-check">✓</span>
+</button>
+</div>
+<div class="environment-help" id="environmentHelp">먼저 하나를 선택하세요.</div>
+<select aria-hidden="true" class="environment-select-hidden wide" id="adapter"><option value="generic">직접 제작 HTML용</option><option value="weflab">위플랩용</option></select></section><div class="preset-step-title">
+<span class="step-num">2</span>
+<div>
+<b>예시 디자인으로 시작하기</b>
+<span>원하면 예시를 고르고, 필요 없으면 바로 3번 이미지 추가로 넘어가세요.</span>
+</div>
+</div><details class="accordion-presets tool-accordion optional-presets"><summary><span class="accordion-title">예시 디자인으로 시작하기</span><span class="accordion-desc">원하면 예시를 먼저 고른 뒤 원하는 부분만 바꿀 수 있습니다.</span></summary><div class="accordion-body"><div class="section"><p class="preset-optional-note">처음부터 만들기 어렵다면 예시 디자인을 골라 시작할 수 있습니다.</p><p class="group-help">기본 디자인과 정렬, 간격을 정합니다.</p>
+<div class="preset-grid preset-grid-friendly" id="presetGrid"></div>
+</div></div></details>
+<div class="image-step-title" id="imageStepTitle">
+<span class="step-num">3</span>
+<div>
+<b>이미지 추가</b>
+<span>캐릭터·장식 이미지를 넣고 오른쪽 미리보기에서 직접 움직여 배치하세요.</span>
+</div>
+</div><section class="span-two image-step-card component-card" data-component="image"><div class="component-head"><div><b>이미지 추가</b><span>사진·캐릭터·장식 이미지를 넣기</span></div><button class="component-detail-btn" data-open-settings="image">이미지별 배치 상세</button></div><div class="component-body"><p class="group-help">이미지를 넣은 뒤 미리보기에서 직접 움직이세요.</p><div class="file-row"><input accept="image/png,image/jpeg,image/webp,image/gif" id="imageUpload" multiple="" type="file"/></div><p class="note">PNG·JPG·WebP·GIF를 최대 20장, 장당 8MB까지 넣을 수 있습니다. 미리보기에서 움직여 배치하세요.</p><div class="layer-list" id="layerList"></div></div></section><div class="editor-step-title" id="editorStepTitle">
+<span class="step-num">4</span>
+<div>
+<b>직접 꾸미기</b>
+<span>말풍선, 배경무늬, 글자, 배치, 꼬리, 표시, 후원·구독을 원하는 대로 조절하세요.</span>
+</div>
+</div><div class="component-grid" id="componentGrid"><section class="component-card compact-card" data-component="bubble"><div class="component-head"><div><b>말풍선</b><span>배경·테두리·둥글기</span></div><button class="component-detail-btn" data-open-settings="bubble">더 자세히</button></div><div class="component-body"><div class="control"><label>배경</label><input id="bg" type="color" value="#fff4d2"/></div><div class="control"><label>테두리</label><input id="border" type="color" value="#85531c"/></div><div class="control"><label>둥글기</label><input id="radiusLinked" max="80" min="0" type="number" value="14"/></div><div class="control"><label>테두리 굵기</label><input id="borderWidth" max="12" min="0" type="number" value="2"/></div><p class="note">조절점을 끌어 글자와 말풍선 사이의 여백을 바꾸세요. 말풍선은 글자 길이에 맞춰집니다.</p></div></section><section class="component-card compact-card" data-component="pattern" id="patternCard">
+<div class="component-head"><div><b>배경무늬</b><span>무늬·색상·진하기</span></div><button class="component-detail-btn" data-open-settings="pattern">더 자세히</button></div>
+<div class="component-body">
+<div class="control"><label>무늬</label><select id="patternPreset">
+<option value="none">없음</option><option value="dots">도트</option><option value="grid">격자</option><option value="diagonal">사선</option><option value="cross">십자</option><option value="checker">체크</option><option value="waves">물결</option><option value="sparkle">반짝이</option>
+</select></div>
+<div class="control"><label>무늬 색상</label><input id="patternColor" type="color" value="#e9a9c0"/></div>
+<div aria-label="배경무늬 미리보기" class="pattern-preview-strip" id="patternPreviewStrip"></div>
+</div>
+</section><section class="component-card compact-card" data-component="text"><div class="component-head"><div><b>글자</b><span>색상·크기·위치</span></div><button class="component-detail-btn" data-open-settings="text">더 자세히</button></div><div class="component-body"><div class="control"><label>글자</label><input id="text" type="color" value="#3c2a17"/></div><div class="control"><label>글자 크기</label><input id="fontSize" max="72" min="8" type="number" value="15"/></div>
+<div class="text-position-controls">
+<span class="text-position-label" id="textHorizontalLabel">가로 정렬</span>
+<div class="quick-buttons text-align-buttons" role="group" aria-labelledby="textHorizontalLabel">
+<button type="button" data-text-align="left" aria-pressed="true" class="quick-btn active">왼쪽</button><button type="button" data-text-align="center" aria-pressed="false" class="quick-btn">가운데</button><button type="button" data-text-align="right" aria-pressed="false" class="quick-btn">오른쪽</button>
+</div>
+<select id="textAlign" hidden aria-label="글자 가로 정렬"><option value="left">왼쪽</option><option value="center">가운데</option><option value="right">오른쪽</option></select>
+<span class="text-position-label" id="textVerticalLabel">세로 정렬</span>
+<div class="quick-buttons text-align-buttons" role="group" aria-labelledby="textVerticalLabel">
+<button type="button" data-text-valign="top" aria-pressed="false" class="quick-btn">위</button><button type="button" data-text-valign="center" aria-pressed="true" class="quick-btn active">가운데</button><button type="button" data-text-valign="bottom" aria-pressed="false" class="quick-btn">아래</button>
+</div>
+<p class="note">글자를 직접 끌어 위치를 조절할 수도 있습니다. 더 넓게 옮기려면 말풍선의 안쪽 여백을 늘려 주세요. 모든 말풍선에 함께 적용됩니다.</p>
+</div></div></section><section class="component-card compact-card" data-component="layout"><div class="component-head"><div><b>배치</b><span>좌우 정렬·간격</span></div><button class="component-detail-btn" data-open-settings="layout">더 자세히</button></div><div class="component-body"><div class="quick-buttons">
+<button class="quick-btn active" data-align="right">오른쪽 정렬</button>
+<button class="quick-btn" data-align="left">왼쪽 정렬</button>
+</div><div class="divider"></div><div class="quick-buttons three">
+<button class="quick-btn" data-density="tight">촘촘</button>
+<button class="quick-btn active" data-density="normal">기본</button>
+<button class="quick-btn" data-density="roomy">여유</button>
+</div><p class="note">말풍선을 누르면 미리보기 위에서 줄바꿈 너비와 안쪽 여백을 따로 조절할 수 있습니다.</p></div></section><section class="component-card compact-card" data-component="tail"><div class="component-head"><div><b>말풍선 꼬리</b><span>표시·빠른 위치</span></div><button class="component-detail-btn" data-open-settings="tail">더 자세히</button></div><div class="component-body"><div class="control"><label>꼬리 표시</label><div class="switch"><input checked="" id="tailEnabled" type="checkbox"/></div></div><div class="quick-buttons three">
+<button class="quick-btn" data-tail-align="left">왼쪽 고정</button>
+<button class="quick-btn active" data-tail-align="auto">자동</button>
+<button class="quick-btn" data-tail-align="right">오른쪽 고정</button>
+</div><div class="control"><label>가장자리 거리</label><input id="tailEdgeOffsetEasy" max="120" min="-40" type="number" value="18"/></div><p class="note">자동은 채팅 정렬 방향을 따라갑니다. 오른쪽 정렬이면 모든 꼬리가 오른쪽에서 같은 위치에 맞춰집니다.</p></div></section><section class="component-card compact-card" data-component="display"><div class="component-head"><div><b>채팅 표시</b><span>닉네임·플랫폼·배지</span></div><button class="component-detail-btn" data-open-settings="display">더 자세히</button></div><div class="component-body"><p class="group-help">닉네임, 플랫폼, 배지 표시 여부를 정합니다.</p><div class="control"><label>닉네임 표시</label><div class="switch"><input id="showNick" type="checkbox"/></div></div><div class="control"><label>플랫폼 표시</label><div class="switch"><input id="showPlatform" type="checkbox"/></div></div><div class="control"><label>배지 표시</label><div class="switch"><input checked="" id="showBadge" type="checkbox"/></div></div></div></section><section class="component-card compact-card" data-component="event"><div class="component-head"><div><b>후원·구독</b><span>일반 채팅과 자연스럽게 맞추기</span></div><button class="component-detail-btn" data-open-settings="event">더 자세히</button></div><div class="component-body"><div class="control"><label>일반 채팅과 동일</label><div class="switch"><input checked="" id="eventUseBubbleStyle" type="checkbox"/></div></div><div class="control"><label>서비스 기본 배경 제거</label><div class="switch"><input checked="" id="eventStripServiceSurface" type="checkbox"/></div></div><div class="control"><label>가운데 정렬</label><div class="switch"><input checked="" id="donationCenter" type="checkbox"/></div></div></div></section></div></aside>
+<main class="preview-wrap">
+<div class="topbar">
+<div><b>미리보기</b></div>
+<div class="top-actions">
+<button class="apply-btn" id="applyBtn">적용하기</button></div>
+<div class="hidden-selection-state" style="display:none"><span id="selectionKind"></span><span id="selectionTitle"></span><span id="selectionSub"></span></div></div><div class="direct-edit-guide" id="directEditGuide">
+<div class="direct-edit-title">
+<span class="move-glyph">↔</span>
+<b>오른쪽 화면에서 직접 움직일 수 있어요</b>
+</div>
+<div class="direct-edit-items">
+<span><i class="guide-dot image-dot"></i>이미지: 잡아서 이동</span>
+<span><i class="guide-dot tail-dot"></i>꼬리: 잡아서 이동</span>
+<span><i class="guide-dot frame-dot"></i>채팅 영역: 파란 제목 막대를 잡아 이동</span>
+</div>
+<button id="guideDismiss">안내 숨기기</button>
+<span class="guide-persistent-note">채팅 영역을 움직여도 계속 표시됩니다. 필요 없을 때만 숨겨주세요.</span></div>
+<div class="bubble-edit-toolbar" id="bubbleEditToolbar" aria-label="말풍선 편집">
+<div class="bubble-edit-tabs" role="group" aria-label="조절할 항목">
+<button type="button" data-bubble-edit="wrap" aria-pressed="true">줄바꿈 너비</button>
+<button type="button" data-bubble-edit="padding" aria-pressed="false">안쪽 여백</button>
+</div>
+<label class="bubble-width-field" id="bubbleWidthField"><span id="bubbleWidthLabel">최대 너비</span><input id="bubbleWidthInput" type="number" min="40" max="900" step="1" aria-label="줄바꿈 최대 너비"><span>px</span></label>
+<div class="bubble-padding-fields hidden" id="bubblePaddingFields">
+<label>왼쪽<input type="number" min="0" max="120" data-padding-input="padLeft"></label>
+<label>오른쪽<input type="number" min="0" max="120" data-padding-input="padRight"></label>
+<label>위<input type="number" min="0" max="120" data-padding-input="padTop"></label>
+<label>아래<input type="number" min="0" max="120" data-padding-input="padBottom"></label>
+</div>
+<p id="bubbleEditHint">기준선을 안쪽으로 당기면 긴 채팅이 더 여러 줄로 나뉩니다. 짧은 채팅의 폭은 그대로입니다.</p>
+</div>
+<div class="preview" id="previewStage"><div class="environment-gate" id="environmentGate">
+<div class="gate-card">
+<b>먼저 사용 환경을 선택하세요</b>
+<span>왼쪽에서 직접 제작 HTML용인지 위플랩용인지 고르면 바로 꾸미기를 시작할 수 있습니다.</span>
+</div>
+</div>
+<div class="overlay-frame" id="overlayFrame">
+<div class="frame-editbar" id="frameEditbar"><span class="drag-hand">✥</span>채팅 영역 · 드래그 이동</div>
+<div class="frame-resize" id="frameResize"></div>
+<div class="preview-label">글자·이미지·꼬리를 직접 끌어서 위치를 바꿀 수 있습니다.</div>
+<div class="chat-list" id="chatList">
+<div class="sample-row"><div class="sample-bubble">
+<div class="bubble-resize"></div><div class="padding-guide"></div>
+<div class="pad-handle left" data-side="left"></div><div class="pad-handle right" data-side="right"></div><div class="pad-handle top" data-side="top"></div><div class="pad-handle bottom" data-side="bottom"></div>
+<div class="chat-text-content" tabindex="0" role="group" aria-label="글자 위치: 드래그하거나 방향키로 이동"><div class="meta"><img class="badge" src="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none'%3e%3crect width='14' height='14' fill='%2353B1AE' rx='2'/%3e%3cpath fill='%23fff' d='M3.155 3.43h2.21l1.67 4.91h.02l1.58-4.91h2.21v7.14h-1.47V5.51h-.02l-1.75 5.06h-1.21l-1.75-5.01h-.02v5.01h-1.47V3.43Z'/%3e%3c/svg%3e" width="14" height="14" alt="매니저 배지" draggable="false"><span class="platform">SOOP</span><span class="nick">닉네임</span></div><div class="msg">안녕하세요!</div></div>
+</div></div>
+<div class="sample-row"><div class="sample-bubble">
+<div class="bubble-resize"></div><div class="padding-guide"></div>
+<div class="pad-handle left" data-side="left"></div><div class="pad-handle right" data-side="right"></div><div class="pad-handle top" data-side="top"></div><div class="pad-handle bottom" data-side="bottom"></div>
+<div class="chat-text-content" tabindex="0" role="group" aria-label="글자 위치: 드래그하거나 방향키로 이동"><div class="meta"><img class="badge" src="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none'%3e%3crect width='14' height='14' fill='%2353B1AE' rx='2'/%3e%3cpath fill='%23fff' d='M3.155 3.43h2.21l1.67 4.91h.02l1.58-4.91h2.21v7.14h-1.47V5.51h-.02l-1.75 5.06h-1.21l-1.75-5.01h-.02v5.01h-1.47V3.43Z'/%3e%3c/svg%3e" width="14" height="14" alt="매니저 배지" draggable="false"><span class="platform">SOOP</span><span class="nick">닉네임</span></div><div class="msg">ㅋ</div></div>
+</div></div>
+<div class="sample-row"><div class="sample-bubble">
+<div class="bubble-resize"></div><div class="padding-guide"></div>
+<div class="pad-handle left" data-side="left"></div><div class="pad-handle right" data-side="right"></div><div class="pad-handle top" data-side="top"></div><div class="pad-handle bottom" data-side="bottom"></div>
+<div class="chat-text-content" tabindex="0" role="group" aria-label="글자 위치: 드래그하거나 방향키로 이동"><div class="meta"><img class="badge" src="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none'%3e%3crect width='14' height='14' fill='%2353B1AE' rx='2'/%3e%3cpath fill='%23fff' d='M3.155 3.43h2.21l1.67 4.91h.02l1.58-4.91h2.21v7.14h-1.47V5.51h-.02l-1.75 5.06h-1.21l-1.75-5.01h-.02v5.01h-1.47V3.43Z'/%3e%3c/svg%3e" width="14" height="14" alt="매니저 배지" draggable="false"><span class="platform">SOOP</span><span class="nick">닉네임</span></div><div class="msg">아주 긴 채팅 테스트입니다 ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ</div></div>
+</div></div>
+<div class="sample-row"><div class="sample-bubble">
+<div class="bubble-resize"></div><div class="padding-guide"></div>
+<div class="pad-handle left" data-side="left"></div><div class="pad-handle right" data-side="right"></div><div class="pad-handle top" data-side="top"></div><div class="pad-handle bottom" data-side="bottom"></div>
+<div class="chat-text-content" tabindex="0" role="group" aria-label="글자 위치: 드래그하거나 방향키로 이동"><div class="meta"><img class="badge" src="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none'%3e%3crect width='14' height='14' fill='%2353B1AE' rx='2'/%3e%3cpath fill='%23fff' d='M3.155 3.43h2.21l1.67 4.91h.02l1.58-4.91h2.21v7.14h-1.47V5.51h-.02l-1.75 5.06h-1.21l-1.75-5.01h-.02v5.01h-1.47V3.43Z'/%3e%3c/svg%3e" width="14" height="14" alt="매니저 배지" draggable="false"><span class="platform">SOOP</span><span class="nick">닉네임</span></div><div class="msg"><span class="emote-sample">✨</span></div></div>
+</div></div>
+<div class="sample-row"><div class="sample-bubble donation">
+<div class="bubble-resize"></div><div class="padding-guide"></div>
+<div class="pad-handle left" data-side="left"></div><div class="pad-handle right" data-side="right"></div><div class="pad-handle top" data-side="top"></div><div class="pad-handle bottom" data-side="bottom"></div>
+<div class="chat-text-content" tabindex="0" role="group" aria-label="글자 위치: 드래그하거나 방향키로 이동"><div class="event-service-surface preview-donation"><div class="preview-donation-image"><img src="/assets/chat-studio-donation-100.png" alt="위플랩 별풍선 100개 후원 예시" draggable="false"/></div><div class="preview-donation-text"><div class="meta"><img class="badge" src="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none'%3e%3crect width='14' height='14' fill='%2353B1AE' rx='2'/%3e%3cpath fill='%23fff' d='M3.155 3.43h2.21l1.67 4.91h.02l1.58-4.91h2.21v7.14h-1.47V5.51h-.02l-1.75 5.06h-1.21l-1.75-5.01h-.02v5.01h-1.47V3.43Z'/%3e%3c/svg%3e" width="14" height="14" alt="매니저 배지" draggable="false"><span class="platform">SOOP</span><span class="nick">후원자</span></div><div class="msg">별풍선 100개</div></div></div></div>
+</div></div>
+</div>
+<div class="smart-guide v" id="guideV"></div><div class="smart-guide h" id="guideH"></div><div class="snap-chip" id="snapChip">붙음</div>
+<div class="drag-helper-chip hidden" id="dragHelperChip">잡아서 이동</div></div>
+<div class="stage-hint">이미지를 고른 뒤 방향키로 조금씩 이동할 수 있습니다. Shift 키 + 방향키는 크게 이동합니다. 자석 정렬을 켜면 가까운 기준선에 붙습니다.</div>
+</div>
+</main>
+</div>
+<div class="modal-backdrop hidden" id="exportModal">
+<div aria-labelledby="exportTitle" aria-modal="true" class="export-card" role="dialog">
+<div class="export-head">
+<div>
+<b id="exportTitle">적용하기</b>
+<span>CSS를 복사해 위플랩에 붙여넣으면 됩니다.</span>
+</div>
+<button class="modal-close" id="exportClose">닫기</button>
+</div>
+<div id="exportContent"><div class="export-environment-row"><span>사용 환경</span><b id="exportEnvironmentLabel">선택 안 됨</b></div><div class="export-status-row"><span>코드 상태</span><span class="badge" id="safetyBadge">CSS 생성</span></div><div class="section">
+<h3>적용</h3>
+<div style="height:8px"></div>
+<div class="actions">
+<button class="action primary" id="copyCss">CSS 복사</button><button aria-hidden="true" class="action dev-export-hidden" id="downloadCss" tabindex="-1">적용 코드 저장</button>
+<button aria-hidden="true" class="action dev-export-hidden" id="copyJson" tabindex="-1">설정값 복사</button><button aria-hidden="true" class="action dev-export-hidden" id="downloadJson" tabindex="-1">설정값 저장</button>
+<button class="action user-design-save" id="saveDesign" type="button">디자인 저장</button></div><p class="apply-help-note">디자인 저장은 나중에 같은 설정을 다시 사용할 때 쓰면 됩니다.</p>
+<div style="height:8px"></div>
+<details class="code-details"><summary>생성된 CSS 자세히 보기</summary><textarea id="output" spellcheck="false"></textarea><p class="note" id="safetyText"></p></details></div></div>
+</div>
+</div><dialog class="settings-dialog-native" id="settingsModal"><div class="settings-dialog">
+<div class="settings-head"><button id="settingsClose">← 돌아가기</button>
+<div><b id="settingsTitle">상세 설정</b><span id="settingsDesc">세밀한 값을 조절합니다.</span></div>
+</div>
+<div class="settings-body" id="settingsBody"><div class="live-preview-note">변경사항은 오른쪽 미리보기에 즉시 반영됩니다.</div><div class="settings-panel hidden" data-desc="안쪽 여백과 모서리를 각각 조절합니다." data-settings-panel="bubble" data-title="말풍선 상세 설정"><div class="modal-section" data-context="bubble">
+<div class="control"><label>배경</label><input id="bgAdv" type="color" value="#fff4d2"/></div>
+<div class="control"><label>글자</label><input id="textAdv" type="color" value="#3c2a17"/></div>
+<div class="control"><label>테두리</label><input id="borderAdv" type="color" value="#85531c"/></div>
+<div class="divider"></div>
+<div class="inspector-title"><h3 style="margin:0">안쪽 여백</h3><span class="pill">픽셀</span></div>
+<div class="four-grid">
+<div class="mini"><span>위</span><input id="padTop" max="120" min="0" type="number" value="9"/></div>
+<div class="mini"><span>오른쪽</span><input id="padRight" max="120" min="0" type="number" value="14"/></div>
+<div class="mini"><span>아래</span><input id="padBottom" max="120" min="0" type="number" value="9"/></div>
+<div class="mini"><span>왼쪽</span><input id="padLeft" max="120" min="0" type="number" value="14"/></div>
+</div>
+<div class="link-row"><label>안쪽 여백 4방향 같이 변경</label><input id="linkPadding" type="checkbox"/></div>
+<div class="divider"></div>
+<div class="inspector-title"><h3 style="margin:0">모서리 둥글기</h3><span class="pill">픽셀</span></div>
+<div class="four-grid">
+<div class="mini"><span>좌상</span><input id="radTL" max="100" min="0" type="number" value="14"/></div>
+<div class="mini"><span>우상</span><input id="radTR" max="100" min="0" type="number" value="14"/></div>
+<div class="mini"><span>우하</span><input id="radBR" max="100" min="0" type="number" value="14"/></div>
+<div class="mini"><span>좌하</span><input id="radBL" max="100" min="0" type="number" value="14"/></div>
+</div>
+<div class="link-row"><label>모서리 4개 같이 변경</label><input checked="" id="linkRadius" type="checkbox"/></div>
+<div class="divider"></div>
+</div></div><div class="settings-panel hidden" data-desc="줄 높이, 굵기, 자간을 조절합니다." data-settings-panel="text" data-title="글자 상세 설정"><div class="modal-section"><div class="control"><label>줄 높이</label><input id="lineHeight" max="3" min="0.8" step="0.05" type="number" value="1.45"/></div><div class="control"><label>글자 두께</label><input id="fontWeight" max="900" min="100" step="100" type="number" value="500"/></div><div class="control"><label>자간</label><input id="letterSpacing" max="20" min="-5" step="0.1" type="number" value="0"/></div><div class="divider"></div></div></div><div class="settings-panel hidden" data-desc="최대 폭, 간격, 채팅 영역 크기를 조절합니다." data-settings-panel="layout" data-title="배치 상세 설정"><div class="modal-section">
+<h3>전체 배치</h3>
+<div class="control"><label>채팅 정렬</label><select id="align"><option value="right">오른쪽</option><option value="left">왼쪽</option></select></div>
+<div class="control"><label>말풍선 최대 너비</label><input id="maxWidth" max="900" min="40" type="number" value="420"/></div>
+<div class="control"><label>채팅 간격</label><input id="gap" max="60" min="0" type="number" value="8"/></div>
+</div><div class="modal-section" data-context="frame">
+<div class="inspector-tip easy-only">위치는 미리보기 안에서만 바뀝니다. 위플랩용에서는 영역 크기도 미리보기용이며, 방송 화면 크기는 위플랩·OBS에서 설정하세요. 직접 제작 HTML용은 영역 너비·높이가 CSS에 반영됩니다.</div><div class=""><div class="control"><label>영역 너비</label><input id="frameWidth" max="1400" min="240" type="number" value="720"/></div><div class="control"><label>영역 높이</label><input id="frameHeight" max="1000" min="320" type="number" value="620"/></div><div class="control"><label>미리보기 X 위치</label><input id="frameX" max="2000" min="0" type="number" value="40"/></div><div class="control"><label>미리보기 Y 위치</label><input id="frameY" max="2000" min="0" type="number" value="30"/></div></div></div><div class="layout-tools"><h3>편집 도우미</h3><button class="modal-tool-btn" id="snapToggle">자석 정렬 켜짐</button><button class="modal-tool-btn" id="resetView">미리보기 배치 초기화</button></div></div><div class="settings-panel hidden" data-desc="이미지 목록에서 편집할 이미지를 고른 뒤 위치·크기·앞뒤 순서를 조절합니다." data-settings-panel="image" data-title="이미지 상세 설정"><div class="modal-section" id="imageInspector"><h3>장식 이미지 편집</h3><div class="modal-layer-picker"><div class="modal-layer-help">여러 장을 넣은 경우, 여기서 편집할 이미지를 바로 바꿀 수 있습니다.</div><div class="modal-layer-empty hidden" id="modalLayerEmpty">아직 추가된 이미지가 없습니다. 먼저 왼쪽의 <b>이미지 추가</b>에서 파일을 넣어주세요.</div><div class="modal-layer-list" id="modalLayerList"></div></div><div class="hidden" id="layerEditor">
+<div class="control"><label>적용 범위</label><select id="layerScope"><option value="bubble">모든 말풍선에 표시</option><option value="overlay">화면에 한 번만 표시</option></select></div>
+<div class="easy-only">
+<div class="note">빠른 위치</div>
+<div class="position-grid" id="positionGrid">
+<button data-rx="0" data-ry="0">좌상</button><button data-rx="50" data-ry="0">상단</button><button data-rx="100" data-ry="0">우상</button>
+<button data-rx="0" data-ry="50">좌측</button><button data-rx="50" data-ry="50" id="exactCenterBtn">정중앙</button><button data-rx="100" data-ry="50">우측</button>
+<button data-rx="0" data-ry="100">좌하</button><button data-rx="50" data-ry="100">하단</button><button data-rx="100" data-ry="100">우하</button>
+</div>
+<div class="ratio-readout"><div id="ratioXRead">가로: 왼쪽 고정</div><div id="ratioYRead">세로: 가운데 고정</div></div>
+<p class="note">기본은 자석 배치입니다. 이미지의 왼쪽/가운데/오른쪽 지점을 말풍선의 왼쪽/가운데/오른쪽 선에 자석처럼 붙입니다. 그래서 말풍선 폭이 달라도 시각적인 붙는 위치가 유지됩니다.</p>
+</div>
+<div class="advanced-only">
+<div class="control"><label>배치 방식</label><select id="layerPositionMode">
+<option value="smart">자석 배치</option>
+<option value="ratio">비율로 배치</option>
+<option value="anchor">기준점에서 거리 지정</option>
+</select></div>
+<div id="smartControls">
+<div class="control"><label>말풍선 가로 기준</label><select id="layerXTarget">
+<option value="left">말풍선 왼쪽</option><option value="center">말풍선 가운데</option><option value="right">말풍선 오른쪽</option><option value="free">자유 비율</option>
+</select></div>
+<div class="control"><label>이미지 가로 기준</label><select id="layerXSelf">
+<option value="left">이미지 왼쪽</option><option value="center">이미지 가운데</option><option value="right">이미지 오른쪽</option>
+</select></div>
+<div class="control"><label>말풍선 세로 기준</label><select id="layerYTarget">
+<option value="top">말풍선 위</option><option value="center">말풍선 가운데</option><option value="bottom">말풍선 아래</option><option value="free">자유 비율</option>
+</select></div>
+<div class="control"><label>이미지 세로 기준</label><select id="layerYSelf">
+<option value="top">이미지 위</option><option value="center">이미지 가운데</option><option value="bottom">이미지 아래</option>
+</select></div>
+<p class="note">예: 이미지 왼쪽을 말풍선 왼쪽에 붙이거나, 이미지 가운데를 말풍선 가운데에 붙일 수 있습니다. 자석에 붙이지 않은 방향만 자유롭게 움직입니다.</p>
+</div>
+<div id="ratioControls">
+<div class="control"><label>가로 위치 비율 (%)</label><input id="layerRatioX" max="200" min="-100" step="0.1" type="number"/></div>
+<div class="control"><label>세로 위치 비율 (%)</label><input id="layerRatioY" max="200" min="-100" step="0.1" type="number"/></div>
+<p class="note">0%는 왼쪽·위, 50%는 가운데, 100%는 오른쪽·아래입니다. 말풍선 크기가 달라도 비슷한 비율 위치를 유지합니다.</p>
+</div>
+<div class="hidden" id="anchorControls">
+<div class="control"><label>기준점</label><select id="layerAnchor">
+<option value="top-left">좌측 상단</option><option value="top-center">상단 중앙</option><option value="top-right">우측 상단</option>
+<option value="center-left">좌측 중앙</option><option value="center">정중앙</option><option value="center-right">우측 중앙</option>
+<option value="bottom-left">좌측 하단</option><option value="bottom-center">하단 중앙</option><option value="bottom-right">우측 하단</option>
+</select></div>
+<div class="control"><label>가로 미세 이동</label><input id="layerOffsetX" max="500" min="-500" type="number"/></div>
+<div class="control"><label>세로 미세 이동</label><input id="layerOffsetY" max="500" min="-500" type="number"/></div>
+</div>
+<div class="control"><label>이미지 너비</label><input id="layerWidth" max="500" min="8" type="number"/></div>
+</div>
+<div class="layer-actions">
+<button id="duplicateLayer">복제</button><button id="deleteLayer">삭제</button>
+<button id="layerFront">맨 앞으로</button><button id="layerBack">맨 뒤로</button>
+</div>
+</div></div></div><div class="settings-panel hidden" data-desc="꼬리 모양·크기·정확한 위치를 조절합니다." data-settings-panel="tail" data-title="말풍선 꼬리 상세 설정"><div class="">
+<div class="control"><label>꼬리 모양</label><select id="tailShape">
+<option value="triangle">기본 삼각</option>
+<option value="soft">부드러운 삼각</option>
+<option value="none">없음</option>
+</select></div>
+<div class="control"><label>가로 기준</label><select id="tailAlignMode">
+<option value="auto">자동 (채팅 정렬)</option>
+<option value="left">왼쪽 고정</option>
+<option value="right">오른쪽 고정</option>
+<option value="free">자유 위치</option>
+</select></div>
+<div id="tailFixedControls">
+<div class="control"><label>가장자리 거리 (픽셀)</label><input id="tailEdgeOffset" max="120" min="-40" type="number" value="18"/></div>
+</div>
+<div class="hidden" id="tailFreeControls">
+<div class="control"><label>가로 위치 비율 (%)</label><input id="tailX" max="130" min="-30" step="0.1" type="number" value="82"/></div>
+</div>
+<div class="control"><label>꼬리 너비</label><input id="tailWidth" max="80" min="6" type="number" value="18"/></div>
+<div class="control"><label>꼬리 길이</label><input id="tailHeight" max="60" min="4" type="number" value="12"/></div>
+<div class="control"><label>꼬리 외곽선</label><input id="tailBorderWidth" max="10" min="0" type="number" value="2"/></div>
+<div class="control"><label>세로 오프셋</label><input id="tailY" max="80" min="-40" type="number" value="0"/></div>
+<div class="link-row"><label>말풍선 색과 연결</label><input checked="" id="tailLinkColors" type="checkbox"/></div>
+<div class="control"><label>꼬리 배경</label><input id="tailBg" type="color" value="#fff4d2"/></div>
+<div class="control"><label>꼬리 외곽선 색</label><input id="tailBorder" type="color" value="#85531c"/></div>
+<p class="note">말풍선 테두리가 두꺼워져도 꼬리 크기와 테두리는 따로 조절됩니다.</p>
+</div></div><div class="settings-panel hidden" data-desc="닉네임의 색상·크기·간격을 조절합니다." data-settings-panel="display" data-title="채팅 표시 상세 설정"><div class="modal-section"><div class="control"><label>닉네임 색상</label><input id="nickColor" type="color" value="#5c4632"/></div><div class="control"><label>닉네임 크기</label><input id="nickSize" max="60" min="8" type="number" value="12"/></div><div class="control"><label>닉네임-채팅 간격</label><input id="nickGap" max="60" min="0" type="number" value="4"/></div><div class="control"><label>닉네임 줄바꿈</label><div class="switch"><input id="nickBreak" type="checkbox"/></div></div></div></div><div class="settings-panel hidden" data-desc="알림 배경·테두리와 후원 박스 크기를 조절합니다." data-settings-panel="event" data-title="후원·구독 상세 설정"><div class="section"><p class="group-help">후원·구독 알림을 일반 채팅과 자연스럽게 맞춥니다.</p>
+<h3 class="accordion-subheading">후원·구독 알림</h3>
+<div class="" id="eventSeparateControls">
+<div class="control"><label>이벤트 배경</label><input id="eventBg" type="color" value="#fff4d2"/></div>
+<div class="control"><label>이벤트 글자</label><input id="eventText" type="color" value="#3c2a17"/></div>
+<div class="control"><label>이벤트 테두리</label><input id="eventBorder" type="color" value="#85531c"/></div>
+<div class="control"><label>테두리 두께</label><input id="eventBorderWidth" max="12" min="0" type="number" value="2"/></div>
+<div class="control"><label>둥글기</label><input id="eventRadius" max="80" min="0" type="number" value="14"/></div>
+</div>
+<p class="note">후원·구독 아이콘과 글자는 그대로 두고, 안쪽 기본 배경만 없애거나 일반 채팅과 같은 색으로 맞출 수 있습니다.</p>
+<p class="note warn">채팅 이동·표시 시간은 위플랩에서 설정하세요. 적용 후 이모티콘과 후원 표시도 확인해 주세요.</p>
+</div><div class="section">
+<h3 class="accordion-subheading">후원 표시</h3>
+<div class="control"><label>후원 박스 폭</label><input id="donationWidth" max="900" min="160" type="number" value="250"/></div>
+</div></div><div class="settings-panel hidden" data-desc="무늬 종류와 색상·진하기·크기를 조절합니다." data-settings-panel="pattern" data-title="배경무늬 상세 설정">
+<div class="modal-section">
+<h3>무늬 견본</h3>
+<div class="preset-pattern-grid" id="patternPresetGrid">
+<button class="pattern-swatch" data-pattern-choice="none" type="button"><i class="pattern-none">없음</i><span>없음</span></button>
+<button class="pattern-swatch" data-pattern-choice="dots" type="button"><i></i><span>도트</span></button>
+<button class="pattern-swatch" data-pattern-choice="grid" type="button"><i></i><span>격자</span></button>
+<button class="pattern-swatch" data-pattern-choice="diagonal" type="button"><i></i><span>사선</span></button>
+<button class="pattern-swatch" data-pattern-choice="cross" type="button"><i></i><span>십자</span></button>
+<button class="pattern-swatch" data-pattern-choice="checker" type="button"><i></i><span>체크</span></button>
+<button class="pattern-swatch" data-pattern-choice="waves" type="button"><i></i><span>물결</span></button>
+<button class="pattern-swatch" data-pattern-choice="sparkle" type="button"><i></i><span>반짝이</span></button>
+</div>
+</div>
+<div class="modal-section pattern-controls">
+<div class="control"><label>무늬 색상</label><input id="patternColorAdvanced" type="color" value="#e9a9c0"/></div>
+<div class="control"><label>무늬 진하기</label><input id="patternOpacity" max="100" min="0" type="range" value="26"/></div>
+<div class="control"><label>무늬 크기</label><input id="patternSize" max="48" min="6" type="range" value="18"/></div>
+<p class="note">말풍선 배경색은 그대로 두고 무늬만 겹쳐서 표시합니다.</p>
+</div>
+</div></div>
+</div></dialog><script src="/assets/chat-studio-core.js" defer></script>
+<script src="/assets/chat-studio.js" defer></script></body>
+</html>
+
+

@@ -1,0 +1,39 @@
+{
+  "id": "09f0f5db-595b-4894-b755-17ac2d7f7502",
+  "slug": "agent-runtime-g3a",
+  "name": "agent-runtime-g3a",
+  "status": "ACTIVE",
+  "version": 29,
+  "created_at": 1787109553962,
+  "updated_at": 1788822588865,
+  "verify_jwt": true,
+  "import_map": false,
+  "entrypoint_path": "/tmp/user_fn_offslvwaugvjotkywlus_09f0f5db-595b-4894-b755-17ac2d7f7502_29/source/functions/agent-runtime/index.ts",
+  "ezbr_sha256": "904083afcab56d63fcbe1a9d72ed82a3f002d0220b9f129cc4704cb74d9029e8",
+  "files": [
+    {
+      "name": "functions/agent-runtime/index.ts",
+      "bytes": 35458
+    },
+    {
+      "name": "functions/_shared/cors.ts",
+      "bytes": 281
+    },
+    {
+      "name": "functions/_shared/server-runtime.ts",
+      "bytes": 14454
+    },
+    {
+      "name": "functions/_shared/agent-wallpaper.ts",
+      "bytes": 13310
+    },
+    {
+      "name": "functions/_shared/agent-wallpaper-payload.js",
+      "bytes": 1608
+    },
+    {
+      "name": "functions/_shared/agent-device-status.ts",
+      "bytes": 3534
+    }
+  ]
+}

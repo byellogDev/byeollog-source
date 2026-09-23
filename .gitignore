@@ -1,82 +1,22 @@
-# Repository boundary: the workspace contains historical releases, local
-# captures, and recovery output. The first commit intentionally starts from a
-# small allowlist; nothing else is moved or deleted by this policy.
-/*
-!/.gitignore
-!/.gitattributes
-!/.github/
-!/.github/**
-!/scripts/
-!/scripts/**
-!/README.md
-!/PROJECT_BASELINE_20260825_KO.md
-!/PUBLIC_RELEASE_READINESS_REPORT_20260825_KO.md
-!/BYEOLLOG_AGENT_DEV_v07022/
-!/BYEOLLOG_AGENT_DEV_v07022/**
-!/BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/
-!/BYEOLLOG_SERVER_DEV_20260823_SUBSCRIPTION_FIX/**
-
-# The allowlisted source trees may still contain local credentials and generated
-# distribution files. These patterns protect them during ordinary `git add .`.
-
-# Environment files and local secret material. Keep an explicitly reviewed
-# template under a non-.env name (for example, env.example) if one is needed.
-.env
-.env.*
-!.env.example
-!.env.sample
-*.pfx
-*.p12
+node_modules/
+public-dist/
+.vercel/
+.env*
+!**/.env.gateway.example
 *.pem
 *.key
+*.pfx
 *.dpapi
 *.protected
-
-# Per-machine IDE/build state and deploy-provider state.
-.vs/
-.vscode/
-**/bin/
-**/obj/
-**/artifacts/
-**/ci-artifacts/
-**/DIST/
-**/publish*/
-**/node_modules/
-**/.vercel/
-**/supabase/.temp/
-**/__pycache__/
-
-# Generated release/update packages. Store reviewed release provenance in a
-# text manifest instead of committing binaries to this source repository.
+bin/
+obj/
+output/
+.local/
+test-results/
 *.zip
-*.7z
-*.rar
 *.exe
 *.msi
-*.msix
-*.msixbundle
-*.appx
-*.appxbundle
-*.nupkg
-*.snupkg
-**/downloads/
-
-# Local previews, recovery output, tests, captures, and other disposable data.
-.tmp*/
-tmp/
-**/.tmp*/
-**/.tmp*
-**/tmp/
+*.tar
+*.log
 *.tmp
-*.headers
-*.sqlite
-*.sqlite-shm
-*.sqlite-wal
-
-# Historical checkpoints and release exports at the workspace root are not
-# canonical source. Their files remain on disk; this only prevents staging.
-/RELEASE_*/
-/.release-*/
-/.deploy_*/
-/.obsolete_*/
-/output/
+NuGet.Config

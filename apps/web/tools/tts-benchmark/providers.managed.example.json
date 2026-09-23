@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "cartesia_sonic_3_6",
+      "label": "Cartesia Sonic 3.6 SSE",
+      "kind": "cartesia-sse-v1",
+      "endpoint": "https://api.cartesia.ai/tts/sse",
+      "apiVersion": "2026-08-14",
+      "apiKeyEnv": "CARTESIA_API_KEY",
+      "voiceIdEnv": "CARTESIA_VOICE_ID",
+      "modelId": "sonic-3.6",
+      "metadata": {
+        "language": "ko",
+        "transport": "SSE raw PCM16LE"
+      }
+    },
+    {
+      "id": "elevenlabs_flash_2_5",
+      "label": "ElevenLabs Flash v2.5 HTTP stream",
+      "kind": "elevenlabs-http-stream-v1",
+      "origin": "https://api.elevenlabs.io",
+      "apiKeyEnv": "ELEVENLABS_API_KEY",
+      "voiceIdEnv": "ELEVENLABS_VOICE_ID",
+      "modelId": "eleven_flash_v2_5",
+      "metadata": {
+        "language": "ko",
+        "transport": "HTTP raw PCM16LE"
+      }
+    }
+  ]
+}

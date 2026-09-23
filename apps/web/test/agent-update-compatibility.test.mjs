@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import test from 'node:test';
+const read=p=>readFile(new URL('../agent-updates/'+p,import.meta.url));
+const json=async p=>JSON.parse(await read(p));
+const hash=x=>createHash('sha256').update(x).digest('hex');
+test('protocol v1 update preserves the deployed root and exactly the released application',async()=>{
+ const base=await json('protocol-v1-root-baseline.json');
+ const payload=JSON.parse(Buffer.from((await json('stable/win-x64.json')).payload,'base64'));
+ const bytes=await read('releases/1.0.0.40/update-package-manifest.json');
+ const manifest=JSON.parse(bytes),manualBytes=await read('releases/1.0.0.40/installer-package-manifest.json'),manual=JSON.parse(manualBytes);
+ const provenance=await json('releases/1.0.0.40/release-provenance.json');
+ assert.equal(hash(bytes),payload.package.innerManifestSha256);
+ assert.equal(hash(manualBytes),provenance.innerManifestSha256);
+ assert.equal(manifest.version,payload.version);
+ assert.equal(base.files.length,9);
+ assert.deepEqual(manifest.files.filter(f=>f.role==='install_root'),base.files);
+ assert.deepEqual(manifest.files.filter(f=>f.role==='app'),manual.files.filter(f=>f.role==='app'));
+ assert.equal(payload.package.sha256,provenance.sha256);
+ assert.equal(base.files.find(f=>f.path==='Install-Byeollog.ps1').sha256,'c1c7b4873873f6f6fd28577132ac063a059807992974113d3ac2dbb1b6e832cb');
+});

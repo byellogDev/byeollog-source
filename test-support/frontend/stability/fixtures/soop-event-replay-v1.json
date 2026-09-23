@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "description": "Synthetic, non-PII SOOP events used by the release stability gate.",
+  "events": [
+    {
+      "id": "single-152-provider-image",
+      "kind": "donation",
+      "eventId": "stability-donation-152",
+      "actor": { "id": "viewer-a", "name": "테스트후원자" },
+      "amount": 152,
+      "donationTypeLabel": "별풍선",
+      "message": "테스트 메시지",
+      "imageUrl": "https://res.sooplive.com/new_player/items/ba_step3.png",
+      "occurredAt": "2026-09-03T00:00:00.000Z",
+      "sample": 100000,
+      "expect": { "spinCount": 1, "ceremonySource": "soop", "result": "노래" }
+    },
+    {
+      "id": "series-330-workspace-default",
+      "kind": "donation",
+      "eventId": "stability-donation-330",
+      "actor": { "id": "viewer-b", "name": "연차테스터" },
+      "amount": 330,
+      "donationTypeLabel": "도전미션",
+      "message": null,
+      "occurredAt": "2026-09-03T00:01:00.000Z",
+      "sample": 800000,
+      "expect": { "spinCount": 10, "ceremonySource": "workspace_default", "result": "휴식" }
+    },
+    {
+      "id": "non-triggering-donation",
+      "kind": "donation",
+      "eventId": "stability-donation-1",
+      "actor": { "id": "viewer-c", "name": "일반후원자" },
+      "amount": 1,
+      "donationTypeLabel": "별풍선",
+      "occurredAt": "2026-09-03T00:02:00.000Z",
+      "sample": 0,
+      "expect": { "spinCount": 0, "ceremonySource": "workspace_default" }
+    },
+    {
+      "id": "subscription-is-not-donation",
+      "kind": "collector",
+      "raw": {
+        "type": "FOLLOW_ITEM_EFFECT",
+        "subtype": "FOLLOW_ITEM_EFFECT",
+        "value": "3",
+        "img": "https://static.file.sooplive.com/subscription_ceremony/m/gudok_3.png"
+      },
+      "expect": { "subscription": true, "months": 3, "rouletteEligible": false }
+    },
+    {
+      "id": "duplicate-is-exactly-once",
+      "kind": "duplicate",
+      "eventId": "stability-donation-152",
+      "expect": { "duplicate": true, "additionalDispatches": 0 }
+    },
+    {
+      "id": "changed-identity-fails-closed",
+      "kind": "identity-conflict",
+      "eventId": "stability-donation-152",
+      "replacementAmount": 999,
+      "expect": { "identityConflict": true, "additionalDispatches": 0 }
+    }
+  ]
+}

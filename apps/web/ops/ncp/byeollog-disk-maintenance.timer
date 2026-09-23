@@ -1,0 +1,10 @@
+[Unit]
+Description=Run bounded Byeollog disk maintenance weekly
+
+[Timer]
+OnCalendar=Sun *-*-* 04:15:00 Asia/Seoul
+RandomizedDelaySec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

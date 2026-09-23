@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Byeollog gateway health guard every five minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+RandomizedDelaySec=20s
+Persistent=true
+
+[Install]
+WantedBy=timers.target

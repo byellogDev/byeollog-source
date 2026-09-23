@@ -1,0 +1,4 @@
+Contact: mailto:redacted-contact@example.invalid
+Expires: 2027-08-27T00:00:00Z
+Preferred-Languages: ko, en
+Canonical: https://byeollog.com/.well-known/security.txt

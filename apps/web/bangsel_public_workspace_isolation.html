@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>업보 현황</title>
+<link rel="icon" href="/assets/byeollog_app_icon.png">
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#0f172a;
+  color:#fff;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+.wrap{max-width:820px;margin:0 auto;padding:24px}
+h1{margin:0 0 6px;font-size:28px}
+.muted{color:#94a3b8}
+.panel{
+  background:#111c33;
+  border:1px solid #22304c;
+  border-radius:16px;
+  padding:16px;
+  margin-top:16px
+}
+.search{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid #334155;
+  background:#0b1220;
+  color:#fff;
+  font:inherit;
+  outline:none
+}
+.search:focus{border-color:#60a5fa}
+.status{margin-top:10px;font-size:13px;color:#94a3b8}
+.fan{
+  margin-top:12px;
+  padding:0;
+  border:1px solid #2b3a57;
+  border-radius:14px;
+  background:#111c33;
+  overflow:hidden
+}
+.fan:first-child{margin-top:0}
+.fan-name{
+  font-weight:800;
+  font-size:18px;
+  padding:15px 16px;
+  cursor:pointer;
+  user-select:none;
+  display:flex;
+  align-items:center;
+  gap:8px
+}
+.fan-name:hover{background:#15213a}
+.fan-content{
+  padding:0 16px 16px;
+  border-top:1px solid rgba(255,255,255,.07)
+}
+.fan.collapsed .fan-content{display:none}
+.fan-toggle{
+  color:#94a3b8;
+  font-size:12px;
+  white-space:nowrap
+}
+.fan-summary{
+  margin-left:auto;
+  color:#93c5fd;
+  font-size:14px;
+  font-weight:800;
+  white-space:nowrap
+}
+.event{
+  font-weight:800;
+  color:#fff;
+  font-size:15px;
+  margin:16px 0 8px;
+  padding:10px 12px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:10px;
+  letter-spacing:-.2px
+}
+.row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:8px 0
+}
+.type{color:#f8fafc}
+.type-wrap{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:3px
+}
+.comment-public{
+  color:#94a3b8;
+  font-size:12px;
+  line-height:1.35;
+  overflow-wrap:anywhere
+}
+.remain{
+  font-weight:800;
+  white-space:nowrap;
+  color:#93c5fd
+}
+.empty{padding:18px 0;color:#94a3b8}
+.viewer-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:16px}
+.viewer-tab{border:1px solid #334155;border-radius:11px;background:#111c33;color:#94a3b8;padding:11px 14px;font:inherit;font-weight:800;cursor:pointer}
+.viewer-tab.active{border-color:#60a5fa;background:#172554;color:#dbeafe}
+.roulette-grid{display:grid;gap:12px;margin-top:16px}
+.roulette-card{padding:16px;border:1px solid #2b3a57;border-radius:14px;background:#111c33}
+.roulette-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.roulette-head strong{font-size:18px}
+.roulette-price{white-space:nowrap;color:#93c5fd;font-size:13px;font-weight:800}
+.roulette-items{display:grid;gap:7px;margin-top:13px}
+.roulette-item{display:flex;justify-content:space-between;gap:12px;padding:8px 10px;border-radius:9px;background:rgba(255,255,255,.045)}
+.roulette-item span:last-child{white-space:nowrap;color:#bfdbfe;font-weight:800}
+[hidden]{display:none!important}
+button.fan-name{width:100%;font:inherit;text-align:left;color:inherit;border:0;background:transparent;cursor:pointer}
+button.fan-name:focus-visible,#refreshViewer:focus-visible{outline:3px solid #93c5fd;outline-offset:3px}
+.badge{
+  display:inline-block;
+  margin-left:8px;
+  padding:2px 7px;
+  border-radius:999px;
+  background:#172554;
+  color:#bfdbfe;
+  font-size:12px;
+  vertical-align:2px
+}
+@media(max-width:600px){
+  .wrap{padding:16px}
+  h1{font-size:24px}
+  .panel{padding:14px}
+}
+
+.type-row:last-child{
+  border-bottom:1px solid rgba(255,255,255,.09);
+  border-radius:0 0 10px 10px;
+}
+.fan-content .event:first-child{margin-top:14px}
+
+
+/* Viewer-only controls; keep the existing sorting and paging requests. */
+.viewer-controls{margin-top:12px}
+.viewer-controls-main{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.viewer-sort{display:flex;align-items:center;gap:12px}
+.viewer-sort label{font-size:13px;font-weight:600;color:var(--bl-muted,#93afd0)}
+.viewer-select-wrap{position:relative}
+.viewer-select-wrap select{appearance:none;-webkit-appearance:none;min-height:44px;min-width:156px;padding:10px 38px 10px 14px;border:1px solid var(--bl-line,#294564);border-radius:12px;background:#0c203c;color:var(--bl-text,#f7f9fc);font:inherit;font-size:14px;font-weight:600;cursor:pointer;color-scheme:dark}
+.viewer-select-wrap select:hover{border-color:#537397}
+.viewer-select-wrap svg{position:absolute;right:13px;top:50%;transform:translateY(-50%);width:18px;height:18px;pointer-events:none;color:var(--bl-muted,#93afd0)}
+.viewer-pagination{display:flex;align-items:center;gap:8px}
+.viewer-pagination button{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:76px;min-height:44px;padding:9px 12px;border:1px solid var(--bl-line,#294564);border-radius:12px;background:#172f4e;color:var(--bl-text,#f7f9fc);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.viewer-pagination button:not(:disabled):hover{border-color:var(--bl-yellow,#ffc44d);color:var(--bl-yellow,#ffc44d);background:#213957}
+.viewer-pagination button:disabled{background:transparent;border-color:var(--bl-line-soft,#1d3857);color:#7890ad;cursor:default}
+.viewer-pagination svg{width:16px;height:16px}
+.viewer-controls svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.viewer-page-position{min-width:64px;text-align:center;color:var(--bl-text,#f7f9fc);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.viewer-controls-detail{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:6px 18px;margin-top:14px;padding-top:13px;border-top:1px solid var(--bl-line-soft,#1d3857)}
+.viewer-result-count{color:#c5d5e8;font-size:12px;font-variant-numeric:tabular-nums}
+.viewer-controls-detail p{margin:0;color:var(--bl-muted,#93afd0);font-size:12px;line-height:1.6}
+@media(max-width:540px){.viewer-controls-main{gap:14px}.viewer-sort{width:100%;justify-content:space-between}.viewer-select-wrap select{min-width:164px}.viewer-pagination{width:100%;justify-content:space-between}.viewer-page-position{flex:1}.viewer-controls-detail{flex-direction:column;gap:5px}.viewer-pagination button{min-width:84px}}
+
+
+.completionDate{display:block;white-space:normal;font-size:11px;font-weight:500;margin-top:5px;color:#93afd0}.viewer-sort select{min-height:44px;max-width:100%;font:inherit;background:#112746;color:#dbe8f6;border:1px solid #294564;border-radius:10px;padding:10px}
+</style>
+<link rel="stylesheet" href="/assets/byeollog-theme.css">
+</head>
+<body class="viewer-page">
+<div class="wrap">
+  <header class="viewer-brand"><a href="/" aria-label="별록 홈"><img class="brand-logo compact" src="/assets/byeollog_logo_dark.png" alt="별록 BYEOLLOG"></a><div class="viewer-heading"><h1><span id="pageTitle">업보 현황</span> <span id="workspaceBadge" class="badge"></span></h1><div id="pageSubtitle" class="muted">닉네임을 검색해서 남은 업보를 확인하세요.</div></div></header>
+
+  <nav id="viewerTabs" class="viewer-tabs" aria-label="시청자 공개 정보" hidden>
+    <button id="upboTab" class="viewer-tab active" type="button">업보</button>
+    <button id="rouletteTab" class="viewer-tab" type="button">룰렛 확률</button>
+  </nav>
+
+  <section id="upboView">
+    <div id="searchPanel" class="panel">
+      <label for="search" class="muted">후원자 찾기</label><input id="search" class="search" placeholder="별명 또는 SOOP ID 검색" autocomplete="off">
+      <button id="refreshViewer" class="viewer-tab" type="button" style="margin-top:10px">새로고침</button><div id="state" class="status" role="status" aria-live="polite">서버 연결 중...</div>
+    </div>
+
+    <section class="panel viewer-controls" aria-label="업보 목록 정렬과 페이지 이동">
+      <div class="viewer-controls-main">
+        <div class="viewer-sort"><label for="viewerView">표시</label><select id="viewerView"><option value="pending">남은 업보</option><option value="completed" hidden>완료된 업보</option></select></div><div class="viewer-sort"><label for="viewerSort">정렬</label><div class="viewer-select-wrap"><select id="viewerSort"><option value="name">이름순</option><option value="newest">최근 등록순</option></select><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></div></div>
+        <nav class="viewer-pagination" aria-label="업보 목록 페이지">
+          <button id="viewerPrevious" type="button" aria-label="이전 페이지" disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg><span>이전</span></button>
+          <span id="viewerPageLabel" class="viewer-page-position" aria-live="polite" aria-atomic="true">—</span>
+          <button id="viewerNext" type="button" aria-label="다음 페이지" disabled><span>다음</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 5 5 5-5 5"/></svg></button>
+        </nav>
+      </div>
+      <div class="viewer-controls-detail"><span id="viewerResultCount" class="viewer-result-count" role="status">목록 확인 중</span><p>후원자별 합계는 모든 페이지의 남은 수량입니다.</p></div>
+    </section>
+    <div id="list" style="margin-top:16px">
+      <div class="panel empty">목록을 불러오는 중입니다.</div>
+    </div>
+  </section>
+
+  <section id="rouletteView" hidden>
+    <div id="rouletteList" class="roulette-grid"><div class="panel empty">공개된 룰렛을 불러오는 중입니다.</div></div>
+  </section>
+  <footer class="byeollogSiteFooter">© 2026 BYEOLLOG</footer>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const pathWorkspace = location.pathname.match(/^\/u\/([^/]+)\/?$/i)?.[1] || '';
+const WORKSPACE_SLUG = (params.get('workspace') || pathWorkspace).trim().toLowerCase();
+
+const VALID_WORKSPACE = /^[a-z0-9][a-z0-9_-]{1,62}$/.test(WORKSPACE_SLUG);
+
+let records = [];
+let rouletteRecords = [];
+let rouletteLoaded = false;
+let workspaceChecked = false;
+let workspaceExists = false, workspacePublic=false,viewerPage=0,viewerHasMore=false;
+let metadataCheckedAt=0,loadRevision=0,loadController=null,renderSignature=null;
+const openFans = new Set();
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[m]));
+
+function firstParagraph(text){
+  const s=String(text||'').trim();
+  if(!s)return '';
+  return s.split(/\r?\n/)[0].trim();
+}
+
+function remaining(r){
+  return Math.max(0, (+r.remaining || 0));
+}
+
+function formatProbability(ppm){
+  return (Number(ppm||0)/10000).toFixed(4).replace(/\.?0+$/,'')+'%';
+}
+
+function renderRoulettes(){
+  const target=$('rouletteList');
+  if(!rouletteRecords.length){
+    target.innerHTML='<div class="panel empty">현재 공개된 룰렛 확률표가 없습니다.</div>';
+    return;
+  }
+  target.innerHTML=rouletteRecords.map(roulette=>`<article class="roulette-card"><div class="roulette-head"><strong>${esc(roulette.rouletteName||'이름 없는 룰렛')}</strong><span class="roulette-price">1회 ${Number(roulette.balloonsPerSpin||0).toLocaleString()}개</span></div><div class="roulette-items">${(roulette.items||[]).map(item=>`<div class="roulette-item"><span>${esc(item.resultText||'상품')}</span><span>${formatProbability(item.probabilityPpm)}</span></div>`).join('')}</div></article>`).join('');
+}
+
+function switchViewerTab(view){
+  const roulette=view==='roulette';
+  $('upboView').hidden=roulette;
+  $('rouletteView').hidden=!roulette;
+  $('upboTab').classList.toggle('active',!roulette);
+  $('rouletteTab').classList.toggle('active',roulette);
+  $('pageTitle').textContent=roulette?'룰렛 확률':'업보 현황';
+  $('pageSubtitle').textContent=roulette?'룰렛별 상품과 당첨 확률을 확인하세요.':'별명 또는 SOOP ID로 검색해 남은 업보를 확인하세요.';
+}
+
+async function loadPublicRoulettes(revision=loadRevision){
+  if(rouletteLoaded)return;
+  try{
+    const response=await fetch('/api/data?operation=public-roulette',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({p_workspace_slug:WORKSPACE_SLUG}),cache:'no-store'
+    });
+    if(revision!==loadRevision||response.status===404)return;
+    const data=await response.json().catch(()=>null);
+    if(revision!==loadRevision||!response.ok||data?.enabled!==true)return;
+    rouletteRecords=Array.isArray(data.roulettes)?data.roulettes:[];
+    rouletteLoaded=true;
+    $('viewerTabs').hidden=false;
+    renderRoulettes();
+  }catch{}
+}
+
+async function loadData(){
+  const revision=++loadRevision;
+  loadController?.abort();loadController=new AbortController();
+  $('refreshViewer').disabled=true;
+  try{await loadDataRequest(revision,loadController.signal)}
+  finally{if(revision===loadRevision)$('refreshViewer').disabled=false}
+}
+async function loadDataRequest(revision,signal){
+  if (!VALID_WORKSPACE) {
+    $('searchPanel').style.display = 'none';
+    $('pageSubtitle').textContent = '요청하신 시청자 페이지를 찾을 수 없습니다.';
+    $('state').textContent = '페이지 주소에 스트리머 정보가 없습니다.';
+    $('list').innerHTML =
+      '<div class="panel empty">올바른 시청자용 업보 현황 주소로 접속해 주세요.</div>';
+    return;
+  }
+
+
+  try {
+    $('state').textContent = '서버에서 최신 목록 확인 중...';
+
+    const refreshMetadata=!workspaceChecked || Date.now()-metadataCheckedAt>=60000;
+    const searchTerm=($('search')?.value||'').trim()||null;
+    const res=await fetch('/api/data?operation=public-viewer',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({p_workspace_slug:WORKSPACE_SLUG,p_search:searchTerm,p_page:viewerPage,p_sort:$('viewerSort').value,p_view:$('viewerView').value}),
+      cache:'no-store',signal
+    });
+    const raw=await res.text();
+    if(revision!==loadRevision)return;
+    let data;
+    try{data=raw?JSON.parse(raw):null}catch{throw new Error('서버 응답을 읽는 중 오류가 발생했습니다.')}
+    if(!res.ok)throw new Error(data?.message||('HTTP '+res.status));
+    if(!data||!Object.prototype.hasOwnProperty.call(data,'workspace'))throw new Error('스트리머 계정 확인 응답을 읽을 수 없습니다.');
+    {
+      const workspace=data.workspace;
+      workspacePublic=!!workspace&&workspace.public_page_enabled!==false;
+      const completedAvailable=workspacePublic&&workspace.public_completed_enabled===true;$('viewerView').querySelector('[value=completed]').hidden=!completedAvailable;
+      if(!completedAvailable&&$('viewerView').value==='completed'){$('viewerView').value='pending';viewerPage=0;void loadData();return}
+      if (!workspace) {
+        $('viewerTabs').hidden=true;rouletteRecords=[];rouletteLoaded=false;switchViewerTab('upbo');
+        workspaceChecked = true;metadataCheckedAt=Date.now();
+        workspaceExists = false;
+        records = [];renderSignature=null;$('state').textContent='';
+        $('workspaceBadge').textContent = '없는 계정';
+        $('pageSubtitle').textContent = '요청하신 시청자 페이지를 찾을 수 없습니다.';
+        $('searchPanel').style.display = 'none';
+        $('list').innerHTML = '<div class="panel empty"><b style="color:#f8fafc">존재하지 않는 시청자 페이지입니다.</b><br><span style="display:inline-block;margin-top:7px">주소의 계정명을 확인해 주세요.</span></div>';
+        return;
+      }
+      workspaceChecked = true;if(refreshMetadata)metadataCheckedAt=Date.now();
+      workspaceExists = true;
+      if(refreshMetadata){$('viewerTabs').hidden=true;rouletteLoaded=false;rouletteRecords=[];}
+      $('workspaceBadge').textContent = String(workspace.display_name || workspace.slug || WORKSPACE_SLUG);
+      if (workspace.public_page_enabled === false) {
+        switchViewerTab('upbo');records=[];renderSignature=null;
+        $('searchPanel').style.display = 'none';
+        $('pageSubtitle').textContent = '이 스트리머는 현재 시청자용 업보 현황을 비공개로 두었습니다.';
+        $('state').textContent = '';
+        $('list').innerHTML = '<div class="panel empty"><b style="color:#f8fafc">지금은 업보 현황이 비공개입니다.</b><br><span style="display:inline-block;margin-top:7px">스트리머가 공개를 다시 켜면 이 페이지에서 확인할 수 있습니다.</span></div>';
+        return;
+      }
+      $('searchPanel').style.display = '';
+      $('pageSubtitle').textContent = '별명 또는 SOOP ID로 검색해 남은 업보를 확인하세요.';
+      if(workspace.viewer_roulette_enabled===true){if(refreshMetadata)void loadPublicRoulettes(revision)}
+      else{$('viewerTabs').hidden=true;rouletteRecords=[];rouletteLoaded=false;switchViewerTab('upbo')}
+    }
+
+    if(!workspaceExists||!workspacePublic){$('state').textContent='';return}
+    if(revision!==loadRevision)return;
+    records=Array.isArray(data?.items)?data.items:[];viewerHasMore=data.hasMore===true;
+    const totalRows=Math.max(0,Number(data.totalRows)||0),totalPages=Math.ceil(totalRows/50);
+    $('viewerPageLabel').textContent=totalPages?(viewerPage+1)+' / '+totalPages:'0 / 0';
+    $('viewerPageLabel').setAttribute('aria-label',totalPages?'전체 '+totalPages+'페이지 중 '+(viewerPage+1)+'페이지':'표시할 업보 없음');
+    $('viewerResultCount').textContent='전체 업보 '+totalRows.toLocaleString()+'종 · 현재 '+records.length.toLocaleString()+'종 표시';
+    $('viewerPrevious').disabled=viewerPage===0;$('viewerNext').disabled=!viewerHasMore;
+    $('state').textContent =
+      '자동 갱신 중 · ' + new Date().toLocaleTimeString('ko-KR', {
+        hour:'2-digit', minute:'2-digit', second:'2-digit'
+      }) + ' 기준';
+
+    render();
+  } catch (e) {
+    if(revision!==loadRevision||e.name==='AbortError')return;
+    renderSignature=null;
+    $('state').textContent = '서버 연결 오류: ' + e.message;
+    $('list').innerHTML =
+      '<div class="panel empty">목록을 불러오지 못했습니다. 잠시 후 자동으로 다시 시도합니다.</div>';
+  }
+}
+
+$('workspaceBadge').textContent = VALID_WORKSPACE ? '확인 중' : '주소 오류';
+$('upboTab').addEventListener('click',()=>switchViewerTab('upbo'));
+$('rouletteTab').addEventListener('click',()=>switchViewerTab('roulette'));
+
+function render(){
+  const signature=JSON.stringify([records,$('search').value,$('viewerView').value]);
+  if(signature===renderSignature)return;
+  renderSignature=signature;
+  const focused=document.activeElement?.closest?.('[data-fan-toggle]')?.dataset.fanToggle;
+  const scroll=window.scrollY;
+  const q = $('search').value.trim().toLowerCase();
+
+  // 서버에서 별명·SOOP ID로 필터링됨. 응답/화면에는 등록 별명(fan)만 사용 (SOOP ID 비공개).
+  const completed=$('viewerView').value==='completed';
+  const active = completed?records:records.filter(r => remaining(r) > 0);
+
+  const fans = new Map();
+
+  for (const r of active) {
+    const fan = String(r.fan_key || r.fan || '미지정').trim() || '미지정';
+    if (!fans.has(fan)) fans.set(fan, []);
+    fans.get(fan).push(r);
+  }
+
+  if (!fans.size) {
+    $('list').innerHTML =
+      '<div class="panel empty">' +
+      (q ? '검색 결과가 없습니다.' : '현재 남아 있는 업보가 없습니다.') +
+      '</div>';
+    return;
+  }
+
+  const html = [...fans.entries()].map(([fan, items],fanIndex) => {
+    const displayName=String(items[0].fan||'미지정');
+    const events = new Map();
+
+    for (const r of items) {
+      const event = String(r.event || '').trim() || '기타';
+      if (!events.has(event)) events.set(event, []);
+      events.get(event).push(r);
+    }
+
+    const totalRemain = completed?Number(items[0].fan_completed)||0:Number(items[0].fan_remaining)||items.reduce((sum, r) => sum + remaining(r), 0);
+
+    const eventHtml = (completed?items.map(r=>[r.event,[r]]):[...events.entries()]).map(([event, rows]) => {
+      const rowsHtml = rows.map(r => {
+        const comment = firstParagraph(r.comment);
+        return `
+        <div class="row">
+          <span class="type-wrap">
+            <span class="type">${esc(r.type || '미지정')}</span>
+            ${comment ? `<span class="comment-public">${esc(comment)}</span>` : ''}
+          </span>
+          <span class="remain">${completed?Number(r.completed_qty)+'개 완료':remaining(r)+'개 남음'}${completed?'<small class="completionDate">'+(r.completed_at?esc(new Date(r.completed_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false}))+' (한국 시간)':'완료 시각 기록 없음')+'</small>':''}</span>
+        </div>
+      `;
+      }).join('');
+
+      return `
+        <div class="event">${esc(event)}</div>
+        ${rowsHtml}
+      `;
+    }).join('');
+
+    const isOpen=openFans.has(fan);
+    return `
+      <div class="fan ${isOpen?'':'collapsed'}" data-fan="${encodeURIComponent(fan)}">
+        <button type="button" class="fan-name" data-fan-toggle="${esc(fan)}" aria-expanded="${isOpen}" aria-controls="fan-content-${fanIndex}" onclick="toggleFan(this)">
+          <span>${esc(displayName)}</span>
+          <span class="fan-summary">총 ${totalRemain}개 ${completed?'완료':'남음'}</span>
+          <span class="fan-toggle">${isOpen?'접기 ▲':'펼치기 ▼'}</span>
+        </button>
+        <div class="fan-content" id="fan-content-${fanIndex}">
+          ${eventHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  $('list').innerHTML = html;
+  if(focused){[...$('list').querySelectorAll('[data-fan-toggle]')].find(b=>b.dataset.fanToggle===focused)?.focus({preventScroll:true});window.scrollTo({top:scroll})}
+}
+
+function toggleFan(header){
+  const card=header.closest('.fan');
+  const fan=decodeURIComponent(card.dataset.fan||'');
+  card.classList.toggle('collapsed');
+  const isCollapsed=card.classList.contains('collapsed');
+  header.setAttribute('aria-expanded',String(!isCollapsed));
+  if(isCollapsed) openFans.delete(fan);
+  else openFans.add(fan);
+  const t=header.querySelector('.fan-toggle');
+  if(t) t.textContent=isCollapsed?'펼치기 ▼':'접기 ▲';
+}
+
+$('refreshViewer').onclick=()=>{metadataCheckedAt=0;void loadData()};
+$('viewerView').onchange=()=>{viewerPage=0;renderSignature=null;$('viewerSort').querySelector('[value=newest]').textContent=$('viewerView').value==='completed'?'최근 완료순':'최근 등록순';document.querySelector('.viewer-controls-detail p').textContent=$('viewerView').value==='completed'?'완료된 업보는 시청자별 최근 완료순입니다. 과거 기록에는 완료 시각이 없을 수 있습니다.':'후원자별 합계는 모든 페이지의 남은 수량입니다.';void loadData()};
+$('viewerSort').onchange=()=>{viewerPage=0;void loadData()};
+$('viewerPrevious').onclick=()=>{if(viewerPage>0){viewerPage--;void loadData()}};
+$('viewerNext').onclick=()=>{if(viewerHasMore&&viewerPage<2000){viewerPage++;void loadData()}};
+let searchDebounceTimer = null;
+$('search').addEventListener('input', () => {
+  loadRevision++;loadController?.abort();
+  viewerPage=0;
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => {
+    // SOOP ID 검색은 서버에서만 매칭 가능 → 목록 재조회
+    loadData();
+  }, 320);
+});
+
+loadData();
+
+let refreshTimer = null;
+
+function startAutoRefresh(){
+  if (refreshTimer || document.hidden) return;
+
+  refreshTimer = setInterval(() => {
+    if (!document.hidden) {
+      loadData();
+    }
+  }, 60000);
+}
+
+function stopAutoRefresh(){
+  if (!refreshTimer) return;
+  clearInterval(refreshTimer);
+  refreshTimer = null;
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    stopAutoRefresh();
+  } else {
+    loadData();
+    startAutoRefresh();
+  }
+});
+
+startAutoRefresh();
+</script>
+</body>
+</html>

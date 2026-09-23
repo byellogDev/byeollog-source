@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "language": "ko-KR",
+  "cases": [
+    {"id":"roulette_starlight_allowance","category":"roulette_result","displayText":"별빛용돈","ttsText":"별빛용돈"},
+    {"id":"roulette_mute_10_seconds","category":"roulette_result","displayText":"아봉 10초","ttsText":"아봉 10초"},
+    {"id":"roulette_mixed_terms","category":"roulette_result","displayText":"A 단컷 & A 움짤","ttsText":"A 단컷 & A 움짤"},
+    {"id":"donation_number_unit","category":"donation_message","displayText":"별풍선 330개 고마워요","ttsText":"별풍선 330개 고마워요"},
+    {"id":"donation_long_message","category":"donation_message","displayText":"오늘 방송 정말 재미있게 보고 있어요 다음 룰렛에서도 좋은 결과가 나오면 좋겠고 남은 방송도 끝까지 응원할게요","ttsText":"오늘 방송 정말 재미있게 보고 있어요 다음 룰렛에서도 좋은 결과가 나오면 좋겠고 남은 방송도 끝까지 응원할게요"}
+  ]
+}

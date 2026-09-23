@@ -1,0 +1,7 @@
+[Unit]
+Description=Byeollog gateway health guard
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/byeollog-health-check

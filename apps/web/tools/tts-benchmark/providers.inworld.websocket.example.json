@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "inworld_tts_2_flash_ws",
+      "label": "Inworld TTS-2 Flash persistent WebSocket",
+      "kind": "inworld-websocket-v1",
+      "endpoint": "wss://api.inworld.ai/tts/v1/voice:streamBidirectional",
+      "apiKeyEnv": "INWORLD_API_KEY",
+      "voiceIdEnv": "INWORLD_VOICE_ID",
+      "modelId": "inworld-tts-2-flash",
+      "sampleRate": 24000,
+      "language": "ko-KR",
+      "applyTextNormalization": "OFF",
+      "metadata": {
+        "language": "ko-KR",
+        "transport": "Persistent WebSocket with reusable context, streamed PCM16LE",
+        "normalization": "OFF for latency measurement"
+      }
+    }
+  ]
+}

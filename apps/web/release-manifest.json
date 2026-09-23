@@ -1,0 +1,2255 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-21T00:12:41.435Z",
+  "gitCommit": "54aeaa79f176cfdbe8053ad2939c1c9fac2f3603",
+  "gitBranch": "master",
+  "workingTreeClean": false,
+  "dirtyPathCount": 6,
+  "dirtyPaths": [
+    "ource/assets/byeollog-theme.css",
+    "source/assets/reset-password-page.js",
+    "source/assets/signup-page.js",
+    "source/lib/ui/compatibility.css",
+    "source/reset-password.html",
+    "source/signup.html"
+  ],
+  "sourceDigest": "918e0358b5685241d79b1e0b8dcddc960a6894018520dfd6f1260182ee452b83",
+  "fileCount": 447,
+  "files": [
+    {
+      "path": ".vercelignore",
+      "bytes": 3729,
+      "sha256": "b7d56adcbda256e1f728d5382804ab4ab9806378fc90f3d756f6feef116e12b6"
+    },
+    {
+      "path": "agent-updates/protocol-v1-root-baseline.json",
+      "bytes": 1763,
+      "sha256": "214295f545538186e16b5f82c75571a8ccebfed79713347cdfba360a93a24fc7"
+    },
+    {
+      "path": "agent-updates/release-asset-storage.json",
+      "bytes": 283,
+      "sha256": "77276a6f49a1eded091340e173d3cf9d7766b4448863f4227e8d4cf1efc2c093"
+    },
+    {
+      "path": "agent-updates/stable/win-x64.json",
+      "bytes": 1655,
+      "sha256": "4b4c23f1ab1d8d97bbe06c0368570b969c46b1dc1970db46d826b0966bfcc3a6"
+    },
+    {
+      "path": "api/admin.js",
+      "bytes": 150,
+      "sha256": "55319c52958740ff1a6b329fd7a6ce2aee1a01de950a77b4a8cdaedf59244d5a"
+    },
+    {
+      "path": "api/backups.js",
+      "bytes": 152,
+      "sha256": "68dfb090b451cd7198e770c7ad5725655f567da2ab1f6944376dfa33b30f65ed"
+    },
+    {
+      "path": "api/collector-pair.js",
+      "bytes": 163,
+      "sha256": "d55a3495ef28fe4fb84e53c0ba3d850842f5e651681151e37aa076b0e1de0bac"
+    },
+    {
+      "path": "api/collector-process.js",
+      "bytes": 162,
+      "sha256": "4e3f04d385a984f9d39f71a10eb1eb43dc4bff147d21fc28cf4eeb47780a5b1a"
+    },
+    {
+      "path": "api/collector.js",
+      "bytes": 158,
+      "sha256": "1b73ac975267e1b822349196719301dbbf39632ea20b611c133a6ebc74ab36cf"
+    },
+    {
+      "path": "api/data.js",
+      "bytes": 228,
+      "sha256": "397efe4f0216d20a2faf4d69bc5ccc2e01b32631703803b662bf9818c54e851f"
+    },
+    {
+      "path": "api/discord-ops.js",
+      "bytes": 215,
+      "sha256": "25414fce30c510500ea3af89c4ea7ec60e0fed299c136e5b807ba1cb477eadb7"
+    },
+    {
+      "path": "api/login.js",
+      "bytes": 894,
+      "sha256": "6dfdf1fe71ff00963022ece38629312b88c6d44bc3c489b5eff9fea9663d253f"
+    },
+    {
+      "path": "api/logout.js",
+      "bytes": 151,
+      "sha256": "bf313832bfb5cd81c59e6308cdf833f775cea6da395ecfd0ed37ed340742de7b"
+    },
+    {
+      "path": "api/restore.js",
+      "bytes": 152,
+      "sha256": "4afb6ce632486b4f345937a6e3bcf21f46ac96517ff5a4446428f45a805b356b"
+    },
+    {
+      "path": "api/roulette-void.js",
+      "bytes": 158,
+      "sha256": "3f8203931b4a9fbf71549b716a9101ae85cca913dbd22958ef68907885035781"
+    },
+    {
+      "path": "api/upbo-retry.js",
+      "bytes": 159,
+      "sha256": "d3a3fc04738ad69e24fa1b124b38b5e1c0c2f90be9f8f656aa9b4d0fcaf6824b"
+    },
+    {
+      "path": "assets/audio/roulette-spin-v1.wav",
+      "bytes": 576044,
+      "sha256": "651376fec5b8424825269a25e6041e591711ed1c55642fb61e20574f35382bec"
+    },
+    {
+      "path": "assets/byeollog-theme.css",
+      "bytes": 79425,
+      "sha256": "8a355f4f102edefe927b0bdac03e47abd8ef51f855919cf833a1a953861bda1e"
+    },
+    {
+      "path": "assets/byeollog-ui.js",
+      "bytes": 1653,
+      "sha256": "4095a7189d1cdc76ca04677721ce9e933fcdd9f9a30c494b5f66a933f309c415"
+    },
+    {
+      "path": "assets/change-password-page.js",
+      "bytes": 2208,
+      "sha256": "197cca69374d941ad9413cfd2ec50bb5f85b0d0e9be02683bfdc51a20c66dc09"
+    },
+    {
+      "path": "assets/chat-studio-core.css",
+      "bytes": 59575,
+      "sha256": "f77dee6873a35eecb578152efecd87e568fe08ed8b3f686df073fb5b12268c8a"
+    },
+    {
+      "path": "assets/chat-studio-core.js",
+      "bytes": 89043,
+      "sha256": "fd982b40f071268a1433087bab580402bf2e0053dcee53fe19011312a619b526"
+    },
+    {
+      "path": "assets/chat-studio-donation-100.png",
+      "bytes": 9964,
+      "sha256": "22442e12814128fb2787e10c4f16ecbe9e3be80c46c412e19bf3a0b6c03a27d1"
+    },
+    {
+      "path": "assets/chat-studio-logo.png",
+      "bytes": 102778,
+      "sha256": "a62ff69a2db3bf4117c218a63ff24cfb0c7fb1ba65b63f9a9373c4985d8085fb"
+    },
+    {
+      "path": "assets/chat-studio.css",
+      "bytes": 16850,
+      "sha256": "9a99049e948196ee75443e97f49bb140a2246ce7251a8fd31899bbbd63ec03ef"
+    },
+    {
+      "path": "assets/chat-studio.js",
+      "bytes": 13376,
+      "sha256": "f1550cb5fa0adeba6262429fb03af740bf4825fbc135c6e3a3a252d12b8b48d4"
+    },
+    {
+      "path": "assets/credits-page.js",
+      "bytes": 1340,
+      "sha256": "1b76838c5856fb4b88b48461afdb618e205278a8c1d6edc640d8872e87e66396"
+    },
+    {
+      "path": "assets/login-page.js",
+      "bytes": 2351,
+      "sha256": "f7e43f35f18a6bc54086b0fb034e29823e89fb3ebad2ff73f50385d3510c8519"
+    },
+    {
+      "path": "assets/manuals/byeollog-start-guide.pdf",
+      "bytes": 193982,
+      "sha256": "9f48dbf6e6657391928e2393f349c944d068acbf20328691b7a480610d3b089c"
+    },
+    {
+      "path": "assets/reset-password-page.js",
+      "bytes": 2648,
+      "sha256": "64c2dfa71121eb685c9b59bc57611acce692676a4d8c26b79efbf5d5d030bc8f"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-01-navy-gold.png",
+      "bytes": 454362,
+      "sha256": "d92725b698d900ac50cc65fcd56d58f72108b33be3c88aa42cd2d9e5bf26910a"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-01-navy-gold.webp",
+      "bytes": 61282,
+      "sha256": "2c4f45de0b1d4928bf08aaa8cd62f1869e57d25bcaa25a09ca8f0556e9a3ae71"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-02-royal-purple-rose-gold.png",
+      "bytes": 398123,
+      "sha256": "25cc2403a85311f360cea9ca571da58b4d8e98acd914a6df7808625383390ccb"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-02-royal-purple-rose-gold.webp",
+      "bytes": 58830,
+      "sha256": "a682d32556c0f71a3371870bb771aec249f262f840b8da934e264a8371236303"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-03-emerald-champagne.png",
+      "bytes": 388866,
+      "sha256": "f7e5f5a5c7aa0e9b530bfca9d04923fb7953d59c791c3389e0f78cedaafbdcb4"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-03-emerald-champagne.webp",
+      "bytes": 62556,
+      "sha256": "65df2ee8f0d6b2bd26dc2dbc65de1cfc14b67f9c683c6e88a16398b97b85474c"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-04-burgundy-pale-gold.png",
+      "bytes": 384676,
+      "sha256": "93c8646eefc768262dfbd76ba7034227b59420c8abc9d83f85052b22b7db350c"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-04-burgundy-pale-gold.webp",
+      "bytes": 59042,
+      "sha256": "bf7f22fbc7fe2efb15f33f4525d7da8d244cb17534a579724fdf73d95f9dd1ed"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-05-graphite-cyan.png",
+      "bytes": 382049,
+      "sha256": "38d3499d69e8dba0df8bb3f5e2162b17ed12c25d42e64711a86766ab71be8de7"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-05-graphite-cyan.webp",
+      "bytes": 60236,
+      "sha256": "cebfcdde8b517c3a20454936ca841ece08ae0a618b72150f938b4a7f8a9194b5"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-06-powder-blue-peach.png",
+      "bytes": 403293,
+      "sha256": "a81a295f701a0d59e0a86762fe0db0fb11409bebe5d9b37c775d2f3bcb4e279a"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-06-powder-blue-peach.webp",
+      "bytes": 57094,
+      "sha256": "55d366eac4f2dcdc56888d01ea368710184d9b566d36dc538297638732871cc0"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-07-lavender-butter.png",
+      "bytes": 398479,
+      "sha256": "6250365083ee1754ab40a4307b150f411fdee68e3a23004b26649d37d14b8703"
+    },
+    {
+      "path": "assets/roulette-previews/roulette-07-lavender-butter.webp",
+      "bytes": 55854,
+      "sha256": "345259343b656659d2592e6adaa2c0436e4f629ce925f9e5f34e8153fd805d53"
+    },
+    {
+      "path": "assets/setup-page.css",
+      "bytes": 2425,
+      "sha256": "32098c3d0ffdba0b04742fc7dfee53333587607cf839c9ebc19dfd1dab44bbcb"
+    },
+    {
+      "path": "assets/setup-page.js",
+      "bytes": 5790,
+      "sha256": "2fec1744e9213ae6c30708d3a56738ae00a001c321b0524cf984d3ad8231a0a6"
+    },
+    {
+      "path": "assets/signup-page.js",
+      "bytes": 14048,
+      "sha256": "2d89c6296a94bd3ef04656a9e6b4905a99be265b818977c8101a6fac9a86fa16"
+    },
+    {
+      "path": "assets/signup-status-page.js",
+      "bytes": 2194,
+      "sha256": "fc8cc74c33cb48e28844e2ff198586b51bba9e48e2644856c82e9810a390346a"
+    },
+    {
+      "path": "assets/wallpaper-showcase/overlay-rendered.png",
+      "bytes": 263395,
+      "sha256": "2870ff5119b75d9eb1134554c32dc8992de7d08f33baf832e5720cada390e4bf"
+    },
+    {
+      "path": "assets/wallpaper-showcase/signature-033.webp",
+      "bytes": 71686,
+      "sha256": "c9624e50969f4f57091c731451c3d9dc5aef087b6fb36f11563135da608033fd"
+    },
+    {
+      "path": "assets/wallpaper-showcase/signature-152.webp",
+      "bytes": 72788,
+      "sha256": "f98bad2450ef533db465452a27d7ff48fda1f649c43c3629a79e45bfb70e1efb"
+    },
+    {
+      "path": "assets/wallpaper-showcase/signature-330.webp",
+      "bytes": 68388,
+      "sha256": "0b159a9386829cc66238e14c9ec579c0efac6eb66d8420430094de53292e729b"
+    },
+    {
+      "path": "assets/withdraw-page.js",
+      "bytes": 2173,
+      "sha256": "571a4827286b8e9ce84bb85ed26a317234a047cef377e6337389570b9e4c8230"
+    },
+    {
+      "path": "bangsel_public_workspace_isolation.html",
+      "bytes": 24467,
+      "sha256": "d96790dc5478ea01e6ef47169506ff9f7d7cebed5cc33b4f9cb3b9f08e387a9d"
+    },
+    {
+      "path": "change-password.html",
+      "bytes": 4093,
+      "sha256": "698ca7dd6b6a70377ec31042505def177bb5dc2b093bb966f4213e385735e879"
+    },
+    {
+      "path": "chat-studio.html",
+      "bytes": 39083,
+      "sha256": "fb47bb4cf1742959fa109a2e95900f44af6820925873f5856dee68fe8d600c72"
+    },
+    {
+      "path": "collector-pair.js",
+      "bytes": 121,
+      "sha256": "37bb4fe74bb9a134c7867732f5ee3ffe77f7f2975cda034a6c57b726480e7f26"
+    },
+    {
+      "path": "credits.html",
+      "bytes": 1043,
+      "sha256": "0259d086a9f13ea5af6c15e5c5f3497acbcdbd4e4c2c0e37c6a875a47914523c"
+    },
+    {
+      "path": "game-link.html",
+      "bytes": 2006,
+      "sha256": "b4d981c4b621b68e5aa5dfc9b8adc1a49a11c4aa84ac0d45a61258690d5fce5f"
+    },
+    {
+      "path": "index.html",
+      "bytes": 23168,
+      "sha256": "00eb97edc8722b4e30a17a22b08e74b08b352ab5551304ebc17048973cb191f7"
+    },
+    {
+      "path": "legal/previous/privacy-20260909.html",
+      "bytes": 29448,
+      "sha256": "c384c3da9906ef96e10d06eb60d8c5b661430900a0cbaaff043071231f01d485"
+    },
+    {
+      "path": "legal/previous/terms-20260909.html",
+      "bytes": 16628,
+      "sha256": "7844c4fc899325d083af96edb524c43dd2709bd42bab791f23c553976d698baa"
+    },
+    {
+      "path": "lib/admin-html.js",
+      "bytes": 418833,
+      "sha256": "f65e74ed086b6cf7c3ce9acf23cabea1a9e5ceb27fd4fbbe842180c9b9483388"
+    },
+    {
+      "path": "lib/admin-source.html",
+      "bytes": 314095,
+      "sha256": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb"
+    },
+    {
+      "path": "lib/agent-dashboard-handoff.js",
+      "bytes": 4772,
+      "sha256": "849d5b6b3a372e1baa3721ee838db6a936d32529b9ef60e56087a7b6437b1c7a"
+    },
+    {
+      "path": "lib/agent-rollout-html.js",
+      "bytes": 13404,
+      "sha256": "2f167d19e3dbe33d1b26f6554608f9afe1561ef58f0451da45a45b034e0ee1cf"
+    },
+    {
+      "path": "lib/agent-rollout.js",
+      "bytes": 8440,
+      "sha256": "7e081df4a2d0500d0c090b56aa426a3cfad191ee99a776a403253310dbaea38f"
+    },
+    {
+      "path": "lib/agent-support.js",
+      "bytes": 3017,
+      "sha256": "a04353c66ea50c03aff489844ed408bde5071b456be614bd7d246c0f2dd15978"
+    },
+    {
+      "path": "lib/agent-wallpaper-control.js",
+      "bytes": 10247,
+      "sha256": "187a9a0398d152e8057bce08e493d0a93c19be74eec976bd0e86be22aa6f828a"
+    },
+    {
+      "path": "lib/auth.js",
+      "bytes": 10564,
+      "sha256": "cd3371d55b52f41f3d6b23fe1cbdb8836c88781017bcba831833e006e32528a3"
+    },
+    {
+      "path": "lib/backup-retention.js",
+      "bytes": 3170,
+      "sha256": "402ea5ae43b4a84cf5242b3d8be5348382191f4d15a010486a300d37fa035c6a"
+    },
+    {
+      "path": "lib/backup-seal.js",
+      "bytes": 982,
+      "sha256": "85419216725333aae328802c0793f01cf5689eceaa582a21327459a2847a80f6"
+    },
+    {
+      "path": "lib/backup-service.js",
+      "bytes": 2099,
+      "sha256": "db2eb14cb9932f2184afd3dfbeee21e49eafca713831cf06b329c98d6cde31c8"
+    },
+    {
+      "path": "lib/backup-worker-client.js",
+      "bytes": 3301,
+      "sha256": "d1639b5dc31e4d775d4b514c3b6ea442adc48be5a50da6e68a0c579ae1614aa5"
+    },
+    {
+      "path": "lib/backup-worker-handler.js",
+      "bytes": 2895,
+      "sha256": "cd077fdd77fc39740eb0b98680565bde5a06e31cc96f583c47326ea393050b76"
+    },
+    {
+      "path": "lib/backup.js",
+      "bytes": 24481,
+      "sha256": "78ba2f9ae101ec5a0c163ccacccee89dc93675723997cd9ee18a5512c12449f9"
+    },
+    {
+      "path": "lib/broadcast-readiness.js",
+      "bytes": 2328,
+      "sha256": "8cadc1ab93c73933bd0e5a1f723c9a0b0e5d8249f875a3217dda5f5fbcd3fbe1"
+    },
+    {
+      "path": "lib/collector-automation-session-contract.js",
+      "bytes": 5520,
+      "sha256": "4fcdfe6e0fed9b222e5dacc47f27f0a56027623be2b176d8234769ab09763ec3"
+    },
+    {
+      "path": "lib/collector-processor.js",
+      "bytes": 30367,
+      "sha256": "8665873b6fee2e7fb537fced793846b845c7bdc99a7b2a5d450c1996611b3326"
+    },
+    {
+      "path": "lib/collector-subscription.js",
+      "bytes": 1855,
+      "sha256": "62edafeb0270a1d55ab639eedd69c21fdc14ca77685eec8c990487ff9a40aab5"
+    },
+    {
+      "path": "lib/common-overlay-v8.js",
+      "bytes": 43145,
+      "sha256": "9461644db7536f66d86e377a172775c606e423f24ba4f8c8df219e3ca1cbe0e1"
+    },
+    {
+      "path": "lib/core-product-scope.js",
+      "bytes": 1274,
+      "sha256": "1c57b08916509a894aaf6ac6b978308bd92ce12faaccd5778892d68a04a34f2c"
+    },
+    {
+      "path": "lib/dashboard-icons.js",
+      "bytes": 1702,
+      "sha256": "ffa8d6acb7c5c8a511a13351f7c17834dff353344eee8ba5e0bce118f7536f65"
+    },
+    {
+      "path": "lib/dashboard-navigation.js",
+      "bytes": 4954,
+      "sha256": "178934c525bb712b376b2d039446d6913c73d9c65270765f87e8988858842177"
+    },
+    {
+      "path": "lib/dashboard-notifications.js",
+      "bytes": 4375,
+      "sha256": "ecd32af989cbb4f139bcaf3494eabae1a54f96ce9eb7da4df2580d48733ec2d7"
+    },
+    {
+      "path": "lib/dashboard-review-panels.js",
+      "bytes": 5461,
+      "sha256": "deae704ec188749a2c509eac29cf3e60f118520128b677c8b3c06fb08900ff5e"
+    },
+    {
+      "path": "lib/dashboard-review-shell.js",
+      "bytes": 1807,
+      "sha256": "a09e879ace87a11df217af0432e36d40f95ad7fe2b7385d6c9c8420124cd1861"
+    },
+    {
+      "path": "lib/dashboard-shell-client.js",
+      "bytes": 12483,
+      "sha256": "d5f56faf157c869f3cf18f3911c96676c10a93c0aa9ee8769398397041131085"
+    },
+    {
+      "path": "lib/dashboard-shell.js",
+      "bytes": 4640,
+      "sha256": "4b29915f0aa471ba00fafdd923a14200d775d7e4db1ba1fc2dac1771b3df51db"
+    },
+    {
+      "path": "lib/data-query-policy.js",
+      "bytes": 6660,
+      "sha256": "3bcdddb14dc946c7d8b6ff4e5e8f0ca603ec9e39b91253a9992f466655585486"
+    },
+    {
+      "path": "lib/default-donation-images.js",
+      "bytes": 2415,
+      "sha256": "bae2d0b0f273650ec214e1ef99c2d63d309e57ef6e68f26d596004e70ea5f3de"
+    },
+    {
+      "path": "lib/deployment-assets.js",
+      "bytes": 597814,
+      "sha256": "eb3c974fbb33432595816694845ce23132a4627abaf83e7cdd3752cb16de9df1"
+    },
+    {
+      "path": "lib/discord-ops.js",
+      "bytes": 8875,
+      "sha256": "81722069e50f7598b3b37d274c9a3c7a4501a3275415d7d27a6e2a11b0d49f27"
+    },
+    {
+      "path": "lib/lib-inquiry.js",
+      "bytes": 3357,
+      "sha256": "93f75ced6521053fb78dd18f751af7b7089b36bdfaa53186d067ac9065737cdf"
+    },
+    {
+      "path": "lib/maintenance.js",
+      "bytes": 1319,
+      "sha256": "b5412f6230d36f2fb33f103d1b74bc750deb14ec84a3836b7570b80444ade78e"
+    },
+    {
+      "path": "lib/native-roulette-assets.js",
+      "bytes": 5381,
+      "sha256": "8e9353ec930008d431b5feedffb459cb351c6ace8c762c10138124a288023ea4"
+    },
+    {
+      "path": "lib/native-roulette-settings-html.js",
+      "bytes": 7028,
+      "sha256": "1e4a2a57139216593fa2ae9e484175197da5f4264be5a64333928a5e729b3e45"
+    },
+    {
+      "path": "lib/native-roulette.js",
+      "bytes": 23758,
+      "sha256": "7a983cf8530de8175cdc4d60b7fcc649544a38bd00bdb3e6faef1d30183687c0"
+    },
+    {
+      "path": "lib/password.js",
+      "bytes": 9010,
+      "sha256": "378c48e253dad7962e112add17be1448d4c2d06b5505dd1a47b1796cf61132fe"
+    },
+    {
+      "path": "lib/product-dashboard-html.js",
+      "bytes": 168912,
+      "sha256": "faeb7b2f39bdf0089c565b4219b15ca8578bbccea4e183ca47aecd490a191b2d"
+    },
+    {
+      "path": "lib/public-read.js",
+      "bytes": 1210,
+      "sha256": "e5fd55019d4fb6852c50005ae6837e1ccacddfd52cf046b45fc05ddc221d21b6"
+    },
+    {
+      "path": "lib/public-request-guard.js",
+      "bytes": 1242,
+      "sha256": "e5c755974df475f376101d1bfacff0f798849700ec91dd8d9d835ff9967b8b6f"
+    },
+    {
+      "path": "lib/rate-limit.js",
+      "bytes": 1218,
+      "sha256": "7277fed38d067e3b12d7906ab1b7fd728fcc8b8d24debfbd3d3701d1c701229e"
+    },
+    {
+      "path": "lib/request-origin.js",
+      "bytes": 1131,
+      "sha256": "7983ad3f6a11b50ff44816a2ec85adf42abe221ecdc8c517054a35f0c5eee1a3"
+    },
+    {
+      "path": "lib/reverse-fan-day-draft-script.js",
+      "bytes": 4233,
+      "sha256": "aff8340df256ba371f9d73b1c4c94b8f4ecf25b0f59b9adc3e15e07ea3c88c36"
+    },
+    {
+      "path": "lib/reverse-fan-day-html.js",
+      "bytes": 19239,
+      "sha256": "1928837fcd8d76f11a80dfdf83babd093d22fe76c232f56c22701591e3867680"
+    },
+    {
+      "path": "lib/reverse-fan-day.js",
+      "bytes": 4939,
+      "sha256": "03cb2038d87c4cb5acd610b0f88d75e0a278ddd50d0f64bf981800716514db31"
+    },
+    {
+      "path": "lib/roulette-amount-mapping.js",
+      "bytes": 1644,
+      "sha256": "5854ce1aaa9711c14b16a5df3b880160c74a1bf69c9e564d0edcbb8a8d2c760b"
+    },
+    {
+      "path": "lib/roulette-classification-html.js",
+      "bytes": 41069,
+      "sha256": "1059c417ca0fcfdd5f48e843d9fbb17cad4958fe965a63bd024ab7841c060f79"
+    },
+    {
+      "path": "lib/roulette-custom-assets.js",
+      "bytes": 8750,
+      "sha256": "0e39006083597dfa3d29ddad26710eb1f2492a7ccf93811406a3fa6e3646a859"
+    },
+    {
+      "path": "lib/roulette-exceptions-html.js",
+      "bytes": 21708,
+      "sha256": "e8e10b5ec1a86c7f967012e1e4cf43bf76ba6458bfa6c49cd8db46e902be4479"
+    },
+    {
+      "path": "lib/roulette-exceptions.js",
+      "bytes": 7125,
+      "sha256": "f63a5b3003330507402a54c47f6c78b8c25e1cad54f27f6bd3c550f7683145ef"
+    },
+    {
+      "path": "lib/runtime-isolation.js",
+      "bytes": 6104,
+      "sha256": "3c91754405cfe8a3010b8e0a3b31a4a59979166c904987887d138d71b78c1cdc"
+    },
+    {
+      "path": "lib/runtime-proxy.js",
+      "bytes": 6278,
+      "sha256": "d8871726297912025867c5ac0ae0d18f0df9b1beeec7c1679bd9d3abdcb1aee0"
+    },
+    {
+      "path": "lib/scoped-asset-path.js",
+      "bytes": 508,
+      "sha256": "ab08fb1bdc78fa69457fb63a17a982c9dd7e7e31c901b42b626eb97816e52f05"
+    },
+    {
+      "path": "lib/signature-balloon-assets.js",
+      "bytes": 11130,
+      "sha256": "63c58100a7800de24399a4cc40f4de6513ee70c1d6cdb41c746dd9827cfb7220"
+    },
+    {
+      "path": "lib/signature-balloon-registry.js",
+      "bytes": 3314,
+      "sha256": "50e33a909382e81770f98ac2f10dc9b9c00735e47878a3b74df1f01767175e18"
+    },
+    {
+      "path": "lib/signup.js",
+      "bytes": 15920,
+      "sha256": "ee59a5d96079212cd30ae0a0c9aea022f11c983670f823e72e87274ae3100101"
+    },
+    {
+      "path": "lib/soop-chat-gateway.js",
+      "bytes": 13778,
+      "sha256": "86893956db3667a59ac3baedb1d5c021ef2cd9815e1fcf7b14e97b139de87908"
+    },
+    {
+      "path": "lib/soop-external-roulette.js",
+      "bytes": 2292,
+      "sha256": "cb33e3460e2d2f4d15eb058cd8f712fa1f224ba8df69b58feb9bd87a004194c8"
+    },
+    {
+      "path": "lib/soop-gateway-api.js",
+      "bytes": 20312,
+      "sha256": "c6f2d561468e0dc29b3d87d56390afd60518c41cdcadf55688cb6374feaee9ad"
+    },
+    {
+      "path": "lib/soop-gateway-lease.js",
+      "bytes": 4340,
+      "sha256": "f3b7bbe6b0561e0f117950ea43ea4a5776d89b4cc65c65edb52b8172eb359f69"
+    },
+    {
+      "path": "lib/soop-oauth.js",
+      "bytes": 36096,
+      "sha256": "7333cae938bd8d06c5864a0ff7d020f46b7b6ad367f591945d2d8c03c724bb7b"
+    },
+    {
+      "path": "lib/soop-sdk-relay.js",
+      "bytes": 5835,
+      "sha256": "83bd52ba04065589d05b0eae7d4947ccec7bd7f2434559f43eac585877bff4b2"
+    },
+    {
+      "path": "lib/soop-wallpaper-assets.js",
+      "bytes": 1131,
+      "sha256": "d2eaf4fd75f67edea752fc3807c2ab3e3fadfb0a8324dbd8f1bb2366017e937b"
+    },
+    {
+      "path": "lib/storage-manifest.js",
+      "bytes": 751,
+      "sha256": "266d4847b34b35d87c85990ed03d332ace6d9410221b768f94ddcd980d4b5cf4"
+    },
+    {
+      "path": "lib/supabase-rest.js",
+      "bytes": 1249,
+      "sha256": "d716dff5a1c4892ae2bd6335e9d13cb9e890244cc7aa15024f917ffe774f827b"
+    },
+    {
+      "path": "lib/task-completion-history.js",
+      "bytes": 1408,
+      "sha256": "e215056f3f7b104054cd81080ac42d13302e2f01a1a11512ca6c409bb757a234"
+    },
+    {
+      "path": "lib/ui/account-styles.js",
+      "bytes": 1613,
+      "sha256": "4b5b2db3587e61b05efcbfcc1735b6a9759ff590037ac43834aa420f533aa2ed"
+    },
+    {
+      "path": "lib/ui/compatibility.css",
+      "bytes": 50629,
+      "sha256": "f3f2e57a68b076d197085e00f57ff495c67cc23aac89e6f359f4d499db486566"
+    },
+    {
+      "path": "lib/ui/components.css",
+      "bytes": 27873,
+      "sha256": "3112a8837e63c24f80d2c22411f172cd724cfda2b3478a081f249a5e3e995e0c"
+    },
+    {
+      "path": "lib/ui/palette.json",
+      "bytes": 561,
+      "sha256": "598cb982313931357e73c298473ad1b0fe39e5eb7b5493b08fc363c6912761b1"
+    },
+    {
+      "path": "lib/ui/README.md",
+      "bytes": 766,
+      "sha256": "634aeb74c2c66f3b656e0dc1ea8348d4b336af549151c5a74337c61f90965a2a"
+    },
+    {
+      "path": "lib/ui/tokens.css",
+      "bytes": 333,
+      "sha256": "ab59bd939665d91593b9445adaddbf58faa06f296ba0f2ea2a3c6ed7fbb60c37"
+    },
+    {
+      "path": "lib/upbo-retry.js",
+      "bytes": 907,
+      "sha256": "6c93f2390f6c0cd9dccc47840e2373fe713fde77607f89ee65ebfcfbb66cee02"
+    },
+    {
+      "path": "lib/upbo-schema.js",
+      "bytes": 2711,
+      "sha256": "7ec5477fd2639289d9132ca99d96ff28a0d90902046341724bb39f78814d6ee8"
+    },
+    {
+      "path": "lib/ux-controls.js",
+      "bytes": 5760,
+      "sha256": "f228cb86fab54bc53609410754ae302891817e8b65f59924478de5473d2c4fe2"
+    },
+    {
+      "path": "lib/ux-roulette-html.js",
+      "bytes": 6180,
+      "sha256": "9f402be5ba11d2b2b3dc20daa8417ef05cf227f87e27fde9f9992119608ad255"
+    },
+    {
+      "path": "lib/wallpaper-edit-session.js",
+      "bytes": 1134,
+      "sha256": "68d5325b2d8f6f51a4eb21d9a4e3ff6cc21e5c5b2958ef4e9b04d3bc0390dae3"
+    },
+    {
+      "path": "lib/wallpaper-editor-transactions.js",
+      "bytes": 4187,
+      "sha256": "976ea40354e0c5bc407b94d4f359095462b3807a1e512e57544ad7e4f8f88986"
+    },
+    {
+      "path": "lib/wallpaper-image-mask.js",
+      "bytes": 3751,
+      "sha256": "76c01d0d3650c013ee58eebce093198c4f387897545f5b542ecb0f75c23a221e"
+    },
+    {
+      "path": "lib/wallpaper-layout.js",
+      "bytes": 14072,
+      "sha256": "4d41afe0fcb8854ca8b14d890ea6b48073470b8e76197f762987adb2a61ca9e4"
+    },
+    {
+      "path": "lib/wallpaper-overlay.js",
+      "bytes": 7876,
+      "sha256": "edcc6e8c56b08c753e40a8a96f2518ef71a21c707604b9c836cc6ea22d81ddae"
+    },
+    {
+      "path": "lib/wallpaper-render-cache.js",
+      "bytes": 347,
+      "sha256": "ccedb2786b8ce15655e3fe7dca5c17c9cb236c6722c2be881d0a46a250a32ceb"
+    },
+    {
+      "path": "lib/wallpaper-retention.js",
+      "bytes": 2403,
+      "sha256": "8b91f409ed52eec6d17e996573363e89d077f2ce7dd5197ae664f48f1759084b"
+    },
+    {
+      "path": "lib/wallpaper-service.js",
+      "bytes": 17567,
+      "sha256": "5f4a53579e53b29a5af1ac7109e1b5142f30e8b9647b8b3ba8a4c5708a023d9c"
+    },
+    {
+      "path": "lib/weflab-public-roulette-import.js",
+      "bytes": 8628,
+      "sha256": "532840a4f51e67d629cd4036e062cf27e81e8a121c0d6d70029360e4b11974fe"
+    },
+    {
+      "path": "lib/workspace.js",
+      "bytes": 2472,
+      "sha256": "feee76e3fbb8e1999b5d43163199a15134977954492863788205ca46ca637954"
+    },
+    {
+      "path": "login.html",
+      "bytes": 3675,
+      "sha256": "7829b06de18b9ecfa3b02392b4d48f0cde3f7e560211cb33b3c257fdf017afc5"
+    },
+    {
+      "path": "middleware.js",
+      "bytes": 970,
+      "sha256": "67aa800529cde0b6704e204b53463c8b0c06e2d1279f32cdeb2c4f643485a597"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 57503,
+      "sha256": "46c7ae10673439bcea31fd4b841241b9bdb625e024c16f1895b072ed8cdbef38"
+    },
+    {
+      "path": "package.json",
+      "bytes": 2750,
+      "sha256": "50cfaa2ff2e24f804d923dfa8b340066290a536b4fab2df9f8459ddc83e3ea0e"
+    },
+    {
+      "path": "privacy.html",
+      "bytes": 36103,
+      "sha256": "d49fce5a5c04b7b52a1982ab1c802a5a01df51237d5be5657df61f348cc8a27e"
+    },
+    {
+      "path": "reset-password.html",
+      "bytes": 2823,
+      "sha256": "56c76915ee9f98ef40c5d404d323c3908f0cc9b24a34ded49eee4dac2de94b2f"
+    },
+    {
+      "path": "scripts/build-public-assets.mjs",
+      "bytes": 4721,
+      "sha256": "1bf7d07a8f436dcb1f2137f611751b7bd1ac62ae2294b22642f6f6ef0d610dd3"
+    },
+    {
+      "path": "scripts/generate-admin-html.mjs",
+      "bytes": 3218,
+      "sha256": "402275b52fcad8551a2d45e653644639bb589a0277458c40ca7f5d2c33de341a"
+    },
+    {
+      "path": "scripts/generate-release-manifest.mjs",
+      "bytes": 2875,
+      "sha256": "fb4c6dbae1f219cbd1dcd8b4ec192db4be356e3a9db245f58c07afc3e95caef6"
+    },
+    {
+      "path": "scripts/generate-theme.mjs",
+      "bytes": 1247,
+      "sha256": "cb8fad0d2bddac8320e6da0643ea76314f635662bcc008c07204db8f3a5a66dd"
+    },
+    {
+      "path": "scripts/validate-runtime-config.mjs",
+      "bytes": 3992,
+      "sha256": "9bb08c375f6f8d71fad62b37bfd78ce946a9f632a75d0bde388158b98b161fc5"
+    },
+    {
+      "path": "services/soop-chat-gateway/browser-session.mjs",
+      "bytes": 26601,
+      "sha256": "109acc89b449c0fbe80d23490379aeac6d6b26842acb4220a758b5e38ce4bcfe"
+    },
+    {
+      "path": "services/soop-chat-gateway/cdp-client.mjs",
+      "bytes": 1896,
+      "sha256": "76713b37fcfe586a7ce5aaa254da6079525ef5ca7287c9581b7caa18ffabf984"
+    },
+    {
+      "path": "services/soop-chat-gateway/compose.example.yml",
+      "bytes": 781,
+      "sha256": "da282a16497cded2fdf6856159405caff00abfc77ae1b2c9fe1f8fcf009c29cd"
+    },
+    {
+      "path": "services/soop-chat-gateway/Dockerfile",
+      "bytes": 1067,
+      "sha256": "636f5efae3785ad9a3112b2256a313f4fd6b1b2a1128356ccfbb8ffeed32cbbe"
+    },
+    {
+      "path": "services/soop-chat-gateway/durable-enqueue.mjs",
+      "bytes": 792,
+      "sha256": "c71c584d2874fad7ab6a90a47a2abcf1c99f0eac2ea82da9ad45b3d238258b07"
+    },
+    {
+      "path": "services/soop-chat-gateway/index.mjs",
+      "bytes": 21500,
+      "sha256": "e94383bd106e9fa09c16f92f8900a861f2a999ac5b9abe223732a111bc1e2b47"
+    },
+    {
+      "path": "services/soop-chat-gateway/outbox.mjs",
+      "bytes": 14644,
+      "sha256": "4c23562de28476b0d465eaab9a22ffa07c7993fb3986db6db4d3c2e807280585"
+    },
+    {
+      "path": "services/soop-chat-gateway/README.md",
+      "bytes": 3986,
+      "sha256": "55238a1160988880955f8260b9ea6133e5c7a4382617ea936d19e516ec524ad6"
+    },
+    {
+      "path": "services/soop-chat-gateway/single-flight.mjs",
+      "bytes": 534,
+      "sha256": "29ff154726310da9d5894dd189c0c0f33c381fc896147047e26f715bfb8d1961"
+    },
+    {
+      "path": "services/soop-chat-gateway/storage-isolation-probe.mjs",
+      "bytes": 476,
+      "sha256": "bd758aa7b9e9811b17454efae94f90b0d37552e8f7773eee2353ece3732ef09d"
+    },
+    {
+      "path": "services/soop-chat-gateway/supervisor.mjs",
+      "bytes": 7097,
+      "sha256": "f4d605834aa781754082de96d5737d74473c5788a19f2666f920f79985866944"
+    },
+    {
+      "path": "services/soop-chat-gateway/workspace-event-sequencer.mjs",
+      "bytes": 1486,
+      "sha256": "a390733478eac78ca3e52a8035aa7d9c4499d86f2a447329e8e4d0ebfacf2e30"
+    },
+    {
+      "path": "setup.html",
+      "bytes": 9775,
+      "sha256": "16d8802a32515cebdc2a795f299f2e33d2dfeb35cd8ae28c9cc85ada9e9cb59b"
+    },
+    {
+      "path": "signup-status.html",
+      "bytes": 3668,
+      "sha256": "e0f25306e3d6f05bb1291c087ad55d570f165114879f436a767c0f260322b900"
+    },
+    {
+      "path": "signup.html",
+      "bytes": 11855,
+      "sha256": "d8b1ae9d93094f446ddd0995aa6993d70f37211ff3f6b49d2966c4b76ec6d744"
+    },
+    {
+      "path": "signup.js",
+      "bytes": 108,
+      "sha256": "08cd56e9ac3bf65ea926a8da04fbf8143903bef05bdc9433b11a5285c29251f7"
+    },
+    {
+      "path": "supabase/migrations/20260822234535_next_roulette_reward_multiplier.sql",
+      "bytes": 20942,
+      "sha256": "d898f51b5669d420c98dea688c5d31cf499fe0c92125a69679008096395d89a2"
+    },
+    {
+      "path": "supabase/migrations/20260823010650_grant_public_rpc_service_role.sql",
+      "bytes": 320,
+      "sha256": "2f5dba8cb1de870738bd0cbb0e3c6caae579e8aba2ff50be4a7d3418645bce3c"
+    },
+    {
+      "path": "supabase/migrations/20260823011107_harden_public_rpc_and_rls.sql",
+      "bytes": 4841,
+      "sha256": "08148cf75aa093a3eead20c2429d086d47ee93db00bd942576295d364e0d30a7"
+    },
+    {
+      "path": "supabase/migrations/20260823055539_harden_multiplier_rls_and_fk_indexes.sql",
+      "bytes": 991,
+      "sha256": "2e1ea3097966b69799ec079813da2bbf8bdfab069728408505e7e21596e0ea1b"
+    },
+    {
+      "path": "supabase/migrations/20260823060109_add_multiplier_explicit_deny_policies.sql",
+      "bytes": 596,
+      "sha256": "facb9e6a0d6bef6a8a410632659fe68f6a7d2fa9deb35c0fcf7d5ea191b7c8a7"
+    },
+    {
+      "path": "supabase/migrations/20260823103000_add_raffle_action.sql",
+      "bytes": 32773,
+      "sha256": "1fb7f8ef1242ddb657f6a29808bf9ef4a3ab1adb25e331bb578ec5ea1b75dc85"
+    },
+    {
+      "path": "supabase/migrations/20260823153158_refine_raffle_ticket_modes_and_overlay.sql",
+      "bytes": 28532,
+      "sha256": "345b93a1dcf8cce055c75a1f9f2b0f9cda94e3e2c77bf8062ce3d12c06d16d07"
+    },
+    {
+      "path": "supabase/migrations/20260823162319_restore_collector_rule_read_access.sql",
+      "bytes": 411,
+      "sha256": "2999468bc18129d469b8e95627e8f0eaaece043a9725aef26b84bed5656a462b"
+    },
+    {
+      "path": "supabase/migrations/20260823171308_add_manual_raffle_draw_control.sql",
+      "bytes": 17941,
+      "sha256": "ed7be0ba2be143ac75885fc304e9f6b27e5bcac518ce0853b51e16eed2a8231e"
+    },
+    {
+      "path": "supabase/migrations/20260823191145_preserve_rule_version_names.sql",
+      "bytes": 6416,
+      "sha256": "3fa0540373ac169d8754f6dbbbb79b8e47d31f378bf22172e41270aa0fd0db40"
+    },
+    {
+      "path": "supabase/migrations/20260823225424_harden_raffle_delivery.sql",
+      "bytes": 13032,
+      "sha256": "5af13c1e079df7909a2e565001a2e2fb0ed607a92bf0b2fbd0393599c561219c"
+    },
+    {
+      "path": "supabase/migrations/20260823230740_add_raffle_winner_reannounce.sql",
+      "bytes": 14052,
+      "sha256": "60904bcde928fc82dd5474ac40bbfb0113db4357667a86a5a9f9427f27e6123e"
+    },
+    {
+      "path": "supabase/migrations/20260824051542_fix_save_guided_rule_v10_ambiguous_rule_id.sql",
+      "bytes": 4801,
+      "sha256": "7954b0d49110cfa7324cfec6969bd74e45b057c493beb089cb417278a1245016"
+    },
+    {
+      "path": "supabase/migrations/20260824090000_add_raffle_tts_volume.sql",
+      "bytes": 8092,
+      "sha256": "9cd0afd0748982d06a482b46c7bc0e5318971f12bbc90dab5272391ca1476563"
+    },
+    {
+      "path": "supabase/migrations/20260824103000_harden_manual_raffle_draw_request.sql",
+      "bytes": 12764,
+      "sha256": "c94163bd36ad279a66d9e9e879cc0f961b27f237ecac34992bd6886520d01095"
+    },
+    {
+      "path": "supabase/migrations/20260824120000_add_agent_rollout_dashboard_v1.sql",
+      "bytes": 6779,
+      "sha256": "2ce1affdaf687e2ff1b5de8025d29b9ab4b0f435f4c93316da848502653ec072"
+    },
+    {
+      "path": "supabase/migrations/20260824130000_add_raffle_winner_tts_gateway.sql",
+      "bytes": 3735,
+      "sha256": "0f339e70bd4537cc6c0d6df910fb4a96bd9c6f9017f0768f8d33a369ea1f915e"
+    },
+    {
+      "path": "supabase/migrations/20260824140000_bind_raffle_tts_cache_identity.sql",
+      "bytes": 8182,
+      "sha256": "47a7b3af8ee698705e70c3e4b76eff4a40f53229002558b22f7800825a22c63c"
+    },
+    {
+      "path": "supabase/migrations/20260824153000_restore_raffle_winner_tts_gateway.sql",
+      "bytes": 3611,
+      "sha256": "fc418296081beb07e96b6519db9eb82d6761136afb10e71abd41c7f3c5afc4f0"
+    },
+    {
+      "path": "supabase/migrations/20260824160000_add_missing_raffle_sealed_at.sql",
+      "bytes": 463,
+      "sha256": "3542397c064bea94a3e9e65ac4ba0f8e4f98e965d18f52b7f8ad88bd21ec823d"
+    },
+    {
+      "path": "supabase/migrations/20260824173931_add_flashbang_action.sql",
+      "bytes": 16412,
+      "sha256": "c22f45a37667ec999a0ce03f24deb8fe04f7c1b952d9f92da82cdc5a2de34c5f"
+    },
+    {
+      "path": "supabase/migrations/20260824192432_allow_flashbang_rule_action_target.sql",
+      "bytes": 1056,
+      "sha256": "e4ca92bfbf9a2dc5e2999ff23169c0652fa854147cdbd002f8dcde587db3e0b3"
+    },
+    {
+      "path": "supabase/migrations/20260824192955_fix_flashbang_timeout_contract.sql",
+      "bytes": 11530,
+      "sha256": "af153794f373bf7d93c825c66d3161b4c5abaeb60e7fe832a6b71b1992f8519c"
+    },
+    {
+      "path": "supabase/migrations/20260824202652_allow_flashbang_exact_donation.sql",
+      "bytes": 10467,
+      "sha256": "1383c090da01871aec91b1fa400eb51db18495f9b59214a00ffa0f2315d89009"
+    },
+    {
+      "path": "supabase/migrations/20260825100000_add_collection_health_and_event_decisions.sql",
+      "bytes": 12277,
+      "sha256": "b77b24322f75e5c961699b204ddb3a95aaff35b8905827edd84b352cb4902ab3"
+    },
+    {
+      "path": "supabase/migrations/20260825101500_revoke_superseded_agent_rpcs.sql",
+      "bytes": 1247,
+      "sha256": "8fe672111f3b3532c08fafc0825318f6e2516ce44c3e7db0b6387b611eb7eb5e"
+    },
+    {
+      "path": "supabase/migrations/20260825120000_add_voice_anonymize_action.sql",
+      "bytes": 20124,
+      "sha256": "ec32597e99d08c4ccd5a316ac2030b580b1da1776a80e2b85b27204eee98b29e"
+    },
+    {
+      "path": "supabase/migrations/20260825134122_add_voice_anonymizer_pitch_presets.sql",
+      "bytes": 18528,
+      "sha256": "a1c6959df5434aef264d764ee3dc30fbed27c8a946f54ce7ff723aaea7ad5194"
+    },
+    {
+      "path": "supabase/migrations/20260826060945_add_screen_and_effect_actions.sql",
+      "bytes": 24795,
+      "sha256": "18924b87b86584858c7733f2d59afd50367d6bd80b6a2f16a3496568b1cea73c"
+    },
+    {
+      "path": "supabase/migrations/20260827164017_add_web_product_control_plane.sql",
+      "bytes": 1969,
+      "sha256": "83718c9ead4b8990cb6d86f75b69b059cb85096d636182a8aed2990da24fab76"
+    },
+    {
+      "path": "supabase/migrations/20260827164651_add_roulette_public_visibility.sql",
+      "bytes": 611,
+      "sha256": "adad40d4f8030b82958a83f98fcacf88c8e66781e0626015169c465ec4247bf7"
+    },
+    {
+      "path": "supabase/migrations/20260828022116_harden_unbiased_random_sampling.sql",
+      "bytes": 9069,
+      "sha256": "25c6426e981dc347bc548f6abcb81fd08a367e69d2a7b72127525df317c0f142"
+    },
+    {
+      "path": "supabase/migrations/20260828173951_soop_gateway_readiness_observability.sql",
+      "bytes": 6913,
+      "sha256": "b2841190feee93da7f98dfc88cc6cdd411b3cb352c5264ac35dc6e79b4a9b832"
+    },
+    {
+      "path": "supabase/migrations/20260828213853_promote_native_roulette_production_runtime.sql",
+      "bytes": 36111,
+      "sha256": "50ccaa3f27b48bb40fe76fb33c11dadae898bf189648bdb9debdc0f36e08d627"
+    },
+    {
+      "path": "supabase/migrations/20260828220112_retire_legacy_soop_test_switches.sql",
+      "bytes": 511,
+      "sha256": "ff6fee2c42fa0dc8f43e74d070f7eab5c472969afe80719008b0d78340cdc8eb"
+    },
+    {
+      "path": "supabase/migrations/20260828220151_add_native_roulette_explicit_deny_policies.sql",
+      "bytes": 846,
+      "sha256": "267409c2e53699fb5734e0dff2a5f9f6086ff8dea8dbc702da9c56cee371bf45"
+    },
+    {
+      "path": "supabase/migrations/20260828220956_publish_native_roulette_asset_catalog.sql",
+      "bytes": 2101,
+      "sha256": "338302192b0e80645ff189e588ce403cb30ef57b4b05291678befd50bc2866c7"
+    },
+    {
+      "path": "supabase/migrations/20260828223200_lock_native_roulette_overlay_client.sql",
+      "bytes": 3970,
+      "sha256": "2a7d27c9df8ae44be6b2c9da7c4599c814f826af048be636456243c66ff7a0f3"
+    },
+    {
+      "path": "supabase/migrations/20260828224000_add_soop_runtime_explicit_deny_policies.sql",
+      "bytes": 529,
+      "sha256": "1532c8bcec8162b314a646d72cdd96870f9ef74bc8b7e8c49734d8630517c3f0"
+    },
+    {
+      "path": "supabase/migrations/20260828231500_add_native_roulette_overlay_layout.sql",
+      "bytes": 3935,
+      "sha256": "f73591ed084bfd2befad8564e35ed08472935b7afd632898c9e8a501b11214ad"
+    },
+    {
+      "path": "supabase/migrations/20260828234000_add_roulette_result_overlay_part.sql",
+      "bytes": 3274,
+      "sha256": "17e6eafc70f6529d8934009b294b182168e5d3e31bc5c2a690baa333820b9b0c"
+    },
+    {
+      "path": "supabase/migrations/20260829030000_add_ephemeral_soop_roulette_overlay_experiment.sql",
+      "bytes": 1603,
+      "sha256": "0797982afa4a9392c95e8940deaf5e7446eeb6cfa3e56b498471fb1ff368fc5d"
+    },
+    {
+      "path": "supabase/migrations/20260829031658_add_signature_balloon_registry.sql",
+      "bytes": 3065,
+      "sha256": "bb72e8a6066a3138389a8f18d37d3eca58928f4e225c0cce84a5f71e64ee1909"
+    },
+    {
+      "path": "supabase/migrations/20260829033506_add_common_overlay_donation_ceremony.sql",
+      "bytes": 3787,
+      "sha256": "bb2c6fd134beb25beb24e489790328e9956e3a04755fd94fb72a6223fa11ee53"
+    },
+    {
+      "path": "supabase/migrations/20260829114729_isolate_preapproval_native_roulette.sql",
+      "bytes": 10307,
+      "sha256": "0ad86851ea66b0b4adc314c4d05b4d7d7c189b92ece9ea013a9b1bb907c8aa3d"
+    },
+    {
+      "path": "supabase/migrations/20260829121302_add_signature_wallpaper_asset.sql",
+      "bytes": 5007,
+      "sha256": "2e9ec69e3f75f7dcde89974eb8e2054c566f7cd701182f5f6a25a39535dad72d"
+    },
+    {
+      "path": "supabase/migrations/20260829164723_add_soop_gateway_incident_monitor.sql",
+      "bytes": 6868,
+      "sha256": "e40ae1e4f510a8f26cf56494346b8da52a1c3d4352b751aa72f760c697c0e241"
+    },
+    {
+      "path": "supabase/migrations/20260829173255_add_managed_overlay_tts_runtime.sql",
+      "bytes": 8856,
+      "sha256": "47f0523f9ccc7a4b7c37714fa1bb0642943603ab8e5e4ae587f08f4839577345"
+    },
+    {
+      "path": "supabase/migrations/20260829175111_add_managed_tts_explicit_deny_policy.sql",
+      "bytes": 311,
+      "sha256": "01a275841934af82e7f97a2481b44bf19d29954a9fca92210ac2f5eaae9a0315"
+    },
+    {
+      "path": "supabase/migrations/20260829183549_add_overlay_donation_test_mode.sql",
+      "bytes": 9576,
+      "sha256": "a10c26ced5522ecd9e6bd8b8a2da3c1311846a4d46374ba6264e9731824f6c6f"
+    },
+    {
+      "path": "supabase/migrations/20260829190227_normalize_roulette_result_tts_text.sql",
+      "bytes": 4118,
+      "sha256": "693fa1b38d8a8eff7e89ac90b3e76cb7600422fd09bffd5f5a9eab0c45499670"
+    },
+    {
+      "path": "supabase/migrations/20260829193604_add_live_roulette_followup_card.sql",
+      "bytes": 3791,
+      "sha256": "44f8c20a2bbfefb147e9060149c690693e085cad1095e4a42a431b13c10950b8"
+    },
+    {
+      "path": "supabase/migrations/20260829200648_keep_followup_chat_open_during_series.sql",
+      "bytes": 5313,
+      "sha256": "69198ab314e31c4c4fc823802cb537bafb6238ed5d5e2b31c2c51b6cc0fc7db3"
+    },
+    {
+      "path": "supabase/migrations/20260829203650_rebuild_common_overlay_delivery_v8.sql",
+      "bytes": 23125,
+      "sha256": "f3629c4bf4cfcb041e18cc12bac7a2efd9266ec65266ab9846d9d2b9998fc8c4"
+    },
+    {
+      "path": "supabase/migrations/20260829231235_preserve_soop_donation_type_in_overlay.sql",
+      "bytes": 2100,
+      "sha256": "dbc693c133ec6dd2966e1f2c72f7ae66583e54c78f9377d69e9a9bea43014292"
+    },
+    {
+      "path": "supabase/migrations/20260830012515_promote_google_tts_primary.sql",
+      "bytes": 2854,
+      "sha256": "cdb45b3d001a2cdbcc5fee9dea982ef55175178a0ce945c72fb6d98eb1edd1c3"
+    },
+    {
+      "path": "supabase/migrations/20260830025645_enable_tts_for_all_donations.sql",
+      "bytes": 6276,
+      "sha256": "a2bbcf28bc7e29dde68de32884684dfe8f9cc0f1482e8ac8562469d43e544a0c"
+    },
+    {
+      "path": "supabase/migrations/20260830035415_correlate_soop_donation_message_by_name.sql",
+      "bytes": 15026,
+      "sha256": "477e76cda34958d30efdc744d2a80fe8f52ea99e68e14c36192e7a2342f1c94d"
+    },
+    {
+      "path": "supabase/migrations/20260830045041_fixed_followup_queue_and_complete_donation_test.sql",
+      "bytes": 6887,
+      "sha256": "98f5bd2dd8b03815e55e307552b57a9241d4dd7adfa7af5ec9ce87f663881db3"
+    },
+    {
+      "path": "supabase/migrations/20260830175652_live_wallpaper_ledger.sql",
+      "bytes": 10717,
+      "sha256": "4aa3c5639472870a27c5fe9000500e34707bbb01a2a992cf2211f78b4085c5d4"
+    },
+    {
+      "path": "supabase/migrations/20260830181831_wallpaper_manual_layout.sql",
+      "bytes": 6336,
+      "sha256": "cfb2a9e936277a708d741d9d949630c6e2a41f5bdf0c51d56024d8b8ad125653"
+    },
+    {
+      "path": "supabase/migrations/20260830183628_wallpaper_broadcast_rounds.sql",
+      "bytes": 29092,
+      "sha256": "9837df10122ec877a68691340f0a8f8d6ece57ce13d7a4e4c9e384cfa63b2abd"
+    },
+    {
+      "path": "supabase/migrations/20260830184706_repair_wallpaper_assets.sql",
+      "bytes": 2280,
+      "sha256": "ae8d253525623ff71dc29372c7ca4cd2f4ce04ce7f4693839ca4adde6d33368d"
+    },
+    {
+      "path": "supabase/migrations/20260830210648_wallpaper_visibility_and_capacity.sql",
+      "bytes": 8575,
+      "sha256": "9e7b1d186eb01be49c8db267a8c075988a2b8b433a7b2b922b828ce021acbc77"
+    },
+    {
+      "path": "supabase/migrations/20260830213711_wallpaper_merge_live_sessions_latest_assets.sql",
+      "bytes": 19973,
+      "sha256": "9d23895035a778f200848543bf62440781b0ea18e0895f7fea9afabc1fd429bb"
+    },
+    {
+      "path": "supabase/migrations/20260830215454_wallpaper_overlay_session_fk_index.sql",
+      "bytes": 340,
+      "sha256": "09352722228710e31ce65d1772d76673bbfe06346f201dbd21acb1610642aef6"
+    },
+    {
+      "path": "supabase/migrations/20260830221708_wallpaper_next_side_live_layout.sql",
+      "bytes": 6054,
+      "sha256": "5d5b00e4b15212cd0faac9d80cd871dcf7e234f3a26835521e4a4b76674af8e4"
+    },
+    {
+      "path": "supabase/migrations/20260830222704_wallpaper_challenge_success_cards.sql",
+      "bytes": 5966,
+      "sha256": "0b5e8570284f4ab25c28922bf2c98d0acef22fbeb0f8be538e5df68c55f9783e"
+    },
+    {
+      "path": "supabase/migrations/20260830223242_wallpaper_visible_allowlist.sql",
+      "bytes": 2414,
+      "sha256": "0dc08aaceaa3b7c1720f77e14ffb938fe87bc5763cc6dd517b701292ee7b0903"
+    },
+    {
+      "path": "supabase/migrations/20260831045843_agent_realtime_wake_channel.sql",
+      "bytes": 4136,
+      "sha256": "8cc6669beb0cc183ce7e54313d433bee1916dec8768855590e19147f8b2591c4"
+    },
+    {
+      "path": "supabase/migrations/20260831063842_relax_offline_gateway_heartbeat_monitor.sql",
+      "bytes": 5221,
+      "sha256": "898c1d36b59884c228776b7da4be1de59f01d6fdb743ff61bb4ab6d79d776fe9"
+    },
+    {
+      "path": "supabase/migrations/20260831142517_wallpaper_broadcast_connection_start_time.sql",
+      "bytes": 6667,
+      "sha256": "aadffc0c5da43e0357366c8535d60602e8f5604da815563a7ff60a3bb7bd3848"
+    },
+    {
+      "path": "supabase/migrations/20260831153000_wallpaper_off_canvas_layout.sql",
+      "bytes": 4643,
+      "sha256": "e29af700ba3431ce0debe03a8498d1d1fb08a8478d19a301151249d01a1db634"
+    },
+    {
+      "path": "supabase/migrations/20260831183000_agent_wallpaper_snapshot.sql",
+      "bytes": 5650,
+      "sha256": "02d5602dfbc39f4e64d29c4e149191f170c9b4f24f71a34a05a9367123891633"
+    },
+    {
+      "path": "supabase/migrations/20260831203000_refresh_agent_signature_wallpaper_snapshots.sql",
+      "bytes": 620,
+      "sha256": "63df426552cb2620ec069377988aab1da0d82178764076e7888aee63fea8ec2e"
+    },
+    {
+      "path": "supabase/migrations/20260831211707_wallpaper_subscription_cards.sql",
+      "bytes": 6273,
+      "sha256": "3462d848d875847a44ec7553097628d38f0a6a40e2a7a4ca8934da7467d9ecd0"
+    },
+    {
+      "path": "supabase/migrations/20260831214059_backfill_matchable_wallpaper_subscriptions.sql",
+      "bytes": 3686,
+      "sha256": "24e6b2fcc1466e7bdeaaaf427a98b3cce9c597935bae447aa83efe23519fa6cf"
+    },
+    {
+      "path": "supabase/migrations/20260831222902_wallpaper_subscription_official_image.sql",
+      "bytes": 8304,
+      "sha256": "efd8d8d0c764f63046315af717be115fe531b48fcabdc078a401dd6e284b0567"
+    },
+    {
+      "path": "supabase/migrations/20260831225459_repair_subscription_official_image_layout.sql",
+      "bytes": 2073,
+      "sha256": "3a738fc45d66dbb5e1251db62dc0bf865823af7a1fe525c307e074c4e3d3852a"
+    },
+    {
+      "path": "supabase/migrations/20260901000734_rollback_wallpaper_off_canvas_layout.sql",
+      "bytes": 5822,
+      "sha256": "140e7b15afb7caef3fdd146786c1b86bc8e9f49ab14e6d37a1003ebdc5fcbaa8"
+    },
+    {
+      "path": "supabase/migrations/20260901162843_stop_legacy_wallpaper_layout_retry_storm.sql",
+      "bytes": 5976,
+      "sha256": "4078ba2cc152d48cefb561cd80eb082090894246df9c93622f89de35de85df3c"
+    },
+    {
+      "path": "supabase/migrations/20260901165151_coalesce_live_gateway_heartbeat_without_hot_path_changes.sql",
+      "bytes": 3610,
+      "sha256": "0ea3f716afb22fa519d6ede1112314a192d5e95e55a20183c12588f7c2649036"
+    },
+    {
+      "path": "supabase/migrations/20260901171632_bound_operational_data_retention_without_hot_path_changes.sql",
+      "bytes": 12663,
+      "sha256": "30a0220bdcd8972e574893b3583d58b6ad1939482f309c0487255421f36cb88d"
+    },
+    {
+      "path": "supabase/migrations/20260901182718_agent_direct_sync_transport.sql",
+      "bytes": 9493,
+      "sha256": "20a01e19bcb0834ebb2ef4cbade0cca634cc0dc3cc740e445f92914502f06822"
+    },
+    {
+      "path": "supabase/migrations/20260901215735_wallpaper_persistent_size_ranges.sql",
+      "bytes": 4496,
+      "sha256": "56e1f86f8f76c9f72d6ab2fca969c83814feb6d8fc08492bcbd5b0211c228046"
+    },
+    {
+      "path": "supabase/migrations/20260901220924_harden_operational_reliability_without_hot_path_changes.sql",
+      "bytes": 8541,
+      "sha256": "fc4fb3235e1d827a14c3cf9a99f5c6330da594b9fdabfeeb9fd9aeb2917c30ad"
+    },
+    {
+      "path": "supabase/migrations/20260901221106_cover_remaining_application_foreign_keys.sql",
+      "bytes": 1307,
+      "sha256": "2144fb19a23a0531ba3c4f7fe6d2afd97920f25f04a033238746df297d76e88e"
+    },
+    {
+      "path": "supabase/migrations/20260901232944_agent_display_latency_observations.sql",
+      "bytes": 6817,
+      "sha256": "0fc04fc7489ae8cdb221e897ff6d04539c9d603429e0d1befbb34605416ea3e4"
+    },
+    {
+      "path": "supabase/migrations/20260902010039_harden_web_sessions_without_hot_path_latency.sql",
+      "bytes": 1650,
+      "sha256": "c33a41a7d885266d936bed5b8edde1332551e15076dc50a91607e53c973da9de"
+    },
+    {
+      "path": "supabase/migrations/20260902015745_unify_raffle_action_managed_tts.sql",
+      "bytes": 4573,
+      "sha256": "4a485db321b38a127fd62558cf8bf6964904a08600350f605574cbfa9302f39f"
+    },
+    {
+      "path": "supabase/migrations/20260902091718_fix_g3a_readiness_scope_for_direct_agent_rpcs.sql",
+      "bytes": 4469,
+      "sha256": "e400f0bf5fbc2c8a956569e8360b3f76dc9c220dee5f3efe65bbbc0a52e49c5a"
+    },
+    {
+      "path": "supabase/migrations/20260902095644_keep_agent_online_from_existing_pending_probe.sql",
+      "bytes": 2778,
+      "sha256": "9b71cf127cc5de7eeb819d388cbf311f2c73803d1b104fd3f890ed48fc9dc831"
+    },
+    {
+      "path": "supabase/migrations/20260902123052_add_roulette_chat_dry_run_reveal_outbox.sql",
+      "bytes": 6399,
+      "sha256": "1111f9f79d78a992b28ced0a913c60bf084dcbc913058999bc3aa446942b9185"
+    },
+    {
+      "path": "supabase/migrations/20260902150936_add_default_donation_image_ranges.sql",
+      "bytes": 7349,
+      "sha256": "9ffa605d6b08a6576ff8444f5ad2929ef055847b25d42cbdaeb1b867719284a5"
+    },
+    {
+      "path": "supabase/migrations/20260902154301_stop_default_donation_wallpaper_assets.sql",
+      "bytes": 2152,
+      "sha256": "3a2d7c75f9c1e81448457159ab62f6da135e98aeb4b22bc193b63063af821438"
+    },
+    {
+      "path": "supabase/migrations/20260902155513_allow_open_default_donation_ranges.sql",
+      "bytes": 1921,
+      "sha256": "a4520d508426e8dc9993bd0ded8ecd032a94c0bb8c32b70d49fdfaf80ec5703c"
+    },
+    {
+      "path": "supabase/migrations/20260902155847_correct_open_default_donation_minimum.sql",
+      "bytes": 663,
+      "sha256": "d3caf9b46090a0367635776b7693b000c0e052f82ffca584281ae89bdb2d6d97"
+    },
+    {
+      "path": "supabase/migrations/20260902160734_drop_legacy_default_donation_wallpaper_check.sql",
+      "bytes": 427,
+      "sha256": "dc6f97204aee5ba18b3b0a4d763dd85454de3a09b036c23762ce0cc2c1a28960"
+    },
+    {
+      "path": "supabase/migrations/20260902172649_replace_native_roulette_result_bar_assets.sql",
+      "bytes": 5126,
+      "sha256": "7119996f9459e088c0a2e67c55f340fc55188c7f83f3e69ba6fe7bc750274cbf"
+    },
+    {
+      "path": "supabase/migrations/20260902180815_center_native_roulette_wheel_assets.sql",
+      "bytes": 5056,
+      "sha256": "c4370ceea81f7a0ea72dd2c075bd27344636da50b7dae0f6dc23d79b62dffced"
+    },
+    {
+      "path": "supabase/migrations/20260902183554_weflab_overlay_baseline.sql",
+      "bytes": 5542,
+      "sha256": "14a77739b24376819e9a9586284ea912cf6dc04e32b86579be87602dfda8934e"
+    },
+    {
+      "path": "supabase/migrations/20260903113000_multi_active_native_roulettes.sql",
+      "bytes": 28836,
+      "sha256": "4c765c503c783672d2623bc74ca91e622c19df3e0166e3b94a5ac2c107eb56a8"
+    },
+    {
+      "path": "supabase/migrations/20260903133204_wallpaper_layer_order.sql",
+      "bytes": 13073,
+      "sha256": "63d6c36f76754c1ad6e50d70dbf81141d4b76f8d98ea3ca0df2b92c754b16023"
+    },
+    {
+      "path": "supabase/migrations/20260903162217_add_weflab_shadow_validation_ledger.sql",
+      "bytes": 4020,
+      "sha256": "669c943b9dbe44691f53f1d3e4f773b442f17028a17f8e2b3ef5960a051e5bcf"
+    },
+    {
+      "path": "supabase/migrations/20260903172926_add_fixed_upbo_classification.sql",
+      "bytes": 6515,
+      "sha256": "2e373a2eb5cc954db66157708298fdb29636d5557b9becfed9a24e2e2fa67ee3"
+    },
+    {
+      "path": "supabase/migrations/20260903175336_add_roulette_amount_mappings.sql",
+      "bytes": 4843,
+      "sha256": "377c3408a8c4a686dc089e8105d783a2669908f3598b37cb20700c9c51d8daab"
+    },
+    {
+      "path": "supabase/migrations/20260903175846_restore_default_donation_wallpaper_assets.sql",
+      "bytes": 3126,
+      "sha256": "b8863d44014834c3063bf26eca681931c2163f0028b189d14767bba1cd03d679"
+    },
+    {
+      "path": "supabase/migrations/20260903181025_retire_mobile_signature_images.sql",
+      "bytes": 1143,
+      "sha256": "802371d945800579459514640b85c933025c614cce1243359cd3d1a846d1ee95"
+    },
+    {
+      "path": "supabase/migrations/20260903190000_core_soop_collection_pivot.sql",
+      "bytes": 24158,
+      "sha256": "e58fdf488153d8e57ef418ba78e1c85debfc3dd62126d9e7bb1f6a0bd572c486"
+    },
+    {
+      "path": "supabase/migrations/20260903203353_stabilize_wallpaper_and_security_boundaries.sql",
+      "bytes": 15787,
+      "sha256": "9460d0a9e18c66b868caf8948de5d804e437cefdf941863c9a564b909648eb65"
+    },
+    {
+      "path": "supabase/migrations/20260904100000_add_roulette_scoped_upbo_classification.sql",
+      "bytes": 2044,
+      "sha256": "f20099ece31a0efe60b87cd534ff927c4cd1a57e29f6c5b01467ea63928c02db"
+    },
+    {
+      "path": "supabase/migrations/20260904213000_finish_stability_security_cleanup.sql",
+      "bytes": 723,
+      "sha256": "c989807e835960969d051564f272382eb4c75a744302db2b021fc63a1fbddd6e"
+    },
+    {
+      "path": "supabase/migrations/20260904214500_fix_backup_lease_column_ambiguity.sql",
+      "bytes": 2169,
+      "sha256": "417b45f732b8f8c76422f06e6031193ca22789fe26126b7d56c34628f79bcabe"
+    },
+    {
+      "path": "supabase/migrations/20260904230000_bound_wallpaper_previous_sessions_to_24_hours.sql",
+      "bytes": 5607,
+      "sha256": "67261ffae8bc39ff3ade24b5a0560a8bb3d5a9bcc03a1314484788b06036b2d6"
+    },
+    {
+      "path": "supabase/migrations/20260904234500_allow_historical_wallpaper_sessions_without_soop_event_images.sql",
+      "bytes": 2580,
+      "sha256": "5d8cd8fe9bc88cceb868b0151198b700fb2cf39668e034394ec5ed39c50a3ddb"
+    },
+    {
+      "path": "supabase/migrations/20260905122827_wallpaper_snapshot_size_ranges.sql",
+      "bytes": 1026,
+      "sha256": "a0601ffdf1e0c7b249adeb39190a20a23ed988ac186632639503643d8037f085"
+    },
+    {
+      "path": "supabase/migrations/20260905163907_roulette_mapping_expected_spins.sql",
+      "bytes": 580,
+      "sha256": "cd9b591480b5e04608717b64f76992a374855c85165da69b278f208af490ceca"
+    },
+    {
+      "path": "supabase/migrations/20260905173003_add_core_agent_dashboard_handoffs.sql",
+      "bytes": 1384,
+      "sha256": "afc651a8adaad891fb71cc9c1d733efa0238c1dbad4b153ecccb881eb5bb259d"
+    },
+    {
+      "path": "supabase/migrations/20260906014845_atomic_upbo_and_bounded_retry.sql",
+      "bytes": 7172,
+      "sha256": "2bd9446e673d3808dcf95f162f2e95f185dd4cebdf6228011372b3a0a2f9b3d0"
+    },
+    {
+      "path": "supabase/migrations/20260906015736_enable_future_upbo_retries.sql",
+      "bytes": 907,
+      "sha256": "57743b9893e58f34ad15d12608e2ab0fdd930aca5198af307dc8147c6e735407"
+    },
+    {
+      "path": "supabase/migrations/20260906021854_atomic_backup_restore.sql",
+      "bytes": 5155,
+      "sha256": "d07b0afcfba7186867b8cef3ddb8a07104ba90554c9d93997a12769dca2dd0cf"
+    },
+    {
+      "path": "supabase/migrations/20260906033249_expand_consistent_product_backup_v8.sql",
+      "bytes": 11722,
+      "sha256": "7dbe3f24325f72eb41f0f3bce6f88f6cf88affc1597322d45f71a1bc33d34685"
+    },
+    {
+      "path": "supabase/migrations/20260906054708_fifo_expected_spin_correlation_v2.sql",
+      "bytes": 15093,
+      "sha256": "065c056a443ae0e1e598002112f20e8111a8d169a8f3a7ada35a0e76de00e2a6"
+    },
+    {
+      "path": "supabase/migrations/20260906105042_add_streamer_referral_credits.sql",
+      "bytes": 20342,
+      "sha256": "b8b0189413cc8df6b30b9c320ba7785155aa3e4e9dd5cca2cac0fb690b9ce135"
+    },
+    {
+      "path": "supabase/migrations/20260906125111_make_wallpaper_control_retries_idempotent.sql",
+      "bytes": 5404,
+      "sha256": "80eba558fcea039ff7e1736df70bdb5f042b8891634da62dea77549c7b1803b4"
+    },
+    {
+      "path": "supabase/migrations/20260906134500_reconcile_cross_workspace_soop_incident.sql",
+      "bytes": 12577,
+      "sha256": "7f5623af5d59f1f4c5349e0e8dc30749682f400fb92de9a8059fb210b9d9416f"
+    },
+    {
+      "path": "supabase/migrations/20260906135000_diagnose_cross_workspace_reconciliation.sql",
+      "bytes": 931,
+      "sha256": "0bb6bdbccb82c8b53ba5fbc59249e23beadb87b28eb86729f83b2f86bab43186"
+    },
+    {
+      "path": "supabase/migrations/20260906135500_retire_cross_workspace_reconciliation_rpc.sql",
+      "bytes": 235,
+      "sha256": "59b3c619f5b1c5fdcae8ab59582d883c82c0d4afda713fb53957442db8b7525d"
+    },
+    {
+      "path": "supabase/migrations/20260906140644_isolate_wallpaper_provider_images_by_live_room.sql",
+      "bytes": 4303,
+      "sha256": "17af9d9b62acef3f4382ddb1a40f453dcd41cc838e2dc5635c54f6b92503416b"
+    },
+    {
+      "path": "supabase/migrations/20260907013000_enforce_soop_workspace_ownership.sql",
+      "bytes": 23285,
+      "sha256": "09f607c14b68bd34615831d645e61e881b6c43852032f4c1aebf4b8b18cae4c3"
+    },
+    {
+      "path": "supabase/migrations/20260907013100_retire_unattested_soop_ingest.sql",
+      "bytes": 449,
+      "sha256": "5b87de497e07d315f817b1a9ec7bc641d7c908d9fd3635a9b18577b89e104507"
+    },
+    {
+      "path": "supabase/migrations/20260907013200_index_soop_event_ownership_workspace.sql",
+      "bytes": 128,
+      "sha256": "e34dc4f2b6706167f08452713cfbe8bf40b7decdfc8fae9349a6ffac56200b57"
+    },
+    {
+      "path": "supabase/migrations/20260907150000_oauth_verified_automatic_signup.sql",
+      "bytes": 9764,
+      "sha256": "644856ffe338521675908bf7344e661ffed51673a3b0248b04792245f0444e6f"
+    },
+    {
+      "path": "supabase/migrations/20260907223721_enforce_historical_wallpaper_image_policy.sql",
+      "bytes": 1856,
+      "sha256": "5c3cf56b5de88866a46dd8d0fb71e9d4e7f1a3ad8e54f49323a2628181ead915"
+    },
+    {
+      "path": "supabase/migrations/20260907232120_canonicalize_wallpaper_session_from_verified_room.sql",
+      "bytes": 10403,
+      "sha256": "c88d773c4607f4bb98fc69b4e29fc7fe6a06476d4328db0a90d47442b5094247"
+    },
+    {
+      "path": "supabase/migrations/20260907235900_issue_persistent_soop_broadcast_instances.sql",
+      "bytes": 16225,
+      "sha256": "bc16100340844ca39bdc649278806679e75ecc017e5f63fdc8e2c14fd3e4b429"
+    },
+    {
+      "path": "supabase/migrations/20260908162546_roulette_exception_invoker_membership_fix.sql",
+      "bytes": 4987,
+      "sha256": "5a0c4a818211c77bc47bdedd8b9446c39c70328e10391141e454f3cfdb88297a"
+    },
+    {
+      "path": "supabase/migrations/20260909022409_user_experience_controls.sql",
+      "bytes": 33516,
+      "sha256": "0c70be202245a809d28937f6cfb8a1e4720b1c386c697fd50c168b4e7804fa1d"
+    },
+    {
+      "path": "supabase/migrations/20260909023008_exception_undo_source_identity.sql",
+      "bytes": 6294,
+      "sha256": "5c73e07d9f01ed46112d6c2783a4c7dfd45171dc1ceabfc2926a42e7a888e9b5"
+    },
+    {
+      "path": "supabase/migrations/20260909073436_backup_donation_recovery_and_sequence.sql",
+      "bytes": 17478,
+      "sha256": "c71540d16a2e37fe3acd71d925155fae3fe37c8ef49368b6b950b3cf4027558d"
+    },
+    {
+      "path": "supabase/migrations/20260909081228_wallpaper_seven_day_retention.sql",
+      "bytes": 3372,
+      "sha256": "dc22ed7041ec276d0cd5b2fb4bf2f009fd3fc60f6a1ad205455cbf688b1a2a4e"
+    },
+    {
+      "path": "supabase/migrations/20260909082102_wallpaper_retention_distinct_workspace.sql",
+      "bytes": 2341,
+      "sha256": "0368786681726443a524b1d4aaabc6640428f3f5c209c641466e590cacc74911"
+    },
+    {
+      "path": "supabase/migrations/20260909202534_reverse_fan_day_private_calculator.sql",
+      "bytes": 26034,
+      "sha256": "6aede501ee8ef5207f3a448737ab72c4a403e1783695ee7343da831c5dee81d5"
+    },
+    {
+      "path": "supabase/migrations/20260910073913_discord_ops_snapshot.sql",
+      "bytes": 5487,
+      "sha256": "a5794dfe4d3621d9ed6155b3633978e79396eab3aa168dd56a15b4bbc2c7ad36"
+    },
+    {
+      "path": "supabase/migrations/20260912203312_dashboard_notification_counts.sql",
+      "bytes": 1452,
+      "sha256": "a3adb9bd009b20761923317c99887ff551e86204b37cea080fcffc96d593c534"
+    },
+    {
+      "path": "supabase/migrations/20260912203436_roulette_amount_ranges.sql",
+      "bytes": 5931,
+      "sha256": "dfd4138d652cc18a5ce77a2656f485da5df003b4486506a7632a85249c06a9f4"
+    },
+    {
+      "path": "supabase/migrations/20260912203611_viewer_completed_visibility.sql",
+      "bytes": 4790,
+      "sha256": "796237bad4c21729a28be2369ae321beb176b4b89e807034b899b50f5e066d07"
+    },
+    {
+      "path": "supabase/migrations/20260912204017_streamer_operational_requests.sql",
+      "bytes": 4505,
+      "sha256": "f24623f8d7722ff120a8e931b8cdc2804c57aea67f150ef99eac6b5a197a47e5"
+    },
+    {
+      "path": "supabase/migrations/20260912215910_dashboard_exception_count.sql",
+      "bytes": 1469,
+      "sha256": "4ab176274fdb213d2b192d99ad41983edf1623e6164dc7c5b2162457afa83fda"
+    },
+    {
+      "path": "supabase/migrations/20260913100000_broadcast_agent_readiness.sql",
+      "bytes": 1559,
+      "sha256": "265362d59a0a82cce410a00950f0a036e21c067af4677d724d2fa22ee448a848"
+    },
+    {
+      "path": "supabase/migrations/20260914141847_normalize_audited_product_contracts.sql",
+      "bytes": 48262,
+      "sha256": "1311826cace06989fdf78257b1a8df8d054c6b87bf4a85a76a496296da90f0f6"
+    },
+    {
+      "path": "supabase/migrations/20260915192813_wallpaper_editor_atomic_settings.sql",
+      "bytes": 6783,
+      "sha256": "6b278ba696ee174cc86513290767d4ac4be4806ad4b37fca09d667951f173e45"
+    },
+    {
+      "path": "supabase/migrations/20260919222758_wallpaper_adballoon_ingestion.sql",
+      "bytes": 5737,
+      "sha256": "d99909e3b014544322c9463d7fa22902996af031cec1b60f2d0163cee797dcbd"
+    },
+    {
+      "path": "supabase/migrations/20260919224725_task_completion_history.sql",
+      "bytes": 2367,
+      "sha256": "8a9a961a4baf21f92624cdc6662037712ac703bd8c63ff1b28abe63fc3e9cf2c"
+    },
+    {
+      "path": "supabase/migrations/20260919232315_incident_business_conflict_no_retry.sql",
+      "bytes": 16727,
+      "sha256": "6c0ada6c2f0062392f5e3ef4aa693901f5073a4737ff060c83d39e493ea72392"
+    },
+    {
+      "path": "supabase/migrations/20260919232622_incident_retry_observability.sql",
+      "bytes": 7215,
+      "sha256": "a18462f39094894ba205539846402215b5900a0f624b26acc5e62081b514c690"
+    },
+    {
+      "path": "supabase/migrations/20260919234804_roulette_collection_gate.sql",
+      "bytes": 3983,
+      "sha256": "910c05a72cbb4459812ef790a6c4ac0578c0b1e65d92f90c09adaf8f50f941da"
+    },
+    {
+      "path": "supabase/migrations/20260920152951_public_read_least_privilege.sql",
+      "bytes": 18030,
+      "sha256": "fdc55897682eee74e8d4699c7f7a6726b493a49693b287fd07d30f8e4bc5e25c"
+    },
+    {
+      "path": "supabase/migrations/20260920155615_isolated_backup_worker.sql",
+      "bytes": 6234,
+      "sha256": "62aef68294ae97c54381bdf8c56a74f7fc3c23e780ed58212a8ef5629664d70b"
+    },
+    {
+      "path": "terms.html",
+      "bytes": 19514,
+      "sha256": "df5d75649ceb5f0241b4be25b3da04467bd701918d8906a8410ef6df50f5b059"
+    },
+    {
+      "path": "tools/audit_supabase_migration_reference.ps1",
+      "bytes": 7486,
+      "sha256": "5a633a0567b7dcc79a344a5576acd88e0a154db69d1c04478a1e1ecbb3b434ad"
+    },
+    {
+      "path": "tools/Audit-ChatStudioExport.mjs",
+      "bytes": 17944,
+      "sha256": "8dc1b6786d61b29fbbe092a554879353f17c6fe5571d4b48b96d5bec76b12358"
+    },
+    {
+      "path": "tools/Audit-CurrentTtsPath.mjs",
+      "bytes": 2194,
+      "sha256": "807e524a7163e9141afbe71a79eab866314f2433dd5e91cdf7272083d5f96a9e"
+    },
+    {
+      "path": "tools/Audit-NativeRouletteActivationPrep.mjs",
+      "bytes": 5492,
+      "sha256": "3e6a5e714b7f55d5959dd9b6762cb5185b2b061c533c897b1ac0d3010c365aad"
+    },
+    {
+      "path": "tools/Audit-WallpaperControlQuota.mjs",
+      "bytes": 1870,
+      "sha256": "bf2d05a86215f8d1046605b500b2fea66aa5708ddf681fa7edc11ed7448e61a5"
+    },
+    {
+      "path": "tools/Backfill-SignatureWallpaperAssets.mjs",
+      "bytes": 977,
+      "sha256": "b9a8d5209ba8359f3623e42c2165ab50c230d54b006628c77a640d1afef3215c"
+    },
+    {
+      "path": "tools/Benchmark-SoopSharedBrowser.mjs",
+      "bytes": 2663,
+      "sha256": "a0f3e7c2314d42b96511ae2aa7654bf1f171a52b145a6f7955e05fd15bf62a39"
+    },
+    {
+      "path": "tools/Benchmark-TtsCandidates.mjs",
+      "bytes": 8766,
+      "sha256": "fcf8af103a50d89e80a76b92c0125a6a0b2b2174f8f59eded7dffd8b5ea385af"
+    },
+    {
+      "path": "tools/Build-AdminHtml.mjs",
+      "bytes": 1195,
+      "sha256": "4051c79a9b4eeb5c40b03747c4e8fc45d0ef4fe89c4a3dbf1c0540ddc0127fb6"
+    },
+    {
+      "path": "tools/Build-AgentInstaller.ps1",
+      "bytes": 1978,
+      "sha256": "db1014c639d7f884a159cb76742730771404ca4b430be4d736c8312c33e97b32"
+    },
+    {
+      "path": "tools/Build-CartesiaVoiceBlindPack.mjs",
+      "bytes": 2520,
+      "sha256": "1b42dc10b8e7a5254d5037b6902dfe239ba017f004edf988e923a376444cc1c7"
+    },
+    {
+      "path": "tools/Build-GoogleChirpVoiceBlindPack.mjs",
+      "bytes": 2664,
+      "sha256": "112437c30589cde261802ecd012ee798604aec0cac26357cd0c10b292ae97a98"
+    },
+    {
+      "path": "tools/Build-InworldVoiceBlindPack.mjs",
+      "bytes": 1720,
+      "sha256": "5e1ce129c24e9143b4133f4d898071b53a4b13ee20e0fcd1ba59ca1871ee46e3"
+    },
+    {
+      "path": "tools/Build-TtsFinalVoiceBlindPack.mjs",
+      "bytes": 2678,
+      "sha256": "f786195004cf462db9318661de6d931569025ea7f96df8e0507b9fa03b9b1d07"
+    },
+    {
+      "path": "tools/Build-TtsWinkFinalBlindPack.mjs",
+      "bytes": 3329,
+      "sha256": "2e6a6f929e25e9b635d96e5d9f03c7807e8e074f84d3274918f3993fb81fc3ec"
+    },
+    {
+      "path": "tools/Build-VercelBinaryAssets.mjs",
+      "bytes": 2792,
+      "sha256": "671cc365ea2268c63aa26d75971cc500c2c4daf4ae03f0876b261d75774d3cf9"
+    },
+    {
+      "path": "tools/Capture-ObsSourceScreenshot.mjs",
+      "bytes": 2526,
+      "sha256": "04c017c6656bb28f6d8cf07ef102ef305fc66cca405fc50db4185064b4bdee91"
+    },
+    {
+      "path": "tools/Center-NativeRouletteWheelAssets.mjs",
+      "bytes": 7337,
+      "sha256": "08b903042bda3cb2783976386b9271a80632ca3869f45658a6408c76541c5a1f"
+    },
+    {
+      "path": "tools/Ensure-SoopGatewayRunning.ps1",
+      "bytes": 2087,
+      "sha256": "e9df67fdb6eb6b5e9e928d8988fbb57ec0a200ee89f4ba82f2869f5c48dc363d"
+    },
+    {
+      "path": "tools/Generate-NativeRouletteAudioCandidates.py",
+      "bytes": 15558,
+      "sha256": "967849424e9cefde31fa969dcf8bd886d25491a19f16ca8e9baf2179ef8a1ce8"
+    },
+    {
+      "path": "tools/Install-SoopGatewayTask.ps1",
+      "bytes": 3572,
+      "sha256": "3699f1b0ecd5ec81b805e16c20e25e2797ca723ae8e6c8a285170772643d6a64"
+    },
+    {
+      "path": "tools/Invoke-DailyBackupSafe.mjs",
+      "bytes": 1393,
+      "sha256": "7cc574a2bc8e9e68bb823fd5cd975a54ba2d3df39e5a4f8bd14ff557bc623b22"
+    },
+    {
+      "path": "tools/Invoke-ProductionActualPathAudit.ps1",
+      "bytes": 464,
+      "sha256": "372af616a1092b02384d7d89219069b21f7e666962d1eb3ace9c60d070b5d2ab"
+    },
+    {
+      "path": "tools/Invoke-ProductionAssetIntegrityAudit.ps1",
+      "bytes": 477,
+      "sha256": "4b5fd5567476e4d532cfef1aeff3f3fe299075807cb3423686f8ea6c933ae81a"
+    },
+    {
+      "path": "tools/Invoke-ProductionObservabilityAudit.ps1",
+      "bytes": 474,
+      "sha256": "00cd59f868dde9d272a68c95a6750a909ce90070fd2f48e7eae7ab68c757ee0a"
+    },
+    {
+      "path": "tools/Invoke-ProductionSoopIsolationAudit.ps1",
+      "bytes": 588,
+      "sha256": "a91e408f80bb24dc0c851f2d861405a146b1c8b27b3833884a90993fe35753fe"
+    },
+    {
+      "path": "tools/native-roulette-reliability-core.mjs",
+      "bytes": 16223,
+      "sha256": "a71e6ba539265ff62c868400e88f70acb708206de8e637987718fa7958acf6c6"
+    },
+    {
+      "path": "tools/New-SourceManifest.ps1",
+      "bytes": 2004,
+      "sha256": "86d79ae87f11690b6adb93c74b1ac9fb8a3dd029f8f33bd6b822171422cf0ad0"
+    },
+    {
+      "path": "tools/Optimize-VercelInlineStaticAssets.mjs",
+      "bytes": 1232,
+      "sha256": "10221b08297fc848873631134c944bf80fed33cb6ed9dd5e820ad559a6450297"
+    },
+    {
+      "path": "tools/Prepare-CartesiaFallbackBenchmark.mjs",
+      "bytes": 1207,
+      "sha256": "66926f4fc862069cc027ec11260fa8cf98ffe5c6c4355e9e701c63f0bd39225e"
+    },
+    {
+      "path": "tools/Prepare-CartesiaVoiceBenchmark.mjs",
+      "bytes": 2317,
+      "sha256": "204aff4fcf56c4eb2f0866a1ed871f2baddf0927c03d439183c963a24d367a23"
+    },
+    {
+      "path": "tools/Prepare-IndependentBackup.mjs",
+      "bytes": 5416,
+      "sha256": "4ca817b4fd088eb2017ce884f156d26125615bff7809c163653ecec54bc4a4c6"
+    },
+    {
+      "path": "tools/Probe-SoopChatSdk.mjs",
+      "bytes": 11708,
+      "sha256": "d8edf8f7b04c0d981a5d861c5bbb41372b60b041ea9cc0416132701247a352a3"
+    },
+    {
+      "path": "tools/Publish-AgentReleaseAssets.mjs",
+      "bytes": 11966,
+      "sha256": "53cd77176a8204bbdce5e445ecb6bc7b83cd4f6853b83671af2679de689ca5c2"
+    },
+    {
+      "path": "tools/Publish-NativeRouletteAssets.mjs",
+      "bytes": 2546,
+      "sha256": "fc2b0bb1b6fb2c7dd51d88531d6f32007cde19e9d1e8f05942bc1688ef653dfe"
+    },
+    {
+      "path": "tools/Refresh-ObsBrowserSource.mjs",
+      "bytes": 1992,
+      "sha256": "6bc94493a90249c85f73527ec4ef0061c9c23df3715fed3bdf394a0732666feb"
+    },
+    {
+      "path": "tools/Register-DiscordOpsCommands.mjs",
+      "bytes": 3640,
+      "sha256": "605b5eadc1be2694bd228fcc5fa7e5762ffefcda03361723c4318380cb470f99"
+    },
+    {
+      "path": "tools/Remove-NativeRouletteResultBars.mjs",
+      "bytes": 6167,
+      "sha256": "d3d227584843249b63ff8070f6dd39b2273c6a4e22f3ac5f4486209fd469a3ca"
+    },
+    {
+      "path": "tools/Remove-RetiredSignatureMobileAssets.mjs",
+      "bytes": 806,
+      "sha256": "94e32091df7714931c012f2e01916aa3f69f777aedf5586e5e1d8e66f7a0bbdb"
+    },
+    {
+      "path": "tools/Render-WallpaperPreview.mjs",
+      "bytes": 4513,
+      "sha256": "e7c8e8133a1c0199a3d35fdb6ebc01aacf64c450eb90b7348e21fdc4e74e0105"
+    },
+    {
+      "path": "tools/Run-CartesiaFallbackBenchmark.ps1",
+      "bytes": 1968,
+      "sha256": "2c62b134715f793de43a106c96a286fe0dec934a5b6f1c6e66b6e480a1593f16"
+    },
+    {
+      "path": "tools/Run-CartesiaVoiceBenchmark.ps1",
+      "bytes": 2005,
+      "sha256": "7a53855a6bf7e6789ebf00375ae09ea67e896b169add542226076d8c4ca6004c"
+    },
+    {
+      "path": "tools/Run-GoogleChirpTtsBenchmark.ps1",
+      "bytes": 2781,
+      "sha256": "e0a5667824bed03d1920782a1f934e0cabff00ead6e7a51cfaa678a4a2361c92"
+    },
+    {
+      "path": "tools/Run-InworldTtsBenchmark.ps1",
+      "bytes": 2030,
+      "sha256": "55a9768f457bf41f8bacfa108a0d25de4ac9edd8b5aa0b75e3e849f8a58c0264"
+    },
+    {
+      "path": "tools/Run-ManagedTtsBenchmark.ps1",
+      "bytes": 2074,
+      "sha256": "651bd871ccc8b4f85f2448ae5d61367d057b6afe9d0da6d2623fcfb13e8c3797"
+    },
+    {
+      "path": "tools/Run-PowerShellHidden.vbs",
+      "bytes": 554,
+      "sha256": "be6b1ca08ba8e1ae0ecb16e2b9e2883983081e5d14009c9815a184de04c61b3d"
+    },
+    {
+      "path": "tools/Run-SoopGatewayHidden.ps1",
+      "bytes": 2334,
+      "sha256": "c30d9c05d8ccb4a38853996954977195145c55f4b94ab4cc49dcefbc777329fc"
+    },
+    {
+      "path": "tools/Run-SoopGatewaySoak.mjs",
+      "bytes": 3957,
+      "sha256": "1cad94d1a4358189581b4aba21ccbf915cc0e9fd2cb13815414f095382c455fa"
+    },
+    {
+      "path": "tools/Run-SoopGatewaySoakHidden.ps1",
+      "bytes": 561,
+      "sha256": "e6e3800d43f5006c986c3a3fcdc46f47fa7c184d58849d3cae039ae38974e843"
+    },
+    {
+      "path": "tools/Run-TtsWinkFinalBenchmark.ps1",
+      "bytes": 3331,
+      "sha256": "5931eff1f98b8b4cb271d32da4a8e358de9dcacbf43c62fcba63d7c34b9df685"
+    },
+    {
+      "path": "tools/Save-CartesiaTtsBenchmarkCredential.ps1",
+      "bytes": 3565,
+      "sha256": "1cda12ffa43dcebe58f0a45dfb75220ae345ff5d6df20f4d29ec1767e93d0ebe"
+    },
+    {
+      "path": "tools/Save-InworldTtsBenchmarkCredential.ps1",
+      "bytes": 3131,
+      "sha256": "6665d8d716bba6d4ab3d933f06f9a96d9bb26d69897fe57f792eda5ffb4d3bde"
+    },
+    {
+      "path": "tools/Save-TtsBenchmarkCredentials.ps1",
+      "bytes": 1770,
+      "sha256": "106c8eab35371290d789dbfed428e711aad40456bf29efbbac3e307da6d77db5"
+    },
+    {
+      "path": "tools/Simulate-NativeRouletteReliability.mjs",
+      "bytes": 2546,
+      "sha256": "273096f7b2a724a1007667c68fa3703de539698e440e00c3e1c9446b506ddb5b"
+    },
+    {
+      "path": "tools/sql/audit_actual_product_path_last24h.sql",
+      "bytes": 3418,
+      "sha256": "cea1b4e67d6a16731af8f9f94e127dae0f749c4c65275e8408aa872ba9753d54"
+    },
+    {
+      "path": "tools/sql/audit_operational_observability.sql",
+      "bytes": 3112,
+      "sha256": "fd27a5f0a5cb0f56968461cc7f48078960eaec365b1c600905108753b14402e2"
+    },
+    {
+      "path": "tools/sql/audit_soop_workspace_isolation_full_history.sql",
+      "bytes": 9806,
+      "sha256": "ed7b67565578115f2ba8af3afb2c3a4ab30df71505ebdf6af1cc674e5371700a"
+    },
+    {
+      "path": "tools/sql/audit_soop_workspace_isolation.sql",
+      "bytes": 6993,
+      "sha256": "28dc14018796198849b311381b9ebdf80e87fcdf6cf8a19e465ed9d5e7c92d2f"
+    },
+    {
+      "path": "tools/sql/audit_workspace_asset_integrity_full_history.sql",
+      "bytes": 8212,
+      "sha256": "1a97a40587cfd77e72c9a55901bc655acd5aa6715f3472a4808f5993ce8c08f1"
+    },
+    {
+      "path": "tools/Start-SoopGatewaySoak.ps1",
+      "bytes": 2749,
+      "sha256": "5004f8c1e40592d6a3b2caba55f57504a3904bd260d52c920516fce0d55f7d2a"
+    },
+    {
+      "path": "tools/Test-BackupWorkerPostgres.mjs",
+      "bytes": 6999,
+      "sha256": "0179f6befbba4ce6edfa4db1895e7e76210cbfa8bc8c2b745721d38415c062dd"
+    },
+    {
+      "path": "tools/Test-ChatStudioBrowser.mjs",
+      "bytes": 6755,
+      "sha256": "66710fbbabeef969765e0daa08ce208c1f8b2b5e58ff63069dcf36ea6ab91335"
+    },
+    {
+      "path": "tools/Test-ChatStudioControls.mjs",
+      "bytes": 101,
+      "sha256": "5bd27dc02c52286ecf574e0424e3902908f0ea51907365c890a17266960c4d49"
+    },
+    {
+      "path": "tools/Test-ChatStudioGap.mjs",
+      "bytes": 112,
+      "sha256": "6768790973c724e30ca032026ef42b0c47bfcf55beac3a6c30155320cae54c44"
+    },
+    {
+      "path": "tools/Test-ChatStudioOBS.mjs",
+      "bytes": 8997,
+      "sha256": "17b65dad6a73984d699834b95984ba8cf22ea7c883d30c68d2e474a2458ed387"
+    },
+    {
+      "path": "tools/Test-ChatStudioTextPosition.mjs",
+      "bytes": 10574,
+      "sha256": "710dcdc85ff3c95c8af27591ae2044ae197112fe24333f13ae7a3f29c9ff0c30"
+    },
+    {
+      "path": "tools/Test-ChatStudioWrap.mjs",
+      "bytes": 9004,
+      "sha256": "94a2d420eb33d23056c2f1fdfbdb274cc02481544d781c1114c7286372217be1"
+    },
+    {
+      "path": "tools/Test-DashboardExceptionCount.mjs",
+      "bytes": 3279,
+      "sha256": "683576c389047ca53387fffb92c1786c6dd9ffc0cad1d2fffbb4204caa9ce8e8"
+    },
+    {
+      "path": "tools/Test-DiscordOpsPostgres.mjs",
+      "bytes": 3813,
+      "sha256": "f992372995b4e6dd9ec6e2988930b24d1855c5913fc057a63da9c8d8ee33e0e9"
+    },
+    {
+      "path": "tools/Test-IncidentReliabilityPostgres.mjs",
+      "bytes": 9854,
+      "sha256": "718b04d81ac893658708b03a0bd4f1c21abfbce54e687e99f23cfbd85033742c"
+    },
+    {
+      "path": "tools/Test-InfraBackupPostgres.mjs",
+      "bytes": 9470,
+      "sha256": "eb48791781d96713002fe17785a075f2c4465f516099378a05beb671149010b1"
+    },
+    {
+      "path": "tools/Test-NormalizationPostgres.mjs",
+      "bytes": 13751,
+      "sha256": "ee56c13d6819798ca40c187c05a2b83745aa073f41ea6e04a77bae39261478ef"
+    },
+    {
+      "path": "tools/Test-OpsIdleSoak.mjs",
+      "bytes": 6225,
+      "sha256": "0b84dac27ad103b2fff30549748a628a71f9cc56d2845d81dd3f199dedb7b56c"
+    },
+    {
+      "path": "tools/Test-OpsOverflowPath.mjs",
+      "bytes": 2200,
+      "sha256": "67c77900478cb2a8d503a3b1dd42522ea139a499e71a1279a6250bf8268c3d3c"
+    },
+    {
+      "path": "tools/Test-OpsSimultaneousReconnect.mjs",
+      "bytes": 5624,
+      "sha256": "63c5a3b6790050514319ae8821b543b899ec74d3b9ef8535ef76afadba7ff918"
+    },
+    {
+      "path": "tools/Test-PublicReadPostgres.mjs",
+      "bytes": 8322,
+      "sha256": "284113bc132f90a6c7c4abc2c6498b9e14f9a1b4ce3fee059a777cdc05774ac9"
+    },
+    {
+      "path": "tools/Test-QueueReserveCapacity.mjs",
+      "bytes": 2476,
+      "sha256": "81dde571aba91bb2410b507611278e03c8aef19c972360ce0ebcb20f4daefd31"
+    },
+    {
+      "path": "tools/Test-RecoveryPatchPostgres.mjs",
+      "bytes": 9055,
+      "sha256": "0e35f1b152dd69514de4dff4ac381883760bd6d3ada01f8206cb3d186b947a29"
+    },
+    {
+      "path": "tools/Test-ReverseFanDayBackupPostgres.mjs",
+      "bytes": 10137,
+      "sha256": "777cc39c6a0e3d9c8f3776805c1e134065a9e77b77f1704260514c80181f0d5b"
+    },
+    {
+      "path": "tools/Test-ReverseFanDayPostgres.mjs",
+      "bytes": 5307,
+      "sha256": "c922b1370ff6b454fc6ad617043e64d5afb63530d6cd65c9dafbfc19ecec19bc"
+    },
+    {
+      "path": "tools/Test-RouletteCollectionGatePostgres.mjs",
+      "bytes": 18652,
+      "sha256": "fc67e60b5850cf21f33f7b81b34ebd567372d25064a67ff1baf8eb46d738dbc3"
+    },
+    {
+      "path": "tools/Test-SoopGatewayRecovery.ps1",
+      "bytes": 2438,
+      "sha256": "b7a31855894bce5ed21787eab33faf63dcbf1a7742aa86721824fdcdfb63e8a1"
+    },
+    {
+      "path": "tools/Test-UxBackupPostgres20260913.mjs",
+      "bytes": 11596,
+      "sha256": "d96d21e8facfc98a0f28f27be2684ec3cbec6429323a7e56de8a7d4a8ba5ef42"
+    },
+    {
+      "path": "tools/Test-UxControlsPostgres.mjs",
+      "bytes": 24495,
+      "sha256": "3cbf2a710a2faa077fb24994dbd106f4c87ea8fc83f6261f4f3642e38eef99ee"
+    },
+    {
+      "path": "tools/Test-UxRelease20260913.mjs",
+      "bytes": 8789,
+      "sha256": "d04cee25aa99983921120768f459d59a10586998a3c5090e252d606fbd468f1d"
+    },
+    {
+      "path": "tools/Test-WallpaperRetentionPostgres.mjs",
+      "bytes": 7308,
+      "sha256": "37dd0789c745725cbbe9ea673b7fe3ab203a8d40dbc9f20d8b506fd0385fd139"
+    },
+    {
+      "path": "tools/tts-benchmark/byeollog-cosy-wav-adapter.mjs",
+      "bytes": 2657,
+      "sha256": "ec9c29ce0654d480e7703907c551b15a4b7a1ec054265e1d5190ddb5574b34ac"
+    },
+    {
+      "path": "tools/tts-benchmark/cartesia-sse-adapter.mjs",
+      "bytes": 3594,
+      "sha256": "61f241101faff05831134c53c4ad2ce7cbdcf4fd5593f2ab1cdf8a190d7db7e2"
+    },
+    {
+      "path": "tools/tts-benchmark/cartesia-websocket-adapter.mjs",
+      "bytes": 5066,
+      "sha256": "92c38d4fd7f546e66e6afa452bb0c1d72191fe9f3abbba837129d5b281691475"
+    },
+    {
+      "path": "tools/tts-benchmark/core.mjs",
+      "bytes": 8476,
+      "sha256": "883a83abfc7ccbaaf426bc707f23ea4786f38f536a6ee5c329df1279d3ee48d5"
+    },
+    {
+      "path": "tools/tts-benchmark/corpus.final-wink.ko.json",
+      "bytes": 1327,
+      "sha256": "7be7d68798f379165528b6c276e789404bb993c2a4314b9f7a3ea7d95315916e"
+    },
+    {
+      "path": "tools/tts-benchmark/corpus.ko.json",
+      "bytes": 1404,
+      "sha256": "876bb06532ec1e72df46e47bea692f77487f8f46fec28629d7404b7aafe24507"
+    },
+    {
+      "path": "tools/tts-benchmark/corpus.ko.production-pronunciation.json",
+      "bytes": 1000,
+      "sha256": "ad8a1e7d0f6de192f0e6ec46faae543e3bc731a1dc691a7a6d359e709248cb4d"
+    },
+    {
+      "path": "tools/tts-benchmark/corpus.max-chat.ko.json",
+      "bytes": 868,
+      "sha256": "052ff519e5be34c849e2d7b00147a91faeedb9887f3881c3455bf16f1a0a6138"
+    },
+    {
+      "path": "tools/tts-benchmark/corpus.voice-quality.ko.json",
+      "bytes": 1294,
+      "sha256": "6bb5a23a9df99a1f1e846835b5d93028222999f2dc7c7ce503c360ef53172587"
+    },
+    {
+      "path": "tools/tts-benchmark/elevenlabs-http-adapter.mjs",
+      "bytes": 2175,
+      "sha256": "54db97ac9457aed2d9ea78fe1e8c6ce736a1698a1ebc6a929a944fe37db8fc8c"
+    },
+    {
+      "path": "tools/tts-benchmark/fixture-server.mjs",
+      "bytes": 3081,
+      "sha256": "a988000c8891cd5fec8b5ad7e0fd74a24a8edce9b2e72f8fdc184404f8e35fcd"
+    },
+    {
+      "path": "tools/tts-benchmark/google-chirp3-streaming-adapter.mjs",
+      "bytes": 3404,
+      "sha256": "06a09fe24a7159dc87daecaae6815847120c8e455b77bb6ae537e9e1241342a0"
+    },
+    {
+      "path": "tools/tts-benchmark/http-pcm-adapter.mjs",
+      "bytes": 2556,
+      "sha256": "59b8cae4361c64911092e821908501a7463dbec0bdf43c2a5a40c50251e0b17a"
+    },
+    {
+      "path": "tools/tts-benchmark/inworld-http-stream-adapter.mjs",
+      "bytes": 4376,
+      "sha256": "cde6d1f613e9824bd1355ba883a87039f1b8b9551a49f60423ff5e6dff19e13f"
+    },
+    {
+      "path": "tools/tts-benchmark/inworld-websocket-adapter.mjs",
+      "bytes": 6066,
+      "sha256": "ed59efa73bbe992c38e71a9bf074692b380be230981ff106c6524d7f35ea62f3"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.example.json",
+      "bytes": 627,
+      "sha256": "4f5979ebee0e93a2d856b1b0386efbd90b064e5b50a7496ff7a8e554994f3dcc"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.google-chirp3.korean-female.json",
+      "bytes": 1972,
+      "sha256": "78206fe65c147b6b4ada514bf3141a338e6727d91c2c19bac298bf0fce8c0fe5"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.inworld.1.5-max-normalized.json",
+      "bytes": 718,
+      "sha256": "5e548c089fd937b534ba19764188809945b3376562b4083d231ee8b8d7ec20ee"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.inworld.example.json",
+      "bytes": 637,
+      "sha256": "02e65afa565ff3731f8b2b1537b957e7d654b1e2e1306a22359a03637a132f54"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.inworld.korean-voices.websocket.json",
+      "bytes": 2123,
+      "sha256": "15fc3f33b7545299cf3d4d99c78ca3af7cf0215f14111248cff455c329a1a7d1"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.inworld.websocket.example.json",
+      "bytes": 677,
+      "sha256": "1c4b3b80a248cdc338584d13ddebd9e5516d58e29022d9c6fdd469551aa758ce"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.local-cosy.example.json",
+      "bytes": 434,
+      "sha256": "9d3a922181c1115dad7c456dffacfcc021c11e5edab9019e57b6568a1bb975ee"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.managed.example.json",
+      "bytes": 862,
+      "sha256": "f718b01706f0c2de2b0dee2f53bc9768d3b0f069e56d28b1b8ab31afcc6a09fc"
+    },
+    {
+      "path": "tools/tts-benchmark/providers.tts-final-wink.json",
+      "bytes": 1088,
+      "sha256": "b3bca90a0ec57a071c3f9c473ba86cc9e202f4dccb157b0dda4515186983a3d1"
+    },
+    {
+      "path": "vercel.json",
+      "bytes": 13871,
+      "sha256": "441393356a2d54e49f90ef0fe15e225c168230527e44c0f8bb100dc9996c467d"
+    },
+    {
+      "path": "withdraw.html",
+      "bytes": 2842,
+      "sha256": "708c7e0e6990ee808cdf1db1d9dadbbd158da56327c84ddfa519d239ff272793"
+    }
+  ]
+}
