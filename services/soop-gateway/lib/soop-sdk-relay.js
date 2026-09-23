@@ -110,7 +110,7 @@ export function normalizeSoopSdkRelayEnvelope(input={}){
   const receivedAt=requiredIso(input.receivedAt,'별록 수신 시각');
   const rawPayloadSha256=requiredSha256(input.rawPayloadSha256,'SOOP 원본 이벤트 확인값');
   const event=input.eventType==='donation'
-    ?normalizeSoopDonationEnvelope(input.event,{allowWallpaperAdballoon:true})
+    ?normalizeSoopDonationEnvelope(input.event,{allowWallpaperAdballoon:true,allowWallpaperVideo:true})
     :normalizeSoopChatEnvelope(input.event);
   const normalized={
     schemaVersion:SOOP_SDK_RELAY_SCHEMA_VERSION,

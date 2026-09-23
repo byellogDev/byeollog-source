@@ -370,13 +370,13 @@ export function selectNativeRouletteItem(items,sample){
   throw new NativeRouletteValidationError('룰렛 확률 합계가 100%가 아닙니다.','probability_total_mismatch');
 }
 
-export function normalizeSoopDonationEnvelope(input={}, {allowWallpaperAdballoon=false}={}){
+export function normalizeSoopDonationEnvelope(input={}, {allowWallpaperAdballoon=false,allowWallpaperVideo=false}={}){
   const eventId=requiredText(input.eventId,200,'SOOP 이벤트 ID');
   const actorId=requiredText(input.actor?.id,180,'후원자 SOOP ID').toLocaleLowerCase('en-US');
   const actorName=boundedText(input.actor?.name,120)||actorId;
   const amount=safeInteger(input.amount,1,SOOP_DONATION_MAX_BALLOONS,'후원 별풍선');
   const donationTypeLabel=requiredChoice(
-    input.donationTypeLabel??'별풍선',allowWallpaperAdballoon?[...SOOP_DONATION_TYPE_LABELS,'애드벌룬']:SOOP_DONATION_TYPE_LABELS,'SOOP 후원 종류'
+    input.donationTypeLabel??'별풍선',[...SOOP_DONATION_TYPE_LABELS,...(allowWallpaperAdballoon?['애드벌룬']:[]),...(allowWallpaperVideo?['영상후원']:[])],'SOOP 후원 종류'
   );
   const message=boundedText(input.message,1000)||null;
   if(input.occurredAt===undefined||input.occurredAt===null||input.occurredAt===''){

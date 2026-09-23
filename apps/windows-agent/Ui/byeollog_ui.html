@@ -42,7 +42,7 @@
       <h1>별록 서버 연결</h1>
       <div class="login-field"><label for="loginId">이메일 또는 아이디</label><input class="login-input" id="loginId" autocomplete="username"></div>
       <div class="login-field"><label for="loginPassword">비밀번호</label><input class="login-input" id="loginPassword" type="password" autocomplete="current-password"></div>
-      <div class="login-options"><label class="remember"><input id="rememberId" type="checkbox"> ID 저장</label><span>가입한 별록 계정으로 연결해주세요</span></div>
+      <div class="login-options"><label class="remember"><input id="rememberId" type="checkbox"> ID 저장</label><label class="remember"><input id="autoLogin" type="checkbox"> 자동 로그인</label></div>
       <p class="login-status" id="loginStatus" hidden></p>
       <button class="login-submit" id="loginSubmit" type="button">연결하기</button>
       <div class="login-links"><button id="forgotPassword" type="button">비밀번호 찾기</button><span>·</span><button id="signup" type="button">회원가입</button></div>
@@ -105,9 +105,12 @@
     if(!loginMode)return;
     const id=document.querySelector('#loginId'),password=document.querySelector('#loginPassword'),remember=document.querySelector('#rememberId'),status=document.querySelector('#loginStatus'),submit=document.querySelector('#loginSubmit');
     if(typeof state.rememberedId==='string'&&state.rememberedId){id.value=state.rememberedId;remember.checked=true;password.focus()}
+    const autoLogin=document.querySelector('#autoLogin');
+    if(typeof state.autoLogin==='boolean')autoLogin.checked=state.autoLogin;
     if(state.clearPassword)password.value='';
     status.textContent=state.message||'';status.hidden=!state.message;status.classList.toggle('ok',!state.error);
     submit.disabled=!!state.busy;id.disabled=!!state.busy;password.disabled=!!state.busy;
+    remember.disabled=!!state.busy;autoLogin.disabled=!!state.busy;
     if(state.focus==='id')id.focus();if(state.focus==='password')password.focus();
   }
   function setCollection(){}
@@ -119,7 +122,7 @@
   editorButton.onclick=()=>post('openAutomationSettings',{view:'wallpaper'});
   dashboardButton.onclick=()=>{if(dashboardButton.disabled)return;setDashboardBusy(true);if(!post('dashboard')){setDashboardBusy(false);showToast('별록 풍벽지 프로그램에서 열어주세요.')}};
   document.querySelector('#windowDragArea').addEventListener('pointerdown',event=>{if(event.button===0&&!event.target.closest('button'))post('windowDrag')});
-  document.querySelector('#loginSubmit').onclick=()=>post('login',{id:document.querySelector('#loginId').value,password:document.querySelector('#loginPassword').value,remember:document.querySelector('#rememberId').checked});
+  document.querySelector('#loginSubmit').onclick=()=>post('login',{id:document.querySelector('#loginId').value,password:document.querySelector('#loginPassword').value,remember:document.querySelector('#rememberId').checked,autoLogin:document.querySelector('#autoLogin').checked});
   document.querySelector('#loginPassword').addEventListener('keydown',event=>{if(event.key==='Enter')document.querySelector('#loginSubmit').click()});
   document.querySelector('#forgotPassword').onclick=()=>post('forgotPassword');
   document.querySelector('#signup').onclick=()=>post('signup');

@@ -34,23 +34,23 @@ test("GitHub release storage keeps Vercel deployments free of release binaries",
 
   const packagePath = auditURL(payload.package.url).pathname.slice(1);
   const ignoreLines = ignore.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  assert.equal(packagePath, `agent-updates/releases/1.0.0.40/byeollog_wallpaper_v10040_WIN_X64.zip`);
+  assert.equal(packagePath, `agent-updates/releases/1.0.0.41/byeollog_wallpaper_v10041_WIN_X64.zip`);
   assert.equal(ignoreLines.includes("agent-updates/releases"), true);
   assert.equal(ignoreLines.some((line) => line.startsWith("!agent-updates/releases/")), false);
 
-  // Automatic and manual installation now use the same sealed 40 package.
-  const installVersion = '1.0.0.40';
+  // Automatic and manual installation use the same sealed 41 package.
+  const installVersion = '1.0.0.41';
   const installPackage = await readJson(`../agent-updates/releases/${installVersion}/release-provenance.json`);
   const installManifest = await readJson(`../agent-updates/releases/${installVersion}/installer-package-manifest.json`);
   const updateManifest = await readJson(`../agent-updates/releases/${payload.version}/update-package-manifest.json`);
-  assert.equal(payload.version, '1.0.0.40');
-  assert.equal(payload.releaseSequence, 10041);
+  assert.equal(payload.version, '1.0.0.41');
+  assert.equal(payload.releaseSequence, 10042);
   assert.equal(installPackage.version, installVersion);
   assert.equal(installManifest.version, installVersion);
   const roots = manifest => manifest.files.filter(file => file.role === 'install_root').map(({path,sha256,byteSize}) => ({path,sha256,byteSize})).sort((a,b)=>a.path.localeCompare(b.path));
   assert.equal(roots(installManifest).length, 9);
   assert.deepEqual(roots(installManifest), roots(updateManifest));
-  assert.match(installer, /#define AppVersion "1\.0\.0\.40"/);
+  assert.match(installer, /#define AppVersion "1\.0\.0\.41"/);
   assert.ok(installer.includes(`#define PackageUrl "https://byeollog.com/agent-updates/releases/${installVersion}/${installPackage.packageName}"`));
   assert.ok(installer.includes(`#define PackageSha256 "${installPackage.sha256}"`));
   assert.match(installer, /PrivilegesRequired=lowest/);
@@ -74,7 +74,7 @@ test("GitHub release storage keeps Vercel deployments free of release binaries",
     source === "/agent-updates/releases/:version/:filename([^/]+\\.exe)"));
   assert.ok((vercel.redirects || []).some(({ source, destination, permanent }) =>
     source === "/agent/download" &&
-    destination === "/agent-updates/releases/1.0.0.40/Byeollog-Wallpaper-Setup-v1.0.0.40.exe" &&
+    destination === "/agent-updates/releases/1.0.0.41/Byeollog-Wallpaper-Setup-v1.0.0.41-online.exe" &&
     permanent === false));
 
   assert.match(publisher, /specify exactly one of --version <version> or --all/);
