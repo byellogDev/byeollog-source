@@ -1,5 +1,8 @@
 node_modules/
-public-dist/
+**/public-dist/**
+!apps/admin-runtime/public-dist/index.html
+!apps/collector-runtime/public-dist/index.html
+!apps/public-runtime/public-dist/index.html
 .vercel/
 .env*
 !**/.env.gateway.example
