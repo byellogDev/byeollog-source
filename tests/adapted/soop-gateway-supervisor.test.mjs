@@ -5,14 +5,14 @@ import test from 'node:test';
 import {spawn} from 'node:child_process';
 import {mkdtemp,readFile,rm,mkdir,copyFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
 
 test('supervisor records child failure and restarts it without manual control',async()=>{
   const directory=await mkdtemp(join(tmpdir(),'byeollog-supervisor-test-'));
   await mkdir(join(directory,'services/soop-chat-gateway'),{recursive:true});
   await mkdir(join(directory,'test/fixtures'),{recursive:true});
-  await copyFile(resolve('BYEOLLOG_STABILITY_AUDIT_20260923/components/ncp-gateway/services/soop-chat-gateway/supervisor.mjs'),join(directory,'services/soop-chat-gateway/supervisor.mjs'));
-  await copyFile(resolve('BYEOLLOG_STABILITY_AUDIT_20260923/components/frontend/test/fixtures/soop-gateway-exit-once.mjs'),join(directory,'test/fixtures/soop-gateway-exit-once.mjs'));
+  await copyFile(new URL('../../services/soop-gateway/services/soop-chat-gateway/supervisor.mjs',import.meta.url),join(directory,'services/soop-chat-gateway/supervisor.mjs'));
+  await copyFile(new URL('../../apps/web/test/fixtures/soop-gateway-exit-once.mjs',import.meta.url),join(directory,'test/fixtures/soop-gateway-exit-once.mjs'));
   const supervisor=spawn(process.execPath,['services/soop-chat-gateway/supervisor.mjs'],{
     cwd:directory,windowsHide:true,
     env:{...process.env,SOOP_GATEWAY_STATE_DIR:directory,SOOP_GATEWAY_SUPERVISOR_SELF_TEST:'true',SOOP_GATEWAY_SELF_TEST_ENTRY:join(directory,'test/fixtures/soop-gateway-exit-once.mjs'),SOOP_GATEWAY_RESTART_BASE_MS:'50',SOOP_GATEWAY_RESTART_MAX_MS:'100',SOOP_GATEWAY_HEALTH_PORT:'0'},

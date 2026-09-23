@@ -1,12 +1,18 @@
 import {auditURL as _auditURL} from '../resolve-source.mjs';
 const auditURL=(value,base)=>_auditURL(value,base,"frontend");
 import {readFile} from 'node:fs/promises';
-import test from 'node:test';
+import test,{before,after} from 'node:test';
 import assert from 'node:assert/strict';
 import {runAgentWallpaperControl} from '../../apps/web/lib/agent-wallpaper-control.js';
 
 const workspaceId='11111111-1111-4111-8111-111111111111';
 const userId='22222222-2222-4222-8222-222222222222';
+
+// AbortSignal.timeout uses an unref'ed timer. Real requests keep the process
+// alive through sockets; these unresolved mock promises deliberately do not.
+let keepAlive;
+before(()=>{keepAlive=setInterval(()=>{},1_000)});
+after(()=>clearInterval(keepAlive));
 
 test('wallpaper state reconstruction honors the request deadline',async()=>{
   const stages=[];
