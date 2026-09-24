@@ -18,6 +18,7 @@ const RESPONSE_HEADERS=new Set([
 ]);
 const MAX_BODY=12*1024*1024;
 const MAX_RESPONSE=24*1024*1024;
+const MINECRAFT_HEADERS=new Set(['x-byeollog-server-id','x-byeollog-request-id','x-byeollog-timestamp']);
 
 function fixedOrigin(raw){
   let parsed;try{parsed=new URL(String(raw||''))}catch{return null}
@@ -42,10 +43,10 @@ function queryString(query={}){
   }
   const text=result.toString();return text?`?${text}`:'';
 }
-function requestHeaders(req,token,protectionBypass=''){
+function requestHeaders(req,token,protectionBypass='',endpoint=''){
   const headers=new Headers();
   for(const [name,value] of Object.entries(req.headers||{})){
-    const lower=name.toLowerCase();if(!REQUEST_HEADERS.has(lower)||value===undefined)continue;
+    const lower=name.toLowerCase();if((!REQUEST_HEADERS.has(lower)&&!(endpoint==='/api/minecraft-server'&&MINECRAFT_HEADERS.has(lower)))||value===undefined)continue;
     headers.set(lower,Array.isArray(value)?value.join(', '):String(value));
   }
   headers.set(RUNTIME_HEADER,token);
@@ -94,7 +95,7 @@ export function createRuntimeProxyHandler({runtime,endpoint,chooseRuntime,rawBod
     const url=config.origin+endpoint+queryString(req.query);
     let upstream;
     try{
-      upstream=await fetcher(url,{method,headers:requestHeaders(req,config.token,config.protectionBypass),body:body?.length?body:undefined,cache:'no-store',redirect:'manual',signal:AbortSignal.timeout(rawBody?12000:65000)});
+      upstream=await fetcher(url,{method,headers:requestHeaders(req,config.token,config.protectionBypass,endpoint),body:body?.length?body:undefined,cache:'no-store',redirect:'manual',signal:AbortSignal.timeout(rawBody?12000:65000)});
     }catch(error){console.error('[runtime-proxy] upstream unavailable',{runtime:selected,type:error?.name||'Error'});return res.status(503).json({message:'Service temporarily unavailable'})}
     copyResponseHeaders(upstream,res);
     const length=Number(upstream.headers.get('content-length')||0);

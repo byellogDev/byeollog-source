@@ -6132,6 +6132,62 @@
       "after": "16107a512da7caca9fd1a8f92c520d17f1e188eeb2e206b0f268e60cc05fc348",
       "status": "changed",
       "release": "2026.09.23.2"
+    },
+    {
+      "path": "components/frontend/lib/runtime-proxy.js",
+      "target": "apps/web/lib/runtime-proxy.js",
+      "before": "d8871726297912025867c5ac0ae0d18f0df9b1beeec7c1679bd9d3abdcb1aee0",
+      "status": "changed",
+      "after": "a29b288d0071a6c37c08224736d1bd10d0c5e64ab51814ac608554d14fc444ea",
+      "release": "2026.09.24-minecraft-candidate"
+    },
+    {
+      "path": "components/admin-runtime/lib/minecraft-server-service.mjs",
+      "target": "apps/admin-runtime/lib/minecraft-server-service.mjs",
+      "before": "5de5409bf5b9eb335ae8aecec418f04bb1840a73c6358d038c4c237ff9cdb735",
+      "status": "changed",
+      "after": "07c20ebd2093c8d42d28899b7dda0fa56019fb4cc198d4d85e2e34b5b0d3703f",
+      "release": "2026.09.24-minecraft-candidate"
+    },
+    {
+      "path": "components/admin-runtime/lib/soop-oauth.js",
+      "target": "apps/admin-runtime/lib/soop-oauth.js",
+      "before": "8d4dfbf6cc6364fd55761185501eda62de40e8c57cc28dbc4ee30e4353700ad9",
+      "status": "changed",
+      "after": "edacfef7b17114066f376c0c25a85b64116f9a2517cd2299594465723d1850dd",
+      "release": "2026.09.24-candidate-review-fixes"
+    },
+    {
+      "path": "components/admin-runtime/lib/game-link-service.mjs",
+      "target": "apps/admin-runtime/lib/game-link-service.mjs",
+      "before": "e5035a34476c6f22ced29d9265ad3f76d23995eb321019a77a180ba7a1258de2",
+      "status": "changed",
+      "after": "48a88410b8c0220a7b0f48c87bc00f52ae4b856d658375a1f2d5d4ff3a43e5e2",
+      "release": "2026.09.24-candidate-review-fixes"
+    },
+    {
+      "path": "components/admin-runtime/lib/game-link-store.mjs",
+      "target": "apps/admin-runtime/lib/game-link-store.mjs",
+      "before": "803a1fa37ec0c8917005e03dcff05b463f7141456f0f2c1610396b0a6d56fa3e",
+      "status": "changed",
+      "after": "f57a845227aa27c2af3fc1ee4e20d1ec04cc6c627eff5c0878ea54279a957850",
+      "release": "2026.09.24-candidate-review-fixes"
+    },
+    {
+      "path": "components/admin-runtime/lib/soop-gateway-api.js",
+      "target": "apps/admin-runtime/lib/soop-gateway-api.js",
+      "before": "c6f2d561468e0dc29b3d87d56390afd60518c41cdcadf55688cb6374feaee9ad",
+      "status": "changed",
+      "after": "822266e9e6fd1a7e9fc70c21ea61c10c9fda0b18a0ceba9cb4d04cab32784ed6",
+      "release": "2026.09.24-candidate-review-fixes"
+    },
+    {
+      "path": "components/admin-runtime/lib/runtime-isolation.js",
+      "target": "apps/admin-runtime/lib/runtime-isolation.js",
+      "before": "3c91754405cfe8a3010b8e0a3b31a4a59979166c904987887d138d71b78c1cdc",
+      "status": "changed",
+      "after": "3d9cbf05b1a4b8a3e1c6d6dbfc85c04b17647f9c98c5183264c1ea00cf6474e3",
+      "release": "2026.09.24-candidate-review-fixes"
     }
   ]
 }

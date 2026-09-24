@@ -92,13 +92,16 @@ export class MemoryGameLinkStore {
     }
 
     const soopExisting = this.bindingsBySoop.get(session.soop_user_id);
+    const minecraftExisting = this.bindingsByMinecraft.get(minecraftUuid);
+    if (soopExisting?.status === "suspended" || minecraftExisting?.status === "suspended") {
+      throw new GameLinkConflictError("정지된 계정 연동입니다. 운영진에게 문의해주세요.", "game_link_suspended");
+    }
     if (soopExisting && soopExisting.minecraft_uuid !== minecraftUuid) {
       throw new GameLinkConflictError(
         "이 SOOP 계정은 다른 Minecraft 계정과 이미 연결되어 있습니다.",
         "game_link_soop_conflict",
       );
     }
-    const minecraftExisting = this.bindingsByMinecraft.get(minecraftUuid);
     if (minecraftExisting && minecraftExisting.soop_user_id !== session.soop_user_id) {
       throw new GameLinkConflictError(
         "이 Minecraft 계정은 다른 SOOP 계정과 이미 연결되어 있습니다.",
@@ -163,6 +166,9 @@ async function readResponse(response) {
   const body = raw ? JSON.parse(raw) : null;
   if (!response.ok) {
     const message = body?.message || body?.hint || `Supabase HTTP ${response.status}`;
+    if (message.includes("game_link_suspended")) {
+      throw new GameLinkConflictError("정지된 계정 연동입니다. 운영진에게 문의해주세요.", "game_link_suspended");
+    }
     if (message.includes("game_link_soop_conflict")) {
       throw new GameLinkConflictError(
         "이 SOOP 계정은 다른 Minecraft 계정과 이미 연결되어 있습니다.",
