@@ -71,7 +71,7 @@ dotnet run --project apps/windows-agent/AgentStoreTests/AgentStoreTests.csproj -
 - [설계와 권한 경계](docs/ARCHITECTURE.md)
 - [개발·변경 전달 절차](docs/DEVELOPMENT.md)
 - [후보 검증·배포·복구](docs/DEPLOYMENT.md)
-- [버전 이력](CHANGELOG.md) · [새 릴리스 작성 양식](docs/templates/release.md)
+- [릴리스 문서 목록](docs/releases/README.md) · [버전 이력](CHANGELOG.md) · [새 릴리스 작성 양식](docs/templates/release.md)
 - [기술 사례: 운영 소스 통합과 반복 장애 개선](docs/CASE_STUDY.md)
 - [보안과 공개 범위](SECURITY.md)
 
