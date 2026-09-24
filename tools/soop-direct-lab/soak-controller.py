@@ -14,7 +14,6 @@ compare_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(compare_module)
 Comparison = compare_module.Comparison
 STOP = threading.Event()
-CANARY_PASSED = threading.Event()
 PROD = "soop-chat-gateway-soop-gateway-1"
 
 def command(args, timeout=15):
@@ -76,6 +75,7 @@ def session(target, bundle, end, evidence):
     end_at = None
     original_last = candidate_last = time.monotonic()
     ready_since = None
+    initial_comparison_recorded = False
     salt = secrets.token_hex(32)
     def start(source,args,data):
         p = subprocess.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,bufsize=1)
@@ -176,9 +176,9 @@ def session(target, bundle, end, evidence):
             if comparison:
                 comparison.expire(int(time.time()*1000))
                 if comparison.mismatched():raise RuntimeError('event_mismatch')
-                if target['label']=='test' and not CANARY_PASSED.is_set() and ready_since and now-ready_since>=60 and sum(comparison.matched.values())>=1:
-                    evidence.emit('canary_passed',connectedSeconds=now-ready_since,matched=sum(comparison.matched.values()))
-                    CANARY_PASSED.set()
+                if not initial_comparison_recorded and ready_since and now-ready_since>=60 and sum(comparison.matched.values())>=1:
+                    evidence.emit('initial_comparison_passed',connectedSeconds=now-ready_since,matched=sum(comparison.matched.values()))
+                    initial_comparison_recorded = True
             if now>=next_snapshot:
                 if pressure():raise RuntimeError('host_memory_pressure')
                 evidence.emit('resources',containers=resource([PROD]+([name] if candidate and candidate.poll() is None else [])))
@@ -231,9 +231,8 @@ def campaign(target,bundle,end):
     try:
         evidence.emit('campaign_start',deadline=datetime.datetime.fromtimestamp(end,datetime.timezone.utc).isoformat())
         while not STOP.is_set() and time.time()<end-60:
-            if target['label']!='test' and not CANARY_PASSED.is_set():
-                if last!='waiting_for_canary':evidence.emit('waiting_for_canary',reason='test_live_comparison_required')
-                last='waiting_for_canary';STOP.wait(15);continue
+            # Every approved target follows its own operating connection. An
+            # offline test channel must not prevent another target's observation.
             current=original_state(target['workspaceId'])
             if current['state']!='connected':
                 if current!=last:evidence.emit('waiting',original=current)

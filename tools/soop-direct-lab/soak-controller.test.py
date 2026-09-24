@@ -60,4 +60,37 @@ class FinalizationTests(unittest.TestCase):
   c=m.Comparison(0);c.add('original',frame(9500));r={'reason':'campaign_complete'}
   m.finalize_comparison(c,r,10000)
   self.assertEqual(r['reason'],'comparison_incomplete');self.assertEqual(r['comparisonTailGap']['original'],1);self.assertTrue(r['reviewRequired'])
+class IndependentTargetTests(unittest.TestCase):
+ def run_campaign(self,label,state,result=None):
+  records=[]
+  class Evidence:
+   def __init__(self,*a):pass
+   def emit(self,kind,**values):records.append({'kind':kind,**values})
+  class Stop:
+   stopped=False
+   def is_set(self):return self.stopped
+   def wait(self,*a):self.stopped=True
+   def set(self):self.stopped=True
+  with patch.object(m,'STOP',Stop()),patch.object(m,'Evidence',Evidence),patch.object(m,'original_state',return_value=state) as original,patch.object(m,'session',return_value=result or {'reason':'campaign_complete','candidateRemoved':True}) as session:
+   m.campaign({'label':label,'workspaceId':'synthetic-'+label},{},m.time.time()+300)
+   return records,original.call_args_list,session.call_args_list
+ def test_each_connected_target_starts_without_other_account_evidence(self):
+  for label in ['observer-a','observer-b','test']:
+   with self.subTest(label=label):
+    records,lookups,sessions=self.run_campaign(label,{'state':'connected'})
+    self.assertEqual(len(sessions),1)
+    self.assertEqual(lookups[0].args,('synthetic-'+label,))
+    self.assertFalse(any(x['kind']=='waiting_for_canary' for x in records))
+ def test_offline_test_does_not_prevent_operating_targets(self):
+  records,_,sessions=self.run_campaign('test',{'state':'waiting_for_live','lastErrorCode':'broadcast_offline'})
+  self.assertEqual(len(sessions),0);self.assertTrue(any(x['kind']=='waiting' for x in records))
+  for label in ['observer-a','observer-b']:
+   self.assertEqual(len(self.run_campaign(label,{'state':'connected'})[2]),1)
+ def test_target_mismatch_still_halts_without_retry(self):
+  result={'reason':'event_mismatch','reviewRequired':True,'candidateRemoved':True}
+  for label in ['observer-a','observer-b','test']:
+   records,_,sessions=self.run_campaign(label,{'state':'connected'},result)
+   self.assertEqual(len(sessions),1)
+   self.assertTrue(any(x['kind']=='needs_review' for x in records))
+   self.assertFalse(any(x['kind']=='campaign_finished' for x in records))
 if __name__=='__main__':unittest.main()
