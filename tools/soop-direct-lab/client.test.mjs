@@ -54,9 +54,34 @@ for(const [name,code,ret,fields,expected]of [
   ['login rejection',1,1,[],'login_rejected'],['unsolicited join',2,0,['1000','lab0'],'unexpected_join_ack'],['early content',5,0,fixtures()[0].fields,'content_before_ready']
 ])test(name,async t=>{const h=await harness(t,(s,p)=>{if(p.code===16)s.send(encodePacket(code,fields,ret))});const r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:h.Transport});assert.equal(r.reason,expected);assert.equal(r.ready,false)});
 for(const [id,ret,expected]of [['other',0,'join_owner_mismatch'],['lab0',1,'join_rejected']])test(expected,async t=>{const h=await harness(t,(s,p)=>{if(p.code===16)s.send(encodePacket(1,['lab0','4|0']));else if(p.code===2)s.send(encodePacket(2,['1000',id],ret))});const r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:h.Transport});assert.equal(r.reason,expected)});
-test('silent transport, clean broadcast close and supervisor abort are distinct',async t=>{
-  const h=await harness(t,(s,p)=>{s._autoPong=false;normalJoin(s,p)});
-  let r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:h.Transport,timing:{pingMs:10,silenceMs:30}});assert.equal(r.reason,'transport_silent');
+test('idle room without pong remains connected and receives later chat',async t=>{
+  const reports=[],events=[];let pings=0,late;
+  const h=await harness(t,(s,p)=>{s._autoPong=false;normalJoin(s,p);if(p.code===2){s.on('ping',()=>pings++);late=setTimeout(()=>{const f=fixtures()[0];if(s.readyState===1)s.send(encodePacket(f.code,f.fields))},220)}});
+  t.after(()=>clearTimeout(late));
+  const r=await runDirect({...configFor(),durationMs:350},{fetchImpl:async()=>response(infoFor()),WebSocketImpl:h.Transport,timing:{pingMs:20,idleMs:60,telemetryMs:10},onReport:e=>reports.push(e),onEvent:e=>events.push(e)});
+  assert.equal(r.reason,'duration_reached');assert.equal(events.length,1);assert.equal(pings,0);
+  const idle=reports.findIndex(e=>e.receiveState==='idle_unconfirmed');assert.ok(idle>=0);
+  assert.ok(reports.slice(idle+1).some(e=>e.receiveState==='receiving'&&e.events===1));
+  assert.ok(h.outbound.filter(c=>c===0).length>=3);
+});
+for(const mode of ['failure','timeout','backpressure'])test('keepalive write '+mode+' stops candidate',async t=>{
+  const h=await harness(t,(s,p)=>normalJoin(s,p));
+  class Broken extends h.Transport{
+    send(data,callback){
+      if(decodePackets(data)[0].code===0){if(mode==='failure')queueMicrotask(()=>callback(Error('synthetic')));return}
+      return super.send(data,callback);
+    }
+    get bufferedAmount(){return mode==='backpressure'&&this.block?300000:super.bufferedAmount}
+  }
+  let transport;
+  class Tracked extends Broken{constructor(...args){super(...args);transport=this}}
+  const r=await runDirect({...configFor(),durationMs:500},{fetchImpl:async()=>response(infoFor()),WebSocketImpl:Tracked,timing:{pingMs:20,writeMs:40},onReport:e=>{if(e.kind==='ready')transport.block=true}});
+  assert.equal(r.reason,mode==='failure'?'write_failed':mode==='timeout'?'write_timeout':'write_backpressure');assert.equal(r.ready,true);
+});
+test('explicit socket close, broadcast close and supervisor abort still stop',async t=>{
+  const closed=await harness(t,(s,p)=>{normalJoin(s,p);if(p.code===2)setTimeout(()=>s.close(1000),20)});
+  let r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:closed.Transport});assert.equal(r.reason,'socket_closed');
+  const h=await harness(t,(s,p)=>normalJoin(s,p));
   const a=new AbortController();r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:h.Transport,signal:a.signal,onReport:e=>{if(e.kind==='ready')a.abort()}});assert.equal(r.reason,'supervisor_stopped');
   const b=await harness(t,(s,p)=>{normalJoin(s,p);if(p.code===2)s.send(encodePacket(88))});r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:b.Transport});assert.equal(r.reason,'broadcast_closed');
 });

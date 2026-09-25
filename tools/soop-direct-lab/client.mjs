@@ -20,11 +20,11 @@ export async function loadRoom(config,{fetchImpl=fetch,signal}={}){
 // One connection per invocation. Reconnect decisions belong to the external
 // supervisor; no SDK globals, credential files, DB clients or automatic retries.
 export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onEvent=()=>{},onFrame=()=>{},onReport=()=>{},timing={}}={}){
-  const limits={joinMs:10000,pingMs:60000,silenceMs:180000,telemetryMs:15000,...timing};
+  const limits={joinMs:10000,pingMs:60000,idleMs:180000,writeMs:10000,telemetryMs:15000,...timing};
   const duration=Number(config.durationMs||120000);
   if(!Number.isFinite(duration)||duration<100||duration>172800000)throw fault('invalid_duration');
   for(const v of Object.values(limits))if(!Number.isFinite(v)||v<10||v>180000)throw fault('invalid_timing');
-  const result={ready:false,reason:null,counts:{},transport:{socketErrors:0,closeCode:null},unknownCodes:{}};
+  const result={ready:false,reason:null,counts:{},transport:{socketErrors:0,closeCode:null,writesCompleted:0},unknownCodes:{}};
   let socket,stage='auth',finished=false,resolveDone,lastWire=Date.now(),sequence=0;
   const timers=new Set(),done=new Promise(r=>resolveDone=r);
   const finish=code=>{if(finished)return;finished=true;result.reason=code;result.stage=stage;resolveDone()};
@@ -32,7 +32,18 @@ export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onE
   const deadline=(fn,ms)=>{const h=setTimeout(fn,ms);timers.add(h);return h};
   const abort=()=>finish('supervisor_stopped');signal?.addEventListener('abort',abort,{once:true});
   const safe=fn=>(...args)=>{if(finished)return;try{fn(...args)}catch(e){finish(e?.code||'callback_failed')}};
-  const send=packet=>{if(!finished&&socket?.readyState===1)socket.send(packet)};
+  const send=packet=>{
+    if(finished)return;
+    if(socket?.readyState!==1){finish('socket_not_open');return}
+    if(socket.bufferedAmount>MAX_PACKET_BYTES*4){finish('write_backpressure');return}
+    const timeout=deadline(()=>finish('write_timeout'),limits.writeMs);
+    try{socket.send(packet,error=>{
+      clearTimeout(timeout);timers.delete(timeout);
+      if(finished)return;
+      if(error){finish('write_failed');return}
+      result.transport.writesCompleted++;
+    })}catch{clearTimeout(timeout);timers.delete(timeout);finish('write_failed')}
+  };
   try{
     if(signal?.aborted){finish('supervisor_stopped');return result}
     deadline(()=>finish('duration_reached'),duration);
@@ -73,8 +84,11 @@ export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onE
         else result.unknownCodes[code]=(result.unknownCodes[code]||0)+1;
       }
     }));
-    every(safe(()=>{if(Date.now()-lastWire>limits.silenceMs){finish('transport_silent');return}if(result.ready){send(encodePacket(0));socket.ping()}}),limits.pingMs);
-    every(safe(()=>onReport({kind:'telemetry',ready:result.ready,events:sequence,counts:{...result.counts},rss:process.memoryUsage().rss,heapUsed:process.memoryUsage().heapUsed,cpu:process.cpuUsage(),sockets:socket?.readyState===1?1:0,timers:timers.size,stage,lastWireAgeMs:Date.now()-lastWire})),limits.telemetryMs);
+    // Match the SDK's application keepalive. Neither this write's completion
+    // nor a quiet room proves peer health. The supervisor compares both feeds.
+    // Do not require a WebSocket pong response that this provider may not send.
+    every(safe(()=>{if(result.ready)send(encodePacket(0))}),limits.pingMs);
+    every(safe(()=>onReport({kind:'telemetry',ready:result.ready,events:sequence,counts:{...result.counts},rss:process.memoryUsage().rss,heapUsed:process.memoryUsage().heapUsed,cpu:process.cpuUsage(),sockets:socket?.readyState===1?1:0,timers:timers.size,stage,lastWireAgeMs:Date.now()-lastWire,receiveState:!result.ready?'not_ready':Date.now()-lastWire>limits.idleMs?'idle_unconfirmed':'receiving',writesCompleted:result.transport.writesCompleted})),limits.telemetryMs);
     await done;
   }catch(error){finish(error?.code||'connection_failed')}
   finally{
