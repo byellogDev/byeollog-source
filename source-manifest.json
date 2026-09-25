@@ -6268,6 +6268,38 @@
       "status": "changed",
       "after": "7e4bd2343cf5c80763615e42bbb1eca829911fb638363c6a32ceba141f879805",
       "release": "2026.09.26-donation-report"
+    },
+    {
+      "path": "components/frontend/lib/admin-source.html",
+      "target": "apps/web/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "status": "changed",
+      "after": "0942254ddd6121f2eee64bab97e12f8a2a5265e3465136ddbc643ed79c3bd9be",
+      "release": "2026.09.26-report-button-visibility"
+    },
+    {
+      "path": "components/frontend/lib/admin-html.js",
+      "target": "apps/web/lib/admin-html.js",
+      "before": "f65e74ed086b6cf7c3ce9acf23cabea1a9e5ceb27fd4fbbe842180c9b9483388",
+      "status": "changed",
+      "after": "790c0f756816b05b5636d871e3b1dca2cc2474f1a874247b8764f4947eacab0a",
+      "release": "2026.09.26-report-button-visibility"
+    },
+    {
+      "path": "components/admin-runtime/lib/admin-source.html",
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "status": "changed",
+      "after": "0942254ddd6121f2eee64bab97e12f8a2a5265e3465136ddbc643ed79c3bd9be",
+      "release": "2026.09.26-report-button-visibility"
+    },
+    {
+      "path": "components/admin-runtime/lib/admin-html.js",
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "019bc81af4b1eecca7fa437f2a3b7051ab09b2eac35419aec4fab344ad2e2ecd",
+      "status": "changed",
+      "after": "790c0f756816b05b5636d871e3b1dca2cc2474f1a874247b8764f4947eacab0a",
+      "release": "2026.09.26-report-button-visibility"
     }
   ]
 }

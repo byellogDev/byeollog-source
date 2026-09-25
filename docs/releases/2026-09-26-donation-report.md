@@ -56,3 +56,7 @@
 ## 관련 PR·커밋·이전 버전
 
 [PR #4](https://github.com/byellogDev/byeollog/pull/4)에 구현·검사·이 문서를 함께 기록한다. 이전 버전은 [월별 통계](2026-09-26-monthly-stats.md), 개발 원칙은 [개발 문서](../DEVELOPMENT.md)를 참고한다.
+
+## 후속 수정
+
+긴 통계 표가 있는 실제 관리 모달에서 리포트가 화면 아래에 열리는 문제가 보고되어 [표시 위치·초점 수정](2026-09-26-report-button-visibility.md)을 진행했다. 위 최초 화면 검증은 이 배치 문제를 검출하지 못했다.

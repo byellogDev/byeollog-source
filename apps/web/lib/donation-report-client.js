@@ -10,7 +10,10 @@ function invalidateDonationReport(){
   donationReportData=null;$('donationReportSave').disabled=true;$('donationReportCanvas').classList.add('hidden');$('donationReportSummary').textContent='';
   $('donationReportState').textContent='선택한 기간으로 리포트를 만들어주세요.';
 }
-function closeDonationReport(){donationReportRequest?.abort();$('donationReportPanel').classList.add('hidden')}
+function closeDonationReport(){
+  donationReportRequest?.abort();$('donationReportPanel').classList.add('hidden');
+  $('donationReportOpen').setAttribute('aria-expanded','false');$('donationReportOpen').focus();
+}
 async function requestDonationReport(params){
   donationReportRequest=new AbortController();
   const response=await fetch('/api/data?'+new URLSearchParams({operation:'donation-report',...params}),{credentials:'same-origin',cache:'no-store',signal:donationReportRequest.signal});
@@ -19,8 +22,11 @@ async function requestDonationReport(params){
   return data;
 }
 async function openDonationReport(){
+  const panel=$('donationReportPanel');panel.classList.remove('hidden');
+  $('donationReportOpen').setAttribute('aria-expanded','true');
+  panel.focus({preventScroll:true});panel.scrollIntoView({block:'start',behavior:'instant'});
   if(donationReportBusy)return;
-  $('donationReportPanel').classList.remove('hidden');donationReportData=null;donationReportBounds=null;donationReportControls(true);
+  donationReportData=null;donationReportBounds=null;donationReportControls(true);
   $('donationReportCanvas').classList.add('hidden');$('donationReportSummary').textContent='';$('donationReportState').textContent='기록된 첫 방송일과 최근 방송일을 확인하고 있습니다.';
   try{
     const {bounds}=await requestDonationReport({mode:'bounds'});donationReportBounds=bounds;

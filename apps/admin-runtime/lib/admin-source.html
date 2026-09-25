@@ -420,13 +420,9 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
   <div class="donationStatsBox hidden" id="donationStatsBox">
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
       <div><b>별풍선 통계</b><div class="muted" style="margin-top:4px">별록이 수집한 전체 SOOP 후원 원본을 기준으로 집계합니다. 룰렛 결과나 업보 분류 여부와 관계없이 후원 자체는 유지됩니다.</div></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="primary" type="button" onclick="openDonationReport()">별풍선 리포트 받기</button><button onclick="loadDonationStats(true)">새로고침</button><button onclick="toggleDonationStatsBox()">닫기</button></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><button id="donationReportOpen" class="primary" type="button" aria-controls="donationReportPanel" aria-expanded="false" onclick="openDonationReport()">별풍선 리포트 받기</button><button onclick="loadDonationStats(true)">새로고침</button><button onclick="toggleDonationStatsBox()">닫기</button></div>
     </div>
-    <div id="donationStatsState" class="muted" style="margin-top:8px"></div>
-    <div id="donationStatsSummary" class="statSummaryGrid"></div>
-    <div class="statTabs"><button id="donationTabPerson" class="active" onclick="setDonationStatMode('person')">인원별</button><button id="donationTabDate" onclick="setDonationStatMode('date')">날짜별</button><button id="donationTabMonth" onclick="setDonationStatMode('month')">월별</button><button id="donationTabAmount" onclick="setDonationStatMode('amount')">풍선 갯수별</button></div>
-    <div id="donationStatsTable" class="statsTableWrap"><div class="muted" style="padding:10px">통계를 불러오지 않았습니다.</div></div>
-    <section id="donationReportPanel" class="hidden" aria-label="별풍선 리포트" style="margin-top:24px;border-top:1px solid var(--line);padding-top:20px">
+    <section id="donationReportPanel" class="hidden" tabindex="-1" aria-label="별풍선 리포트" style="margin-top:24px;border-top:1px solid var(--line);padding-top:20px">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h3 style="margin:0">별풍선 리포트</h3><button type="button" onclick="closeDonationReport()">리포트 닫기</button></div>
       <p class="muted">기록된 방송 시작일을 기준으로 분석합니다. 기본 기간은 첫 방송일~가장 최근 방송일입니다.</p>
       <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:end">
@@ -440,6 +436,11 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
       <canvas id="donationReportCanvas" class="hidden" role="img" aria-label="별풍선 리포트 미리보기" aria-describedby="donationReportSummary" style="display:block;width:100%;height:auto;border-radius:16px"></canvas>
       <p class="muted">후원자 이름·아이디는 이미지에 포함하지 않습니다. 최종 수락과 원 후원 시각이 연결되지 않은 미션은 제외하며, 제외 건수와 표본 부족을 리포트에 표시합니다.</p>
     </section>
+    <div id="donationStatsState" class="muted" style="margin-top:8px"></div>
+    <div id="donationStatsSummary" class="statSummaryGrid"></div>
+    <div class="statTabs"><button id="donationTabPerson" class="active" onclick="setDonationStatMode('person')">인원별</button><button id="donationTabDate" onclick="setDonationStatMode('date')">날짜별</button><button id="donationTabMonth" onclick="setDonationStatMode('month')">월별</button><button id="donationTabAmount" onclick="setDonationStatMode('amount')">풍선 갯수별</button></div>
+    <div id="donationStatsTable" class="statsTableWrap"><div class="muted" style="padding:10px">통계를 불러오지 않았습니다.</div></div>
+
   </div>
 
 
@@ -2346,7 +2347,10 @@ function invalidateDonationReport(){
   donationReportData=null;$('donationReportSave').disabled=true;$('donationReportCanvas').classList.add('hidden');$('donationReportSummary').textContent='';
   $('donationReportState').textContent='선택한 기간으로 리포트를 만들어주세요.';
 }
-function closeDonationReport(){donationReportRequest?.abort();$('donationReportPanel').classList.add('hidden')}
+function closeDonationReport(){
+  donationReportRequest?.abort();$('donationReportPanel').classList.add('hidden');
+  $('donationReportOpen').setAttribute('aria-expanded','false');$('donationReportOpen').focus();
+}
 async function requestDonationReport(params){
   donationReportRequest=new AbortController();
   const response=await fetch('/api/data?'+new URLSearchParams({operation:'donation-report',...params}),{credentials:'same-origin',cache:'no-store',signal:donationReportRequest.signal});
@@ -2355,8 +2359,11 @@ async function requestDonationReport(params){
   return data;
 }
 async function openDonationReport(){
+  const panel=$('donationReportPanel');panel.classList.remove('hidden');
+  $('donationReportOpen').setAttribute('aria-expanded','true');
+  panel.focus({preventScroll:true});panel.scrollIntoView({block:'start',behavior:'instant'});
   if(donationReportBusy)return;
-  $('donationReportPanel').classList.remove('hidden');donationReportData=null;donationReportBounds=null;donationReportControls(true);
+  donationReportData=null;donationReportBounds=null;donationReportControls(true);
   $('donationReportCanvas').classList.add('hidden');$('donationReportSummary').textContent='';$('donationReportState').textContent='기록된 첫 방송일과 최근 방송일을 확인하고 있습니다.';
   try{
     const {bounds}=await requestDonationReport({mode:'bounds'});donationReportBounds=bounds;

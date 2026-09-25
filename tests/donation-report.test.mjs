@@ -85,10 +85,12 @@ test('failed or oversized reads never produce a partial report',async()=>{
  await assert.rejects(loadDonationReport(id,{}, {sbImpl:async(table)=>table==='byeollog_wallpaper_sessions'?[]:Array.from({length:1000},()=>({broadcast_start_local:'2026-08-01T19:00:00'}))}),e=>e.status===422);
 });
 test('client defaults to broadcast bounds and exposes PNG only after current report generation',async()=>{
- const nodes={},el=id=>nodes[id]??={value:'',textContent:'',classList:{add(){},remove(){}},getContext(){return new Proxy({}, {get(_t,key){return ()=>{}},set(){return true}})}};
+ const nodes={},el=id=>nodes[id]??={value:'',textContent:'',classList:{add(){},remove(){}},setAttribute(k,v){this[k]=v},focus(){this.focused=true},scrollIntoView(){this.scrolled=true},getContext(){return new Proxy({}, {get(_t,key){return ()=>{}},set(){return true}})}};
  const reports=buildDonationReport([t('2026-08-01T19:00:00')],[row('2026-08-01T19:05:00')],{from:'2026-08-01',to:'2026-08-01'}),calls=[];
  const ctx=vm.createContext({$:el,streamerName:'테스트',URLSearchParams,AbortController,console,document:{fonts:{ready:Promise.resolve()}},fetch:async url=>{calls.push(url);return {ok:true,json:async()=>({bounds:{first:'2026-08-01',last:'2026-08-01'},report:reports})}}});
  vm.runInContext(fs.readFileSync(new URL('../apps/web/lib/donation-report-client.js',import.meta.url),'utf8'),ctx);
  await ctx.openDonationReport();assert.equal(el('donationReportFrom').value,'2026-08-01');assert.equal(el('donationReportTo').value,'2026-08-01');assert.equal(el('donationReportSave').disabled,false);assert.equal(calls.length,2);
+ assert.equal(el('donationReportPanel').focused,true);assert.equal(el('donationReportPanel').scrolled,true);assert.equal(el('donationReportOpen')['aria-expanded'],'true');
+ ctx.closeDonationReport();assert.equal(el('donationReportOpen').focused,true);assert.equal(el('donationReportOpen')['aria-expanded'],'false');
  ctx.invalidateDonationReport();assert.equal(el('donationReportSave').disabled,true);
 });
