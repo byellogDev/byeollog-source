@@ -6220,6 +6220,54 @@
       "status": "changed",
       "after": "1035880c2f239407208ebace6602e6e04e7611408755c106b84eab62cb150137",
       "release": "2026.09.26-monthly-stats"
+    },
+    {
+      "path": "components/admin-runtime/handlers/data.js",
+      "target": "apps/admin-runtime/handlers/data.js",
+      "before": "c098e5f22e7b1a60b00cf8a0e0b3b1c8b5dde3a16c6b793e30e5825f4f6b37e8",
+      "status": "changed",
+      "after": "4ca3501be2be35312d9b561f19f3d0cf6e0c2fcea367a1f5ef3a1380ea9795bc",
+      "release": "2026.09.26-donation-report"
+    },
+    {
+      "path": "components/admin-runtime/lib/admin-html.js",
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "019bc81af4b1eecca7fa437f2a3b7051ab09b2eac35419aec4fab344ad2e2ecd",
+      "status": "changed",
+      "after": "2744b11aa2f56d55548d4c5e7f3dc87fc2812f4f66717b1e376aa7110c309968",
+      "release": "2026.09.26-donation-report"
+    },
+    {
+      "path": "components/admin-runtime/lib/admin-source.html",
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "status": "changed",
+      "after": "ed645a1823d410c9b6aab35f25d7021aaeb36c38f9e83f3aaa7bfb73f4eafb4b",
+      "release": "2026.09.26-donation-report"
+    },
+    {
+      "path": "components/frontend/lib/admin-html.js",
+      "target": "apps/web/lib/admin-html.js",
+      "before": "f65e74ed086b6cf7c3ce9acf23cabea1a9e5ceb27fd4fbbe842180c9b9483388",
+      "status": "changed",
+      "after": "2744b11aa2f56d55548d4c5e7f3dc87fc2812f4f66717b1e376aa7110c309968",
+      "release": "2026.09.26-donation-report"
+    },
+    {
+      "path": "components/frontend/lib/admin-source.html",
+      "target": "apps/web/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "status": "changed",
+      "after": "ed645a1823d410c9b6aab35f25d7021aaeb36c38f9e83f3aaa7bfb73f4eafb4b",
+      "release": "2026.09.26-donation-report"
+    },
+    {
+      "path": "components/frontend/scripts/generate-admin-html.mjs",
+      "target": "apps/web/scripts/generate-admin-html.mjs",
+      "before": "402275b52fcad8551a2d45e653644639bb589a0277458c40ca7f5d2c33de341a",
+      "status": "changed",
+      "after": "7e4bd2343cf5c80763615e42bbb1eca829911fb638363c6a32ceba141f879805",
+      "release": "2026.09.26-donation-report"
     }
   ]
 }

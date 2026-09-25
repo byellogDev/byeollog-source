@@ -59,7 +59,8 @@ test('returned mismatched state remains rejected after cookie selection',async()
 });
 
 const workspaceId='10000000-0000-4000-8000-000000000001';
-for(const remaining of [90000,120000,-1000,NaN,3600000])test(`observe never refreshes or writes with remaining ${remaining}ms`,async()=>{
+for(const remaining of [90000,120000,-1000,NaN,3600000])test(`observe never refreshes or writes with remaining ${remaining}ms`,async(t)=>{
+ t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-09-24T00:00:00Z')});
  const e={...env,BYEOLLOG_RUNTIME:'admin',BYEOLLOG_RUNTIME_TOKEN:'r'.repeat(64),SUPABASE_URL:'https://example.invalid',SUPABASE_SECRET_KEY:'synthetic',SUPABASE_SERVICE_ROLE_KEY:'synthetic',SOOP_GATEWAY_INGRESS_ENABLED:'true',SOOP_GATEWAY_INGRESS_SECRET:'q'.repeat(64)};
  const body={kind:'observe',workspaceId,instanceId:'synthetic-observer'},timestamp=String(Date.now()),nonce=sha256(String(remaining)).slice(0,32);
  const signature=signSoopGatewayRequest({secret:e.SOOP_GATEWAY_INGRESS_SECRET,timestamp,nonce,body});const res=response();let reads=0;
