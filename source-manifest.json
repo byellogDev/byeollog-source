@@ -6188,6 +6188,38 @@
       "status": "changed",
       "after": "3d9cbf05b1a4b8a3e1c6d6dbfc85c04b17647f9c98c5183264c1ea00cf6474e3",
       "release": "2026.09.24-candidate-review-fixes"
+    },
+    {
+      "path": "components/frontend/lib/admin-source.html",
+      "target": "apps/web/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "status": "changed",
+      "after": "f239bf5360f019d8fb7dcc545df8392d9cf6d903e2166bf5ce1c56ba212f406d",
+      "release": "2026.09.26-monthly-stats"
+    },
+    {
+      "path": "components/frontend/lib/admin-html.js",
+      "target": "apps/web/lib/admin-html.js",
+      "before": "f65e74ed086b6cf7c3ce9acf23cabea1a9e5ceb27fd4fbbe842180c9b9483388",
+      "status": "changed",
+      "after": "1035880c2f239407208ebace6602e6e04e7611408755c106b84eab62cb150137",
+      "release": "2026.09.26-monthly-stats"
+    },
+    {
+      "path": "components/admin-runtime/lib/admin-source.html",
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "status": "changed",
+      "after": "f239bf5360f019d8fb7dcc545df8392d9cf6d903e2166bf5ce1c56ba212f406d",
+      "release": "2026.09.26-monthly-stats"
+    },
+    {
+      "path": "components/admin-runtime/lib/admin-html.js",
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "019bc81af4b1eecca7fa437f2a3b7051ab09b2eac35419aec4fab344ad2e2ecd",
+      "status": "changed",
+      "after": "1035880c2f239407208ebace6602e6e04e7611408755c106b84eab62cb150137",
+      "release": "2026.09.26-monthly-stats"
     }
   ]
 }

@@ -424,7 +424,7 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
     </div>
     <div id="donationStatsState" class="muted" style="margin-top:8px"></div>
     <div id="donationStatsSummary" class="statSummaryGrid"></div>
-    <div class="statTabs"><button id="donationTabPerson" class="active" onclick="setDonationStatMode('person')">인원별</button><button id="donationTabDate" onclick="setDonationStatMode('date')">날짜별</button><button id="donationTabAmount" onclick="setDonationStatMode('amount')">풍선 갯수별</button></div>
+    <div class="statTabs"><button id="donationTabPerson" class="active" onclick="setDonationStatMode('person')">인원별</button><button id="donationTabDate" onclick="setDonationStatMode('date')">날짜별</button><button id="donationTabMonth" onclick="setDonationStatMode('month')">월별</button><button id="donationTabAmount" onclick="setDonationStatMode('amount')">풍선 갯수별</button></div>
     <div id="donationStatsTable" class="statsTableWrap"><div class="muted" style="padding:10px">통계를 불러오지 않았습니다.</div></div>
   </div>
 
@@ -2319,14 +2319,14 @@ async function loadDonationStats(force=false){
   try{state.textContent='통계 원본 불러오는 중...';donationStatsRows=await fetchAllTableRows('bangsel_donations','*','donated_at.desc');donationStatsLoaded=true;state.textContent=`후원 원본 ${donationStatsRows.length.toLocaleString()}건 저장됨`;renderDonationStats()}
   catch(e){state.textContent='통계 불러오기 실패';$('donationStatsTable').innerHTML=`<div class="batchDanger" style="padding:10px">${esc(e.message)}</div>`}
 }
-function setDonationStatMode(mode){donationStatMode=mode;['person','date','amount'].forEach(x=>{const id=x==='person'?'donationTabPerson':x==='date'?'donationTabDate':'donationTabAmount';$(id).classList.toggle('active',x===mode)});renderDonationStats()}
+function setDonationStatMode(mode){const tabs={person:'donationTabPerson',date:'donationTabDate',month:'donationTabMonth',amount:'donationTabAmount'};if(!tabs[mode])return;donationStatMode=mode;Object.entries(tabs).forEach(([key,id])=>$(id).classList.toggle('active',key===mode));renderDonationStats()}
 function isSystemDonation(r){return String(r?.donation_type||'')==='도전성공'||String(r?.soop_id||'')==='__challenge_settle__'}
 function isSubscriptionDonation(r){const type=String(r?.donation_type||'').trim().toLowerCase().replace(/\s+/g,'');return type.includes('구독')||type==='subscription'||collectorSubscriptionInfo(r).isSubscription}
 function renderDonationStats(){
   const rows=donationStatsRows.filter(r=>!isSubscriptionDonation(r)),totalBalloons=rows.reduce((n,r)=>n+(+r.balloons||0),0),users=new Set(rows.filter(r=>!isSystemDonation(r)).map(r=>r.soop_id).filter(Boolean)),dates=new Set(rows.map(r=>r.donated_date).filter(Boolean));
   $('donationStatsSummary').innerHTML=`<div class="statSummaryCard"><span>총 별풍선</span><b>${totalBalloons.toLocaleString()}개</b></div><div class="statSummaryCard"><span>후원 건수</span><b>${rows.length.toLocaleString()}건</b></div><div class="statSummaryCard"><span>후원 인원</span><b>${users.size.toLocaleString()}명</b></div><div class="statSummaryCard"><span>기록 날짜</span><b>${dates.size.toLocaleString()}일</b></div>`;
   if(!rows.length){$('donationStatsTable').innerHTML='<div class="muted" style="padding:10px">아직 저장된 후원 통계가 없습니다.</div>';return}
-  if(donationStatMode==='date')renderDonationStatsByDate();else if(donationStatMode==='amount')renderDonationStatsByAmount();else renderDonationStatsByPerson();
+  if(donationStatMode==='date')renderDonationStatsByDate();else if(donationStatMode==='month')renderDonationStatsByMonth();else if(donationStatMode==='amount')renderDonationStatsByAmount();else renderDonationStatsByPerson();
 }
 function renderDonationStatsByPerson(){
   const m=new Map();donationStatsRows.filter(r=>!isSystemDonation(r)&&!isSubscriptionDonation(r)).forEach(r=>{const key=r.soop_id||r.nickname||'';if(!m.has(key))m.set(key,{soop_id:r.soop_id,nickname:r.nickname,count:0,total:0,latest:''});const x=m.get(key);x.count++;x.total+=(+r.balloons||0);if(String(r.donated_at||'')>x.latest){x.latest=String(r.donated_at||'');x.nickname=r.nickname||x.nickname}});
@@ -2336,6 +2336,22 @@ function renderDonationStatsByPerson(){
 function renderDonationStatsByDate(){
   const m=new Map();donationStatsRows.filter(r=>!isSubscriptionDonation(r)).forEach(r=>{const key=r.donated_date||'';if(!m.has(key))m.set(key,{date:key,count:0,total:0,users:new Set()});const x=m.get(key);x.count++;x.total+=(+r.balloons||0);if(r.soop_id&&!isSystemDonation(r))x.users.add(r.soop_id)});const data=[...m.values()].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   $('donationStatsTable').innerHTML=`<table class="statsTable"><thead><tr><th>날짜</th><th class="num">총 별풍선</th><th class="num">후원 건수</th><th class="num">후원 인원</th></tr></thead><tbody>${data.map(x=>`<tr><td><b>${esc(x.date)}</b></td><td class="num"><b>${x.total.toLocaleString()}개</b></td><td class="num">${x.count.toLocaleString()}건</td><td class="num">${x.users.size.toLocaleString()}명</td></tr>`).join('')}</tbody></table>`;
+}
+function donationMonthlyStats(rows){
+  const months=new Map();
+  for(const row of rows){
+    if(isSubscriptionDonation(row))continue;
+    // Use the same saved Korean donation date as the daily statistics.
+    const date=String(row.donated_date||''),month=/^\d{4}-(0[1-9]|1[0-2])-\d{2}$/.test(date)?date.slice(0,7):'';
+    if(!months.has(month))months.set(month,{month,count:0,total:0,users:new Set()});
+    const item=months.get(month);item.count++;item.total+=(+row.balloons||0);
+    if(row.soop_id&&!isSystemDonation(row))item.users.add(row.soop_id);
+  }
+  return [...months.values()].sort((a,b)=>b.month.localeCompare(a.month));
+}
+function renderDonationStatsByMonth(){
+  const data=donationMonthlyStats(donationStatsRows);
+  $('donationStatsTable').innerHTML=`<div class="muted" style="padding:8px 10px">날짜별 통계와 같은 후원일 기준입니다. 후원 인원은 월 안에서 중복을 제외합니다.</div><table class="statsTable"><thead><tr><th>월</th><th class="num">총 별풍선</th><th class="num">후원 건수</th><th class="num">후원 인원</th></tr></thead><tbody>${data.map(x=>`<tr><td><b>${x.month?esc(x.month.slice(0,4)+'년 '+Number(x.month.slice(5))+'월'):'날짜 미상'}</b></td><td class="num"><b>${x.total.toLocaleString()}개</b></td><td class="num">${x.count.toLocaleString()}건</td><td class="num">${x.users.size.toLocaleString()}명</td></tr>`).join('')}</tbody></table>`;
 }
 function renderDonationStatsByAmount(){
   const m=new Map();donationStatsRows.filter(r=>!isSubscriptionDonation(r)).forEach(r=>{const n=+r.balloons||0;if(!m.has(n))m.set(n,{balloons:n,count:0,total:0,users:new Set()});const x=m.get(n);x.count++;x.total+=n;if(r.soop_id&&!isSystemDonation(r))x.users.add(r.soop_id)});const data=[...m.values()].sort((a,b)=>b.total-a.total||b.balloons-a.balloons);
