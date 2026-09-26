@@ -162,6 +162,12 @@ def session(target, bundle, end, evidence):
                 report['ready']=True;ready_since=now;comparison=Comparison(int(time.time()*1000));evidence.emit('ready')
             elif kind in ['telemetry','original_health']:
                 evidence.emit(kind,**{k:v for k,v in event.items() if k not in ['kind','at']})
+            elif kind=='original_decode_error' and source=='original':
+                # Allowlist numeric metadata and fixed parser codes only.
+                codes={'invalid_packet_size','invalid_header','invalid_packet_length','invalid_utf8','invalid_field_boundary','unsupported_opcode','invalid_payload','invalid_base64','packet_decode_failed'}
+                details={k:event.get(k) if type(event.get(k)) is int else None for k in ['opcode','payloadChars','byteLength']}
+                details['code']=event.get('code') if event.get('code') in codes else 'packet_decode_failed'
+                evidence.emit('original_decode_error',**details)
             elif kind=='abort':
                 end_at=int(time.time()*1000)
                 report['reason']=event['reason'];break

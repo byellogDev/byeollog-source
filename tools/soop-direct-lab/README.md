@@ -3,7 +3,7 @@
 연구용 수신기다. 운영 gateway에서 import하지 않으며 DB·outbox·자격증명 갱신 기능이 없다. 기존 공식 SDK의 OAuth 접속 절차와 패킷 입출력을 확인하여 Node/ws로 구현했다. Meloming/Rogi Go 소스는 반입하지 않았으며 공식 지원 SDK라고 표시하지 않는다.
 
 ```powershell
-node --test tools/soop-direct-lab/client.test.mjs tools/soop-direct-lab/sdk-parity.test.mjs
+node --test tools/soop-direct-lab/cdp-frames.test.mjs tools/soop-direct-lab/client.test.mjs tools/soop-direct-lab/sdk-parity.test.mjs
 ```
 
 기존 `ws@8.21.0`과 Node 22를 사용한다. SDK 대조 검사는 기존 prepare 도구가 비공개 `.local`에 받은 해시 고정 SDK를 읽는다. 파일이 없으면 실패하며 건너뛰지 않는다. 후보 bundle에는 SDK가 포함되지 않는다. 자동 검사는 합성 데이터·루프백 소켓만 사용한다.
@@ -23,6 +23,8 @@ node --test tools/soop-direct-lab/client.test.mjs tools/soop-direct-lab/sdk-pari
 ## 감독 실행
 
 `build-bundle.mjs`가 adapter, 기존 감독 entry, 새 monitor/controller, 고정 ws를 묶고 해시를 계산한다. 계정 ID·실행 receipt·집계는 비공개 `.local/soop-direct-lab`에 둔다.
+
+기존 Chromium의 CDP 관측에서는 text/binary 메시지만 SOOP 파서로 전달한다. ping/pong/close 프레임은 데이터 비교 대상이 아니며 실제 socket close 이벤트의 중단은 유지한다. 손상된 데이터는 계속 중단하고 opcode·길이·고정 파서 오류 코드만 기록한다. 원문·requestId·임의 예외 메시지는 저장하지 않는다. [수정·실행 검증](../../docs/releases/2026-09-26-monitor-control-frames.md).
 
 세 승인 계정은 각각 기존 연결 안정과 소유자를 확인한 뒤 독립적으로 연결한다. 계정별 60초 이상 공존·프레임 1개 일치는 초기 대조 이정표이며 다른 계정의 시작을 막지 않는다. 방송 대기는 실제 연결 시간에 포함하지 않는다.
 

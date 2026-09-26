@@ -4,7 +4,7 @@ import readline from 'node:readline';
 import {once} from 'node:events';
 import {signSoopGatewayRequest} from '/app/lib/soop-chat-gateway.js';
 import {cdpClient} from '/app/services/soop-chat-gateway/cdp-client.mjs';
-// protocol.mjs is prepended by the pinned research bundle builder.
+// protocol.mjs and cdp-frames.mjs are prepended by the research bundle builder.
 const input=readline.createInterface({input:process.stdin});
 let contact=Date.now();input.on('line',()=>contact=Date.now());
 const [first]=await once(input,'line');const config=JSON.parse(first);
@@ -36,9 +36,9 @@ try{
       if(!attached||ended)return;
       if(event.method==='Network.webSocketClosed'||event.method==='Inspector.detached')halt('original_socket_closed');
       if(event.method==='Network.webSocketFrameReceived'){
-        const r=event.params.response,bytes=Buffer.from(r.payloadData,r.opcode===2?'base64':'utf8');
-        try{for(const p of decodePackets(bytes))if(CONTENT_CODES.includes(p.code))out({kind:'frame',code:p.code,at:Date.now(),digest:crypto.createHmac('sha256',salt).update(p.bytes).digest('hex')})}
-        catch{halt('original_packet_decode_failed')}
+        const decoded=readCdpPackets(event.params?.response);
+        if(decoded.error){out({kind:'original_decode_error',...decoded.error});halt('original_packet_decode_failed');return}
+        for(const p of decoded.packets)if(CONTENT_CODES.includes(p.code))out({kind:'frame',code:p.code,at:Date.now(),digest:crypto.createHmac('sha256',salt).update(p.bytes).digest('hex')});
       }
     },()=>{if(attached&&!ended)halt('original_observer_disconnected')});
     const result=await client.send('Runtime.evaluate',{expression,returnByValue:true});

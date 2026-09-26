@@ -4,9 +4,11 @@ spec=importlib.util.spec_from_file_location('controller',pathlib.Path(__file__).
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 def frame(at=8000):return {'at':at,'code':18,'digest':'synthetic'}
 class FinalizationTests(unittest.TestCase):
- def session_fixture(self,drained_peer=False):
+ def session_fixture(self,drained_peer=False,diagnostic=None):
   clock=[100.0]
   events=[('original',{'kind':'private_config','config':{'synthetic':True}}),('original',{'kind':'monitor_ready','before':{}}),('candidate',{'kind':'ready'}),('original',{'kind':'frame',**frame(108000)}),('original',{'kind':'monitor_done','after':{}})]
+  evidence=[]
+  if diagnostic is not None:events.insert(-1,('original',{'kind':'original_decode_error',**diagnostic}))
   tail=[('candidate',{'kind':'frame',**frame(108050)})] if drained_peer else []
   class Pipe:
    def write(self,*a):pass
@@ -26,11 +28,22 @@ class FinalizationTests(unittest.TestCase):
    def empty(self):return not tail
    def put_nowait(self,x):raise AssertionError('Unexpected reader output')
   class Evidence:
-   def emit(self,*a,**kw):pass
+   def emit(self,kind,**kw):evidence.append({'kind':kind,**kw})
   inspection={'HostConfig':{'ReadonlyRootfs':True,'Memory':268435456,'PidsLimit':32,'CapDrop':['ALL'],'SecurityOpt':['no-new-privileges'],'NanoCpus':250000000},'Config':{'User':'65534:65534','Env':[]},'Mounts':[]}
   fake_process=types.SimpleNamespace(PIPE=-1,DEVNULL=-3,Popen=Process,run=lambda args,**kw:types.SimpleNamespace(returncode=1 if args[1]=='inspect' else 0),TimeoutExpired=TimeoutError)
   with patch.object(m,'time',types.SimpleNamespace(time=lambda:clock[0],monotonic=lambda:clock[0],sleep=lambda _:None)),patch.object(m,'pressure',return_value=False),patch.object(m,'subprocess',fake_process),patch.object(m,'queue',types.SimpleNamespace(Queue=Queue,Empty=queue.Empty)),patch.object(m,'command',side_effect=lambda args,**kw:json.dumps([inspection]) if '--format' not in args else 'synthetic-image'):
-   return m.session({'label':'test','workspaceId':'synthetic'},dict(monitor='',observer='',entry='',wsFiles={}),1000,Evidence())
+   result=m.session({'label':'test','workspaceId':'synthetic'},dict(monitor='',observer='',entry='',wsFiles={}),1000,Evidence())
+   result['_evidence']=evidence
+   return result
+ def test_decode_diagnostic_preserves_only_safe_metadata(self):
+  result=self.session_fixture(diagnostic={'opcode':2,'payloadChars':24,'byteLength':18,'code':'invalid_header','payload':'private-marker','requestId':'private-marker'})
+  record=next(x for x in result['_evidence'] if x['kind']=='original_decode_error')
+  self.assertEqual(record,{'kind':'original_decode_error','opcode':2,'payloadChars':24,'byteLength':18,'code':'invalid_header'})
+  self.assertNotIn('private-marker',json.dumps(result))
+ def test_decode_diagnostic_rejects_untrusted_strings(self):
+  result=self.session_fixture(diagnostic={'opcode':'private-marker','payloadChars':'private-marker','byteLength':True,'code':'private-marker'})
+  record=next(x for x in result['_evidence'] if x['kind']=='original_decode_error')
+  self.assertEqual(record,{'kind':'original_decode_error','opcode':None,'payloadChars':None,'byteLength':None,'code':'packet_decode_failed'})
  def test_full_session_surfaces_final_unmatched_donation(self):
   result=self.session_fixture()
   self.assertEqual(result['reason'],'event_mismatch');self.assertTrue(result['reviewRequired']);self.assertEqual(result['comparison']['only']['original'],{'18':1})
