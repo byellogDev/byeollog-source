@@ -157,7 +157,8 @@ begin
 
   if ResultCode <> 0 then
     RaiseException('별록 풍벽지를 설치하지 못했습니다 (오류 코드 ' +
-      IntToStr(ResultCode) + '). 실행 중인 별록 풍벽지를 종료한 뒤 다시 시도해주세요.');
+      IntToStr(ResultCode) + '). 설치 로그의 Agent installer 항목에서 원인을 확인해주세요. ' +
+      '앱 설치 후 바로가기 생성 단계에서 실패했을 수도 있습니다.');
 
   if (not IsVerifyOnly) and
     (not FileExists(ExpandConstant('{localappdata}\Programs\ByeollogCollector\LAUNCH_BYEOLLOG.cmd'))) then
