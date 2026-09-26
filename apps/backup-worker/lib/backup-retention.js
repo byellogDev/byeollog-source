@@ -6,6 +6,7 @@ import {pruneWallpaperArchive} from './wallpaper-retention.js';
 import {sealBackup} from './backup-seal.js';
 import {sb as legacyRest} from './supabase-rest.js';
 import {backupWorkerClient,backupWorkerRest} from './backup-worker-client.js';
+import {nextRetentionReviewAt} from './retention-checkpoint.js';
 const rest=(...args)=>process.env.BYEOLLOG_RUNTIME==='backup'?backupWorkerRest(...args):legacyRest(...args);
 const unzip=promisify(gunzip),zip=promisify(gzip),bucket='bangsel-backups';
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -16,7 +17,8 @@ export async function backupRetentionInventory(){
 export async function retainBackupFile(path){
   if(typeof path!=='string'||path.length>500||path.includes('..')||path.startsWith('/')||!path.endsWith('.json.gz'))throw Error('Invalid retention archive path');
   const inventory=await backupRetentionInventory();
-  if(!inventory.some(item=>item.name===path))throw Error('Archive no longer available');
+  const source=inventory.find(item=>item.name===path);
+  if(!source)throw Error('Archive no longer available');
   const store=await storage();
   const read=async()=>{const {data,error}=await store.download(path);if(error)throw Error('Archive download failed');if(data.size>32*1024*1024)throw Error('Archive too large');return Buffer.from(await data.arrayBuffer());};
   const original=await read();
@@ -35,5 +37,8 @@ export async function retainBackupFile(path){
     if(hash(await read())!==hash(bytes))throw Error('Archive retention persistence mismatch');
   }
   const publicKey=process.env.BYEOLLOG_BACKUP_RECIPIENT_PUBLIC_KEY;
-  return {path,workspace_id:input.workspace_id??null,created_at:input.created_at??null,backup_version:input.backup_version,changed:result.changed,removedTiles:result.removedTiles,removedBroadcasts:result.removedBroadcasts,cutoff:result.cutoff,archive:path.includes('/daily/')&&publicKey?sealBackup(bytes,publicKey):null};
+  // Changed files are deliberately not checkpointed: their storage version moved.
+  const checkpoint=!result.changed&&typeof source.updated_at==='string'
+    ?{version:1,sourceVersion:source.updated_at,nextReviewAt:nextRetentionReviewAt(result.backup)}:null;
+  return {path,workspace_id:input.workspace_id??null,created_at:input.created_at??null,backup_version:input.backup_version,changed:result.changed,removedTiles:result.removedTiles,removedBroadcasts:result.removedBroadcasts,cutoff:result.cutoff,checkpoint,archive:path.includes('/daily/')&&publicKey?sealBackup(bytes,publicKey):null};
 }

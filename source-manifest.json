@@ -6300,6 +6300,14 @@
       "status": "changed",
       "after": "790c0f756816b05b5636d871e3b1dca2cc2474f1a874247b8764f4947eacab0a",
       "release": "2026.09.26-report-button-visibility"
+    },
+    {
+      "path": "components/backup-worker/lib/backup-retention.js",
+      "target": "apps/backup-worker/lib/backup-retention.js",
+      "before": "402ea5ae43b4a84cf5242b3d8be5348382191f4d15a010486a300d37fa035c6a",
+      "status": "changed",
+      "after": "87c3e2da440441658baa84340294f1bbc1c36bd2f72a8f555080b344423e9bcb",
+      "release": "2026.09.26-background-usage"
     }
   ]
 }
