@@ -21,6 +21,19 @@ vercel curl /login --deployment <candidate-url>
 
 Deployment Protection을 해제하지 않습니다. 보호된 후보 API는 승인된 플랫폼 검증 경로로 호출합니다. 내부 런타임을 연동하는 경우 최종 후보의 upstream 설정을 확인하고, 임시 후보 URL을 사용한 통합 시험용 배포를 운영으로 승격하지 않습니다.
 
+### 실행 지역과 환경 설정 확인
+
+- `vercel.json`에 지역이 있어도 실제 배포에 반영됐다고 가정하지 않습니다. 프로젝트의 `resourceConfig.functionDefaultRegions`와 후보 및 승격 후 배포 API의 `regions`를 대조합니다.
+- REST로 후보를 만들 때는 지역을 요청에 명시합니다. `deploymentId`로 소스를 재사용해도 Preview의 운영 인증값 상속을 가정하지 않습니다. 환경변수 이름과 적용 범위, 실제 응답을 확인하고 누락된 후보는 승격하지 않습니다.
+- 플랫폼에서 읽은 배포 메타데이터는 비공개 `.local`에 보관하고 다음 검사를 후보와 최종 운영 배포에 각각 실행합니다. 실패하면 승격하지 않으며, 승격 후 실패하면 직전 배포로 복구합니다.
+
+```sh
+node tools/verify-deployment-region.mjs apps/web/vercel.json .local/<작업>/web-deployment.json
+node tools/verify-deployment-region.mjs apps/admin-runtime/vercel.json .local/<작업>/admin-runtime-deployment.json
+```
+
+- 소스 파일 해시·라우팅·권한 경계를 기존 운영과 비교합니다. 지역만 바꾸는 작업에 미완료 기능 변경을 섞지 않습니다. 비인증 응답 일치는 로그인 후 기능이나 성능 검증을 대신하지 않습니다.
+
 ## 반영
 
 검증한 **동일 후보**를 `vercel promote <candidate-url>`로 승격합니다. 반영 후 화면·CSS/JS·API 상태를 재조회하고 이전 기준과 비교합니다. 단순 빌드 성공으로 완료 처리하지 않습니다.
