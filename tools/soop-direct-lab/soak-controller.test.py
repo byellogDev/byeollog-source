@@ -106,4 +106,42 @@ class IndependentTargetTests(unittest.TestCase):
    self.assertEqual(len(sessions),1)
    self.assertTrue(any(x['kind']=='needs_review' for x in records))
    self.assertFalse(any(x['kind']=='campaign_finished' for x in records))
+class UserDeclaredStopTests(unittest.TestCase):
+ def test_unbounded_requires_explicit_policy_and_null_deadline(self):
+  self.assertIsNone(m.campaign_deadline({'stopPolicy':'user_declared','endEpoch':None}))
+  for config in [{},{'endEpoch':None},{'stopPolicy':'user_declared'},{'endEpoch':float('inf')}]:
+   with self.assertRaises(RuntimeError):m.campaign_deadline(config)
+ def test_finite_deadlines_remain_bounded(self):
+  end=m.time.time()+1000
+  self.assertEqual(m.campaign_deadline({'endEpoch':end}),end)
+  for end in [m.time.time()-1,m.time.time()+200000]:
+   with self.assertRaises(RuntimeError):m.campaign_deadline({'endEpoch':end})
+ def test_manual_campaign_renews_bounded_session_and_preserves_review_stop(self):
+  records=[];calls=[]
+  class Evidence:
+   def __init__(self,*a):pass
+   def emit(self,kind,**values):records.append({'kind':kind,**values})
+  class Stop:
+   def is_set(self):return False
+   def wait(self,*a):pass
+   def set(self):pass
+  def run(*args):
+   calls.append(args[2])
+   return {'reason':'campaign_complete' if len(calls)==1 else 'event_mismatch','candidateRemoved':True,'reviewRequired':len(calls)>1}
+  with patch.object(m,'STOP',Stop()),patch.object(m,'Evidence',Evidence),patch.object(m,'original_state',return_value={'state':'connected'}),patch.object(m,'session',side_effect=run),patch.object(m.time,'time',return_value=1000):
+   m.campaign({'label':'test','workspaceId':'synthetic'},{},None)
+  self.assertEqual(calls,[173800,173800])
+  self.assertEqual(records[0]['stopPolicy'],'user_declared');self.assertIsNone(records[0]['deadline'])
+  self.assertTrue(any(x['kind']=='renewal_gap' for x in records))
+  self.assertTrue(any(x['kind']=='needs_review' for x in records))
+  self.assertFalse(any(x['kind']=='campaign_finished' for x in records))
+ def test_explicit_stop_exits_manual_campaign(self):
+  records=[]
+  class Evidence:
+   def __init__(self,*a):pass
+   def emit(self,kind,**values):records.append(kind)
+  with patch.object(m,'Evidence',Evidence),patch.object(m.STOP,'is_set',return_value=True),patch.object(m,'session') as session:
+   m.campaign({'label':'test'},{},None)
+  session.assert_not_called();self.assertIn('campaign_finished',records)
+
 if __name__=='__main__':unittest.main()

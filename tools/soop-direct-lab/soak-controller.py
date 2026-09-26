@@ -1,4 +1,4 @@
-"""Separate 48-hour research supervisor. Never writes operating data or files.
+"""Separate research supervisor. Never writes operating data or files.
 Private configuration: target workspace IDs, direct adapter and pinned ws source only.
 Provider credentials exist only in monitor/controller/candidate memory and pipes.
 """
@@ -235,21 +235,23 @@ def session(target, bundle, end, evidence):
 def campaign(target,bundle,end):
     evidence=Evidence(target['label']);last=None
     try:
-        evidence.emit('campaign_start',deadline=datetime.datetime.fromtimestamp(end,datetime.timezone.utc).isoformat())
-        while not STOP.is_set() and time.time()<end-60:
+        evidence.emit('campaign_start',deadline=datetime.datetime.fromtimestamp(end,datetime.timezone.utc).isoformat() if end is not None else None,stopPolicy='user_declared' if end is None else 'deadline')
+        while not STOP.is_set() and (end is None or time.time()<end-60):
             # Every approved target follows its own operating connection. An
             # offline test channel must not prevent another target's observation.
             current=original_state(target['workspaceId'])
             if current['state']!='connected':
                 if current!=last:evidence.emit('waiting',original=current)
                 last=current;STOP.wait(60);continue
-            result=session(target,bundle,end,evidence)
+            # Campaign lifetime is independent of bounded sockets and OAuth expiry.
+            result=session(target,bundle,end if end is not None else time.time()+172800,evidence)
             if not result['candidateRemoved']:
                 evidence.emit('needs_review',reason='candidate_cleanup_failed');STOP.set();return
             if result.get('reviewRequired'):
                 evidence.emit('needs_review',reason=result['reason']);return
-            if result['reason'] in ['campaign_complete','supervisor_stopped']:break
-            if result['reason']=='duration_reached':
+            if result['reason']=='supervisor_stopped':break
+            if result['reason']=='campaign_complete' and end is not None:break
+            if result['reason']=='duration_reached' or (result['reason']=='campaign_complete' and end is None):
                 evidence.emit('renewal_gap',reason='bounded_session_or_provider_expiry');STOP.wait(60);continue
             if result['reason']=='original_not_ready':STOP.wait(60);continue
             if result['reason']=='observation_token_wait':
@@ -266,11 +268,17 @@ def campaign(target,bundle,end):
     except Exception:
         evidence.emit('needs_review',reason='campaign_failed')
 
+def campaign_deadline(bundle):
+    if bundle.get('stopPolicy')=='user_declared' and 'endEpoch' in bundle and bundle['endEpoch'] is None:return None
+    try:end=float(bundle['endEpoch'])
+    except (KeyError,TypeError,ValueError):raise RuntimeError('invalid_campaign_deadline')
+    if not time.time()<end<=time.time()+172801:raise RuntimeError('invalid_campaign_deadline')
+    return end
+
 def main():
     os.umask(0o077)
     bundle=json.loads((BASE/'config.json').read_text())
-    end=float(bundle['endEpoch'])
-    if not time.time()<end<=time.time()+172801:raise RuntimeError('invalid_campaign_deadline')
+    end=campaign_deadline(bundle)
     targets=bundle['targets']
     if len(targets)>3 or len({t['workspaceId'] for t in targets})!=len(targets):raise RuntimeError('invalid_target_set')
     for t in targets:

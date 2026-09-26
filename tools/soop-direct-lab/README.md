@@ -22,6 +22,8 @@ node --test tools/soop-direct-lab/cdp-frames.test.mjs tools/soop-direct-lab/clie
 
 ## 감독 실행
 
+2026-09-26 사용자 결정: 관측 캠페인은 `stopPolicy: user_declared`, `endEpoch: null`로 실행하며 사용자가 관측완료를 선언할 때까지 고정 시각으로 종료하지 않는다. 개별 세션은 기존 최대 48시간·OAuth 만료 범위로 제한하고 정상 종료 후 다음 세션을 관측한다. 방송 대기·재개는 계정별 독립이다. 오류·불일치·자원·증거 용량 안전 중단은 유지하며 무조건 재시작하지 않는다. 검증 집계는 사용자 요청 때 수행하고 취소한 예약 자동화를 재개하지 않는다.
+
 `build-bundle.mjs`가 adapter, 기존 감독 entry, 새 monitor/controller, 고정 ws를 묶고 해시를 계산한다. 계정 ID·실행 receipt·집계는 비공개 `.local/soop-direct-lab`에 둔다.
 
 기존 Chromium의 CDP 관측에서는 text/binary 메시지만 SOOP 파서로 전달한다. ping/pong/close 프레임은 데이터 비교 대상이 아니며 실제 socket close 이벤트의 중단은 유지한다. 손상된 데이터는 계속 중단하고 opcode·길이·고정 파서 오류 코드만 기록한다. 원문·requestId·임의 예외 메시지는 저장하지 않는다. [수정·실행 검증](../../docs/releases/2026-09-26-monitor-control-frames.md).
