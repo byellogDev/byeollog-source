@@ -4,12 +4,15 @@ spec=importlib.util.spec_from_file_location('controller',pathlib.Path(__file__).
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 def frame(at=8000):return {'at':at,'code':18,'digest':'synthetic'}
 class FinalizationTests(unittest.TestCase):
- def session_fixture(self,drained_peer=False,diagnostic=None):
+ def session_fixture(self,drained_peer=False,diagnostic=None,before_ready=False):
   clock=[100.0]
   events=[('original',{'kind':'private_config','config':{'synthetic':True}}),('original',{'kind':'monitor_ready','before':{}}),('candidate',{'kind':'ready'}),('original',{'kind':'frame',**frame(108000)}),('original',{'kind':'monitor_done','after':{}})]
   evidence=[]
   if diagnostic is not None:events.insert(-1,('original',{'kind':'original_decode_error',**diagnostic}))
   tail=[('candidate',{'kind':'frame',**frame(108050)})] if drained_peer else []
+  if before_ready:
+   events=events[:2]+[('original',{'kind':'abort','reason':'original_socket_closed'})]
+   tail=[('candidate',{'kind':'candidate_decode_error','code':'invalid_header','byteLength':14})]
   class Pipe:
    def write(self,*a):pass
    def flush(self):pass
@@ -38,12 +41,19 @@ class FinalizationTests(unittest.TestCase):
  def test_decode_diagnostic_preserves_only_safe_metadata(self):
   result=self.session_fixture(diagnostic={'opcode':2,'payloadChars':24,'byteLength':18,'code':'invalid_header','payload':'private-marker','requestId':'private-marker'})
   record=next(x for x in result['_evidence'] if x['kind']=='original_decode_error')
-  self.assertEqual(record,{'kind':'original_decode_error','opcode':2,'payloadChars':24,'byteLength':18,'code':'invalid_header'})
+  self.assertEqual({k:record[k] for k in ['kind','opcode','payloadChars','byteLength','code']},{'kind':'original_decode_error','opcode':2,'payloadChars':24,'byteLength':18,'code':'invalid_header'})
+  self.assertIsNone(record['serviceCode']);self.assertIsNone(record['headerValid'])
   self.assertNotIn('private-marker',json.dumps(result))
  def test_decode_diagnostic_rejects_untrusted_strings(self):
   result=self.session_fixture(diagnostic={'opcode':'private-marker','payloadChars':'private-marker','byteLength':True,'code':'private-marker'})
   record=next(x for x in result['_evidence'] if x['kind']=='original_decode_error')
-  self.assertEqual(record,{'kind':'original_decode_error','opcode':None,'payloadChars':None,'byteLength':None,'code':'packet_decode_failed'})
+  self.assertEqual(record['kind'],'original_decode_error');self.assertEqual(record['code'],'packet_decode_failed')
+  self.assertTrue(all(v is None for k,v in record.items() if k not in ['kind','code']))
+ def test_diagnostics_survive_shutdown_before_candidate_ready(self):
+  result=self.session_fixture(before_ready=True)
+  record=next(x for x in result['_evidence'] if x['kind']=='candidate_decode_error')
+  self.assertEqual(record['code'],'invalid_header');self.assertEqual(record['byteLength'],14)
+  self.assertFalse(result['ready'])
  def test_full_session_surfaces_final_unmatched_donation(self):
   result=self.session_fixture()
   self.assertEqual(result['reason'],'event_mismatch');self.assertTrue(result['reviewRequired']);self.assertEqual(result['comparison']['only']['original'],{'18':1})
@@ -143,5 +153,57 @@ class UserDeclaredStopTests(unittest.TestCase):
   with patch.object(m,'Evidence',Evidence),patch.object(m.STOP,'is_set',return_value=True),patch.object(m,'session') as session:
    m.campaign({'label':'test'},{},None)
   session.assert_not_called();self.assertIn('campaign_finished',records)
+
+class BroadcastLifecycleTests(unittest.TestCase):
+ def test_stale_original_heartbeat_cannot_prove_broadcast_end(self):
+  workspace='synthetic';tag=m.hashlib.sha256(workspace.encode()).hexdigest()[:12]
+  state={'heartbeatAt':'1970-01-01T00:01:40Z','channels':[{'workspace':tag,'state':'waiting_for_live','lastErrorCode':'broadcast_offline'}],'queue':{'pending':0,'deadLetters':0}}
+  with patch.object(m,'command',return_value=json.dumps(state)),patch.object(m.time,'time',return_value=200):
+   self.assertEqual(m.original_state(workspace)['lastErrorCode'],'original_state_stale')
+   self.assertIsNone(m.original_state(workspace)['state'])
+ def fixture(self,reason='original_broadcast_closed',offline_after=25,review=False):
+  records=[];calls=[];clock=[0];lookups=[0]
+  class Evidence:
+   def __init__(self,*a):pass
+   def emit(self,kind,**values):records.append({'kind':kind,**values})
+  class Stop:
+   def is_set(self):return False
+   def wait(self,seconds):clock[0]+=seconds
+  def state(_):
+   lookups[0]+=1
+   if len(calls)==1 and clock[0]>=offline_after and lookups[0]<100:return {'state':'waiting_for_live','lastErrorCode':'broadcast_offline'}
+   return {'state':'connected','lastErrorCode':None}
+  # After independent offline confirmation, the next original connection is a
+  # new broadcast. A second session stops the fixture without another loop.
+  def offline(target,evidence):
+   result=original_confirm(target,evidence)
+   if result:lookups[0]=100
+   return result
+  def session(*a):
+   calls.append(a)
+   return {'reason':reason if len(calls)==1 else 'supervisor_stopped','candidateRemoved':True,'reviewRequired':review}
+  original_confirm=m.confirm_broadcast_offline
+  with patch.object(m,'STOP',Stop()),patch.object(m,'Evidence',Evidence),patch.object(m,'original_state',side_effect=state),patch.object(m,'session',side_effect=session),patch.object(m,'confirm_broadcast_offline',side_effect=offline),patch.object(m.time,'monotonic',side_effect=lambda:clock[0]):
+   m.campaign({'label':'test','workspaceId':'synthetic'},{},None)
+  return records,calls,clock[0]
+ def test_delayed_original_offline_after_close_resumes_next_broadcast(self):
+  for reason in ['original_broadcast_closed','broadcast_closed','original_socket_closed','socket_closed','original_state_changed','auth_rejected']:
+   with self.subTest(reason=reason):
+    records,calls,seconds=self.fixture(reason)
+    self.assertEqual(len(calls),2);self.assertGreaterEqual(seconds,25)
+    self.assertTrue(any(r['kind']=='broadcast_ended' for r in records))
+    self.assertFalse(any(r['kind']=='needs_review' for r in records))
+ def test_no_offline_confirmation_still_stops(self):
+  records,calls,_=self.fixture(offline_after=1000)
+  self.assertEqual(len(calls),1);self.assertTrue(any(r['kind']=='needs_review' for r in records))
+ def test_bad_packet_and_mismatch_are_never_relabelled_as_offline(self):
+  for reason,review in [('invalid_packet_size',False),('original_packet_decode_failed',False),('event_mismatch',True),('comparison_incomplete',True),('join_owner_mismatch',False)]:
+   records,calls,_=self.fixture(reason,offline_after=0,review=review)
+   self.assertEqual(len(calls),1);self.assertTrue(any(r['kind']=='needs_review' and r['reason']==reason for r in records))
+   self.assertFalse(any(r['kind']=='broadcast_ended' for r in records))
+ def test_header_metadata_is_bounded_and_does_not_include_raw_fields(self):
+  d=m.safe_packet_diagnostic({'byteLength':14,'packetOffset':0,'headerValid':True,'serviceCode':88,'declaredLength':0,'retCode':0,'remainingBodyBytes':0,'payload':'private','accessToken':'private','code':'private'})
+  self.assertEqual(d['serviceCode'],88);self.assertEqual(d['declaredLength'],0);self.assertEqual(d['code'],'packet_decode_failed');self.assertNotIn('private',json.dumps(d))
+  for value in [-1,True,'private',1000001]:self.assertIsNone(m.safe_packet_diagnostic({'byteLength':value})['byteLength'])
 
 if __name__=='__main__':unittest.main()

@@ -44,6 +44,33 @@ async function harness(t,handler){
   return {Transport,outbound};
 }
 const normalJoin=(s,p,owner='lab0')=>{if(p.code===16)s.send(encodePacket(1,[owner,'4|0']));if(p.code===2)s.send(encodePacket(2,['1000',owner,'0','20',']']))};
+const headerOnly=(code,ret=0)=>Buffer.from('\x1b\t'+String(code).padStart(4,'0')+'000000'+String(ret).padStart(2,'0'));
+
+test('14-byte controls are valid alongside content; truncated headers, length lies and empty donations still fail',()=>{
+ const packet=encodePacket(5,fixtures()[0].fields);
+ assert.deepEqual(decodePackets(Buffer.concat([headerOnly(0),packet,headerOnly(88)])).map(p=>p.code),[0,5,88]);
+ for(const code of [0,88])assert.deepEqual(decodePackets(headerOnly(code))[0].fields,[]);
+ for(let n=0;n<14;n++)assert.throws(()=>decodePackets(headerOnly(88).subarray(0,n)),/invalid_packet_size/);
+ const lie=Buffer.from(headerOnly(88));lie[11]=49;assert.throws(()=>decodePackets(lie),/invalid_packet_length/);
+ const highBit=Buffer.from(headerOnly(88));highBit[3]|=128;assert.throws(()=>decodePackets(highBit),/invalid_header/);
+ assert.throws(()=>contentEvent(decodePackets(headerOnly(18))[0],{broadcasterId:'lab0'}),/missing_event_fields/);
+});
+test('keepalive with no body preserves later donations; empty broadcast close produces a normal stop and safe header record',async t=>{
+ const reports=[],events=[];
+ const h=await harness(t,(s,p)=>{normalJoin(s,p);if(p.code===2){s.send(headerOnly(0));const f=fixtures().find(f=>f.code===18);s.send(encodePacket(f.code,f.fields));s.send(headerOnly(88))}});
+ const r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:h.Transport,onReport:x=>reports.push(x),onEvent:x=>events.push(x)});
+ assert.equal(r.reason,'broadcast_closed');assert.equal(r.ready,true);assert.equal(events.length,1);
+ const signal=reports.find(x=>x.kind==='broadcast_signal');assert.equal(signal.serviceCode,88);assert.equal(signal.declaredLength,0);assert.equal(signal.byteLength,14);assert.equal(signal.headerValid,true);
+ assert.equal(reports.filter(x=>x.kind==='candidate_decode_error').length,0);
+});
+test('malformed candidate packet retains numeric evidence without payload or credentials',async t=>{
+ const reports=[],privateText='do-not-log-private';
+ const broken=Buffer.concat([headerOnly(88),Buffer.from(privateText)]);
+ const h=await harness(t,(s,p)=>{normalJoin(s,p);if(p.code===2)s.send(broken)});
+ const r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:h.Transport,onReport:x=>reports.push(x)});
+ assert.equal(r.reason,'invalid_header');const e=reports.find(x=>x.kind==='candidate_decode_error');
+ assert.equal(e.packetOffset,14);assert.equal(e.headerValid,false);assert.equal(e.byteLength,broken.length);assert.ok(!JSON.stringify(reports).includes(privateText));
+});
 test('two isolated accounts, ordered events, identical donations kept and only auth/control writes',async t=>{
   const h=await harness(t,(s,p,req)=>{const id=req.url.split('/').at(-1);normalJoin(s,p,id);if(p.code===2){for(const f of fixtures(id))s.send(encodePacket(f.code,f.fields));const f=fixtures(id)[2];s.send(encodePacket(f.code,f.fields))}});
   const all=await Promise.all(['lab0','lab1'].map(async id=>{const events=[];const r=await runDirect({...configFor(id),durationMs:150},{fetchImpl:async()=>response(infoFor(id)),WebSocketImpl:h.Transport,onEvent:e=>events.push(e)});return {r,events,id}}));

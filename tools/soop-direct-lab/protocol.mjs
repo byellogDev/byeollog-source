@@ -3,6 +3,16 @@ export const MAX_PACKET_BYTES=65536;
 export const CONTENT_CODES=Object.freeze([5,18,26,33,86,87,103,105,107,109,121,125]);
 const utf8=new TextDecoder('utf-8',{fatal:true});
 export function fault(code){return Object.assign(new Error(code),{code})}
+// Numeric header metadata only: never persist packet bytes, fields or tokens.
+export function packetDiagnostic(input,offset=0){
+  const data=Buffer.from(input),h=data.subarray(offset,offset+14);
+  const headerValid=h.length===14&&h[0]===27&&h[1]===9&&h.subarray(2).every(b=>b>=48&&b<=57);
+  return {byteLength:data.length,packetOffset:offset,headerValid,
+    serviceCode:headerValid?Number(h.subarray(2,6).toString()):null,
+    declaredLength:headerValid?Number(h.subarray(6,12).toString()):null,
+    retCode:headerValid?Number(h.subarray(12,14).toString()):null,
+    remainingBodyBytes:Math.max(0,data.length-offset-14)};
+}
 export function encodePacket(code,fields=[],ret=0){
   if(!Number.isInteger(code)||code<0||code>9999||!Number.isInteger(ret)||ret<0||ret>99)throw fault('invalid_header');
   if(fields.some(x=>typeof x!=='string'||x.includes('\f')))throw fault('invalid_field');
@@ -12,17 +22,18 @@ export function encodePacket(code,fields=[],ret=0){
 }
 export function decodePackets(input){
   const data=Buffer.from(input);
-  if(data.length>MAX_PACKET_BYTES||data.length<15)throw fault('invalid_packet_size');
   const packets=[];let offset=0;
+  const fail=code=>{throw Object.assign(fault(code),{diagnostic:packetDiagnostic(data,offset)})};
+  if(data.length>MAX_PACKET_BYTES||data.length<14)fail('invalid_packet_size');
   while(offset<data.length){
-    if(packets.length>=128||offset+14>data.length)throw fault('invalid_packet_size');
+    if(packets.length>=128||offset+14>data.length)fail('invalid_packet_size');
     const h=data.subarray(offset,offset+14);
-    if(h[0]!==27||h[1]!==9||!/^\d{12}$/.test(h.subarray(2).toString('ascii')))throw fault('invalid_header');
+    if(!packetDiagnostic(data,offset).headerValid)fail('invalid_header');
     const length=Number(h.subarray(6,12).toString()),end=offset+14+length;
-    if(length<1||end>data.length)throw fault('invalid_packet_length');
-    let body;try{body=utf8.decode(data.subarray(offset+14,end))}catch{throw fault('invalid_utf8')}
-    if(!body.startsWith('\f')||!body.endsWith('\f'))throw fault('invalid_field_boundary');
-    packets.push({code:Number(h.subarray(2,6).toString()),ret:Number(h.subarray(12,14).toString()),fields:body==='\f'?[]:body.slice(1,-1).split('\f'),bytes:data.subarray(offset,end)});
+    if(end>data.length)fail('invalid_packet_length');
+    let body;try{body=utf8.decode(data.subarray(offset+14,end))}catch{fail('invalid_utf8')}
+    if(length>0&&(!body.startsWith('\f')||!body.endsWith('\f')))fail('invalid_field_boundary');
+    packets.push({code:Number(h.subarray(2,6).toString()),ret:Number(h.subarray(12,14).toString()),fields:length===0||body==='\f'?[]:body.slice(1,-1).split('\f'),bytes:data.subarray(offset,end)});
     offset=end;
   }
   return packets;

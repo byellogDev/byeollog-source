@@ -3,10 +3,14 @@
 연구용 수신기다. 운영 gateway에서 import하지 않으며 DB·outbox·자격증명 갱신 기능이 없다. 기존 공식 SDK의 OAuth 접속 절차와 패킷 입출력을 확인하여 Node/ws로 구현했다. Meloming/Rogi Go 소스는 반입하지 않았으며 공식 지원 SDK라고 표시하지 않는다.
 
 ```powershell
-node --test tools/soop-direct-lab/cdp-frames.test.mjs tools/soop-direct-lab/client.test.mjs tools/soop-direct-lab/sdk-parity.test.mjs
+node --test tools/soop-direct-lab/cdp-frames.test.mjs tools/soop-direct-lab/cdp-scope.test.mjs tools/soop-direct-lab/client.test.mjs tools/soop-direct-lab/sdk-parity.test.mjs
+python -B tools/soop-direct-lab/soak-controller.test.py
+python -B tools/soop-browserless-lab/soak-compare.test.py
 ```
 
 기존 `ws@8.21.0`과 Node 22를 사용한다. SDK 대조 검사는 기존 prepare 도구가 비공개 `.local`에 받은 해시 고정 SDK를 읽는다. 파일이 없으면 실패하며 건너뛰지 않는다. 후보 bundle에는 SDK가 포함되지 않는다. 자동 검사는 합성 데이터·루프백 소켓만 사용한다.
+
+실제 CDP 계약 검사는 `CHROMIUM_BINARY`, `PYTHON_BINARY`(cryptography 설치) 환경 변수를 지정하고 `node tools/soop-direct-lab/cdp-scope.integration.mjs`로 실행한다. 별도 임시 Chrome 프로필·임시 인증서·TLS 루프백 서버만 사용하며 SOOP에 접속하지 않는다. 테스트 내부의 인증서 확인 생략은 루프백 가짜 서버에만 사용하고 실제 후보 TLS 설정에는 적용하지 않는다.
 
 ## 경계
 
@@ -30,7 +34,9 @@ node --test tools/soop-direct-lab/cdp-frames.test.mjs tools/soop-direct-lab/clie
 
 세 승인 계정은 각각 기존 연결 안정과 소유자를 확인한 뒤 독립적으로 연결한다. 계정별 60초 이상 공존·프레임 1개 일치는 초기 대조 이정표이며 다른 계정의 시작을 막지 않는다. 방송 대기는 실제 연결 시간에 포함하지 않는다.
 
-방송 종료 신호도 기존 경로의 `waiting_for_live/broadcast_offline`과 독립 대조한 뒤에만 다음 방송을 기다린다. 그 외 오류는 해당 계정 중단 후 검토한다. 안전 중단을 자동으로 우회하지 않는다.
+방송 종료 신호도 최대 180초 동안 신선한 기존 경로의 `waiting_for_live/broadcast_offline`과 독립 대조한 뒤에만 다음 방송을 기다린다. 그 외 오류는 해당 계정 중단 후 검토한다. 안전 중단을 자동으로 우회하지 않는다.
+
+2026-09-27: 14바이트 빈 본문 지원, 계정 URL이 확인된 단일 소켓으로 CDP requestId 고정, 양쪽 숫자 헤더 진단 및 준비 전 오류 회수를 추가했다. 원문은 보관하지 않는다. [수정·배포·검증 한계](../../docs/releases/2026-09-27-broadcast-observation-fix.md).
 
 [진행 기록](../../docs/research/2026-09-23-direct-soak.md)
 

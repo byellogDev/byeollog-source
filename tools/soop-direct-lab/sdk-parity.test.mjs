@@ -39,4 +39,12 @@ test('direct authentication bytes and business event projections match pinned SD
   const project=(e,i)=>{const classified=classifySoopChatSdkCallback({...e,receivedAt:'2026-09-23T00:00:00Z',connection:{id:'synthetic-connection',sequence:i+1,reconnectCount:0}});return classified.kind==='event'?JSON.parse(JSON.stringify({kind:classified.kind,event:classified.value.relay.event,type:classified.value.relay.eventType})):JSON.parse(JSON.stringify(classified))};
   cases.forEach((f,i)=>{const direct=contentEvent(decodePackets(encodePacket(f.code,f.fields))[0],{broadcasterId:'lab0'});assert.deepEqual(project(direct,i),project(messages[i],i),f.name+' '+f.fields[3])});
   assert.deepEqual(errors,[]);
+  // Build independent wire headers: encodePacket emits a 15-byte keepalive and
+  // previously hid the zero-body contract used by the provider.
+  const empty=code=>Buffer.from('\x1b\t'+String(code).padStart(4,'0')+'00000000');
+  for(const code of [0,88])assert.equal(decodePackets(empty(code))[0].code,code);
+  upstream.send(empty(0));upstream.send(encodePacket(5,fixtures()[0].fields));
+  await until(()=>messages.length===cases.length+1);
+  upstream.send(empty(88));await until(()=>requests.length===2);
+  assert.deepEqual(errors,[]);
 });

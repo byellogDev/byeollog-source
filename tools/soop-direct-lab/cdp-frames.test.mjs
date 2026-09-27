@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
 import vm from 'node:vm';
 import {encodePacket,decodePackets,MAX_PACKET_BYTES} from './protocol.mjs';
 import {readCdpPackets} from './cdp-frames.mjs';
@@ -31,7 +30,14 @@ test('malformed application packets remain errors with metadata, never content',
  const marker='private-example-do-not-log';
  const result=readCdpPackets({opcode:1,payloadData:marker});
  assert.equal(result.error.code,'invalid_header');assert.equal(result.error.byteLength,marker.length);
- assert.ok(!JSON.stringify(result).includes(marker));assert.deepEqual(Object.keys(result.error).sort(),['byteLength','code','opcode','payloadChars']);
+ assert.ok(!JSON.stringify(result).includes(marker));assert.equal(result.error.headerValid,false);assert.equal(result.error.serviceCode,null);assert.equal(result.error.packetOffset,0);
+});
+
+test('binary 14-byte broadcast end is decoded with no payload leak and malformed length records its header',()=>{
+ const b=Buffer.from('\x1b\t008800000000');
+ const valid=readCdpPackets({opcode:2,payloadData:b.toString('base64')});assert.equal(valid.packets[0].code,88);assert.deepEqual(valid.packets[0].fields,[]);
+ b[11]=49;const bad=readCdpPackets({opcode:2,payloadData:b.toString('base64')}).error;
+ assert.equal(bad.code,'invalid_packet_length');assert.equal(bad.serviceCode,88);assert.equal(bad.declaredLength,1);assert.equal(bad.remainingBodyBytes,0);
 });
 test('invalid and unsupported CDP inputs fail closed',()=>{
  for(const [response,code] of [[{},'unsupported_opcode'],[{opcode:0,payloadData:''},'unsupported_opcode'],[{opcode:2},'invalid_payload'],[{opcode:2,payloadData:'%%%'},'invalid_base64'],[{opcode:2,payloadData:''},'invalid_packet_size']])assert.equal(readCdpPackets(response).error.code,code);
@@ -49,6 +55,4 @@ test('deployed monitor bundle executes the tested adapter and retains socket-clo
  assert.match(bundle.monitor,/const decoded=readCdpPackets\(event.params\?\.response\)/);
  assert.match(bundle.monitor,/Network.webSocketClosed/);assert.match(bundle.monitor,/halt\('original_packet_decode_failed'\)/);
  assert.doesNotMatch(bundle.monitor,/from '\.\/protocol\.mjs'/);
- const controller=fs.readFileSync(new URL('soak-controller.py',import.meta.url),'utf8');
- assert.match(controller,/kind=='original_decode_error' and source=='original'/);
 });

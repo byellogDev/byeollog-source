@@ -1,4 +1,4 @@
-import {fault,decodePackets,encodePacket,loginPacket,joinPacket,contentEvent,MAX_PACKET_BYTES} from './protocol.mjs';
+import {fault,decodePackets,encodePacket,loginPacket,joinPacket,contentEvent,MAX_PACKET_BYTES,packetDiagnostic} from './protocol.mjs';
 const CHATINFO='https://openapi.sooplive.com/broad/access/chatinfo';
 export async function loadRoom(config,{fetchImpl=fetch,signal}={}){
   if(!/^[a-z0-9_.-]{2,80}$/.test(config.broadcasterId||'')||typeof config.accessToken!=='string'||!config.accessToken.length||config.accessToken.length>8192||/[\x00-\x20\x7f]/.test(config.accessToken))throw fault('invalid_auth_config');
@@ -59,10 +59,14 @@ export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onE
     socket.on('open',safe(()=>{stage='login';lastWire=Date.now();send(loginPacket(config.accessToken))}));
     socket.on('message',safe(data=>{
       lastWire=Date.now();
-      for(const packet of decodePackets(data)){
+      let packets;try{packets=decodePackets(data)}catch(e){onReport({kind:'candidate_decode_error',code:e.code, ...e.diagnostic});throw e}
+      for(const packet of packets){
         if(finished)break;
         const {code,ret,fields}=packet;
-        if(code===88){finish('broadcast_closed');break}
+        if(code===88){
+          if(!result.ready||ret!==0)throw fault('invalid_broadcast_close');
+          onReport({kind:'broadcast_signal',...packetDiagnostic(packet.bytes)});finish('broadcast_closed');break;
+        }
         if(code===3){finish('room_evicted');break}
         if(code===1){
           if(stage!=='login')throw fault('unexpected_login_ack');
@@ -78,7 +82,7 @@ export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onE
         }
         if(!result.ready)throw fault('content_before_ready');
         onFrame(packet);
-        const event=contentEvent(packet,room);
+        let event;try{event=contentEvent(packet,room)}catch(e){onReport({kind:'candidate_decode_error',code:e.code,...packetDiagnostic(packet.bytes)});throw e}
         if(event){sequence++;result.counts[event.action]=(result.counts[event.action]||0)+1;onEvent({...event,room:{bjId:room.broadcasterId,chatNumber:room.chatNumber},sequence,receivedAt:new Date().toISOString()})}
         else if(!(code in result.unknownCodes)&&Object.keys(result.unknownCodes).length>=128)throw fault('unknown_code_capacity');
         else result.unknownCodes[code]=(result.unknownCodes[code]||0)+1;

@@ -17,5 +17,5 @@ export function readCdpPackets(response){
   const bytes=Buffer.from(payload,opcode===1?'utf8':'base64');
   diagnostic.byteLength=bytes.length;
   try{return {packets:decodePackets(bytes),control:false}}
-  catch(error){return failed(PARSE_ERRORS.has(error?.code)?error.code:'packet_decode_failed')}
+  catch(error){return {packets:[],error:{...diagnostic,...error.diagnostic,code:PARSE_ERRORS.has(error?.code)?error.code:'packet_decode_failed'}}}
 }

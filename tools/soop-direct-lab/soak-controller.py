@@ -23,7 +23,9 @@ def original_state(workspace):
     state = json.loads(command(["docker","exec",PROD,"cat","/var/lib/byeollog/worker-state.json"]))
     tag = hashlib.sha256(workspace.encode()).hexdigest()[:12]
     channel = next((c for c in state["channels"] if c["workspace"] == tag), {})
-    return {"state": channel.get("state"), "lastErrorCode": channel.get("lastErrorCode"),
+    heartbeat = datetime.datetime.fromisoformat(state['heartbeatAt'].replace('Z','+00:00')).timestamp()
+    fresh = 0 <= time.time()-heartbeat <= 45
+    return {"state": channel.get("state") if fresh else None, "lastErrorCode": channel.get("lastErrorCode") if fresh else 'original_state_stale',
             "pending": state["queue"]["pending"], "deadLetters": state["queue"]["deadLetters"]}
 
 def resource(names):
@@ -46,6 +48,26 @@ class Evidence:
             raise RuntimeError("evidence_capacity_exceeded")
         with self.path.open('a',encoding='utf-8') as f:
             f.write(json.dumps(record,separators=(',',':'))+'\n')
+
+def safe_packet_diagnostic(event):
+    limits={'opcode':15,'payloadChars':100000,'byteLength':1000000,'packetOffset':65536,'serviceCode':9999,'declaredLength':999999,'retCode':99,'remainingBodyBytes':1000000}
+    details={k:event.get(k) if type(event.get(k)) is int and 0<=event[k]<=limit else None for k,limit in limits.items()}
+    details['headerValid']=event.get('headerValid') if type(event.get('headerValid')) is bool else None
+    codes={'invalid_packet_size','invalid_header','invalid_packet_length','invalid_utf8','invalid_field_boundary','unsupported_opcode','invalid_payload','invalid_base64','packet_decode_failed','content_rejected','missing_event_fields','invalid_donation_count','invalid_mission_json','unknown_mission_type','invalid_image_key','event_owner_mismatch','invalid_actor'}
+    if 'code' in event:details['code']=event['code'] if event['code'] in codes else 'packet_decode_failed'
+    return details
+
+def confirm_broadcast_offline(target,evidence,timeout=180):
+    """Allow asynchronous original teardown/401 recovery to settle, never guess offline."""
+    until=time.monotonic()+timeout;last=None
+    while not STOP.is_set():
+        current=original_state(target['workspaceId'])
+        if current['state']=='waiting_for_live' and current['lastErrorCode']=='broadcast_offline':
+            evidence.emit('broadcast_ended',original=current);return True
+        if current!=last:evidence.emit('waiting_for_broadcast_confirmation',original=current);last=current
+        if time.monotonic()>=until:return False
+        STOP.wait(min(5,max(0,until-time.monotonic())))
+    return False
 
 def finalize_comparison(comparison, report, end_ms):
     comparison.expire(end_ms, final=True)
@@ -77,6 +99,19 @@ def session(target, bundle, end, evidence):
     ready_since = None
     initial_comparison_recorded = False
     salt = secrets.token_hex(32)
+    def metadata(source,event):
+        kind=event.get('kind')
+        if (source,kind) in [('original','original_decode_error'),('candidate','candidate_decode_error')]:
+            evidence.emit(kind,**safe_packet_diagnostic(event));return True
+        if kind=='broadcast_signal' and source in ['original','candidate']:
+            details=safe_packet_diagnostic(event)
+            if details['headerValid'] is True and details['serviceCode']==88 and details['retCode']==0:
+                report.setdefault('broadcastSignals',{})[source]=True
+                evidence.emit('broadcast_signal',source=source,**details)
+            return True
+        if kind=='socket_scope' and source=='original':
+            evidence.emit('socket_scope',verified=event.get('verified') is True);return True
+        return False
     def start(source,args,data):
         p = subprocess.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,bufsize=1)
         processes.append(p)
@@ -162,12 +197,7 @@ def session(target, bundle, end, evidence):
                 report['ready']=True;ready_since=now;comparison=Comparison(int(time.time()*1000));evidence.emit('ready')
             elif kind in ['telemetry','original_health']:
                 evidence.emit(kind,**{k:v for k,v in event.items() if k not in ['kind','at']})
-            elif kind=='original_decode_error' and source=='original':
-                # Allowlist numeric metadata and fixed parser codes only.
-                codes={'invalid_packet_size','invalid_header','invalid_packet_length','invalid_utf8','invalid_field_boundary','unsupported_opcode','invalid_payload','invalid_base64','packet_decode_failed'}
-                details={k:event.get(k) if type(event.get(k)) is int else None for k in ['opcode','payloadChars','byteLength']}
-                details['code']=event.get('code') if event.get('code') in codes else 'packet_decode_failed'
-                evidence.emit('original_decode_error',**details)
+            elif metadata(source,event):pass
             elif kind=='abort':
                 end_at=int(time.time()*1000)
                 report['reason']=event['reason'];break
@@ -175,7 +205,7 @@ def session(target, bundle, end, evidence):
                 end_at=int(time.time()*1000)
                 report.update(reason=event.get('reason'),candidateCounts=event.get('counts',{}))
                 evidence.emit('candidate_result',ready=event.get('ready'),reason=event.get('reason'),stage=event.get('stage'),counts=event.get('counts',{}),transport=event.get('transport',{}),unmappedCodeCounts=event.get('unknownCodes',{}))
-                if report['reason']!='duration_reached':break
+                break
             elif kind=='monitor_done':
                 end_at=end_at or int(time.time()*1000)
                 report['after']=event.get('after');break
@@ -197,6 +227,7 @@ def session(target, bundle, end, evidence):
         report['reason']=reason if reason.replace('_','').isalnum() and len(reason)<70 else 'supervisor_error'
     finally:
         end_at=end_at or int(time.time()*1000)
+        report['observationEndedAt']=datetime.datetime.fromtimestamp(end_at/1000,datetime.timezone.utc).isoformat()
         for p in processes:
             try:p.stdin.close()
             except Exception:pass
@@ -213,16 +244,17 @@ def session(target, bundle, end, evidence):
             try:p.wait(timeout=6)
             except subprocess.TimeoutExpired:p.terminate()
         for thread in readers:thread.join(timeout=1)
+        # Preserve diagnostics even when failure happened before candidate ready.
+        # Processes are closed first so draining cannot extend shutdown forever.
+        outside={'original':0,'candidate':0}
+        for _ in range(5000):
+            try:source,event=events.get_nowait()
+            except queue.Empty:break
+            metadata(source,event)
+            if comparison and event.get('kind')=='frame':
+                if event['at'] < end_at:comparison.add(source,event)
+                else:outside[source]+=1
         if comparison:
-            # Processes are closed before draining so a busy room cannot extend
-            # shutdown indefinitely. Evidence after the common end is separate.
-            outside={'original':0,'candidate':0}
-            for _ in range(5000):
-                try:source,event=events.get_nowait()
-                except queue.Empty:break
-                if event.get('kind')=='frame':
-                    if event['at'] < end_at:comparison.add(source,event)
-                    else:outside[source]+=1
             report['outsideCommonWindow']=outside
             finalize_comparison(comparison,report,end_at)
             if overflow.is_set() or not events.empty() or any(t.is_alive() for t in readers):
@@ -252,17 +284,15 @@ def campaign(target,bundle,end):
             if result['reason']=='supervisor_stopped':break
             if result['reason']=='campaign_complete' and end is not None:break
             if result['reason']=='duration_reached' or (result['reason']=='campaign_complete' and end is None):
-                evidence.emit('renewal_gap',reason='bounded_session_or_provider_expiry');STOP.wait(60);continue
+                evidence.emit('renewal_gap',reason='bounded_session_or_provider_expiry');STOP.wait(5);continue
             if result['reason']=='original_not_ready':STOP.wait(60);continue
             if result['reason']=='observation_token_wait':
                 evidence.emit('waiting_for_token',reason='operating_collector_owns_refresh');STOP.wait(60);continue
             # Only an independently observed offline broadcast can restart
             # automatically. Unexpected original/candidate failure halts this target.
-            if result['reason'] in ['original_socket_closed','original_state_changed','original_room_changed','socket_closed','broadcast_closed','broadcast_offline']:
-                STOP.wait(20)
-                current=original_state(target['workspaceId'])
-                if current['state']=='waiting_for_live' and current['lastErrorCode']=='broadcast_offline':
-                    evidence.emit('broadcast_ended',original=current);STOP.wait(60);continue
+            if result['reason'] in ['original_socket_closed','original_state_changed','original_room_changed','socket_closed','broadcast_closed','original_broadcast_closed','broadcast_offline','auth_rejected']:
+                if confirm_broadcast_offline(target,evidence):STOP.wait(5);continue
+                if STOP.is_set():break
             evidence.emit('needs_review',reason=result['reason']);return
         evidence.emit('campaign_finished',stopped=STOP.is_set())
     except Exception:

@@ -32,23 +32,36 @@ try{
   const targets=await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
   const expression=`(()=>{if(typeof chats==='undefined'||chats.size!==1)return false;return [...chats.values()].every(s=>{try{return s.isReady()&&s.getRoomInfo().bjId===${JSON.stringify(lease.providerAccountId)}}catch{return false}})})()`;
   for(const target of targets.filter(t=>t.type==='page')){
-    let attached=false;const client=cdpClient(target.webSocketDebuggerUrl,event=>{
+    let attached=false;const scope=createSocketScope(lease.providerAccountId);const client=cdpClient(target.webSocketDebuggerUrl,event=>{
       if(!attached||ended)return;
-      if(event.method==='Network.webSocketClosed'||event.method==='Inspector.detached')halt('original_socket_closed');
+      if(event.method==='Inspector.detached'){halt('original_observer_disconnected');return}
+      if(!['Network.webSocketCreated','Network.webSocketFrameReceived','Network.webSocketClosed','Network.webSocketFrameError','Network.webSocketFrameSent'].includes(event.method))return;
+      try{if(!scope.accept(event))return}catch(e){halt(e.message);return}
+      if(event.method==='Network.webSocketClosed'){halt('original_socket_closed');return}
+      if(event.method==='Network.webSocketFrameError'){halt('original_socket_error');return}
       if(event.method==='Network.webSocketFrameReceived'){
         const decoded=readCdpPackets(event.params?.response);
         if(decoded.error){out({kind:'original_decode_error',...decoded.error});halt('original_packet_decode_failed');return}
-        for(const p of decoded.packets)if(CONTENT_CODES.includes(p.code))out({kind:'frame',code:p.code,at:Date.now(),digest:crypto.createHmac('sha256',salt).update(p.bytes).digest('hex')});
+        for(const p of decoded.packets){
+          if(p.code===88&&p.ret===0){out({kind:'broadcast_signal',...packetDiagnostic(p.bytes)});halt('original_broadcast_closed');break}
+          if(CONTENT_CODES.includes(p.code))out({kind:'frame',code:p.code,at:Date.now(),digest:crypto.createHmac('sha256',salt).update(p.bytes).digest('hex')});
+        }
       }
     },()=>{if(attached&&!ended)halt('original_observer_disconnected')});
     const result=await client.send('Runtime.evaluate',{expression,returnByValue:true});
-    if(result.result?.value===true){selected=client;await client.send('Network.enable');attached=true;break}
+    if(result.result?.value===true){
+      selected=client;attached=true;await client.send('Network.enable');
+      scope.authorize(await inspectSocketInventory(client,lease.providerAccountId));
+      if(ended)throw Error('original_not_ready');
+      out({kind:'socket_scope',verified:true});break;
+    }
     client.close();
   }
   if(!selected)throw Error('original_target_not_found');
   const expiry=Date.parse(lease.providerTokenExpiresAt||'');
   const durationMs=Math.min(Number(config.durationMs),expiry-Date.now()-60000);
-  if(!Number.isFinite(durationMs)||durationMs<60000)throw Error('provider_expiry_too_close');
+  if(!Number.isFinite(durationMs))throw Error('provider_expiry_invalid');
+  if(durationMs<60000)throw Error('observation_token_wait');
   // Sensitive fields are consumed only by the remote controller pipe, never logged.
   out({kind:'private_config',config:{clientId:lease.clientId,clientSecret:lease.clientSecret,accessToken:lease.accessToken,broadcasterId:lease.providerAccountId,salt,durationMs}});
   out({kind:'monitor_ready',before:{state:before.channel.state,pending:before.pending,deadLetters:before.deadLetters}});
