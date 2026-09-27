@@ -11,6 +11,66 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Initialize-AgentShellLink {
+    if ('Byeollog.InstallerShellLink' -as [type]) { return }
+    # Use the Unicode Shell Link interface for both filenames and target paths.
+    # WScript.Shell.Save loses Korean filenames on non-Korean Windows locales.
+    Add-Type -TypeDefinition @'
+using System;
+using System.IO;
+using System.Text;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+namespace Byeollog {
+    [ComImport, Guid("00021401-0000-0000-C000-000000000046")]
+    internal class ShellLinkObject { }
+    [ComImport, Guid("000214F9-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    internal interface IShellLinkW {
+        void GetPath([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder value, int size, IntPtr findData, uint flags);
+        void GetIDList(out IntPtr value);
+        void SetIDList(IntPtr value);
+        void GetDescription([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder value, int size);
+        void SetDescription([MarshalAs(UnmanagedType.LPWStr)] string value);
+        void GetWorkingDirectory([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder value, int size);
+        void SetWorkingDirectory([MarshalAs(UnmanagedType.LPWStr)] string value);
+        void GetArguments([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder value, int size);
+        void SetArguments([MarshalAs(UnmanagedType.LPWStr)] string value);
+        void GetHotkey(out short value);
+        void SetHotkey(short value);
+        void GetShowCmd(out int value);
+        void SetShowCmd(int value);
+        void GetIconLocation([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder value, int size, out int index);
+        void SetIconLocation([MarshalAs(UnmanagedType.LPWStr)] string value, int index);
+        void SetRelativePath([MarshalAs(UnmanagedType.LPWStr)] string value, uint reserved);
+        void Resolve(IntPtr window, uint flags);
+        void SetPath([MarshalAs(UnmanagedType.LPWStr)] string value);
+    }
+    public static class InstallerShellLink {
+        public static void Save(string filename, string target, string description) {
+            object instance = new ShellLinkObject();
+            try {
+                var link = (IShellLinkW)instance;
+                link.SetPath(Path.GetFullPath(target));
+                link.SetWorkingDirectory(Path.GetDirectoryName(Path.GetFullPath(target)));
+                link.SetIconLocation(Path.GetFullPath(target), 0);
+                link.SetDescription(description);
+                ((IPersistFile)instance).Save(Path.GetFullPath(filename), true);
+            } finally { Marshal.FinalReleaseComObject(instance); }
+        }
+        public static string ReadTarget(string filename) {
+            object instance = new ShellLinkObject();
+            try {
+                ((IPersistFile)instance).Load(Path.GetFullPath(filename), 0);
+                var target = new StringBuilder(32768);
+                ((IShellLinkW)instance).GetPath(target, target.Capacity, IntPtr.Zero, 4);
+                return target.ToString();
+            } finally { Marshal.FinalReleaseComObject(instance); }
+        }
+    }
+}
+'@
+}
+
 try {
     $utilityManifest = Join-Path $PSHOME "Modules\Microsoft.PowerShell.Utility\Microsoft.PowerShell.Utility.psd1"
     if (Test-Path -LiteralPath $utilityManifest -PathType Leaf) {
@@ -52,10 +112,9 @@ try {
         if ($DesktopShortcut) {
             $desktopPath = [Environment]::GetFolderPath('DesktopDirectory')
             $shortcutPath = Join-Path $desktopPath '별록 풍벽지.lnk'
-            $shell = New-Object -ComObject WScript.Shell
+            Initialize-AgentShellLink
             if (Test-Path -LiteralPath $shortcutPath) {
-                $existingShortcut = $shell.CreateShortcut($shortcutPath)
-                $existingTarget = [IO.Path]::GetFullPath([string]$existingShortcut.TargetPath)
+                $existingTarget = [IO.Path]::GetFullPath([Byeollog.InstallerShellLink]::ReadTarget($shortcutPath))
                 if (-not $existingTarget.StartsWith($installedRoot + '\', [StringComparison]::OrdinalIgnoreCase)) {
                     $shortcutIndex = 1
                     do {
@@ -64,12 +123,7 @@ try {
                     } while (Test-Path -LiteralPath $shortcutPath)
                 }
             }
-            $shortcut = $shell.CreateShortcut($shortcutPath)
-            $shortcut.TargetPath = $installedExe
-            $shortcut.WorkingDirectory = Split-Path -Parent $installedExe
-            $shortcut.IconLocation = $installedExe + ',0'
-            $shortcut.Description = '별록 풍벽지 실행'
-            $shortcut.Save()
+            [Byeollog.InstallerShellLink]::Save($shortcutPath, $installedExe, '별록 풍벽지 실행')
         }
         if ($ResultPath) { [IO.File]::WriteAllText($ResultPath,$installedExe,[Text.Encoding]::Unicode) }
     }

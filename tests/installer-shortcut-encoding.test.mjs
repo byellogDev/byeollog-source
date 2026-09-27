@@ -12,17 +12,31 @@ test('Windows PowerShell 5.1 parses and saves the Korean installer shortcut', {s
   try {
     const runner=path.join(root,'check.ps1');
     await writeFile(runner,`param([string]$Source,[string]$Destination)
+$ErrorActionPreference='Stop'
 $tokens=$null;$errors=$null
 $ast=[System.Management.Automation.Language.Parser]::ParseFile($Source,[ref]$tokens,[ref]$errors)
 if($errors.Count){throw 'parse failed'}
 $name=$ast.FindAll({param($a) $a -is [System.Management.Automation.Language.StringConstantExpressionAst] -and $a.Value.EndsWith('.lnk')},$true)[0].Value
 $expected=-join (@(48324,47197,32,54413,48317,51648,46,108,110,107)|ForEach-Object{[char]$_})
 if($name -cne $expected){throw 'shortcut name corrupted'}
-$shell=New-Object -ComObject WScript.Shell
-$link=$shell.CreateShortcut((Join-Path $Destination $name))
-$link.TargetPath=Join-Path $env:WINDIR 'System32\\notepad.exe'
-$link.Save()
-if(!(Test-Path -LiteralPath (Join-Path $Destination $name))){throw 'shortcut was not saved'}
+$helper=$ast.Find({param($a) $a -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $a.Name -eq 'Initialize-AgentShellLink'},$true)
+if(!$helper){throw 'installer shortcut helper missing'}
+Invoke-Expression $helper.Extent.Text
+Initialize-AgentShellLink
+# Exercise Unicode in the parent directory, filename and executable target.
+$folder=Join-Path $Destination $expected.Replace('.lnk','')
+[IO.Directory]::CreateDirectory($folder)|Out-Null
+$target=Join-Path $folder ($expected.Replace('.lnk','.exe'))
+Copy-Item -LiteralPath (Join-Path $env:WINDIR 'System32\\notepad.exe') -Destination $target
+$shortcut=Join-Path $folder $name
+[Byeollog.InstallerShellLink]::Save($shortcut,$target,$name)
+if(!(Test-Path -LiteralPath $shortcut)){throw 'shortcut was not saved'}
+if([Byeollog.InstallerShellLink]::ReadTarget($shortcut) -cne $target){throw 'shortcut target corrupted'}
+# Reading an existing foreign shortcut must return its real owner target.
+$foreign=Join-Path $folder 'foreign.lnk'
+$foreignTarget=Join-Path $env:WINDIR 'System32\\cmd.exe'
+[Byeollog.InstallerShellLink]::Save($foreign,$foreignTarget,'synthetic')
+if([Byeollog.InstallerShellLink]::ReadTarget($foreign) -ine $foreignTarget){throw 'foreign target corrupted'}
 Write-Output 'shortcut-saved'
 `, 'ascii');
     const run=filename=>spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',runner,'-Source',filename,'-Destination',root],{encoding:'utf8',windowsHide:true,timeout:20000});
