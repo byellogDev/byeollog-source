@@ -24,6 +24,8 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run verify:source
       - run: node tools/scan-publication.mjs --tracked
+      - run: npm ci --prefix tools/db-tests --ignore-scripts --no-audit --no-fund
+      - run: npm test --prefix tools/db-tests
       - run: npm test
       - run: npm run build:web
       - run: dotnet build apps/windows-agent/HurogiCollector.csproj -c Release

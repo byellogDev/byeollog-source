@@ -1,0 +1,11 @@
+{
+  "name": "byeollog-db-regressions",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test gateway-alerts.test.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.3.14"
+  }
+}
