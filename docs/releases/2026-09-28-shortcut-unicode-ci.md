@@ -16,6 +16,7 @@
 
 - `Invoke-AgentInstall.ps1`: BOM 유지. `IShellLinkW`와 `IPersistFile`로 Unicode 경로의 바로가기를 저장·읽는다. 기존 파일의 소유 대상 검사와 타 프로그램 바로가기 보존 조건은 유지한다. COM 객체는 사용 후 해제한다.
 - `installer-shortcut-encoding.test.mjs`: 설치 래퍼에 실제 포함된 helper를 실행한다. 한글 상위 폴더·바로가기 이름·실행 파일 경로에서 저장 후 대상 경로를 다시 읽고, 다른 프로그램을 가리키는 바로가기도 확인한다. BOM 제거 시 파싱 회귀 검사도 유지한다. 앱·바탕화면은 건드리지 않고 임시 폴더에서만 검사한다.
+- 첫 원격 재검사에서 Unicode 저장은 성공했으나 대상 경로의 단순 문자열 비교가 실패했다. `RUNNER~1`처럼 짧은 경로를 사용하는 환경을 로컬에서도 강제하여, 같은 파일이 긴 경로로 반환되는 경우를 재현했다(`raw-path-equal=False`, 정규화 후 동일). 검사는 `GetLongPathNameW`로 실제 존재하는 두 경로를 확장하여 비교한다. 파일명만 비교하거나 실패를 무시하지 않는다.
 - CI 워크플로·합격 기준·실패 처리·운영 배포 경로 변경 없음. 실패 검사를 삭제하거나 건너뛰지 않는다.
 
 API 근거: Microsoft [IShellLinkW](https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishelllinkw), [IPersistFile.Save](https://learn.microsoft.com/en-us/windows/win32/api/objidl/nf-objidl-ipersistfile-save).

@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 
-test('Windows PowerShell 5.1 parses and saves the Korean installer shortcut', {skip:process.platform!=='win32'}, async()=>{
+test('Windows PowerShell 5.1 parses and saves the Korean installer shortcut', {skip:process.platform!=='win32'}, async(t)=>{
   const source=await readFile(new URL('../apps/web/installer/Invoke-AgentInstall.ps1',import.meta.url));
   assert.equal(source.subarray(0,3).toString('hex'),'efbbbf','Windows PowerShell requires a UTF-8 BOM for Korean literals');
   const root=await mkdtemp(path.join(tmpdir(),'byeollog-shortcut-test-'));
@@ -23,6 +23,29 @@ $helper=$ast.Find({param($a) $a -is [System.Management.Automation.Language.Funct
 if(!$helper){throw 'installer shortcut helper missing'}
 Invoke-Expression $helper.Extent.Text
 Initialize-AgentShellLink
+Add-Type -TypeDefinition @'
+using System;
+using System.Text;
+using System.Runtime.InteropServices;
+public static class ShortcutTestPaths {
+ [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
+ static extern uint GetLongPathName(string value, StringBuilder result, uint size);
+ [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
+ static extern uint GetShortPathName(string value, StringBuilder result, uint size);
+ public static string Canonical(string value) {
+  var b=new StringBuilder(32768); uint n=GetLongPathName(value,b,(uint)b.Capacity);
+  if(n==0 || n>=b.Capacity)throw new System.ComponentModel.Win32Exception();
+  return b.ToString();
+ }
+ public static string Short(string value) {
+  var b=new StringBuilder(32768); uint n=GetShortPathName(value,b,(uint)b.Capacity);
+  if(n==0 || n>=b.Capacity)throw new System.ComponentModel.Win32Exception();
+  return b.ToString();
+ }
+}
+'@
+# Hosted Windows can use RUNNER~1 in TEMP; exercise 8.3 paths locally too.
+$Destination=[ShortcutTestPaths]::Short($Destination)
 # Exercise Unicode in the parent directory, filename and executable target.
 $folder=Join-Path $Destination $expected.Replace('.lnk','')
 [IO.Directory]::CreateDirectory($folder)|Out-Null
@@ -31,12 +54,14 @@ Copy-Item -LiteralPath (Join-Path $env:WINDIR 'System32\\notepad.exe') -Destinat
 $shortcut=Join-Path $folder $name
 [Byeollog.InstallerShellLink]::Save($shortcut,$target,$name)
 if(!(Test-Path -LiteralPath $shortcut)){throw 'shortcut was not saved'}
-if([Byeollog.InstallerShellLink]::ReadTarget($shortcut) -cne $target){throw 'shortcut target corrupted'}
+$actual=[Byeollog.InstallerShellLink]::ReadTarget($shortcut)
+if([ShortcutTestPaths]::Canonical($actual) -ine [ShortcutTestPaths]::Canonical($target)){throw ('shortcut target corrupted: '+$actual+' vs '+$target)}
 # Reading an existing foreign shortcut must return its real owner target.
 $foreign=Join-Path $folder 'foreign.lnk'
 $foreignTarget=Join-Path $env:WINDIR 'System32\\cmd.exe'
 [Byeollog.InstallerShellLink]::Save($foreign,$foreignTarget,'synthetic')
-if([Byeollog.InstallerShellLink]::ReadTarget($foreign) -ine $foreignTarget){throw 'foreign target corrupted'}
+if([ShortcutTestPaths]::Canonical([Byeollog.InstallerShellLink]::ReadTarget($foreign)) -ine [ShortcutTestPaths]::Canonical($foreignTarget)){throw 'foreign target corrupted'}
+Write-Output ('raw-path-equal='+($actual -ceq $target))
 Write-Output 'shortcut-saved'
 `, 'ascii');
     const run=filename=>spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',runner,'-Source',filename,'-Destination',root],{encoding:'utf8',windowsHide:true,timeout:20000});
@@ -48,6 +73,7 @@ Write-Output 'shortcut-saved'
     const result=run(fixed);
     assert.equal(result.status,0,result.stderr);
     assert.match(result.stdout,/shortcut-saved/);
+    t.diagnostic(result.stdout.trim());
   } finally {
     assert.equal(path.dirname(path.resolve(root)),path.resolve(tmpdir()));
     assert.ok(path.basename(root).startsWith('byeollog-shortcut-test-'));
