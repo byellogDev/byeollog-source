@@ -6073,9 +6073,9 @@
       "path": "frontend/vercel.json",
       "target": "apps/web/vercel.json",
       "before": "441393356a2d54e49f90ef0fe15e225c168230527e44c0f8bb100dc9996c467d",
-      "after": "1b32f64717b6bcd164e6786564a180b71971a9b4e6910b8b75072451ab506de9",
+      "after": "42de09fce944424558f823ffccf5c8ff7731b53590d6bc55650a51df62d79a75",
       "status": "changed",
-      "release": "2026.09.23.2"
+      "release": "2026.09.28-installer-shortcut-r2"
     },
     {
       "path": "agent-source/CollectorLoginWebForm.cs",

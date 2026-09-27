@@ -2,6 +2,11 @@
 
 각 버전의 목적·수정·검증·사용자 영향은 별도 릴리스 문서에 기록합니다. Windows Agent 버전과 전체 서비스 릴리스 번호는 별개입니다.
 
+## 2026.09.28-installer-r2 — 바로가기 수정 설치 EXE 배포
+
+- Unicode 바로가기 수정이 포함된 1.0.0.41-r2 온라인 설치 EXE를 게시하고 공식 다운로드에 반영했습니다. 기존 EXE·Agent ZIP·서명 feed는 유지합니다.
+- 새 EXE 검증 모드·Windows 바로가기 검사·공개 다운로드 해시·후보/운영 647개 소스 대조·HTTP 7개 경로 확인을 통과했습니다. 타 PC 실제 설치와 Defender 차단 해제는 미검증입니다. [검증·배포 범위·복구](docs/releases/2026-09-28-installer-r2.md).
+
 ## 2026.09.28-shortcut-unicode-ci — Windows 바로가기 저장·CI 실패 수정
 
 - GitHub Windows에서 한글 이름 파싱 후 바로가기 저장이 실패한 1건을 확인하고 Unicode Shell Link API로 읽기·쓰기를 변경했습니다.

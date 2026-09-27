@@ -44,3 +44,5 @@ API 근거: Microsoft [IShellLinkW](https://learn.microsoft.com/en-us/windows/wi
 ## 관련 PR·커밋·이전 버전
 
 [PR #4](https://github.com/byellogDev/byeollog/pull/4)에 코드·검사·이 문서를 함께 커밋한다. 이전 BOM 수정 커밋은 `b462243`, 실패가 보고된 연구 커밋은 `916f7a2`다. 이번 수정은 연구 후보 재배포를 수반하지 않는다.
+
+후속: [2026-09-28 설치 EXE r2 빌드·운영 배포](2026-09-28-installer-r2.md). 위의 미배포 표시는 당시 상태다.

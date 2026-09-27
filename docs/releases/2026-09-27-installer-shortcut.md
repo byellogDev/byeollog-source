@@ -48,3 +48,5 @@ Windows PowerShell 5.1이 BOM 없는 UTF-8 래퍼를 로컬 코드 페이지로 
 
 - [PR #4](https://github.com/byellogDev/byeollog/pull/4): 소스 수정 기록이며 운영 완료를 의미하지 않음.
 - [Agent 1.0.0.41](2026-09-23-agent-login-video.md).
+
+후속: [2026-09-28 설치 EXE r2 빌드·운영 배포](2026-09-28-installer-r2.md). 위의 미배포 표시는 당시 상태다.
