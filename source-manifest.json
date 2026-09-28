@@ -6089,9 +6089,9 @@
       "path": "agent-source/HurogiCollector.csproj",
       "target": "apps/windows-agent/HurogiCollector.csproj",
       "before": "beb25b35be068cd822e2687c7ff2693f464704a35da8947f872e538c0fd27ab9",
-      "after": "b274e47d8767986983a4ee886e2671db63d660c406eb75e542caa2a6e1ef5cd6",
+      "after": "b86a723a2470083332b65a4edd7fcca85638265ffe8822bf65fcd672ea77a97c",
       "status": "changed",
-      "release": "2026.09.29-agent-1.0.0.42"
+      "release": "2026.09.29-wallpaper-baekdusan"
     },
     {
       "path": "agent-source/Ui/byeollog_ui.html",
@@ -6314,8 +6314,48 @@
       "target": "apps/windows-agent/Ui/wallpaper_editor.html",
       "before": "f63326b184d93fb0d7f1e84cd432d5bcf6bc4e2974eec5681984da73d861e487",
       "status": "changed",
-      "after": "73e09d734cb0840b5fc384bba88e8055bbab9a6dc2ba3b81794a0ba3c0f72daa",
-      "release": "2026.09.29-wallpaper-editor-controls"
+      "after": "94d5a328b57dbdab2651c60479b3befe99f1c99d9e5ed5c7ed09b8bff104a959",
+      "release": "2026.09.29-wallpaper-baekdusan"
+    },
+    {
+      "path": "components/admin-runtime/lib/agent-wallpaper-control.js",
+      "target": "apps/admin-runtime/lib/agent-wallpaper-control.js",
+      "before": "187a9a0398d152e8057bce08e493d0a93c19be74eec976bd0e86be22aa6f828a",
+      "status": "changed",
+      "after": "e75fcc353edd18bcd96c6cdc53d1d7dc0388b01cd432582e9c332216ce70ab50",
+      "release": "2026.09.29-wallpaper-baekdusan"
+    },
+    {
+      "path": "agent-source/ByeollogOverlayService.cs",
+      "target": "apps/windows-agent/ByeollogOverlayService.cs",
+      "before": "7469c2f4ef2038995cf369d433c430e0ba302459f0b91cb3246a8e2c3cb11b99",
+      "status": "changed",
+      "after": "9fed4f1ca2a8319a128610b5c1c3d800bbbd500ace55034137191046b104c690",
+      "release": "2026.09.29-wallpaper-baekdusan"
+    },
+    {
+      "path": "agent-source/UiAssetStore.cs",
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "2f6b88da1658f7b78bef35a80a3ec1df4258cb04e1126ef00e44c286dc409c73",
+      "status": "changed",
+      "after": "764347000b8a90564e0aec0982d6272a69374774d747a2121e3d551106ef094e",
+      "release": "2026.09.29-wallpaper-baekdusan"
+    },
+    {
+      "path": "agent-source/WallpaperEditorCoordinator.cs",
+      "target": "apps/windows-agent/WallpaperEditorCoordinator.cs",
+      "before": "aa3c6e7fc10f781355581811a39a397c3a4aec6d8504c57b24f2d2b432468e08",
+      "status": "changed",
+      "after": "cea0c68a9226d39b22bf5dc02bded2faf192401373fe2678953e43a431315469",
+      "release": "2026.09.29-wallpaper-baekdusan"
+    },
+    {
+      "path": "agent-source/WallpaperOverlayState.cs",
+      "target": "apps/windows-agent/WallpaperOverlayState.cs",
+      "before": "e354645efdc3bf153291c220e984e61972ef51668f49eacecdc93c48fbca7fba",
+      "status": "changed",
+      "after": "4c66e182183a7f59e49f8a12b4f19bf0a70af4e2028e8471d8c2cf60f701e59b",
+      "release": "2026.09.29-wallpaper-baekdusan"
     }
   ]
 }

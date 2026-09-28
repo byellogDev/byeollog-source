@@ -43,6 +43,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
     internal static readonly TimeSpan MinimumEventRefreshInterval = TimeSpan.FromSeconds(15);
     internal static readonly TimeSpan BackupInterval = TimeSpan.FromMinutes(1);
     internal event Action? StateChanged;
+    internal WallpaperBaekdusan Baekdusan { get; }
 
     internal WallpaperEditorCoordinator(
         Func<bool> isSignedIn,
@@ -60,6 +61,8 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
         _wallpaper = wallpaper;
         _cachePath = Path.Combine(rootPath, "wallpaper-editor-cache-v1.json");
         _log = log;
+        Baekdusan = new WallpaperBaekdusan(rootPath, _isSignedIn, _sendControl, () => StateChanged?.Invoke());
+        _wallpaper.BaekdusanView = () => Baekdusan.View;
         if (scheduleInitialBackup) ScheduleBackup();
     }
 
@@ -82,7 +85,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
                         || Volatile.Read(ref _refreshRequested) > Volatile.Read(ref _refreshCompleted)))
                     ScheduleRefresh();
                 ScheduleBackup();
-                return cached.Value;
+                return Baekdusan.Decorate(cached.Value);
             }
         }
         finally { _gate.Release(); }
@@ -92,16 +95,17 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
         try
         {
             cached = LoadCache();
-            if (cached is not null) return cached.Value;
+            if (cached is not null) return Baekdusan.Decorate(cached.Value);
             var fallback = BuildFallbackState();
             await SaveCacheAsync(fallback, cancellationToken);
-            return fallback;
+            return Baekdusan.Decorate(fallback);
         }
         finally { _gate.Release(); }
     }
 
     internal void NotifyWallpaperChanged()
     {
+        Baekdusan.Notify();
         Interlocked.Increment(ref _refreshRequested);
         StateChanged?.Invoke();
     }
@@ -148,6 +152,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
                 if (ReadRevision(remote) >= _wallpaper.Revision
                     && (cached is null || ReadRevision(remote) >= ReadRevision(cached.Value)))
                 {
+                    await Baekdusan.SelectAsync(remote, cancellationToken);
                     await SaveCacheAsync(Localize(remote), cancellationToken);
                     _lastRemoteRefreshAtUtc = _clock.GetUtcNow();
                     Volatile.Write(ref _refreshCompleted, generation);
@@ -174,6 +179,11 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
             throw new InvalidDataException("풍벽지 요청이 올바르지 않습니다.");
         var action = control.TryGetProperty("action", out var actionValue)
             ? actionValue.GetString() : null;
+        if (action?.StartsWith("baekdusan-", StringComparison.Ordinal) == true)
+        {
+            var result = await Baekdusan.ControlAsync(control, cancellationToken);
+            return action == "baekdusan-log" ? result : await GetStateAsync(cancellationToken);
+        }
         if (action is "save-merge-rules" or "save-size-rules")
         {
             await _layoutGate.WaitAsync(cancellationToken);
@@ -210,7 +220,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
                     var updated = BuildFallbackState(cachedBeforeSettings);
                     await SaveCacheAsync(updated, cancellationToken);
                     ScheduleBackup();
-                    return updated;
+                    return Baekdusan.Decorate(updated);
                 }
                 finally { _gate.Release(); }
             }
@@ -276,6 +286,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
                     await _gate.WaitAsync(cancellationToken);
                     try
                     {
+                        await Baekdusan.SelectAsync(remote, cancellationToken);
                         var localized = Localize(remote);
                         await SaveCacheAsync(localized, cancellationToken);
                         _lastRemoteRefreshAtUtc = _clock.GetUtcNow();
@@ -290,7 +301,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
                         if (requestedSelection is not null)
                             _log("풍벽지 방송 회차 선택 완료 · count=" + requestedSelection.Count
                                 + " · revision=" + ReadRevision(remote));
-                        return localized;
+                        return Baekdusan.Decorate(localized);
                     }
                     finally { _gate.Release(); }
                 }
@@ -329,7 +340,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
                 await SaveCacheAsync(updated, cancellationToken);
                 if (!wasPending) _nextBackupAtUtc = _clock.GetUtcNow() + BackupInterval;
                 ScheduleBackup();
-                return updated;
+                return Baekdusan.Decorate(updated);
             }
             finally { _gate.Release(); }
         }
@@ -457,6 +468,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
 
     public void Dispose()
     {
+        Baekdusan.Dispose();
         _lifetime.Cancel();
         StateChanged = null;
         // Active tasks own these primitives until cancellation has unwound.
@@ -465,6 +477,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
     internal async Task DrainAsync()
     {
         Dispose();
+        await Baekdusan.DrainAsync();
         // Public operations link lifetime before entering any lane. No new operation
         // can enter after retirement; drain in the same order as explicit controls.
         foreach (var lane in new[] { _remoteGate, _refreshGate, _layoutGate, _gate })

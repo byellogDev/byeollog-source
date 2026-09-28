@@ -6,7 +6,7 @@ internal static class UiAssetStore
 {
     // A new directory is required whenever an embedded UI changes because
     // WriteResource intentionally preserves an existing versioned cache.
-    private const string UiVersion = "v1.0.0.40";
+    private const string UiVersion = "v1.0.0.43-baekdusan";
 
     internal static string Prepare()
     {
@@ -18,6 +18,8 @@ internal static class UiAssetStore
         Directory.CreateDirectory(root);
         WriteResource("HurogiCollector.Ui.byeollog_ui.html", Path.Combine(root, "byeollog_ui.html"));
         WriteResource("HurogiCollector.Ui.agent_automation.html", Path.Combine(root, "agent_automation.html"));
+        WriteResource("HurogiCollector.Ui.wallpaper-baekdusan.js", Path.Combine(root, "wallpaper-baekdusan.js"));
+        WriteResource("HurogiCollector.Ui.wallpaper-baekdusan-editor.js", Path.Combine(root, "wallpaper-baekdusan-editor.js"));
         WriteResource("HurogiCollector.Ui.wallpaper_editor.html", Path.Combine(root, "wallpaper_editor.html"));
         WriteResource("HurogiCollector.Ui.byeollog_theme.css", Path.Combine(root, "byeollog-theme.css"));
         WriteResource("HurogiCollector.Assets.byeollog_symbol.png", Path.Combine(root, "byeollog_symbol.png"));

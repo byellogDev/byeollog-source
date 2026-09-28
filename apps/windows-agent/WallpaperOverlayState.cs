@@ -144,6 +144,28 @@ internal sealed class WallpaperOverlayState : IDisposable
         }
     }
 
+    internal Func<JsonElement>? BaekdusanView { get; set; }
+    private byte[]? _baekBaseBytes, _baekDisplayBytes;
+    private long _baekViewVersion = -1;
+    internal byte[] DisplaySnapshotBytes()
+    {
+        if (BaekdusanView is null) return SnapshotBytes();
+        var view = BaekdusanView();
+        lock (_gate)
+        {
+            if (view.GetProperty("runs").GetArrayLength() == 0) return _stateBytes.ToArray();
+            var version = view.GetProperty("version").GetInt64();
+            if (ReferenceEquals(_stateBytes, _baekBaseBytes) && version == _baekViewVersion)
+                return _baekDisplayBytes!.ToArray();
+            var root = JsonNode.Parse(_stateBytes)!.AsObject();
+            root["baekdusan"] = JsonNode.Parse(view.GetRawText());
+            root["displayRevision"] = (root["displayRevision"]?.ToString() ?? root["revision"]?.ToString() ?? "0") + ":baek:" + version;
+            _baekBaseBytes = _stateBytes; _baekViewVersion = version;
+            _baekDisplayBytes = JsonSerializer.SerializeToUtf8Bytes(root);
+            return _baekDisplayBytes.ToArray();
+        }
+    }
+
     public byte[] SnapshotBytes()
     {
         lock (_gate) return _stateBytes.ToArray();

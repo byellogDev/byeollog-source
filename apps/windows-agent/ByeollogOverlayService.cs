@@ -184,6 +184,7 @@ internal sealed class ByeollogOverlayService : IDisposable
   <div id="flashbang-stage"><img id="flashbang-asset" alt="" draggable="false"></div>
   <div id="effect-stage" data-document-revision="categorized-actions-v13"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><video id="water-vfx-video" muted playsinline preload="auto"></video><video id="fireworks-vfx-video" muted playsinline preload="auto"></video><img id="water-runoff-asset" alt="" draggable="false"><canvas id="water-flow-canvas"></canvas></div>
   <script>
+/*BAEKDUSAN_RENDERER*/
     const wallpaperCanvas = document.getElementById('wallpaper-canvas');
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
@@ -707,7 +708,9 @@ internal sealed class ByeollogOverlayService : IDisposable
       const width = Number.isInteger(state.canvasWidth) ? state.canvasWidth : 1920;
       const height = Number.isInteger(state.canvasHeight) ? state.canvasHeight : 1080;
       wallpaperResize(width, height);
-      const groups = wallpaperGroups(Array.isArray(state.tiles) ? state.tiles : [], width, height, state.sizeRanges);
+      const owned = ByeollogBaekdusan.owned(state.baekdusan);
+      const groups = wallpaperGroups((Array.isArray(state.tiles) ? state.tiles : []).filter(t => !owned.has(t.id)), width, height, state.sizeRanges);
+      ByeollogBaekdusan.render(wallpaperCanvas, state.baekdusan);
       const incomingGroups = new Set(groups.map(group => group.id));
       for (const [id, entry] of wallpaperGroupNodes) {
         if (!incomingGroups.has(id)) { entry.node.remove(); wallpaperGroupNodes.delete(id); }
@@ -925,7 +928,7 @@ internal sealed class ByeollogOverlayService : IDisposable
   </script>
 </body>
 </html>
-""");
+""".Replace("/*BAEKDUSAN_RENDERER*/", WallpaperBaekdusanRenderer.Script));
 
     private static readonly Lazy<byte[]> WaterRunoffBytes = new(
         static () =>
@@ -2438,7 +2441,7 @@ internal sealed class ByeollogOverlayService : IDisposable
                         stream,
                         200,
                         "application/json; charset=utf-8",
-                        CurrentWallpaper.SnapshotBytes(),
+                        CurrentWallpaper.DisplaySnapshotBytes(),
                         headOnly,
                         timeout.Token);
                     return;

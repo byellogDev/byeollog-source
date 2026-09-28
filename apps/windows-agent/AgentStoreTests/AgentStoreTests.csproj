@@ -16,6 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="../WallpaperBaekdusan.cs" Link="WallpaperBaekdusan.cs" />
+    <Compile Include="../WallpaperBaekdusanRenderer.cs" Link="WallpaperBaekdusanRenderer.cs" />
+    <EmbeddedResource Include="../Ui/wallpaper-baekdusan.js" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan.js" />
     <Compile Include="../NativeSqlite.cs" Link="NativeSqlite.cs" />
     <Compile Include="../VNextOverlayAssets.cs" Link="VNextOverlayAssets.cs" />
     <Compile Include="../VNextAgentStore.cs" Link="VNextAgentStore.cs" />
