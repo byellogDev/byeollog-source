@@ -8,8 +8,8 @@
     <Nullable>enable</Nullable>
     <AssemblyName>byeollog</AssemblyName>
     <RootNamespace>HurogiCollector</RootNamespace>
-    <Version>1.0.0.41</Version>
-    <InformationalVersion>1.0.0.41</InformationalVersion>
+    <Version>1.0.0.42</Version>
+    <InformationalVersion>1.0.0.42</InformationalVersion>
     <Product>별록 풍벽지</Product>
     <AssemblyTitle>별록 풍벽지</AssemblyTitle>
     <Description>OBS에 별록 풍벽지 화면을 연결하는 전용 프로그램</Description>

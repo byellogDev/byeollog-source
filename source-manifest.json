@@ -5958,12 +5958,12 @@
       "release": "2026.09.23.1"
     },
     {
-      "path": "admin-runtime/agent-updates/stable/win-x64.json",
+      "path": "components/admin-runtime/agent-updates/stable/win-x64.json",
       "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
       "before": "4b4c23f1ab1d8d97bbe06c0368570b969c46b1dc1970db46d826b0966bfcc3a6",
-      "after": "feb44d63e7b089db13d72973d4e0424fe7f6b9a3ce520a91b1714962199a0fb9",
+      "after": "c638997b81325932519dd91695ad3894def001950d228ebd871fc7b224ac35f2",
       "status": "changed",
-      "release": "2026.09.23.2"
+      "release": "2026.09.29-agent-1.0.0.42"
     },
     {
       "path": "admin-runtime/lib/native-roulette.js",
@@ -6038,12 +6038,12 @@
       "release": "2026.09.23.2"
     },
     {
-      "path": "frontend/agent-updates/stable/win-x64.json",
+      "path": "components/frontend/agent-updates/stable/win-x64.json",
       "target": "apps/web/agent-updates/stable/win-x64.json",
       "before": "4b4c23f1ab1d8d97bbe06c0368570b969c46b1dc1970db46d826b0966bfcc3a6",
-      "after": "feb44d63e7b089db13d72973d4e0424fe7f6b9a3ce520a91b1714962199a0fb9",
+      "after": "c638997b81325932519dd91695ad3894def001950d228ebd871fc7b224ac35f2",
       "status": "changed",
-      "release": "2026.09.23.2"
+      "release": "2026.09.29-agent-1.0.0.42"
     },
     {
       "path": "frontend/lib/native-roulette.js",
@@ -6070,12 +6070,12 @@
       "release": "2026.09.23.2"
     },
     {
-      "path": "frontend/vercel.json",
+      "path": "components/frontend/vercel.json",
       "target": "apps/web/vercel.json",
       "before": "441393356a2d54e49f90ef0fe15e225c168230527e44c0f8bb100dc9996c467d",
-      "after": "42de09fce944424558f823ffccf5c8ff7731b53590d6bc55650a51df62d79a75",
+      "after": "528352d9a276039e1739af55eab20f7feb5d5410e4102b77a934733790a80bfd",
       "status": "changed",
-      "release": "2026.09.28-installer-shortcut-r2"
+      "release": "2026.09.29-agent-1.0.0.42"
     },
     {
       "path": "agent-source/CollectorLoginWebForm.cs",
@@ -6089,9 +6089,9 @@
       "path": "agent-source/HurogiCollector.csproj",
       "target": "apps/windows-agent/HurogiCollector.csproj",
       "before": "beb25b35be068cd822e2687c7ff2693f464704a35da8947f872e538c0fd27ab9",
-      "after": "8d88ff5e5460b056bb2ff2729c325252b36d7c38be0c9e8e69480c737813ff55",
+      "after": "b274e47d8767986983a4ee886e2671db63d660c406eb75e542caa2a6e1ef5cd6",
       "status": "changed",
-      "release": "2026.09.23.2"
+      "release": "2026.09.29-agent-1.0.0.42"
     },
     {
       "path": "agent-source/Ui/byeollog_ui.html",
