@@ -15,7 +15,7 @@ import {fileURLToPath} from 'node:url';
 const limits={totalMs:2000,credentialMs:200,overlapMs:180,settleMs:20,postMs:100,deadlineMarginMs:50,pollMs:5,maxFrames:100};
 async function fixture(t,mode='normal',overrides={}){
  const server=new WebSocketServer({host:'127.0.0.1',port:0});await new Promise(r=>server.once('listening',r));
- const sockets=new Map(),records=[],timers=[];let sent=0,afterBlocked=0,blocked=false,loop,maxSockets=0;
+ const sockets=new Map(),records=[],timers=[],completion=new AbortController();let sent=0,selected=0,afterBlocked=0,blocked=false,loop,maxSockets=0,finalBatchSent=false,finalBatchSelected=false;
  t.after(async()=>{for(const h of timers){clearTimeout(h);clearInterval(h)}clearInterval(loop);for(const s of server.clients)s.terminate();await new Promise(r=>server.close(r))});
  const initial={...configFor(),providerTokenExpiresAt:new Date(Date.now()+10000).toISOString()};
  const next={...initial,accessToken:'synthetic-new',providerTokenExpiresAt:new Date(Date.now()+20000).toISOString()};
@@ -49,16 +49,28 @@ async function fixture(t,mode='normal',overrides={}){
  const onReport=e=>{
   records.push(e);
   if(e.kind==='overlap_started'&&mode!=='quiet')timers.push(setTimeout(()=>{send();clearInterval(loop);loop=setInterval(send,35)},50));
+  if(e.kind==='handoff_committed'&&overrides.finishAfterDelivery){
+   // End the producer first. A successful socket.send is not a receive ack:
+   // closing on a 100ms timer can discard the final pair still in transit.
+   clearInterval(loop);finalBatchSent=true;send();
+   if(overrides.finalBatchStallMs)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,overrides.finalBatchStallMs);
+  }
   if(e.kind==='handoff_blocked'){blocked=true;if(!loop)loop=setInterval(send,20)}
   overrides.onReport?.(e);
  };
  const getReplacement=overrides.getReplacement|| (async()=>mode==='wrong-owner'?{...next,broadcasterId:'lab1'}:mode==='same-token'?{...next,accessToken:initial.accessToken}:next);
- const result=await probeTokenHandoff(initial,{getReplacement,WebSocketImpl:Transport,fetchImpl:async()=>new Response(JSON.stringify(infoFor())),onReport,onSelectedEvent:overrides.onSelectedEvent,limits:{...limits,...overrides.limits},signal:overrides.signal});
+ const onSelectedEvent=e=>{
+  selected++;overrides.onSelectedEvent?.(e);
+  if(finalBatchSent&&selected===sent){finalBatchSelected=true;queueMicrotask(()=>completion.abort())}
+ };
+ const boundedCompletion=overrides.finishAfterDelivery?{totalMs:5000,postMs:1500}:{};
+ const signal=overrides.signal?AbortSignal.any([completion.signal,overrides.signal]):completion.signal;
+ const result=await probeTokenHandoff(initial,{getReplacement,WebSocketImpl:Transport,fetchImpl:async()=>new Response(JSON.stringify(infoFor())),onReport,onSelectedEvent,limits:{...limits,...boundedCompletion,...overrides.limits},signal});
  clearInterval(loop);
- return{result,records,sent,afterBlocked,maxSockets};
+ return{result,records,sent,afterBlocked,maxSockets,finalBatchSelected};
 }
 test('new token joins before old closes; byte-identical donations counted once per occurrence across cutover',async t=>{
- const r=await fixture(t);assert.equal(r.result.promoted,true);assert.equal(r.result.status,'promoted');assert.equal(r.maxSockets,2);
+ const r=await fixture(t,'normal',{finishAfterDelivery:true});assert.equal(r.result.promoted,true);assert.equal(r.result.status,'promoted');assert.equal(r.maxSockets,2);assert.equal(r.finalBatchSelected,true);
  assert.equal(r.result.selectedCounts['18'],r.sent);assert.ok(r.result.matched>=2);assert.equal(r.result.cleanupComplete,true);
  assert.ok(r.records.findIndex(x=>x.kind==='leg_ready'&&x.side==='next')<r.records.findIndex(x=>x.kind==='leg_closed'&&x.side==='old'));
  assert.ok(r.result.readyOverlapMs>=limits.overlapMs);
@@ -94,7 +106,10 @@ test('selected handoff stream reaches existing encrypted outbox; restart/retry p
  const options={directory,secret:'synthetic-outbox-key-for-handoff-test-only',baseRetryMs:1,maxRetryMs:1};
  const box=new EncryptedGatewayOutbox(options);await box.init();
  const delivery=createCandidateDelivery({workspaceId:'synthetic-a',instanceId:'synthetic-instance',logicalConnectionId:'synthetic-logical-a',expectedBroadcasterId:'lab0',leaseToken:'synthetic-lease',outbox:box});
- const r=await fixture(t,'normal',{onSelectedEvent:e=>delivery.accept(e)});await delivery.drain();
+ // Deliberately stall beyond the former 100ms closing window; completion must
+ // wait for receipt, then drain durable writes without weakening count/order.
+ const r=await fixture(t,'normal',{finishAfterDelivery:true,finalBatchStallMs:150,onSelectedEvent:e=>delivery.accept(e)});await delivery.drain();
+ assert.equal(r.finalBatchSelected,true);
  assert.equal(r.result.promoted,true);assert.equal(await box.count(),r.sent);
  for(const name of await box.files())assert.doesNotMatch(await readFile(join(directory,name),'utf8'),/synthetic-user|synthetic-lease|합성시청자/);
  const failed=await box.flush(async()=>{throw Object.assign(Error('synthetic'),{status:503})});assert.equal(failed.delivered,0);
