@@ -1,5 +1,5 @@
 #define AppVersion "1.0.0.43"
-#define AppDisplayVersion "1.0.0.43"
+#define AppDisplayVersion "1.0.0.43-r2"
 #define PackageFile "byeollog_wallpaper_v10043_WIN_X64.zip"
 #define PackageUrl "https://byeollog.com/agent-updates/releases/1.0.0.43/byeollog_wallpaper_v10043_WIN_X64.zip"
 #define PackageSha256 "2fdf43d05afb180a989a88afd65f88f1e9a4bdacacc69d210387c62225b62d9a"

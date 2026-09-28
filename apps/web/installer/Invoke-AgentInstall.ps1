@@ -125,7 +125,9 @@ try {
             }
             [Byeollog.InstallerShellLink]::Save($shortcutPath, $installedExe, '별록 풍벽지 실행')
         }
-        if ($ResultPath) { [IO.File]::WriteAllText($ResultPath,$installedExe,[Text.Encoding]::Unicode) }
+        # Inno Setup LoadStringsFromFile expects UTF-8, not UTF-16LE.
+        # Include a BOM so non-ASCII Windows profile paths round-trip explicitly.
+        if ($ResultPath) { [IO.File]::WriteAllText($ResultPath,$installedExe,(New-Object Text.UTF8Encoding($true))) }
     }
 }
 catch {

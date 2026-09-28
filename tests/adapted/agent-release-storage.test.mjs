@@ -74,7 +74,7 @@ test("GitHub release storage keeps Vercel deployments free of release binaries",
     source === "/agent-updates/releases/:version/:filename([^/]+\\.exe)"));
   assert.ok((vercel.redirects || []).some(({ source, destination, permanent }) =>
     source === "/agent/download" &&
-    destination === "/agent-updates/releases/1.0.0.43/Byeollog-Wallpaper-Setup-v1.0.0.43-online.exe" &&
+    destination === "/agent-updates/releases/1.0.0.43/Byeollog-Wallpaper-Setup-v1.0.0.43-r2-online.exe" &&
     permanent === false));
 
   assert.match(publisher, /specify exactly one of --version <version> or --all/);

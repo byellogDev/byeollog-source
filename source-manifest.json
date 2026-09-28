@@ -6073,9 +6073,9 @@
       "path": "components/frontend/vercel.json",
       "target": "apps/web/vercel.json",
       "before": "441393356a2d54e49f90ef0fe15e225c168230527e44c0f8bb100dc9996c467d",
-      "after": "8be861b37f8ce5e8573213b3b866356957c1b546d1915bb8d33473f4d6276cf2",
+      "after": "141e411cea41b45431c6b9a49ee0150e9219a76baea41aeded3c556958233681",
       "status": "changed",
-      "release": "2026.09.29-agent-1.0.0.43"
+      "release": "2026.09.29-installer-10043-r2"
     },
     {
       "path": "agent-source/CollectorLoginWebForm.cs",

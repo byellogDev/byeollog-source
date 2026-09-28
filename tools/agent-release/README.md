@@ -8,5 +8,6 @@
 4. `Seal-TesterZip.ps1`로 ZIP 왕복 무결성을 확인합니다.
 5. `New-AgentUpdateCatalog.ps1`에 공개 키 경로를 `-TrustAnchorsPath`로 명시하고, 저장소 밖의 보호된 서명 자료를 사용합니다. 개인키를 복사하거나 커밋하지 않습니다.
 6. 현재 온라인 설치 소스는 `apps/web/installer`입니다. `VERIFYONLY` 검증은 실제 설치와 구분합니다.
+7. `Test-InstallerResultPath.ps1 -CompilerPath <ISCC.exe> -OutputDirectory <private .local directory>`로 실제 PowerShell 결과 파일을 Inno Setup의 `LoadStringsFromFile`과 운영 경로 검사에 통과시킵니다. UTF-8 BOM·한글 경로와 경로 이탈 차단을 검사합니다. `VERIFYONLY`는 설치 후 결과 경로 확인을 건너뛰므로 이 검사를 대체하지 않습니다.
 
 새 버전에서는 공개 매니페스트·provenance와 버전 고정 검사를 함께 갱신합니다. 서명·해시·권한·기존 설치 호환성 검사를 삭제하거나 완화하지 않습니다.
