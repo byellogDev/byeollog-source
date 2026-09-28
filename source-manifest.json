@@ -6346,7 +6346,7 @@
       "target": "apps/windows-agent/WallpaperEditorCoordinator.cs",
       "before": "aa3c6e7fc10f781355581811a39a397c3a4aec6d8504c57b24f2d2b432468e08",
       "status": "changed",
-      "after": "cea0c68a9226d39b22bf5dc02bded2faf192401373fe2678953e43a431315469",
+      "after": "30a5139246c3c02961e4b60ecbcb4ebd88f38e624cbc1b8b912fa07aec53c937",
       "release": "2026.09.29-wallpaper-baekdusan"
     },
     {
@@ -6355,6 +6355,14 @@
       "before": "e354645efdc3bf153291c220e984e61972ef51668f49eacecdc93c48fbca7fba",
       "status": "changed",
       "after": "4c66e182183a7f59e49f8a12b4f19bf0a70af4e2028e8471d8c2cf60f701e59b",
+      "release": "2026.09.29-wallpaper-baekdusan"
+    },
+    {
+      "path": "agent-source/WallpaperWorkspaceContext.cs",
+      "target": "apps/windows-agent/WallpaperWorkspaceContext.cs",
+      "before": "9f9c4ef0c86e120089223d80d67c468003cc720ef251ba3876df42da18a7562d",
+      "status": "changed",
+      "after": "07369eb9cd0335890c6c4c1e9e3313f93970f894fc532f65b4956baa29ffb358",
       "release": "2026.09.29-wallpaper-baekdusan"
     }
   ]

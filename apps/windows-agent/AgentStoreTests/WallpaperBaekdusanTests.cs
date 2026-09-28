@@ -85,5 +85,23 @@ internal static partial class Program
             await poll;
             Equal(0,state.View.GetProperty("runs").GetArrayLength(),"late read cannot resurrect a removed run");
         }
+        var contextRoot=Path.Combine(root,"baekdusan-context");
+        var scoped=Path.Combine(contextRoot,"wallpaper-workspaces-v1",session);Directory.CreateDirectory(scoped);
+        File.WriteAllText(Path.Combine(scoped,"wallpaper-baekdusan-v1.json"),JsonSerializer.Serialize(new {runs=new[]{run},selected=new[]{session}},new JsonSerializerOptions{PropertyNamingPolicy=JsonNamingPolicy.CamelCase}));
+        var prior=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var requested=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var count=0;
+        using(var context=new WallpaperWorkspaceContext(contextRoot,session,()=>true,(_,_)=>
+        {
+            Interlocked.Increment(ref count);requested.TrySetResult();
+            return Task.FromResult(JsonSerializer.SerializeToElement(new {closed=true,hasMore=false,nextSequence=1,tiles=Array.Empty<object>()}));
+        },()=>1,_=>{},()=>{},priorRetirement:prior.Task))
+        {
+            var preparing=context.PrepareAsync(CancellationToken.None);
+            Equal(false,preparing.IsCompleted,"workspace waits for prior retirement");
+            Equal(0,count,"restored run cannot start before workspace preparation");
+            prior.SetResult();await preparing;await requested.Task.WaitAsync(TimeSpan.FromSeconds(2));
+            Equal(true,count>0,"restored run starts after workspace preparation");
+        }
     }
 }

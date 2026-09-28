@@ -61,7 +61,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
         _wallpaper = wallpaper;
         _cachePath = Path.Combine(rootPath, "wallpaper-editor-cache-v1.json");
         _log = log;
-        Baekdusan = new WallpaperBaekdusan(rootPath, _isSignedIn, _sendControl, () => StateChanged?.Invoke());
+        Baekdusan = new WallpaperBaekdusan(rootPath, _isSignedIn, _sendControl, () => StateChanged?.Invoke(), startWorker: scheduleInitialBackup);
         _wallpaper.BaekdusanView = () => Baekdusan.View;
         if (scheduleInitialBackup) ScheduleBackup();
     }

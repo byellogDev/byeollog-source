@@ -18,7 +18,8 @@ internal sealed class WallpaperBaekdusan : IDisposable
     private readonly Action _changed;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly CancellationTokenSource _stop = new();
-    private readonly Task _worker;
+    private Task _worker = Task.CompletedTask;
+    private int _started;
     private readonly SemaphoreSlim _wake = new(0, 1);
     private List<Run> _runs = [];
     private string[] _selected = [];
@@ -45,9 +46,14 @@ internal sealed class WallpaperBaekdusan : IDisposable
             catch { _runs = []; _selected = []; _error = "백두산 저장 파일을 읽지 못했습니다. 원본 파일은 보존됩니다."; }
         }
         Publish();
-        _worker = startWorker ? Task.Run(ObserveAsync) : Task.CompletedTask;
+        if (startWorker) Start();
     }
 
+    internal void Start()
+    {
+        if (!_stop.IsCancellationRequested && Interlocked.CompareExchange(ref _started, 1, 0) == 0)
+            _worker = Task.Run(ObserveAsync);
+    }
     internal void Notify() { try { _wake.Release(); } catch (SemaphoreFullException) { } }
     internal JsonElement View { get { lock (_viewLock) return _view.Clone(); } }
     private void Publish()
