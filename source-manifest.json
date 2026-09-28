@@ -6308,6 +6308,14 @@
       "status": "changed",
       "after": "87c3e2da440441658baa84340294f1bbc1c36bd2f72a8f555080b344423e9bcb",
       "release": "2026.09.26-background-usage"
+    },
+    {
+      "path": "agent-source/Ui/wallpaper_editor.html",
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "f63326b184d93fb0d7f1e84cd432d5bcf6bc4e2974eec5681984da73d861e487",
+      "status": "changed",
+      "after": "73e09d734cb0840b5fc384bba88e8055bbab9a6dc2ba3b81794a0ba3c0f72daa",
+      "release": "2026.09.29-wallpaper-editor-controls"
     }
   ]
 }
