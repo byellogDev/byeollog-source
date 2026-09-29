@@ -17,8 +17,10 @@
 
   <ItemGroup>
     <Compile Include="../WallpaperBaekdusan.cs" Link="WallpaperBaekdusan.cs" />
+    <Compile Include="../WallpaperDetachedCards.cs" Link="WallpaperDetachedCards.cs" />
     <Compile Include="../WallpaperBaekdusanRenderer.cs" Link="WallpaperBaekdusanRenderer.cs" />
     <EmbeddedResource Include="../Ui/wallpaper-baekdusan.js" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan.js" />
+    <EmbeddedResource Include="../Ui/wallpaper-detached.js" LogicalName="HurogiCollector.Ui.wallpaper-detached.js" />
     <Compile Include="../NativeSqlite.cs" Link="NativeSqlite.cs" />
     <Compile Include="../VNextOverlayAssets.cs" Link="VNextOverlayAssets.cs" />
     <Compile Include="../VNextAgentStore.cs" Link="VNextAgentStore.cs" />

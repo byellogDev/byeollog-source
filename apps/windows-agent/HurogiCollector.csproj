@@ -54,6 +54,7 @@
     <EmbeddedResource Include="Ui\byeollog_ui.html" LogicalName="HurogiCollector.Ui.byeollog_ui.html" />
     <EmbeddedResource Include="Ui\agent_automation.html" LogicalName="HurogiCollector.Ui.agent_automation.html" />
     <EmbeddedResource Include="Ui\wallpaper-baekdusan.js" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan.js" />
+    <EmbeddedResource Include="Ui\wallpaper-detached.js" LogicalName="HurogiCollector.Ui.wallpaper-detached.js" />
     <EmbeddedResource Include="Ui\wallpaper-baekdusan-editor.js" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan-editor.js" />
     <EmbeddedResource Include="Ui\wallpaper-baekdusan-editor.css" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan-editor.css" />
     <EmbeddedResource Include="Ui\wallpaper_editor.html" LogicalName="HurogiCollector.Ui.wallpaper_editor.html" />

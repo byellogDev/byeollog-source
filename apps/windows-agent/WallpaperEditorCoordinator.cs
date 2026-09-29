@@ -44,6 +44,8 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
     internal static readonly TimeSpan BackupInterval = TimeSpan.FromMinutes(1);
     internal event Action? StateChanged;
     internal WallpaperBaekdusan Baekdusan { get; }
+    internal WallpaperDetachedCards Detached { get; }
+    private JsonElement Decorate(JsonElement source) => Detached.Decorate(Baekdusan.Decorate(source));
 
     internal WallpaperEditorCoordinator(
         Func<bool> isSignedIn,
@@ -61,6 +63,8 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
         _wallpaper = wallpaper;
         _cachePath = Path.Combine(rootPath, "wallpaper-editor-cache-v1.json");
         _log = log;
+        Detached = new WallpaperDetachedCards(rootPath);
+        _wallpaper.DetachedView = () => Detached.View;
         Baekdusan = new WallpaperBaekdusan(rootPath, _isSignedIn, _sendControl, () => StateChanged?.Invoke(), startWorker: scheduleInitialBackup);
         _wallpaper.BaekdusanView = () => Baekdusan.View;
         if (scheduleInitialBackup) ScheduleBackup();
@@ -85,7 +89,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
                         || Volatile.Read(ref _refreshRequested) > Volatile.Read(ref _refreshCompleted)))
                     ScheduleRefresh();
                 ScheduleBackup();
-                return Baekdusan.Decorate(cached.Value);
+                return Decorate(cached.Value);
             }
         }
         finally { _gate.Release(); }
@@ -95,10 +99,10 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
         try
         {
             cached = LoadCache();
-            if (cached is not null) return Baekdusan.Decorate(cached.Value);
+            if (cached is not null) return Decorate(cached.Value);
             var fallback = BuildFallbackState();
             await SaveCacheAsync(fallback, cancellationToken);
-            return Baekdusan.Decorate(fallback);
+            return Decorate(fallback);
         }
         finally { _gate.Release(); }
     }
@@ -179,6 +183,12 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
             throw new InvalidDataException("풍벽지 요청이 올바르지 않습니다.");
         var action = control.TryGetProperty("action", out var actionValue)
             ? actionValue.GetString() : null;
+        if (action is "detached-ranges" or "detached-layout")
+        {
+            Detached.Apply(control, cancellationToken);
+            StateChanged?.Invoke();
+            return await GetStateAsync(cancellationToken);
+        }
         if (action?.StartsWith("baekdusan-", StringComparison.Ordinal) == true)
         {
             var result = await Baekdusan.ControlAsync(control, cancellationToken);
@@ -220,7 +230,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
                     var updated = BuildFallbackState(cachedBeforeSettings);
                     await SaveCacheAsync(updated, cancellationToken);
                     ScheduleBackup();
-                    return Baekdusan.Decorate(updated);
+                    return Decorate(updated);
                 }
                 finally { _gate.Release(); }
             }
@@ -301,7 +311,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
                         if (requestedSelection is not null)
                             _log("풍벽지 방송 회차 선택 완료 · count=" + requestedSelection.Count
                                 + " · revision=" + ReadRevision(remote));
-                        return Baekdusan.Decorate(localized);
+                        return Decorate(localized);
                     }
                     finally { _gate.Release(); }
                 }
@@ -340,7 +350,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
                 await SaveCacheAsync(updated, cancellationToken);
                 if (!wasPending) _nextBackupAtUtc = _clock.GetUtcNow() + BackupInterval;
                 ScheduleBackup();
-                return Baekdusan.Decorate(updated);
+                return Decorate(updated);
             }
             finally { _gate.Release(); }
         }

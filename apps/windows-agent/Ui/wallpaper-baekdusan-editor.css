@@ -50,3 +50,7 @@ dialog.baek-dialog{color-scheme:dark;width:min(820px,calc(100vw - 32px));max-wid
 .baek-dialog .baek-confirm button{margin-top:12px}
 @media(max-width:560px){dialog.baek-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px);border-radius:16px}.baek-dialog .baek-head{padding:18px}.baek-dialog h2{font-size:22px}.baek-dialog .baek-body{padding:20px 18px;gap:22px}.baek-dialog .baek-footer{padding:16px 18px;grid-template-columns:1fr}.baek-dialog .baek-fields{gap:12px}.baek-dialog button.baek-tip{padding:12px;gap:10px}.baek-dialog .baek-search-head{align-items:flex-start}.baek-dialog .baek-search-head button{padding:10px 12px}.baek-dialog .baek-footer>button{width:100%}}
 @media(prefers-reduced-motion:reduce){.baek-dialog button{transition:none}}
+
+.baek-dialog .detached-ranges{display:grid;gap:12px}
+.baek-dialog .detached-range{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:end}
+@media(max-width:560px){.baek-dialog .detached-range{grid-template-columns:repeat(2,minmax(0,1fr))}.baek-dialog .detached-range>button{grid-column:1/-1}}

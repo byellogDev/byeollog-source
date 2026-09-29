@@ -709,8 +709,9 @@ internal sealed class ByeollogOverlayService : IDisposable
       const height = Number.isInteger(state.canvasHeight) ? state.canvasHeight : 1080;
       wallpaperResize(width, height);
       const owned = ByeollogBaekdusan.owned(state.baekdusan);
-      const groups = wallpaperGroups((Array.isArray(state.tiles) ? state.tiles : []).filter(t => !owned.has(t.id)), width, height, state.sizeRanges);
+      const groups = wallpaperGroups((Array.isArray(state.tiles) ? state.tiles : []).filter(t => !owned.has(t.id) && !ByeollogDetached.matches(t,state.detached)), width, height, state.sizeRanges);
       ByeollogBaekdusan.render(wallpaperCanvas, state.baekdusan);
+      ByeollogDetached.render(wallpaperCanvas,state.tiles,state.detached,state.sizeRanges||[],owned);
       const incomingGroups = new Set(groups.map(group => group.id));
       for (const [id, entry] of wallpaperGroupNodes) {
         if (!incomingGroups.has(id)) { entry.node.remove(); wallpaperGroupNodes.delete(id); }

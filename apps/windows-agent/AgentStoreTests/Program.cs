@@ -53,6 +53,8 @@ internal static partial class Program
 
         try
         {
+            await WallpaperDetachedTestsAsync(root);
+            if (args.Contains("--detached-only")) { Console.WriteLine($"PASS: {_assertions} detached assertions"); return; }
             await WallpaperBaekdusanTestsAsync(root);
             if (args.Contains("--baekdusan-only")) { Console.WriteLine($"PASS: {_assertions} baekdusan assertions"); return; }
             if (args.Contains("--settings-transactions-only", StringComparer.Ordinal))

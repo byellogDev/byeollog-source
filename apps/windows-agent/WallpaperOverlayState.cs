@@ -145,22 +145,26 @@ internal sealed class WallpaperOverlayState : IDisposable
     }
 
     internal Func<JsonElement>? BaekdusanView { get; set; }
+    internal Func<JsonElement>? DetachedView { get; set; }
     private byte[]? _baekBaseBytes, _baekDisplayBytes;
-    private long _baekViewVersion = -1;
+    private long _baekViewVersion = -1, _detachedVersion = -1;
     internal byte[] DisplaySnapshotBytes()
     {
         if (BaekdusanView is null) return SnapshotBytes();
         var view = BaekdusanView();
+        var detached = DetachedView?.Invoke();
+        var detachedVersion = detached?.GetProperty("version").GetInt64() ?? -1;
         lock (_gate)
         {
-            if (view.GetProperty("runs").GetArrayLength() == 0) return _stateBytes.ToArray();
+
             var version = view.GetProperty("version").GetInt64();
-            if (ReferenceEquals(_stateBytes, _baekBaseBytes) && version == _baekViewVersion)
+            if (ReferenceEquals(_stateBytes, _baekBaseBytes) && version == _baekViewVersion && detachedVersion == _detachedVersion)
                 return _baekDisplayBytes!.ToArray();
             var root = JsonNode.Parse(_stateBytes)!.AsObject();
             root["baekdusan"] = JsonNode.Parse(view.GetRawText());
-            root["displayRevision"] = (root["displayRevision"]?.ToString() ?? root["revision"]?.ToString() ?? "0") + ":baek:" + version;
-            _baekBaseBytes = _stateBytes; _baekViewVersion = version;
+            if (detached is not null) root["detached"] = JsonNode.Parse(detached.Value.GetRawText());
+            root["displayRevision"] = (root["displayRevision"]?.ToString() ?? root["revision"]?.ToString() ?? "0") + ":baek:" + version + ":detached:" + detachedVersion;
+            _baekBaseBytes = _stateBytes; _baekViewVersion = version; _detachedVersion = detachedVersion;
             _baekDisplayBytes = JsonSerializer.SerializeToUtf8Bytes(root);
             return _baekDisplayBytes.ToArray();
         }
