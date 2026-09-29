@@ -1,8 +1,10 @@
 # 릴리스 기록
 
+- [2026-09-30 Agent 1.0.0.45 배포](2026-09-30-agent-10045.md) — 풍벽지 수량 범위별 묶음 해제·개별 배치, 공식 다운로드·서명 피드 운영 반영.
+
 - [2026-09-30 풍벽지 금액 범위 묶음 해제](2026-09-30-wallpaper-detached.md) — 개별 카드 배치·새 카드 좌상단·계정별 저장, 로컬 검증 후보·미배포.
 
-[GitHub Releases 전체 보기](https://github.com/byellogDev/byeollog/releases) · [최신 Agent 1.0.0.44](https://github.com/byellogDev/byeollog/releases/tag/agent-v1.0.0.44)
+[GitHub Releases 전체 보기](https://github.com/byellogDev/byeollog/releases) · [최신 Agent 1.0.0.45](https://github.com/byellogDev/byeollog/releases/tag/agent-v1.0.0.45)
 
 - [2026-09-29 GitHub Releases 누락 보완](2026-09-29-github-release-publication.md) — 24~29일 9개 기록 게시, 연구/운영 구분 및 게시 완료 기준 강화.
 

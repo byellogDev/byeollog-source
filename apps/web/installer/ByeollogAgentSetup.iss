@@ -1,9 +1,9 @@
-#define AppVersion "1.0.0.44"
-#define AppDisplayVersion "1.0.0.44"
-#define PackageFile "byeollog_wallpaper_v10044_WIN_X64.zip"
-#define PackageUrl "https://byeollog.com/agent-updates/releases/1.0.0.44/byeollog_wallpaper_v10044_WIN_X64.zip"
-#define PackageSha256 "57371037529aab276c8bb4998a3f1c33aa6a3bb64a7faa8147c030c31708fa80"
-#define PackageExpandedBytes "73616138"
+#define AppVersion "1.0.0.45"
+#define AppDisplayVersion "1.0.0.45"
+#define PackageFile "byeollog_wallpaper_v10045_WIN_X64.zip"
+#define PackageUrl "https://byeollog.com/agent-updates/releases/1.0.0.45/byeollog_wallpaper_v10045_WIN_X64.zip"
+#define PackageSha256 "4f97ef0a0a7bae64b18c8f5de399a1ab0844fd0235b4bb3727528aaa03f6206d"
+#define PackageExpandedBytes "73621093"
 
 [Setup]
 AppId={{6C58557A-D38B-42A4-9FB7-DF7DD7D22819}
