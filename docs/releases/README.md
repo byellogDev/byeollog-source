@@ -1,5 +1,9 @@
 # 릴리스 기록
 
+[GitHub Releases 전체 보기](https://github.com/byellogDev/byeollog/releases) · [최신 Agent 1.0.0.44](https://github.com/byellogDev/byeollog/releases/tag/agent-v1.0.0.44)
+
+- [2026-09-29 GitHub Releases 누락 보완](2026-09-29-github-release-publication.md) — 24~29일 9개 기록 게시, 연구/운영 구분 및 게시 완료 기준 강화.
+
 - [2026-09-29 Agent 1.0.0.44 배포](2026-09-29-agent-10044.md) — 백두산 대화창 가독성·반응형 UI, 설치 경로 수정 유지, 공식 다운로드·서명 피드 갱신.
 
 - [2026-09-29 백두산 만들기·관리 화면 개선](2026-09-29-baekdusan-dialog.md) — 단계별 배치·후원 선택 목록·가독성·작은 창 대응, 로컬 검증 완료 후보, 설치본 미배포.

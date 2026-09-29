@@ -9,6 +9,7 @@ This is the canonical development tree derived from the accepted 2026-09-23 oper
 - Only approved test-workspace data may be mutated during verification.
 - Never commit credentials, private user data, database dumps, local evidence, or platform access files. Run the publication scanner on the exact Git file list before pushing.
 - Remote version cleanup must preserve current feeds, update compatibility, and rollback assets.
+- Release completion requires an actual published GitHub Release in `byellogDev/byeollog`, not only Markdown, a tag, or assets in `byeollog-releases`. Link the source commit, detailed notes, verification limits and asset release. Mark research-only checkpoints as prereleases. Read back the published body, draft/prerelease flags, tag commit and latest release before reporting completion. A branch push does not update the default branch; do not merge unrelated candidates merely to publish release notes.
 - No agents or scripts should deploy from a historical or temporary folder.
 
 ## GitHub publication cadence (user decision, 2026-09-24)
