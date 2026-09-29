@@ -1,0 +1,52 @@
+/* Scoped to the native dialog: independent of the editor theme and canvas zoom. */
+dialog.baek-dialog{color-scheme:dark;width:min(820px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 40px);padding:0;border:1px solid #35465e;border-radius:24px;background:#101d30;color:#eef4ff;font:400 15px/1.6 Pretendard,"Malgun Gothic",system-ui,sans-serif;box-shadow:0 30px 100px #0008;overflow:auto}
+.baek-dialog::backdrop{background:#030b18ad;backdrop-filter:blur(5px)}
+.baek-dialog *{box-sizing:border-box}
+.baek-dialog [hidden]{display:none!important}
+.baek-dialog .baek-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 28px 20px;border-bottom:1px solid #2c3b50;background:#142238}
+.baek-dialog h2{margin:0;color:#f5f8ff;font-size:25px;line-height:1.4;letter-spacing:-.04em}
+.baek-dialog .baek-eyebrow{display:block;margin-bottom:5px;color:#66e1c6;font-size:11px;font-weight:800;letter-spacing:.14em}
+.baek-dialog .baek-body{display:grid;gap:24px;padding:24px 28px}
+.baek-dialog p{margin:0}
+.baek-dialog .baek-intro{color:#b5c4d8;font-size:15px}
+.baek-dialog .baek-section{display:grid;gap:14px;min-width:0}
+.baek-dialog h3{display:flex;align-items:center;gap:10px;margin:0;color:#f0f5ff;font-size:17px;letter-spacing:-.02em}
+.baek-dialog .baek-step{display:grid;place-items:center;width:27px;height:27px;border-radius:8px;background:#23403f;color:#76e8cd;font-size:13px}
+.baek-dialog .baek-field{display:grid;gap:8px;min-width:0;color:#c8d5e6;font-size:14px;font-weight:650}
+.baek-dialog input,.baek-dialog select{width:100%;min-width:0;min-height:48px;margin:0;padding:11px 14px;border:1px solid #465972;border-radius:10px;background:#0a1627;color:#f4f7ff;font-family:inherit;font-size:16px;font-weight:500;line-height:1.5;box-shadow:none}
+.baek-dialog .baek-fields{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.baek-dialog button{min-height:44px;margin:0;padding:10px 16px;border:1px solid #455a74;border-radius:10px;background:#20334c;color:#eaf2ff;font-family:inherit;font-size:14px;font-weight:750;line-height:1.5;cursor:pointer;box-shadow:none;transition:background .15s,border-color .15s}
+.baek-dialog button:hover:not(:disabled){background:#2a4260;border-color:#718ba9}
+.baek-dialog button:disabled{opacity:1;background:#253246;border-color:#37465b;color:#91a1b6;cursor:not-allowed}
+.baek-dialog :is(button,input,select,summary):focus-visible{outline:3px solid #78e9d0;outline-offset:3px}
+.baek-dialog .baek-close{background:transparent;flex-shrink:0}
+.baek-dialog .baek-search-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.baek-dialog .baek-help{color:#9faec3;font-size:13px;line-height:1.6}
+.baek-dialog .baek-list{display:grid;gap:8px;max-height:244px;overflow:auto;overscroll-behavior:contain;padding:3px;scrollbar-color:#506481 #101d30}
+.baek-dialog .baek-empty{padding:27px 18px;border:1px dashed #40536e;border-radius:12px;background:#132137;color:#afbed2;text-align:center;font-size:14px}
+.baek-dialog button.baek-tip{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:72px;width:100%;padding:12px 16px;text-align:left;background:#192a41;border-color:#344960}
+.baek-dialog .baek-tip[aria-pressed="true"]{background:#173e3c;border-color:#63dfc0;box-shadow:inset 0 0 0 1px #63dfc0}
+.baek-dialog .baek-tip-mark{display:grid;place-items:center;width:20px;height:20px;border:1px solid #6d809c;border-radius:50%;color:transparent;font-size:12px}
+.baek-dialog [aria-pressed="true"] .baek-tip-mark{background:#63dfc0;border-color:#63dfc0;color:#0d2926}
+.baek-dialog .baek-tip-copy{min-width:0;overflow-wrap:anywhere}
+.baek-dialog .baek-tip-copy strong{display:block;font-size:16px;color:#f2f6ff}
+.baek-dialog .baek-tip-copy time{display:block;font-size:13px;font-weight:400;color:#b1c0d3}
+.baek-dialog .baek-amount{color:#ffe09a;font-size:16px;white-space:nowrap}
+.baek-dialog .baek-more{justify-self:center;background:transparent}
+.baek-dialog .baek-details{padding:14px 16px;border-radius:10px;background:#0c182a;color:#aebed3;font-size:13px}
+.baek-dialog summary{cursor:pointer;color:#cad7e8;font-size:14px}
+.baek-dialog .baek-details p{margin-top:10px}
+.baek-dialog .baek-footer{position:sticky;bottom:0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 20px;align-items:center;padding:18px 28px;background:#17263b;border-top:1px solid #3b4d64;box-shadow:0 -8px 24px #0a162744}
+.baek-dialog .baek-summary{min-width:0;overflow-wrap:anywhere;font-size:14px;color:#d2def0}
+.baek-dialog .baek-summary strong{display:block;color:#ffe09a;font-size:17px}
+.baek-dialog .baek-status{grid-column:1/-1;color:#ffdf94;font-size:14px;overflow-wrap:anywhere}
+.baek-dialog .baek-status:empty{display:none}
+.baek-dialog button.baek-primary{min-height:48px;background:#ffd06a;border-color:#ffd06a;color:#182338;font-size:16px}
+.baek-dialog button.baek-primary:hover:not(:disabled){background:#ffdc8d;border-color:#ffdc8d}
+.baek-dialog button.baek-primary:disabled{background:#344155;border-color:#46556d;color:#b3bed0}
+.baek-dialog .baek-runs{display:flex;flex-wrap:wrap;gap:8px}
+.baek-dialog .baek-danger{background:transparent;border-color:#92545e;color:#ffb5bc}
+.baek-dialog .baek-confirm{padding:16px;border:1px solid #92545e;border-radius:12px;background:#33212e}
+.baek-dialog .baek-confirm button{margin-top:12px}
+@media(max-width:560px){dialog.baek-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px);border-radius:16px}.baek-dialog .baek-head{padding:18px}.baek-dialog h2{font-size:22px}.baek-dialog .baek-body{padding:20px 18px;gap:22px}.baek-dialog .baek-footer{padding:16px 18px;grid-template-columns:1fr}.baek-dialog .baek-fields{gap:12px}.baek-dialog button.baek-tip{padding:12px;gap:10px}.baek-dialog .baek-search-head{align-items:flex-start}.baek-dialog .baek-search-head button{padding:10px 12px}.baek-dialog .baek-footer>button{width:100%}}
+@media(prefers-reduced-motion:reduce){.baek-dialog button{transition:none}}

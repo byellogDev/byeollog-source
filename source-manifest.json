@@ -6089,9 +6089,9 @@
       "path": "agent-source/HurogiCollector.csproj",
       "target": "apps/windows-agent/HurogiCollector.csproj",
       "before": "beb25b35be068cd822e2687c7ff2693f464704a35da8947f872e538c0fd27ab9",
-      "after": "ca8391c162c07f34f97b5ed57049d54b250f1ffa82aa1798b79cd8c9c51b1360",
+      "after": "bf8bd71b5507c15cf9d67709a69bdccd28cc2f1197ac2a3feb9e1f101b79f370",
       "status": "changed",
-      "release": "2026.09.29-agent-1.0.0.43"
+      "release": "2026.09.29-baekdusan-dialog"
     },
     {
       "path": "agent-source/Ui/byeollog_ui.html",
@@ -6314,8 +6314,8 @@
       "target": "apps/windows-agent/Ui/wallpaper_editor.html",
       "before": "f63326b184d93fb0d7f1e84cd432d5bcf6bc4e2974eec5681984da73d861e487",
       "status": "changed",
-      "after": "94d5a328b57dbdab2651c60479b3befe99f1c99d9e5ed5c7ed09b8bff104a959",
-      "release": "2026.09.29-wallpaper-baekdusan"
+      "after": "7e0637df3c0520557f0d7805a69c277a8a9a12c7273c0a39150896b788f2e438",
+      "release": "2026.09.29-baekdusan-dialog"
     },
     {
       "path": "components/admin-runtime/lib/agent-wallpaper-control.js",
@@ -6338,8 +6338,8 @@
       "target": "apps/windows-agent/UiAssetStore.cs",
       "before": "2f6b88da1658f7b78bef35a80a3ec1df4258cb04e1126ef00e44c286dc409c73",
       "status": "changed",
-      "after": "764347000b8a90564e0aec0982d6272a69374774d747a2121e3d551106ef094e",
-      "release": "2026.09.29-wallpaper-baekdusan"
+      "after": "1e49f65e7f2c02db56667e0b076fd92a8efe5500f7b615f3a2ab8fd9b8597b8b",
+      "release": "2026.09.29-baekdusan-dialog"
     },
     {
       "path": "agent-source/WallpaperEditorCoordinator.cs",

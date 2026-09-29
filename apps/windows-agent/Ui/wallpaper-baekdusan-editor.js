@@ -1,22 +1,24 @@
 const {state,request,initializeWallpaperEditor,renderWallpaper,flushWallpaperEdits,status}=globalThis.wallpaperBaekdusanBridge;
-// Runs after wallpaper_editor.html's existing request bridge and state.
 let baekDialog=null,baekBusy=false;
-function baekElement(tag,text){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;return el;}
-function baekField(parent,label,value,type='number'){
-  const wrap=baekElement('label'),caption=baekElement('span',label),input=baekElement('input');
-  Object.assign(wrap.style,{display:'grid',gap:'6px',fontSize:'15px'});
-  input.type=type;input.value=String(value);Object.assign(input.style,{padding:'10px',fontSize:'16px',border:'1px solid #90a4bb',borderRadius:'8px',width:'100%',boxSizing:'border-box'});
-  wrap.append(caption,input);parent.append(wrap);return input;
+function baekElement(tag,text,className){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;if(tag==='button')el.type='button';return el;}
+function baekField(parent,label,value){
+  const wrap=baekElement('label',undefined,'baek-field'),input=baekElement('input');
+  input.type='number';input.value=String(value);input.step='1';wrap.append(baekElement('span',label),input);parent.append(wrap);return input;
 }
 function baekMessage(message){const el=document.getElementById('baekMessage');if(el)el.textContent=message;else status('wallpaperStatus',message,'error');}
 function baekOpen(title){
-  baekDialog?.remove();baekDialog=baekElement('dialog');
-  Object.assign(baekDialog.style,{width:'min(780px,90vw)',maxHeight:'85vh',overflow:'auto',padding:'24px',border:'1px solid #6482a4',borderRadius:'18px',background:'#102746',color:'#fff'});
-  const heading=baekElement('h2',title),close=baekElement('button','닫기');close.type='button';close.onclick=()=>{if(!baekBusy){baekDialog.close();baekDialog.remove();baekDialog=null;}};
-  const head=baekElement('div');Object.assign(head.style,{display:'flex',justifyContent:'space-between',alignItems:'center'});head.append(heading,close);
-  const message=baekElement('p');message.id='baekMessage';message.setAttribute('role','status');message.style.color='#ffdb8e';
-  baekDialog.append(head,message);baekDialog.addEventListener('cancel',e=>{if(baekBusy)e.preventDefault();});document.body.append(baekDialog);baekDialog.showModal();return baekDialog;
+  baekDialog?.remove();const dialog=baekDialog=baekElement('dialog',undefined,'baek-dialog');
+  dialog.setAttribute('aria-labelledby','baekTitle');
+  const head=baekElement('header',undefined,'baek-head'),titles=baekElement('div'),heading=baekElement('h2',title),close=baekElement('button','닫기','baek-close');
+  heading.id='baekTitle';titles.append(baekElement('span','풍벽지 · 연속 후원','baek-eyebrow'),heading);
+  close.onclick=()=>{if(!baekBusy)dialog.close();};head.append(titles,close);
+  const body=baekElement('div',undefined,'baek-body'),footer=baekElement('footer',undefined,'baek-footer'),message=baekElement('div',undefined,'baek-status');
+  message.id='baekMessage';message.setAttribute('role','status');footer.append(message);dialog.append(head,body,footer);
+  dialog.addEventListener('cancel',e=>{if(baekBusy)e.preventDefault();});
+  dialog.addEventListener('close',()=>{dialog.remove();if(baekDialog===dialog)baekDialog=null;});
+  document.body.append(dialog);dialog.showModal();return {dialog,body,footer};
 }
+function baekSection(parent,number,title){const section=baekElement('section',undefined,'baek-section'),heading=baekElement('h3');heading.append(baekElement('span',number,'baek-step'),baekElement('span',title));section.append(heading);parent.append(section);return section;}
 async function baekControl(body){return request('wallpaper-control',{method:'POST',body:JSON.stringify(body)});}
 async function baekMutate(body){
   if(baekBusy)return;baekBusy=true;baekMessage('저장하는 중입니다…');
@@ -28,40 +30,53 @@ async function baekMutate(body){
   }catch(error){baekMessage(error.message);renderWallpaper();}finally{baekBusy=false;}
 }
 function editBaekdusan(run,position){
-  if(position){void baekMutate({action:"baekdusan-layout",id:run.id,x:position.x,y:position.y,width:run.width,height:run.height,columns:run.columns});return;}
-  const dialog=baekOpen('백두산 배치·관리');
-  dialog.append(baekElement('p',`${run.start} → ${run.target} · ${run.members.length}칸 채움 · 시작: ${run.members[0].actorName} / ${new Date(run.members[0].receivedAt).toLocaleString('ko-KR')}`));
-  const form=baekElement('div');Object.assign(form.style,{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'14px'});dialog.append(form);
+  if(position){void baekMutate({action:'baekdusan-layout',id:run.id,x:position.x,y:position.y,width:run.width,height:run.height,columns:run.columns});return;}
+  const {body,footer}=baekOpen('백두산 배치·관리');
+  body.append(baekElement('p',run.start+' → '+run.target+' · '+run.members.length+'칸 채움 · 시작: '+run.members[0].actorName+' / '+new Date(run.members[0].receivedAt).toLocaleString('ko-KR'),'baek-intro'));
+  const form=baekElement('div',undefined,'baek-fields');body.append(form);
   const x=baekField(form,'왼쪽 위치 (0~1920)',run.x),y=baekField(form,'위쪽 위치 (0~1080)',run.y);
   const width=baekField(form,'영역 너비',run.width),height=baekField(form,'영역 높이',run.height),columns=baekField(form,'한 줄 칸 수 (1~25)',run.columns);
-  const save=baekElement('button','배치 저장'),remove=baekElement('button','백두산 묶기 해제');save.className='primary';remove.className='danger';
+  const save=baekElement('button','배치 저장','baek-primary'),remove=baekElement('button','백두산 묶기 해제','baek-danger');
   save.onclick=()=>baekMutate({action:'baekdusan-layout',id:run.id,x:Number(x.value),y:Number(y.value),width:Number(width.value),height:Number(height.value),columns:Number(columns.value)});
-  remove.onclick=()=>{if(baekBusy)return;const confirmation=baekElement('div');confirmation.append(baekElement('p','묶기를 해제해도 원본 후원 기록은 유지됩니다. 해제할까요?'));const yes=baekElement('button','해제하기');yes.onclick=()=>baekMutate({action:'baekdusan-remove',id:run.id});confirmation.append(yes);remove.disabled=true;dialog.append(confirmation);};
-  const actions=baekElement('div');Object.assign(actions.style,{display:'flex',gap:'10px',marginTop:'20px'});actions.append(save,remove);dialog.append(actions);
+  remove.onclick=()=>{if(baekBusy)return;const confirmation=baekElement('div',undefined,'baek-confirm');confirmation.append(baekElement('p','묶기를 해제해도 원본 후원 기록은 유지됩니다. 해제할까요?'));const yes=baekElement('button','해제하기','baek-danger');yes.onclick=()=>baekMutate({action:'baekdusan-remove',id:run.id});confirmation.append(yes);remove.disabled=true;body.append(confirmation);yes.focus();};
+  footer.prepend(remove,save);
 }
 function openBaekdusan(){
-  const dialog=baekOpen('백두산 만들기');
-  dialog.append(baekElement('p','시작 별풍선을 직접 선택하세요. 그 후 다음 숫자가 처음 들어올 때마다 한 칸씩 채웁니다. 후원자는 달라도 됩니다.'));
-  dialog.append(baekElement('p','이 PC에 계정별로 저장됩니다. 보관 중인 방송 기록(최근 7일)에서 시작할 수 있고, 방송당 하나·묶음당 최대 500칸입니다.'));
-  for(const run of state.wallpaper?.baekdusan?.runs||[]){const manage=baekElement('button',`${run.start}~${run.target} · ${run.members.length}칸 · 관리`);manage.onclick=()=>editBaekdusan(run);dialog.append(manage);}
-  if(state.wallpaper?.baekdusan?.error)baekMessage(state.wallpaper.baekdusan.error);
-  const label=baekElement('label','방송 선택'),select=baekElement('select');Object.assign(select.style,{display:'block',width:'100%',padding:'12px',fontSize:'16px',margin:'12px 0'});
-  for(const session of state.wallpaper?.sessions||[]){const option=baekElement('option',`${new Date(session.startedAt||session.started_at).toLocaleString('ko-KR')} · ${session.label||'방송'}`);option.value=session.id;select.append(option);}select.value=(state.wallpaper?.selectedSessionIds||[])[0]||select.value;label.append(select);dialog.append(label);dialog.append(baekElement('p','백두산은 화면 표시 회차로 선택한 방송에서만 보입니다. 다른 방송을 고르면 회차 선택도 확인해주세요.'));
-  const startAmount=baekField(dialog,'찾을 시작 별풍선 수량',1);
-  const load=baekElement('button','시작 후원 찾기'),list=baekElement('div'),more=baekElement('button','다음 후원 보기'),target=baekField(dialog,'몇 개까지 진행할까요? (목표 숫자)',100),create=baekElement('button','선택한 후원으로 백두산 만들기');
-  Object.assign(list.style,{display:'grid',gap:'6px',maxHeight:'260px',overflow:'auto',margin:'12px 0'});create.className='primary';create.disabled=true;more.hidden=true;
+  const {dialog,body,footer}=baekOpen('백두산 만들기');
+  body.append(baekElement('p','시작 후원을 고르면 다음 숫자의 후원이 들어올 때마다 한 칸씩 쌓입니다. 후원자는 달라도 괜찮아요.','baek-intro'));
+  const runs=state.wallpaper?.baekdusan?.runs||[];
+  if(runs.length){const existing=baekElement('div',undefined,'baek-runs');for(const run of runs){const manage=baekElement('button',run.start+'–'+run.target+' · '+run.members.length+'칸 채움 · 관리');manage.onclick=()=>editBaekdusan(run);existing.append(manage);}body.append(existing);}
+  const settings=baekSection(body,'01','방송과 범위 설정'),label=baekElement('label',undefined,'baek-field'),select=baekElement('select');
+  label.append(baekElement('span','방송 선택'),select);settings.append(label);
+  for(const session of state.wallpaper?.sessions||[]){const option=baekElement('option',new Date(session.startedAt||session.started_at).toLocaleString('ko-KR')+' · '+(session.label||'방송'));option.value=session.id;select.append(option);}select.value=(state.wallpaper?.selectedSessionIds||[])[0]||select.value;
+  const fields=baekElement('div',undefined,'baek-fields');settings.append(fields);
+  const startAmount=baekField(fields,'시작 별풍선 수량',1),target=baekField(fields,'목표 별풍선 수량',100);startAmount.min='1';target.min='1';
+  settings.append(baekElement('p','예: 1 → 100이면 100칸을 미리 준비합니다. 한 묶음은 최대 500칸입니다.','baek-help'));
+  const picker=baekSection(body,'02','시작 후원 선택'),searchHead=baekElement('div',undefined,'baek-search-head'),load=baekElement('button','후원 찾기'),list=baekElement('div',undefined,'baek-list'),more=baekElement('button','다음 후원 더 보기','baek-more');
+  searchHead.append(picker.firstChild,load);picker.append(searchHead,list,more);more.hidden=true;
+  const details=baekElement('details',undefined,'baek-details');details.append(baekElement('summary','저장·표시 안내'),baekElement('p','이 PC에 계정별로 저장되며, 보관 중인 최근 7일 방송에서 시작할 수 있습니다. 방송당 하나씩 만들 수 있습니다.'),baekElement('p','백두산은 화면 표시 회차로 선택한 방송에서만 보입니다. 다른 방송을 고르면 회차 선택도 확인해주세요.'));body.append(details);
+  const summary=baekElement('div',undefined,'baek-summary'),create=baekElement('button','백두산 만들기','baek-primary');create.disabled=true;footer.prepend(summary,create);
   let cursor=0,chosen=null,generation=0,loading=false;
-  const reset=()=>{generation++;cursor=0;chosen=null;create.disabled=true;more.hidden=true;list.replaceChildren();};select.onchange=reset;startAmount.oninput=reset;
+  function updateSummary(){summary.replaceChildren();if(!chosen){summary.append(baekElement('span','시작할 후원을 먼저 선택해주세요.'));return;}const end=Number(target.value),valid=Number.isSafeInteger(end)&&end>=chosen.amount&&end-chosen.amount<500;summary.append(baekElement('strong',valid?chosen.amount+' → '+end+' · '+(end-chosen.amount+1)+'칸 준비':'목표 수량을 확인해주세요.'),baekElement('span',chosen.actorName+' · '+new Date(chosen.receivedAt).toLocaleString('ko-KR')));}
+  const empty=text=>{list.replaceChildren(baekElement('div',text,'baek-empty'));};
+  const reset=()=>{generation++;cursor=0;chosen=null;create.disabled=true;more.hidden=true;empty('수량을 입력하고 ‘후원 찾기’를 눌러주세요.');baekMessage('');updateSummary();};
+  select.onchange=reset;startAmount.oninput=reset;target.oninput=updateSummary;reset();
   async function fetchPage(first){
-    if(loading)return;if(first)reset();const ticket=generation;loading=true;load.disabled=true;more.disabled=true;
+    if(loading)return;if(first)reset();const ticket=generation;loading=true;load.disabled=true;more.disabled=true;load.textContent='찾는 중…';
     try{baekMessage('후원 기록을 불러오는 중입니다…');const amount=Number(startAmount.value);if(!Number.isSafeInteger(amount)||amount<1)throw new Error('시작 수량을 입력해주세요.');
       const response=await baekControl({action:'baekdusan-log',sessionId:select.value,amount,afterSequence:cursor});if(ticket!==generation||!dialog.isConnected)return;
-      for(const tip of response.tiles){const button=baekElement('button',`${new Date(tip.receivedAt).toLocaleString('ko-KR')} · ${tip.actorName} · ${tip.amount}개`);button.style.textAlign='left';button.onclick=()=>{chosen=tip;for(const row of list.children)row.classList.remove('primary');button.classList.add('primary');create.disabled=false;};list.append(button);}
-      cursor=response.nextSequence;more.hidden=!response.hasMore;baekMessage(list.children.length?'백두산이 시작된 후원을 선택해주세요.':'해당 수량의 후원 기록이 없습니다.');
-    }catch(error){if(ticket===generation)baekMessage(error.message);}finally{loading=false;load.disabled=false;more.disabled=false;}
+      if(first)list.replaceChildren();
+      for(const tip of response.tiles){
+        const button=baekElement('button',undefined,'baek-tip'),copy=baekElement('span',undefined,'baek-tip-copy'),time=baekElement('time',new Date(tip.receivedAt).toLocaleString('ko-KR'));time.dateTime=tip.receivedAt;copy.append(baekElement('strong',tip.actorName),time);
+        const mark=baekElement('span','✓','baek-tip-mark');mark.setAttribute('aria-hidden','true');button.append(mark,copy,baekElement('span',tip.amount+'개','baek-amount'));button.setAttribute('aria-pressed','false');
+        button.onclick=()=>{chosen=tip;for(const row of list.children)row.setAttribute('aria-pressed',String(row===button));create.disabled=false;baekMessage('');updateSummary();};list.append(button);
+      }
+      cursor=response.nextSequence;more.hidden=!response.hasMore;
+      if(!list.children.length){empty('해당 수량의 후원이 없습니다. 방송이나 시작 수량을 바꿔보세요.');baekMessage('해당 수량의 후원 기록이 없습니다.');}else baekMessage('백두산이 시작된 후원을 선택해주세요.');
+    }catch(error){if(ticket===generation)baekMessage(error.message);}finally{loading=false;load.disabled=false;more.disabled=false;load.textContent='후원 찾기';}
   }
   load.onclick=()=>fetchPage(true);more.onclick=()=>fetchPage(false);
   create.onclick=()=>{if(!chosen)return;const number=Number(target.value);if(!Number.isSafeInteger(number)||number<chosen.amount||number-chosen.amount>=500){baekMessage('목표는 시작 숫자 이상, 최대 500칸까지 입력해주세요.');return;}void baekMutate({action:'baekdusan-create',sessionId:chosen.sessionId,tileId:chosen.id,target:number});};
-  dialog.append(load,list,more,create);
+  if(state.wallpaper?.baekdusan?.error)baekMessage(state.wallpaper.baekdusan.error);
 }
 document.getElementById('openBaekdusanBtn').onclick=openBaekdusan;
