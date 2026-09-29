@@ -90,7 +90,13 @@ test("encrypts and authenticates the short-lived PKCE verifier", () => {
   const encrypted = encryptShortLivedSecret("secret-verifier", key);
   assert.equal(decryptShortLivedSecret(encrypted, key), "secret-verifier");
   const parts = encrypted.split(".");
-  parts[3] = `${parts[3].slice(0, -1)}A`;
+  // Replacing a base64url character with A can leave the decoded bytes unchanged.
+  // Flip an actual ciphertext bit so every random IV exercises tamper rejection.
+  const ciphertext = Buffer.from(parts[3], "base64url");
+  const tampered = Buffer.from(ciphertext);
+  tampered[0] ^= 1;
+  assert.notDeepEqual(tampered, ciphertext);
+  parts[3] = tampered.toString("base64url");
   assert.throws(() => decryptShortLivedSecret(parts.join("."), key));
 });
 
