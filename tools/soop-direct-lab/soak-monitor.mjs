@@ -18,14 +18,19 @@ try{
   const before=state();if(before.channel?.state!=='connected'||Date.now()-Date.parse(before.heartbeatAt)>30000)throw Error('original_not_ready');
   // Never attach a second connection during an unstable original startup.
   for(let i=0;i<3;i++){await new Promise(r=>setTimeout(r,10000));const s=state();if(ended||Date.now()-contact>30000)throw Error('supervisor_disconnected');if(s.channel?.state!=='connected'||Date.now()-Date.parse(s.heartbeatAt)>30000)throw Error('original_not_ready')}
-  const body={kind:'observe',workspaceId,instanceId:'isolated-coexist-observer'},timestamp=String(Date.now()),nonce=crypto.randomBytes(16).toString('hex');
+  async function readCredentials(){
+    const body={kind:'observe',workspaceId,instanceId:'isolated-coexist-observer'},timestamp=String(Date.now()),nonce=crypto.randomBytes(16).toString('hex');
   const signature=signSoopGatewayRequest({secret:process.env.SOOP_GATEWAY_INGRESS_SECRET,timestamp,nonce,body});
   const url=process.env.BYEOLLOG_SOOP_GATEWAY_URL||'https://byeollog.com/api/auth/soop/gateway';
   if(new URL(url).origin!=='https://byeollog.com')throw Error('unexpected_gateway');
-  const response=await fetch(url,{method:'POST',redirect:'error',headers:{'Content-Type':'application/json','X-Byeollog-Soop-Gateway-Timestamp':timestamp,'X-Byeollog-Soop-Gateway-Nonce':nonce,'X-Byeollog-Soop-Gateway-Signature':signature},body:JSON.stringify(body),signal:AbortSignal.timeout(25000)});
-  const lease=await response.json();
+  const response=await fetch(url,{method:'POST',redirect:'error',headers:{'Content-Type':'application/json','X-Byeollog-Soop-Gateway-Timestamp':timestamp,'X-Byeollog-Soop-Gateway-Nonce':nonce,'X-Byeollog-Soop-Gateway-Signature':signature},body:JSON.stringify(body),signal:AbortSignal.timeout(10000)});
+  const text=await response.text();if(Buffer.byteLength(text)>65536)throw Error('observation_response_too_large');
+  const lease=JSON.parse(text);
   if(response.status===409&&lease.code==='soop_observation_token_wait')throw Error('observation_token_wait');
   if(!response.ok||lease.kind!=='observe'||lease.refreshed||lease.leaseToken||lease.workspaceId!==workspaceId)throw Error('observation_credentials_unavailable');
+  return lease;
+  }
+  let lease=await readCredentials();
   let port;
   for(const pid of fs.readdirSync('/proc').filter(x=>/^\d+$/.test(x))){try{const s=fs.readFileSync(`/proc/${pid}/cmdline`,'utf8');const m=s.includes('chromium')&&s.match(/--remote-debugging-port=(\d+)/);if(m){port=Number(m[1]);break}}catch{}}
   if(!port)throw Error('debug_port_missing');
@@ -59,19 +64,36 @@ try{
   }
   if(!selected)throw Error('original_target_not_found');
   const expiry=Date.parse(lease.providerTokenExpiresAt||'');
-  const durationMs=Math.min(Number(config.durationMs),expiry-Date.now()-60000);
+  const durationMs=Number(config.durationMs);
   if(!Number.isFinite(durationMs))throw Error('provider_expiry_invalid');
-  if(durationMs<60000)throw Error('observation_token_wait');
+  if(!Number.isFinite(expiry)||expiry-Date.now()<120000)throw Error('observation_token_wait');
+  if(durationMs<60000||durationMs>172800000)throw Error('provider_expiry_invalid');
   // Sensitive fields are consumed only by the remote controller pipe, never logged.
-  out({kind:'private_config',config:{clientId:lease.clientId,clientSecret:lease.clientSecret,accessToken:lease.accessToken,broadcasterId:lease.providerAccountId,salt,durationMs}});
+  out({kind:'private_config',config:{clientId:lease.clientId,clientSecret:lease.clientSecret,accessToken:lease.accessToken,broadcasterId:lease.providerAccountId,providerTokenExpiresAt:lease.providerTokenExpiresAt,salt,durationMs}});
   out({kind:'monitor_ready',before:{state:before.channel.state,pending:before.pending,deadLetters:before.deadLetters}});
-  const end=Date.now()+durationMs+15000;let tick=0;
+  const end=Date.now()+durationMs+15000;let tick=0,nextCredentialRead=0,lastCredentialState=null;
+  const initialOwner=lease.providerAccountId,initialApp=lease.clientId,initialSecret=lease.clientSecret;
   while(!ended&&Date.now()<end){
     await new Promise(r=>setTimeout(r,2000));const s=state();
     if(s.channel?.state!=='connected')halt('original_state_changed');
     if(Date.now()-Date.parse(s.heartbeatAt)>35000)halt('original_state_stale');
     if(Date.now()-contact>30000)halt('supervisor_disconnected');
     if(s.pending>before.pending+50||s.deadLetters>before.deadLetters)halt('original_queue_increased');
+    if(Date.now()>=nextCredentialRead&&Date.now()>=Date.parse(lease.providerTokenExpiresAt)-180000){
+      nextCredentialRead=Date.now()+30000;
+      try{
+        const fresh=await readCredentials();
+        if(fresh.providerAccountId!==initialOwner||fresh.clientId!==initialApp||fresh.clientSecret!==initialSecret)throw Error('replacement_identity_mismatch');
+        if(fresh.accessToken!==lease.accessToken&&Date.parse(fresh.providerTokenExpiresAt)>Date.parse(lease.providerTokenExpiresAt)){
+          lease=fresh;
+          out({kind:'private_replacement',config:{clientId:fresh.clientId,clientSecret:fresh.clientSecret,accessToken:fresh.accessToken,broadcasterId:fresh.providerAccountId,providerTokenExpiresAt:fresh.providerTokenExpiresAt}});
+          out({kind:'credential_status',state:'replacement_available'});lastCredentialState=null;
+        }else if(lastCredentialState!=='waiting'){out({kind:'credential_status',state:'waiting_keep_active'});lastCredentialState='waiting'}
+      }catch(e){
+        if(e.message==='replacement_identity_mismatch')throw e;
+        if(lastCredentialState!=='unavailable'){out({kind:'credential_status',state:'unavailable_keep_active'});lastCredentialState='unavailable'}
+      }
+    }
     if(++tick%15===0){const identity=await selected.send('Runtime.evaluate',{expression,returnByValue:true});if(identity.result?.value!==true)halt('original_room_changed');out({kind:'original_health',at:Date.now(),state:s.channel?.state,pending:s.pending,deadLetters:s.deadLetters,roomMatches:identity.result?.value===true})}
   }
   const after=state();out({kind:'monitor_done',after:{state:after.channel?.state,pending:after.pending,deadLetters:after.deadLetters},aborted:ended});

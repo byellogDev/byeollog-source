@@ -4,17 +4,21 @@ spec=importlib.util.spec_from_file_location('controller',pathlib.Path(__file__).
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 def frame(at=8000):return {'at':at,'code':18,'digest':'synthetic'}
 class FinalizationTests(unittest.TestCase):
- def session_fixture(self,drained_peer=False,diagnostic=None,before_ready=False):
+ def session_fixture(self,drained_peer=False,diagnostic=None,before_ready=False,replacement=False):
   clock=[100.0]
   events=[('original',{'kind':'private_config','config':{'synthetic':True}}),('original',{'kind':'monitor_ready','before':{}}),('candidate',{'kind':'ready'}),('original',{'kind':'frame',**frame(108000)}),('original',{'kind':'monitor_done','after':{}})]
   evidence=[]
+  writes=[]
+  if replacement:
+   events.insert(3,('original',{'kind':'private_replacement','config':{'accessToken':'private-marker','broadcasterId':'synthetic'}}))
+   events.insert(4,('candidate',{'kind':'handoff_committed','matched':3,'overlapMs':30000,'handoffs':1,'accessToken':'private-marker'}))
   if diagnostic is not None:events.insert(-1,('original',{'kind':'original_decode_error',**diagnostic}))
   tail=[('candidate',{'kind':'frame',**frame(108050)})] if drained_peer else []
   if before_ready:
    events=events[:2]+[('original',{'kind':'abort','reason':'original_socket_closed'})]
    tail=[('candidate',{'kind':'candidate_decode_error','code':'invalid_header','byteLength':14})]
   class Pipe:
-   def write(self,*a):pass
+   def write(self,*a):writes.extend(a)
    def flush(self):pass
    def close(self):pass
   class Process:
@@ -37,7 +41,13 @@ class FinalizationTests(unittest.TestCase):
   with patch.object(m,'time',types.SimpleNamespace(time=lambda:clock[0],monotonic=lambda:clock[0],sleep=lambda _:None)),patch.object(m,'pressure',return_value=False),patch.object(m,'subprocess',fake_process),patch.object(m,'queue',types.SimpleNamespace(Queue=Queue,Empty=queue.Empty)),patch.object(m,'command',side_effect=lambda args,**kw:json.dumps([inspection]) if '--format' not in args else 'synthetic-image'):
    result=m.session({'label':'test','workspaceId':'synthetic'},dict(monitor='',observer='',entry='',wsFiles={}),1000,Evidence())
    result['_evidence']=evidence
+   result['_writes']=writes
    return result
+ def test_replacement_uses_private_pipe_and_handoff_evidence_is_filtered(self):
+  result=self.session_fixture(drained_peer=True,replacement=True)
+  self.assertTrue(any('private-marker' in x for x in result.pop('_writes')))
+  self.assertNotIn('private-marker',json.dumps(result))
+  self.assertTrue(any(x['kind']=='handoff_committed' and x['matched']==3 for x in result['_evidence']))
  def test_decode_diagnostic_preserves_only_safe_metadata(self):
   result=self.session_fixture(diagnostic={'opcode':2,'payloadChars':24,'byteLength':18,'code':'invalid_header','payload':'private-marker','requestId':'private-marker'})
   record=next(x for x in result['_evidence'] if x['kind']=='original_decode_error')

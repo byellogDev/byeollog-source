@@ -162,6 +162,19 @@ def session(target, bundle, end, evidence):
             if source=='original':original_last=now
             if source=='candidate':candidate_last=now
             if kind=='private_config':private=event['config'];continue
+            if kind=='private_replacement':
+                if source!='original' or candidate is None or candidate.poll() is not None:raise RuntimeError('replacement_pipe_unavailable')
+                candidate.stdin.write(json.dumps({'kind':'replacement','config':event['config']})+'\n');candidate.stdin.flush()
+                continue
+            if kind=='credential_status' and source=='original':
+                if event.get('state') not in ['waiting_keep_active','unavailable_keep_active','replacement_available']:raise RuntimeError('invalid_credential_status')
+                evidence.emit(kind,state=event['state']);continue
+            if kind in ['handoff_preparing','handoff_overlap_started','handoff_committed','handoff_blocked'] and source=='candidate':
+                allowed=['replacement_decode_failed','replacement_connection_failed','replacement_not_newer_or_too_short','comparison_capacity','overlap_order_or_content_mismatch','overlap_incomplete','no_common_content']
+                detail={k:event[k] for k in ['matched','overlapMs','handoffs'] if type(event.get(k)) is int and 0<=event[k]<=172800000}
+                if kind=='handoff_blocked':
+                    detail.update(reason=event.get('reason') if event.get('reason') in allowed else 'handoff_failed',oldPreserved=event.get('oldPreserved') is True)
+                evidence.emit(kind,**detail);continue
             if kind=='frame':
                 if comparison and (not end_at or event['at']<end_at-1000):comparison.add(source,event)
             elif kind=='monitor_ready':
