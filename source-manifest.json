@@ -5961,9 +5961,9 @@
       "path": "components/admin-runtime/agent-updates/stable/win-x64.json",
       "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
       "before": "4b4c23f1ab1d8d97bbe06c0368570b969c46b1dc1970db46d826b0966bfcc3a6",
-      "after": "e989d5a47501fdc889b4e46440b5a60e75548fe08d619453804d2f1a315c8773",
+      "after": "301df30e09ce39324ab7684fc766c63cd4e3edaad988ad3f9c2f680defa05b2e",
       "status": "changed",
-      "release": "2026.09.30-agent-1.0.0.45"
+      "release": "2026.10.02-agent-1.0.0.46"
     },
     {
       "path": "admin-runtime/lib/native-roulette.js",
@@ -6041,9 +6041,9 @@
       "path": "components/frontend/agent-updates/stable/win-x64.json",
       "target": "apps/web/agent-updates/stable/win-x64.json",
       "before": "4b4c23f1ab1d8d97bbe06c0368570b969c46b1dc1970db46d826b0966bfcc3a6",
-      "after": "e989d5a47501fdc889b4e46440b5a60e75548fe08d619453804d2f1a315c8773",
+      "after": "301df30e09ce39324ab7684fc766c63cd4e3edaad988ad3f9c2f680defa05b2e",
       "status": "changed",
-      "release": "2026.09.30-agent-1.0.0.45"
+      "release": "2026.10.02-agent-1.0.0.46"
     },
     {
       "path": "frontend/lib/native-roulette.js",
@@ -6073,9 +6073,9 @@
       "path": "components/frontend/vercel.json",
       "target": "apps/web/vercel.json",
       "before": "441393356a2d54e49f90ef0fe15e225c168230527e44c0f8bb100dc9996c467d",
-      "after": "d867ed6f75842050a5b7b2ab8bc2fd998178461f5d4c01e4a9ce4a3e40de839b",
+      "after": "68e0d63e6b99b0e4a87a585789961a66340c794bddc5a9fb1c8236545d7748df",
       "status": "changed",
-      "release": "2026.09.30-agent-1.0.0.45"
+      "release": "2026.10.02-agent-1.0.0.46"
     },
     {
       "path": "agent-source/CollectorLoginWebForm.cs",
@@ -6089,9 +6089,9 @@
       "path": "agent-source/HurogiCollector.csproj",
       "target": "apps/windows-agent/HurogiCollector.csproj",
       "before": "beb25b35be068cd822e2687c7ff2693f464704a35da8947f872e538c0fd27ab9",
-      "after": "7fde6f801246b1c5d924c0df47eda3b312c5acf342c5eb1ee8b0be3b2406d7fb",
+      "after": "d742dc2da3b7a4fe383be0f1e1d709040c366c6175263d2d67d3d58a1b8ed63c",
       "status": "changed",
-      "release": "2026.09.30-agent-1.0.0.45"
+      "release": "2026.10.02-agent-1.0.0.46"
     },
     {
       "path": "agent-source/Ui/byeollog_ui.html",
@@ -6113,9 +6113,9 @@
       "path": "agent-source/VNextSessionVault.cs",
       "target": "apps/windows-agent/VNextSessionVault.cs",
       "before": "a2da91d5b7315f023558448737003012745bc2fdf9a4f628b7911ed0fd22958c",
-      "after": "491f4941dac83863c0621b57ccfdd658652b590497a8a11f1c9bb872575819b2",
+      "after": "9a94894a0e95d0a511cf1d9c1a3e0e7aac47ac4f7d58fe41a66ad592811e7dbd",
       "status": "changed",
-      "release": "2026.09.23.2"
+      "release": "2026.10.02-agent-1.0.0.46"
     },
     {
       "path": "ncp-gateway/lib/native-roulette.js",

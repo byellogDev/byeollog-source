@@ -1,5 +1,7 @@
 # 릴리스 기록
 
+- [2026-10-02 Agent 1.0.0.46](2026-10-02-agent-10046.md) — 재실행 자동로그인 저장 결함 수정, 공식 설치본·서명 피드 운영 반영.
+
 - [2026-10-02 직접 WebSocket 무이벤트 교체](2026-10-02-quiet-handoff.md) — 동일 방송 입장·왕복 응답으로 무이벤트 교체, 내용 대조와 분리 기록. 연구 배포 완료·실제 무이벤트 교체 대기.
 
 - [2026-10-02 직접 WebSocket 실제 토큰 교체 검증](2026-10-02-direct-handoff-review.md) — 실제 교체 2회, 4,002건 일치·최종 불일치 0. 연구 검증 기록이며 운영 전환 없음.
@@ -12,7 +14,7 @@
 
 - [2026-09-30 풍벽지 금액 범위 묶음 해제](2026-09-30-wallpaper-detached.md) — 개별 카드 배치·새 카드 좌상단·계정별 저장, 로컬 검증 후보·미배포.
 
-[GitHub Releases 전체 보기](https://github.com/byellogDev/byeollog/releases) · [최신 Agent 1.0.0.45](https://github.com/byellogDev/byeollog/releases/tag/agent-v1.0.0.45)
+[GitHub Releases 전체 보기](https://github.com/byellogDev/byeollog/releases) · [최신 Agent 1.0.0.46](https://github.com/byellogDev/byeollog/releases/tag/agent-v1.0.0.46)
 
 - [2026-09-29 GitHub Releases 누락 보완](2026-09-29-github-release-publication.md) — 24~29일 9개 기록 게시, 연구/운영 구분 및 게시 완료 기준 강화.
 
