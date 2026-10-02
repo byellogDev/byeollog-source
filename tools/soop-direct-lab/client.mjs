@@ -1,4 +1,5 @@
 import {fault,decodePackets,encodePacket,loginPacket,joinPacket,contentEvent,MAX_PACKET_BYTES,packetDiagnostic} from './protocol.mjs';
+import {randomBytes} from 'node:crypto';
 const CHATINFO='https://openapi.sooplive.com/broad/access/chatinfo';
 export async function loadRoom(config,{fetchImpl=fetch,signal}={}){
   if(!/^[a-z0-9_.-]{2,80}$/.test(config.broadcasterId||'')||typeof config.accessToken!=='string'||!config.accessToken.length||config.accessToken.length>8192||/[\x00-\x20\x7f]/.test(config.accessToken))throw fault('invalid_auth_config');
@@ -19,8 +20,8 @@ export async function loadRoom(config,{fetchImpl=fetch,signal}={}){
 
 // One connection per invocation. Reconnect decisions belong to the external
 // supervisor; no SDK globals, credential files, DB clients or automatic retries.
-export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onEvent=()=>{},onFrame=()=>{},onReport=()=>{},timing={}}={}){
-  const limits={joinMs:10000,pingMs:60000,idleMs:180000,writeMs:10000,telemetryMs:15000,...timing};
+export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onEvent=()=>{},onFrame=()=>{},onReport=()=>{},timing={},healthProbe=false}={}){
+  const limits={joinMs:10000,pingMs:60000,idleMs:180000,writeMs:10000,telemetryMs:15000,probeMs:10000,probeTimeoutMs:5000,...timing};
   const duration=Number(config.durationMs||120000);
   if(!Number.isFinite(duration)||duration<100||duration>172800000)throw fault('invalid_duration');
   for(const v of Object.values(limits))if(!Number.isFinite(v)||v<10||v>180000)throw fault('invalid_timing');
@@ -32,6 +33,14 @@ export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onE
   const deadline=(fn,ms)=>{const h=setTimeout(fn,ms);timers.add(h);return h};
   const abort=()=>finish('supervisor_stopped');signal?.addEventListener('abort',abort,{once:true});
   const safe=fn=>(...args)=>{if(finished)return;try{fn(...args)}catch(e){finish(e?.code||'callback_failed')}};
+  let challenge=null,challengeAt=0;
+  // Optional transport evidence for quiet handoff only. No pong never closes a
+  // healthy quiet connection; it merely prevents the quiet handoff decision.
+  const probe=()=>{
+    if(!healthProbe||!result.ready||finished||socket?.readyState!==1||socket.bufferedAmount>MAX_PACKET_BYTES*4)return;
+    challenge=randomBytes(16);challengeAt=Date.now();
+    try{socket.ping(challenge,error=>{if(error)challenge=null})}catch{challenge=null}
+  };
   const send=packet=>{
     if(finished)return;
     if(socket?.readyState!==1){finish('socket_not_open');return}
@@ -55,7 +64,12 @@ export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onE
     const readyTimeout=deadline(()=>finish('ready_timeout'),limits.joinMs);
     socket.on('error',()=>{result.transport.socketErrors++;finish('socket_error')});
     socket.on('close',code=>{result.transport.closeCode=code;finish('socket_closed')});
-    socket.on('pong',()=>{lastWire=Date.now()});
+    socket.on('pong',safe(data=>{
+      lastWire=Date.now();
+      if(challenge&&Buffer.from(data).equals(challenge)&&Date.now()-challengeAt<=limits.probeTimeoutMs){
+        challenge=null;onReport({kind:'transport_health',verified:true});
+      }
+    }));
     socket.on('open',safe(()=>{stage='login';lastWire=Date.now();send(loginPacket(config.accessToken))}));
     socket.on('message',safe(data=>{
       lastWire=Date.now();
@@ -78,7 +92,7 @@ export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onE
           if(ret!==0)throw fault('join_rejected');
           if(fields[1]!==room.broadcasterId||Number(fields[0])!==room.chatNumber)throw fault('join_owner_mismatch');
           stage='receiving';result.ready=true;clearTimeout(readyTimeout);
-          onReport({kind:'ready'});continue;
+          onReport({kind:'ready',chatNumber:room.chatNumber});probe();continue;
         }
         if(!result.ready)throw fault('content_before_ready');
         onFrame(packet);
@@ -92,6 +106,7 @@ export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onE
     // nor a quiet room proves peer health. The supervisor compares both feeds.
     // Do not require a WebSocket pong response that this provider may not send.
     every(safe(()=>{if(result.ready)send(encodePacket(0))}),limits.pingMs);
+    if(healthProbe)every(safe(probe),limits.probeMs);
     every(safe(()=>onReport({kind:'telemetry',ready:result.ready,events:sequence,counts:{...result.counts},rss:process.memoryUsage().rss,heapUsed:process.memoryUsage().heapUsed,cpu:process.cpuUsage(),sockets:socket?.readyState===1?1:0,timers:timers.size,stage,lastWireAgeMs:Date.now()-lastWire,receiveState:!result.ready?'not_ready':Date.now()-lastWire>limits.idleMs?'idle_unconfirmed':'receiving',writesCompleted:result.transport.writesCompleted})),limits.telemetryMs);
     await done;
   }catch(error){finish(error?.code||'connection_failed')}

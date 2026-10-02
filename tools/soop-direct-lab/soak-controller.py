@@ -170,8 +170,10 @@ def session(target, bundle, end, evidence):
                 if event.get('state') not in ['waiting_keep_active','unavailable_keep_active','replacement_available']:raise RuntimeError('invalid_credential_status')
                 evidence.emit(kind,state=event['state']);continue
             if kind in ['handoff_preparing','handoff_overlap_started','handoff_committed','handoff_blocked'] and source=='candidate':
-                allowed=['replacement_decode_failed','replacement_connection_failed','replacement_not_newer_or_too_short','comparison_capacity','overlap_order_or_content_mismatch','overlap_incomplete','no_common_content']
+                allowed=['replacement_decode_failed','replacement_connection_failed','replacement_not_newer_or_too_short','replacement_broadcast_mismatch','comparison_capacity','overlap_order_or_content_mismatch','overlap_incomplete','no_common_content']
                 detail={k:event[k] for k in ['matched','overlapMs','handoffs'] if type(event.get(k)) is int and 0<=event[k]<=172800000}
+                if kind=='handoff_committed' and event.get('basis') in ['content_matched','quiet_transport_verified']:
+                    detail.update(basis=event['basis'],contentVerified=event['basis']=='content_matched')
                 if kind=='handoff_blocked':
                     detail.update(reason=event.get('reason') if event.get('reason') in allowed else 'handoff_failed',oldPreserved=event.get('oldPreserved') is True)
                 evidence.emit(kind,**detail);continue

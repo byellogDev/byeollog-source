@@ -4,14 +4,14 @@ spec=importlib.util.spec_from_file_location('controller',pathlib.Path(__file__).
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 def frame(at=8000):return {'at':at,'code':18,'digest':'synthetic'}
 class FinalizationTests(unittest.TestCase):
- def session_fixture(self,drained_peer=False,diagnostic=None,before_ready=False,replacement=False):
+ def session_fixture(self,drained_peer=False,diagnostic=None,before_ready=False,replacement=False,basis=None):
   clock=[100.0]
   events=[('original',{'kind':'private_config','config':{'synthetic':True}}),('original',{'kind':'monitor_ready','before':{}}),('candidate',{'kind':'ready'}),('original',{'kind':'frame',**frame(108000)}),('original',{'kind':'monitor_done','after':{}})]
   evidence=[]
   writes=[]
   if replacement:
    events.insert(3,('original',{'kind':'private_replacement','config':{'accessToken':'private-marker','broadcasterId':'synthetic'}}))
-   events.insert(4,('candidate',{'kind':'handoff_committed','matched':3,'overlapMs':30000,'handoffs':1,'accessToken':'private-marker'}))
+   events.insert(4,('candidate',{'kind':'handoff_committed','matched':0 if basis=='quiet_transport_verified' else 3,'overlapMs':30000,'handoffs':1,'accessToken':'private-marker','basis':basis,'contentVerified':True}))
   if diagnostic is not None:events.insert(-1,('original',{'kind':'original_decode_error',**diagnostic}))
   tail=[('candidate',{'kind':'frame',**frame(108050)})] if drained_peer else []
   if before_ready:
@@ -48,6 +48,16 @@ class FinalizationTests(unittest.TestCase):
   self.assertTrue(any('private-marker' in x for x in result.pop('_writes')))
   self.assertNotIn('private-marker',json.dumps(result))
   self.assertTrue(any(x['kind']=='handoff_committed' and x['matched']==3 for x in result['_evidence']))
+ def test_quiet_basis_does_not_claim_content_verification_or_leak_unknown_reason(self):
+  for basis in ['quiet_transport_verified','content_matched','private-marker']:
+   with self.subTest(basis=basis):
+    result=self.session_fixture(drained_peer=True,replacement=True,basis=basis)
+    record=next(x for x in result['_evidence'] if x['kind']=='handoff_committed')
+    self.assertNotIn('private-marker',json.dumps(record))
+    if basis=='private-marker':self.assertNotIn('basis',record)
+    else:
+     self.assertEqual(record['basis'],basis)
+     self.assertEqual(record['contentVerified'],basis=='content_matched')
  def test_decode_diagnostic_preserves_only_safe_metadata(self):
   result=self.session_fixture(diagnostic={'opcode':2,'payloadChars':24,'byteLength':18,'code':'invalid_header','payload':'private-marker','requestId':'private-marker'})
   record=next(x for x in result['_evidence'] if x['kind']=='original_decode_error')
