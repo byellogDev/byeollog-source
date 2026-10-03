@@ -6546,6 +6546,27 @@
       "after": "8916d659e7850fa262e130b4d663da7af26ef97df20320564002198b18af1bb6",
       "status": "changed",
       "release": "2026.10.04-wallpaper-custom-candidate"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "301df30e09ce39324ab7684fc766c63cd4e3edaad988ad3f9c2f680defa05b2e",
+      "after": "c46f9cdd63480f4cf09add90242a95da51cfc08a36da3ab0bb9b5b61e047e454",
+      "status": "changed",
+      "release": "2026.10.04-agent-10047"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "301df30e09ce39324ab7684fc766c63cd4e3edaad988ad3f9c2f680defa05b2e",
+      "after": "c46f9cdd63480f4cf09add90242a95da51cfc08a36da3ab0bb9b5b61e047e454",
+      "status": "changed",
+      "release": "2026.10.04-agent-10047"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "68e0d63e6b99b0e4a87a585789961a66340c794bddc5a9fb1c8236545d7748df",
+      "after": "c1f18f53e1752796fe378424bbc5dda169532219b3b6db889861ce38cedf9aa7",
+      "status": "changed",
+      "release": "2026.10.04-agent-10047"
     }
   ]
 }
