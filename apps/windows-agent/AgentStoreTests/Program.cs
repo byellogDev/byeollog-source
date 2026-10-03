@@ -60,6 +60,8 @@ internal static partial class Program
 
         try
         {
+            await WallpaperAppearanceTestsAsync(root);
+            if (args.Contains("--appearance-only")) { Console.WriteLine($"PASS: {_assertions} appearance assertions"); return; }
             await WallpaperDetachedTestsAsync(root);
             if (args.Contains("--detached-only")) { Console.WriteLine($"PASS: {_assertions} detached assertions"); return; }
             await WallpaperBaekdusanTestsAsync(root);

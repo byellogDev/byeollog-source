@@ -775,6 +775,7 @@ internal sealed class ByeollogOverlayService : IDisposable
           name.textContent = copy.name; info.textContent = copy.info; compact.textContent = copy.compact;
         }
       }
+      ByeollogWallpaperAppearance.apply(wallpaperCanvas,state.appearance);
       wallpaperRevision = Number(state.revision) || 0;
       wallpaperDisplayRevision = String(state.displayRevision ?? state.revision);
       scheduleWallpaperObservation(wallpaperRevision);
@@ -2625,7 +2626,7 @@ internal sealed class ByeollogOverlayService : IDisposable
             $"Content-Type: {contentType}\r\n" +
             $"Content-Length: {body.Length}\r\n" +
             "Cache-Control: no-store, max-age=0\r\n" +
-            "Content-Security-Policy: default-src 'none'; img-src 'self'; media-src 'self'; connect-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'\r\n" +
+            "Content-Security-Policy: default-src 'none'; img-src 'self'; media-src 'self'; font-src https:; connect-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'\r\n" +
             $"Cross-Origin-Resource-Policy: {crossOriginResourcePolicy}\r\n" +
             corsHeader +
             "Referrer-Policy: no-referrer\r\n" +

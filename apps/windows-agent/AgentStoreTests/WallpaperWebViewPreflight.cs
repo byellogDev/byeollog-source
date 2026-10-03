@@ -110,6 +110,14 @@ internal static class WallpaperWebViewPreflight
         using var rendered=new WebView2 {Dock=DockStyle.Fill};host.Controls.Add(rendered);
         await rendered.EnsureCoreWebView2Async(environment);rendered.Source=new Uri($"http://127.0.0.1:{port}/overlay/wallpaper");
         await WaitAsync(rendered,"document.readyState==='complete'","overlay bootstrap");
+        // Deterministic HTTPS font transport; no external service is contacted.
+        foreach(var target in new[]{web,rendered}){
+            target.CoreWebView2.AddWebResourceRequestedFilter("https://font-fixture.example/*",CoreWebView2WebResourceContext.Font);
+            target.CoreWebView2.WebResourceRequested+=(_,e)=>{
+                var bytes=e.Request.Uri.EndsWith("/invalid.ttf")?System.Text.Encoding.UTF8.GetBytes("invalid font fixture"):File.ReadAllBytes(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts),"segoeui.ttf"));
+                e.Response=environment.CreateWebResourceResponse(new MemoryStream(bytes),200,"OK","Content-Type: font/ttf\r\nAccess-Control-Allow-Origin: *");
+            };
+        }
         for(int i=0;i<36;i++){
             int index=i%2;
             await web.ExecuteScriptAsync($"document.querySelectorAll('#wallpaperSessions input')[{index}].click()");
@@ -133,6 +141,31 @@ internal static class WallpaperWebViewPreflight
         await WaitAsync(web,"!document.getElementById('refreshWallpaperBtn').disabled","selection queue drained");
         await web.ExecuteScriptAsync("if(!document.querySelector('#wallpaperSessions input').checked)document.querySelector('#wallpaperSessions input').click()");
         await WaitAsync(web,"!document.getElementById('refreshWallpaperBtn').disabled && document.querySelectorAll('#wallpaperPreview .wallpaper-tile').length>0","settings fixture selected");
+        // Local appearance goes through the actual bridge and display snapshot.
+        var appearanceWrites=agent.RemoteWrites;
+        await web.ExecuteScriptAsync("document.getElementById('openWallpaperCustomBtn').click();document.getElementById('wallpaperCustomNameColor').value='#2367ab';document.getElementById('wallpaperCustomTextColor').value='#ffffff';document.getElementById('wallpaperCustomBackground').value='#102030';document.getElementById('wallpaperCustomSizeNumber').value='12';document.getElementById('wallpaperCustomSizeNumber').dispatchEvent(new Event('input'))");
+        await WaitAsync(web,"getComputedStyle(document.querySelector('.wallpaper-custom-sample .wallpaper-meta-name')).color==='rgb(35, 103, 171)'","nickname preview color");
+        using(var screenshot=File.Create(Path.Combine(root,"wallpaper-custom-dialog.png")))
+            await web.CoreWebView2.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,screenshot);
+        await web.ExecuteScriptAsync("document.getElementById('saveWallpaperCustomBtn').click()");
+        await WaitAsync(web,"!document.getElementById('wallpaperCustomDialog') && getComputedStyle(document.querySelector('#wallpaperPreview .wallpaper-meta-name')).color==='rgb(35, 103, 171)'","custom appearance saved in editor");
+        await WaitAsync(rendered,"document.querySelector('.wallpaper-custom-meta') && getComputedStyle(document.querySelector('.wallpaper-meta-name')).color==='rgb(35, 103, 171)' && getComputedStyle(document.querySelector('.wallpaper-meta-info')).color==='rgb(255, 255, 255)' && getComputedStyle(document.querySelector('.wallpaper-custom-card')).backgroundColor==='rgb(16, 32, 48)'","OBS appearance matches editor");
+        if(agent.RemoteWrites!=appearanceWrites)throw new Exception("appearance caused a remote mutation");
+        await web.ExecuteScriptAsync("document.getElementById('openWallpaperCustomBtn').click()");
+        await WaitAsync(web,"document.getElementById('wallpaperCustomNameColor').value==='#2367ab' && document.getElementById('wallpaperCustomSizeNumber').value==='12'","appearance modal restored");
+        await web.ExecuteScriptAsync("document.getElementById('wallpaperCustomNameColor').value='#ff00ff';document.getElementById('wallpaperCustomDialog').close()");
+        if(agent.Context.Editor.Appearance.View.GetProperty("nameColor").GetString()!="#2367ab")throw new Exception("cancel changed persisted appearance");
+        await VerifySmallAppearanceAsync(web);
+        await VerifySmallAppearanceAsync(rendered);
+        await web.ExecuteScriptAsync("document.getElementById('openWallpaperCustomBtn').click();document.getElementById('wallpaperCustomFont').value='https://font-fixture.example/invalid.ttf';document.getElementById('saveWallpaperCustomBtn').click()");
+        await WaitAsync(web,"!document.getElementById('saveWallpaperCustomBtn').disabled && document.getElementById('wallpaperCustomStatus').textContent.includes('폰트를 불러오지 못했습니다')","invalid font blocks save without discarding draft");
+        if(agent.Context.Editor.Appearance.View.GetProperty("fontUrl").GetString()!="")throw new Exception("invalid font was persisted");
+        await web.ExecuteScriptAsync("document.getElementById('wallpaperCustomFont').value='https://font-fixture.example/valid.ttf';document.getElementById('saveWallpaperCustomBtn').click()");
+        await WaitAsync(web,"!document.getElementById('wallpaperCustomDialog') && getComputedStyle(document.querySelector('#wallpaperPreview .wallpaper-custom-meta')).fontFamily.includes('ByeollogCustom')","font loaded through editor HTTPS fixture");
+        await WaitAsync(rendered,"getComputedStyle(document.querySelector('.wallpaper-custom-meta')).fontFamily.includes('ByeollogCustom')","font loaded through OBS CSP and CORS fixture");
+        await web.ExecuteScriptAsync("document.getElementById('openWallpaperCustomBtn').click();document.getElementById('resetWallpaperCustomBtn').click()");
+        await WaitAsync(web,"!document.getElementById('wallpaperCustomDialog') && !document.querySelector('#wallpaperPreview .wallpaper-custom-card')","editor reset restores original style");
+        await WaitAsync(rendered,"!document.querySelector('.wallpaper-custom-card')","OBS reset restores original style");
         // Settings must remain usable offline and survive closing/reopening the modal.
         await web.ExecuteScriptAsync("document.getElementById('openWallpaperSettingsBtn').click();document.getElementById('wallpaperMergeRanges').value='1-100';document.getElementById('saveWallpaperMergeBtn').click()");
         await WaitAsync(web,"document.getElementById('wallpaperSettingsStatus').classList.contains('ok')","local merge saved");
@@ -166,8 +199,40 @@ internal static class WallpaperWebViewPreflight
             await WaitAsync(web,$"location.href!=={previous} && document.querySelectorAll('#wallpaperSessions input').length===2 && document.querySelectorAll('#wallpaperPreview .wallpaper-tile').length===0","account switch");
             await WaitAsync(rendered,"document.querySelectorAll('.wallpaper-tile').length===0","account overlay empty");
         }
-        Console.WriteLine("PASS: real WebView2 Form+editor JS+coordinator+local HTTP renderer: 36 sequential toggles, 54 rapid toggles with slow ACK, local merge save/reopen/refresh, offline persisted layout, 8 account document reloads. Fake remote transport; not installed EXE or actual OBS.");
+        Console.WriteLine("PASS: real WebView2 Form+editor JS+coordinator+local HTTP renderer: appearance preview/save/cancel/reset, editor/OBS color parity, unchanged compact text with separate nickname color and font bounds on both renderers, 36 sequential toggles, 54 rapid toggles with slow ACK, local merge save/reopen/refresh, offline persisted layout, 8 account document reloads. Fake remote transport; not installed EXE or actual OBS.");
         Console.WriteLine("WEBVIEW_ARTIFACT_ROOT="+root);
         form.Close();
+    }
+    private static async Task VerifySmallAppearanceAsync(WebView2 web)
+    {
+        var result=await web.ExecuteScriptAsync("""
+        (()=>{
+          const a=ByeollogWallpaperAppearance, canvas=document.createElement('div');document.body.append(canvas);
+          const card=document.createElement('article');card.className='wallpaper-tile compact-label';card.style.cssText='position:relative;width:80px;height:75px;display:grid;grid-template-rows:1fr 16px';
+          const image=document.createElement('div'),meta=document.createElement('div');meta.className='wallpaper-meta';
+          for(const [cls,text] of [['wallpaper-meta-name','테스트후원자'],['wallpaper-meta-info','별풍선 100개'],['wallpaper-meta-compact','테스트후원자 100개']]){const x=document.createElement('span');x.className=cls;x.textContent=text;meta.append(x)}
+          card.append(image,meta);canvas.append(card);
+          const settings={...a.defaults,enabled:true,nameColor:'#2367ab',textColor:'#ffffff',fontSize:72};
+          try{
+            a.apply(canvas,settings);
+            if(parseFloat(getComputedStyle(meta).fontSize)>a.bounds(meta.clientWidth,meta.clientHeight,1).max)throw Error('font exceeds bounds');
+            const compact=meta.querySelector('.wallpaper-custom-compact');
+            if(!meta.classList.contains('wallpaper-custom-single')||getComputedStyle(meta.children[0]).display!=='none'||compact.textContent!=='테스트후원자 100개')throw Error('original compact text changed');
+            if(getComputedStyle(compact.querySelector('strong')).color!=='rgb(35, 103, 171)'||getComputedStyle(compact.querySelector('span')).color!=='rgb(255, 255, 255)')throw Error('compact colors incorrect');
+            meta.children[0].textContent='<img onerror=alert(1)>';meta.children[2].textContent='<img onerror=alert(1)> 2개월';a.apply(canvas,settings);
+            if(compact.querySelector('img')||compact.textContent!=='<img onerror=alert(1)> 2개월')throw Error('text injection or subscription copy altered');
+            card.classList.remove('compact-label');a.apply(canvas,settings);if(getComputedStyle(compact).display!=='none'||getComputedStyle(meta.children[0]).display==='none')throw Error('normal card layout changed');
+            a.apply(canvas,a.defaults);if(meta.querySelector('.wallpaper-custom-compact')||card.classList.contains('wallpaper-custom-card'))throw Error('reset residue');
+            ByeollogDetached.render(canvas,[{id:'isolated',amount:1000,actorName:'개별 시험'}],{ranges:[{min:1000,max:1000}]},[],new Set());
+            ByeollogBaekdusan.render(canvas,{selectedSessionIds:['s'],runs:[{id:'r',sessionId:'s',start:1,target:2,columns:2,x:0,y:0,width:240,height:226,members:[{id:'b',actorName:'백두산 시험',amount:1}]}]});
+            a.apply(canvas,settings);
+            if(getComputedStyle(canvas.querySelector('.wallpaper-detached strong')).color!=='rgb(35, 103, 171)'||getComputedStyle(canvas.querySelector('[data-filled="true"]>span')).color!=='rgb(35, 103, 171)')throw Error('detached/baekdusan name color');
+            if(canvas.querySelector('[data-filled="false"]').classList.contains('wallpaper-custom-card'))throw Error('empty baekdusan modified');
+            a.apply(canvas,a.defaults);
+            return 'ok';
+          }catch(e){return e.message}finally{canvas.remove()}
+        })()
+        """);
+        if(result!="\"ok\"")throw new Exception("Small appearance rendering failed: "+result);
     }
 }

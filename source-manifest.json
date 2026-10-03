@@ -6504,6 +6504,48 @@
       "after": "5f15835b3ec11aadddf2a74f2a9f9999c42b653b481b70d9e9929710aa02a15d",
       "status": "changed",
       "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/windows-agent/ByeollogOverlayService.cs",
+      "before": "f29f62c9752d5f4cadbb17535295971fabe32ec68d3acfe52f427013362684a4",
+      "after": "6e110f203deb97b9889c23f09f41603fd5ff9a67e0469d4ebbf9cd1285a83ffc",
+      "status": "changed",
+      "release": "2026.10.04-wallpaper-custom-candidate"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "d742dc2da3b7a4fe383be0f1e1d709040c366c6175263d2d67d3d58a1b8ed63c",
+      "after": "c4ea87522667b6ad37ae537e86a0ea623b92ed6b58a9cc65e0a9bcf34c3cdc2c",
+      "status": "changed",
+      "release": "2026.10.04-wallpaper-custom-candidate"
+    },
+    {
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "903894117e4e7927f2c5c8eb000da9acb429f0b58f03f33b36185ad56bb1fa6d",
+      "after": "b33ab7041d06e9f8af1c4554f0b2783327ddf76db0465a4f81a93d40723aafdb",
+      "status": "changed",
+      "release": "2026.10.04-wallpaper-custom-candidate"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "1aae970b14c2430170d85df12d832a3c3f888f2dd7e12b16247abf61e76fd0a9",
+      "after": "8530579cf1369d90ab8eb335e958141f26d5315c10f3266f5d15f1c55b446c83",
+      "status": "changed",
+      "release": "2026.10.04-wallpaper-custom-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperEditorCoordinator.cs",
+      "before": "60d5e2f87b5542dbc8e91a45aa5ae783c9935025d2f23469f89d6ede96265364",
+      "after": "f58fabc7f963450370b971ee9725bb4391f992d13033666356f38b3ea5853bd6",
+      "status": "changed",
+      "release": "2026.10.04-wallpaper-custom-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperOverlayState.cs",
+      "before": "2d226d7696f3e5a90c9d3ed9105179464b9ae3d8810f4c796937f1f951fb89d8",
+      "after": "8916d659e7850fa262e130b4d663da7af26ef97df20320564002198b18af1bb6",
+      "status": "changed",
+      "release": "2026.10.04-wallpaper-custom-candidate"
     }
   ]
 }

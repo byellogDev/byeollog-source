@@ -45,7 +45,8 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
     internal event Action? StateChanged;
     internal WallpaperBaekdusan Baekdusan { get; }
     internal WallpaperDetachedCards Detached { get; }
-    private JsonElement Decorate(JsonElement source) => Detached.Decorate(Baekdusan.Decorate(source));
+    internal WallpaperAppearance Appearance { get; }
+    private JsonElement Decorate(JsonElement source) => Appearance.Decorate(Detached.Decorate(Baekdusan.Decorate(source)));
 
     internal WallpaperEditorCoordinator(
         Func<bool> isSignedIn,
@@ -63,6 +64,8 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
         _wallpaper = wallpaper;
         _cachePath = Path.Combine(rootPath, "wallpaper-editor-cache-v1.json");
         _log = log;
+        Appearance = new WallpaperAppearance(rootPath);
+        _wallpaper.AppearanceView = () => Appearance.View;
         Detached = new WallpaperDetachedCards(rootPath);
         _wallpaper.DetachedView = () => Detached.View;
         Baekdusan = new WallpaperBaekdusan(rootPath, _isSignedIn, _sendControl, () => StateChanged?.Invoke(), startWorker: scheduleInitialBackup);
@@ -183,6 +186,12 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
             throw new InvalidDataException("풍벽지 요청이 올바르지 않습니다.");
         var action = control.TryGetProperty("action", out var actionValue)
             ? actionValue.GetString() : null;
+        if (action is "appearance-save" or "appearance-reset")
+        {
+            Appearance.Apply(control, cancellationToken);
+            StateChanged?.Invoke();
+            return await GetStateAsync(cancellationToken);
+        }
         if (action is "detached-ranges" or "detached-layout")
         {
             Detached.Apply(control, cancellationToken);
