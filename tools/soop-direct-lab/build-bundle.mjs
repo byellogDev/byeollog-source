@@ -14,5 +14,5 @@ export function buildBundle(){
   if(JSON.parse(wsFiles['package.json']).version!=='8.21.0')throw Error('ws_version_changed');
   const files={'soak-controller.py':read('soak-controller.py'),'soak-controller.test.py':read('soak-controller.test.py'),...Object.fromEntries(['soak-compare.py','soak-compare.test.py'].map(name=>[name,fs.readFileSync(new URL(name,common),'utf8')]))};
   const hashes=Object.fromEntries(Object.entries({observer,monitor,entry,...files}).map(([name,s])=>[name,createHash('sha256').update(s).digest('hex')]));
-  return {bundle:{observer,monitor,entry,wsFiles,adapter:'direct-ws-rolling-v3'},files,hashes};
+  return {bundle:{observer,monitor,entry,wsFiles,adapter:'direct-ws-rolling-v4'},files,hashes};
 }

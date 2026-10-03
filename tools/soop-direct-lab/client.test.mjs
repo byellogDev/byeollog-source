@@ -106,8 +106,8 @@ for(const mode of ['failure','timeout','backpressure'])test('keepalive write '+m
   assert.equal(r.reason,mode==='failure'?'write_failed':mode==='timeout'?'write_timeout':'write_backpressure');assert.equal(r.ready,true);
 });
 test('explicit socket close, broadcast close and supervisor abort still stop',async t=>{
-  const closed=await harness(t,(s,p)=>{normalJoin(s,p);if(p.code===2)setTimeout(()=>s.close(1000),20)});
-  let r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:closed.Transport});assert.equal(r.reason,'socket_closed');
+  const closed=await harness(t,(s,p)=>{normalJoin(s,p);if(p.code===2)setTimeout(()=>s.close(1008,'private-close-reason'),20)});
+  let r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:closed.Transport});assert.equal(r.reason,'socket_closed');assert.equal(r.transport.closeCode,1008);assert.equal(r.transport.closeReasonBytes,20);assert(r.transport.connectedMs>=0);assert(!JSON.stringify(r).includes('private-close-reason'));
   const h=await harness(t,(s,p)=>normalJoin(s,p));
   const a=new AbortController();r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:h.Transport,signal:a.signal,onReport:e=>{if(e.kind==='ready')a.abort()}});assert.equal(r.reason,'supervisor_stopped');
   const b=await harness(t,(s,p)=>{normalJoin(s,p);if(p.code===2)s.send(encodePacket(88))});r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:b.Transport});assert.equal(r.reason,'broadcast_closed');

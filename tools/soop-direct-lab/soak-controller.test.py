@@ -3,6 +3,16 @@ from unittest.mock import patch
 spec=importlib.util.spec_from_file_location('controller',pathlib.Path(__file__).with_name('soak-controller.py'))
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 def frame(at=8000):return {'at':at,'code':18,'digest':'synthetic'}
+class ConnectionDiagnosticTests(unittest.TestCase):
+ def test_close_code_survives_without_peer_reason_or_unknown_fields(self):
+  d=m.safe_connection_diagnostic({'reason':'socket_closed','stage':'receiving','transport':{'closeCode':1008,'closeReasonBytes':20,'connectedMs':1569918,'closeReason':'private-marker','token':'private-marker'}})
+  self.assertEqual(d['transport'],{'closeCode':1008,'closeReasonBytes':20,'connectedMs':1569918})
+  self.assertEqual(d['stage'],'receiving');self.assertEqual(d['reason'],'socket_closed')
+  self.assertNotIn('private-marker',json.dumps(d))
+ def test_untrusted_metadata_is_filtered(self):
+  d=m.safe_connection_diagnostic({'reason':'private-marker','stage':'private-marker','transport':{'closeCode':True,'closeReasonBytes':124,'elapsedMs':-1,'lastPacketCode':'private-marker'}})
+  self.assertEqual(d,{'reason':'connection_failed','stage':None,'transport':{}})
+
 class FinalizationTests(unittest.TestCase):
  def session_fixture(self,drained_peer=False,diagnostic=None,before_ready=False,replacement=False,basis=None):
   clock=[100.0]
@@ -11,7 +21,7 @@ class FinalizationTests(unittest.TestCase):
   writes=[]
   if replacement:
    events.insert(3,('original',{'kind':'private_replacement','config':{'accessToken':'private-marker','broadcasterId':'synthetic'}}))
-   events.insert(4,('candidate',{'kind':'handoff_committed','matched':0 if basis=='quiet_transport_verified' else 3,'overlapMs':30000,'handoffs':1,'accessToken':'private-marker','basis':basis,'contentVerified':True}))
+   events.insert(4,('candidate',{'kind':'handoff_committed','matched':0 if basis=='quiet_provider_traffic' else 3,'overlapMs':30000,'handoffs':1,'accessToken':'private-marker','basis':basis,'contentVerified':True}))
   if diagnostic is not None:events.insert(-1,('original',{'kind':'original_decode_error',**diagnostic}))
   tail=[('candidate',{'kind':'frame',**frame(108050)})] if drained_peer else []
   if before_ready:
@@ -49,7 +59,7 @@ class FinalizationTests(unittest.TestCase):
   self.assertNotIn('private-marker',json.dumps(result))
   self.assertTrue(any(x['kind']=='handoff_committed' and x['matched']==3 for x in result['_evidence']))
  def test_quiet_basis_does_not_claim_content_verification_or_leak_unknown_reason(self):
-  for basis in ['quiet_transport_verified','content_matched','private-marker']:
+  for basis in ['quiet_provider_traffic','content_matched','private-marker']:
    with self.subTest(basis=basis):
     result=self.session_fixture(drained_peer=True,replacement=True,basis=basis)
     record=next(x for x in result['_evidence'] if x['kind']=='handoff_committed')

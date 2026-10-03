@@ -57,6 +57,27 @@ def safe_packet_diagnostic(event):
     if 'code' in event:details['code']=event['code'] if event['code'] in codes else 'packet_decode_failed'
     return details
 
+def safe_connection_diagnostic(event):
+    """Persist bounded terminal metadata only; peer text and credentials never leave memory."""
+    limits={'closeCode':4999,'closeReasonBytes':123,'socketErrors':1000000,'writesCompleted':10000000,
+            'receivedFrames':100000000,'lastPacketCode':9999,'elapsedMs':172900000,
+            'connectedMs':172900000,'lastWireAgeMs':172900000}
+    transport=event.get('transport') if type(event.get('transport')) is dict else {}
+    result={'transport':{k:v for k,v in transport.items() if k in limits and type(v) is int and 0<=v<=limits[k]}}
+    result['stage']=event.get('stage') if event.get('stage') in ['auth','connecting','login','join','receiving'] else None
+    reasons={'socket_closed','socket_error','socket_not_open','write_backpressure','write_timeout','write_failed',
+             'duration_reached','supervisor_stopped','broadcast_closed','invalid_broadcast_close','room_evicted',
+             'ready_timeout','login_rejected','join_rejected','join_owner_mismatch','connection_failed','active_connection_failed',
+             'callback_failed','auth_rejected','broadcast_offline','invalid_header','invalid_packet_size','invalid_packet_length',
+             'invalid_utf8','invalid_field_boundary','content_rejected','missing_event_fields','invalid_donation_count',
+             'replacement_owner_or_application_mismatch','invalid_auth_config','chatinfo_too_large','invalid_chatinfo',
+             'chatinfo_owner_mismatch','invalid_chat_address','invalid_duration','invalid_timing','unexpected_login_ack',
+             'unexpected_join_ack','content_before_ready','unknown_code_capacity','invalid_field','packet_too_large',
+             'invalid_client_credentials','invalid_image_key','invalid_mission_json','unknown_mission_type','event_owner_mismatch',
+             'invalid_actor','auth_rate_limited','chatinfo_http_failed','chatinfo_provider_rejected'}
+    result['reason']=event.get('reason') if event.get('reason') in reasons else 'connection_failed'
+    return result
+
 def confirm_broadcast_offline(target,evidence,timeout=180):
     """Allow asynchronous original teardown/401 recovery to settle, never guess offline."""
     until=time.monotonic()+timeout;last=None
@@ -101,6 +122,10 @@ def session(target, bundle, end, evidence):
     salt = secrets.token_hex(32)
     def metadata(source,event):
         kind=event.get('kind')
+        if kind=='connection_ended' and source=='candidate':
+            details=safe_connection_diagnostic(event)
+            details.update(expected=event.get('expected') is True,role=event.get('role') if event.get('role') in ['active','replacement'] else 'unknown',generation=event.get('generation') if type(event.get('generation')) is int and 1<=event['generation']<=1000000 else None)
+            evidence.emit(kind,**details);return True
         if (source,kind) in [('original','original_decode_error'),('candidate','candidate_decode_error')]:
             evidence.emit(kind,**safe_packet_diagnostic(event));return True
         if kind=='broadcast_signal' and source in ['original','candidate']:
@@ -172,8 +197,10 @@ def session(target, bundle, end, evidence):
             if kind in ['handoff_preparing','handoff_overlap_started','handoff_committed','handoff_blocked'] and source=='candidate':
                 allowed=['replacement_decode_failed','replacement_connection_failed','replacement_not_newer_or_too_short','replacement_broadcast_mismatch','comparison_capacity','overlap_order_or_content_mismatch','overlap_incomplete','no_common_content']
                 detail={k:event[k] for k in ['matched','overlapMs','handoffs'] if type(event.get(k)) is int and 0<=event[k]<=172800000}
-                if kind=='handoff_committed' and event.get('basis') in ['content_matched','quiet_transport_verified']:
+                if kind=='handoff_committed' and event.get('basis') in ['content_matched','quiet_provider_traffic']:
                     detail.update(basis=event['basis'],contentVerified=event['basis']=='content_matched')
+                    if event['basis']=='quiet_provider_traffic':
+                        detail.update(providerControlCode=event.get('providerControlCode') if event.get('providerControlCode') in [0,4,127] else None,providerControlAgeMs=event.get('providerControlAgeMs') if type(event.get('providerControlAgeMs')) is int and 0<=event['providerControlAgeMs']<=60000 else None)
                 if kind=='handoff_blocked':
                     detail.update(reason=event.get('reason') if event.get('reason') in allowed else 'handoff_failed',oldPreserved=event.get('oldPreserved') is True)
                 evidence.emit(kind,**detail);continue
@@ -218,8 +245,8 @@ def session(target, bundle, end, evidence):
                 report['reason']=event['reason'];break
             elif kind=='result':
                 end_at=int(time.time()*1000)
-                report.update(reason=event.get('reason'),candidateCounts=event.get('counts',{}))
-                evidence.emit('candidate_result',ready=event.get('ready'),reason=event.get('reason'),stage=event.get('stage'),counts=event.get('counts',{}),transport=event.get('transport',{}),unmappedCodeCounts=event.get('unknownCodes',{}))
+                report.update(reason=event.get('reason'),candidateCounts=event.get('counts',{}),terminal=safe_connection_diagnostic(event))
+                evidence.emit('candidate_result',ready=event.get('ready'),**safe_connection_diagnostic(event),counts=event.get('counts',{}),unmappedCodeCounts=event.get('unknownCodes',{}))
                 break
             elif kind=='monitor_done':
                 end_at=end_at or int(time.time()*1000)
