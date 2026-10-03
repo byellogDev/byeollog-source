@@ -149,7 +149,7 @@ internal static class WallpaperWebViewPreflight
             await web.CoreWebView2.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,screenshot);
         await web.ExecuteScriptAsync("document.getElementById('saveWallpaperCustomBtn').click()");
         await WaitAsync(web,"!document.getElementById('wallpaperCustomDialog') && getComputedStyle(document.querySelector('#wallpaperPreview .wallpaper-meta-name')).color==='rgb(35, 103, 171)'","custom appearance saved in editor");
-        await WaitAsync(rendered,"document.querySelector('.wallpaper-custom-meta') && getComputedStyle(document.querySelector('.wallpaper-meta-name')).color==='rgb(35, 103, 171)' && getComputedStyle(document.querySelector('.wallpaper-meta-info')).color==='rgb(255, 255, 255)' && getComputedStyle(document.querySelector('.wallpaper-custom-card')).backgroundColor==='rgb(16, 32, 48)'","OBS appearance matches editor");
+        await WaitAsync(rendered,"document.querySelector('.wallpaper-custom-meta') && getComputedStyle(document.querySelector('.wallpaper-meta-name')).color==='rgb(35, 103, 171)' && getComputedStyle(document.querySelector('.wallpaper-meta-info')).color==='rgb(255, 255, 255)' && getComputedStyle(document.querySelector('.wallpaper-custom-meta')).backgroundColor==='rgb(16, 32, 48)' && getComputedStyle(document.querySelector('.wallpaper-custom-card')).backgroundColor==='rgba(0, 0, 0, 0)'","OBS caption background matches editor; image area stays transparent");
         if(agent.RemoteWrites!=appearanceWrites)throw new Exception("appearance caused a remote mutation");
         await web.ExecuteScriptAsync("document.getElementById('openWallpaperCustomBtn').click()");
         await WaitAsync(web,"document.getElementById('wallpaperCustomNameColor').value==='#2367ab' && document.getElementById('wallpaperCustomSizeNumber').value==='12'","appearance modal restored");
@@ -212,9 +212,14 @@ internal static class WallpaperWebViewPreflight
           const image=document.createElement('div'),meta=document.createElement('div');meta.className='wallpaper-meta';
           for(const [cls,text] of [['wallpaper-meta-name','테스트후원자'],['wallpaper-meta-info','별풍선 100개'],['wallpaper-meta-compact','테스트후원자 100개']]){const x=document.createElement('span');x.className=cls;x.textContent=text;meta.append(x)}
           card.append(image,meta);canvas.append(card);
-          const settings={...a.defaults,enabled:true,nameColor:'#2367ab',textColor:'#ffffff',fontSize:72};
+          const settings={...a.defaults,enabled:true,nameColor:'#2367ab',textColor:'#ffffff',backgroundColor:'#102030',fontSize:72};
+          function checkBackground(wrapper,caption){
+            if(getComputedStyle(caption).backgroundColor!=='rgb(16, 32, 48)')throw Error('caption background missing');
+            if(getComputedStyle(wrapper).backgroundColor!=='rgba(0, 0, 0, 0)'||getComputedStyle(wrapper.children[0]).backgroundColor!=='rgba(0, 0, 0, 0)')throw Error('background leaked into image area');
+          }
           try{
             a.apply(canvas,settings);
+            checkBackground(card,meta);
             if(parseFloat(getComputedStyle(meta).fontSize)>a.bounds(meta.clientWidth,meta.clientHeight,1).max)throw Error('font exceeds bounds');
             const compact=meta.querySelector('.wallpaper-custom-compact');
             if(!meta.classList.contains('wallpaper-custom-single')||getComputedStyle(meta.children[0]).display!=='none'||compact.textContent!=='테스트후원자 100개')throw Error('original compact text changed');
@@ -222,10 +227,13 @@ internal static class WallpaperWebViewPreflight
             meta.children[0].textContent='<img onerror=alert(1)>';meta.children[2].textContent='<img onerror=alert(1)> 2개월';a.apply(canvas,settings);
             if(compact.querySelector('img')||compact.textContent!=='<img onerror=alert(1)> 2개월')throw Error('text injection or subscription copy altered');
             card.classList.remove('compact-label');a.apply(canvas,settings);if(getComputedStyle(compact).display!=='none'||getComputedStyle(meta.children[0]).display==='none')throw Error('normal card layout changed');
+            checkBackground(card,meta);
             a.apply(canvas,a.defaults);if(meta.querySelector('.wallpaper-custom-compact')||card.classList.contains('wallpaper-custom-card'))throw Error('reset residue');
             ByeollogDetached.render(canvas,[{id:'isolated',amount:1000,actorName:'개별 시험'}],{ranges:[{min:1000,max:1000}]},[],new Set());
             ByeollogBaekdusan.render(canvas,{selectedSessionIds:['s'],runs:[{id:'r',sessionId:'s',start:1,target:2,columns:2,x:0,y:0,width:240,height:226,members:[{id:'b',actorName:'백두산 시험',amount:1}]}]});
             a.apply(canvas,settings);
+            const detached=canvas.querySelector('.wallpaper-detached');checkBackground(detached,detached.children[1]);
+            if(getComputedStyle(canvas.querySelector('[data-filled="true"]')).backgroundColor!=='rgb(16, 32, 48)')throw Error('baekdusan caption background missing');
             if(getComputedStyle(canvas.querySelector('.wallpaper-detached strong')).color!=='rgb(35, 103, 171)'||getComputedStyle(canvas.querySelector('[data-filled="true"]>span')).color!=='rgb(35, 103, 171)')throw Error('detached/baekdusan name color');
             if(canvas.querySelector('[data-filled="false"]').classList.contains('wallpaper-custom-card'))throw Error('empty baekdusan modified');
             a.apply(canvas,a.defaults);

@@ -34,7 +34,6 @@ globalThis.ByeollogWallpaperAppearance = (() => {
     return item.promise;
   }
   const css=`
-  .wallpaper-custom-card{background:var(--wallpaper-custom-bg)!important}
   .wallpaper-custom-meta{background:var(--wallpaper-custom-bg)!important;color:var(--wallpaper-custom-text)!important;font-family:var(--wallpaper-custom-font,"Malgun Gothic",sans-serif)!important;font-size:var(--wallpaper-custom-size)!important;line-height:1.18!important;letter-spacing:normal!important;text-shadow:none!important;box-sizing:border-box!important;min-height:0;overflow:hidden!important}
   .wallpaper-custom-meta>:not(.wallpaper-meta-name):not(strong):not(.wallpaper-custom-compact){color:var(--wallpaper-custom-text)!important}
   .wallpaper-custom-meta .wallpaper-meta-name,.wallpaper-custom-meta>strong,.wallpaper-custom-meta[data-filled]>span:not(.wallpaper-custom-compact){color:var(--wallpaper-custom-name)!important}

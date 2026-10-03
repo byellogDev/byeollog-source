@@ -19,7 +19,8 @@
     const fontRow=element('div',undefined,'wallpaper-custom-font-row'),checkFont=element('button','폰트 확인');font.input.replaceWith(fontRow);fontRow.append(font.input,checkFont);
     font.wrap.append(element('small','WOFF2 · WOFF · TTF · OTF 파일의 HTTPS 주소. 비워두면 기본 폰트를 사용합니다.'));
     const colors=element('div',undefined,'wallpaper-custom-colors');fields.append(colors);
-    const name=field(colors,'후원자 닉네임','wallpaperCustomNameColor','color',draft.nameColor),text=field(colors,'후원 수량 글자','wallpaperCustomTextColor','color',draft.textColor),background=field(colors,'카드 배경','wallpaperCustomBackground','color',draft.backgroundColor);
+    const name=field(colors,'후원자 닉네임','wallpaperCustomNameColor','color',draft.nameColor),text=field(colors,'후원 수량 글자','wallpaperCustomTextColor','color',draft.textColor),background=field(colors,'글자 영역 배경','wallpaperCustomBackground','color',draft.backgroundColor);
+    fields.append(element('p','배경색은 닉네임·후원 수량 뒤에만 적용됩니다. 후원 이미지 영역은 투명하게 유지됩니다.','wallpaper-custom-note'));
     fields.append(element('p','작은 카드의 한 줄 표시는 그대로 유지됩니다. 같은 폰트와 닉네임·후원 수량 색상이 한 줄에도 적용됩니다.','wallpaper-custom-note'));
     const sizeWrap=element('div',undefined,'wallpaper-custom-field'),sizeTitle=element('label','글자 크기');sizeTitle.htmlFor='wallpaperCustomSize';const sizeRow=element('div',undefined,'wallpaper-custom-size'),slider=element('input'),number=element('input');slider.type='range';slider.id='wallpaperCustomSize';number.type='number';number.id='wallpaperCustomSizeNumber';number.setAttribute('aria-label','글자 크기 픽셀');slider.step=number.step='1';sizeRow.append(slider,number);const rangeText=element('small');rangeText.id='wallpaperCustomSizeRange';sizeWrap.append(sizeTitle,sizeRow,rangeText);fields.append(sizeWrap);
     fields.append(element('p','이 PC의 현재 계정에 저장됩니다. 일반 카드·묶음 해제 카드·백두산의 채워진 칸에 적용되며, 후원 기록과 카드 배치는 유지됩니다.','wallpaper-custom-note'));
