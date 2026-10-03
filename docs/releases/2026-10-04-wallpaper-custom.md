@@ -30,13 +30,16 @@
 | 소스 일치 | `node tools/verify-source.mjs` | 기준 파일 1,183개, 불일치 0 | 운영 설치 파일 비교 아님 |
 | 빌드 | Agent Release 빌드 | 경고·오류 0 | 설치·자동 업데이트 아님 |
 | 자동 검사 | AgentStoreTests 전체 | 1,159 assertions 통과, 커스텀 저장 검사 27개 포함 | 실제 사용자 계정 아님 |
+| 저장소 회귀 | `npm test` 일반 사용자 실행 | 859건 통과 | 운영 데이터 사용하지 않음 |
 | UI→로컬 저장→출력 | 실제 WebView2 편집기와 로컬 HTTP 출력 페이지 | 미리보기·저장·재열기·취소·초기화, 색상 일치 통과 | OBS CEF·고객 PC 미검증 |
 | 한 줄 표시 | 양쪽 렌더러에서 작은 카드 시험 | 원문·한 줄 유지, 닉네임/수량 색 구분, 글자 크기 제한·HTML 무해화 통과 | 모든 폰트의 가독성 보장 아님 |
 | 폰트 | 실제 FontFace + 격리 HTTPS/CORS 응답 fixture | 정상 폰트 양쪽 로딩, 손상 폰트 저장 차단 통과 | 임의 외부 폰트 서버 가용성 미검증 |
 | 다른 카드 | 묶음 해제·백두산 렌더러 fixture | 닉네임 색 적용·빈 칸 불변 통과 | 실방송 사용 확인 전 |
 | 회귀 | WebView2 36회 선택·54회 빠른 변경, 오프라인 이동, 8회 계정 전환 | 통과 | 원격 전송은 대역 사용 |
 
-처음 잘못 구현한 줄 수 선택은 제거한 뒤 최종 요구사항으로 재검증했습니다. 백두산 닉네임 색의 CSS 우선순위 충돌은 렌더링 검사에서 발견하여 수정했습니다. 샌드박스에서 제한된 DPAPI·WebView2 검사는 일반 사용자 실행 환경의 격리 테스트 자료로 다시 수행했습니다.
+백두산 닉네임 색의 CSS 우선순위 충돌은 렌더링 검사에서 발견하여 수정했습니다. 샌드박스에서 제한된 DPAPI·WebView2 검사는 일반 사용자 실행 환경의 격리 테스트 자료로 다시 수행했습니다.
+
+첫 GitHub 실행에서 DB 36건은 통과했으나 Node 859건 중 설치 경로 테스트 한 건이 PowerShell 실행 10초 제한으로 중단되었습니다. 프로세스 제한을 30초로 조정하고 실행 오류를 명시적으로 검사합니다. BOM·한글 경로·파일 본문 검사는 유지하며 설치 프로그램의 동작은 변경하지 않았습니다. 최종 CI 결과는 후보 Release에 연결합니다.
 
 ## 사용자 영향과 복구
 
@@ -51,7 +54,7 @@
 
 ## 관련 PR·커밋·이전 버전
 
-- [본 저장소 후보 Release](https://github.com/byellogDev/byeollog/releases/tag/candidate-2026.10.04-wallpaper-custom)
+- [본 저장소 후보 Release](https://github.com/byellogDev/byeollog/releases/tag/candidate-2026.10.04-wallpaper-custom-r2)
 - [PR #4](https://github.com/byellogDev/byeollog/pull/4), `codex/integration-observer-records-20260924` 브랜치. 기본 브랜치 병합은 별도입니다.
 - 소스 커밋과 게시 확인은 위 GitHub Release 본문에 기록합니다. `draft=false`, `prerelease=true`; 정식 Latest는 Agent 1.0.0.46을 유지합니다.
 - 설치 파일: 이번 후보에는 게시하지 않았습니다.

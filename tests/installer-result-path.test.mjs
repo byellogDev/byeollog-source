@@ -15,7 +15,9 @@ test('installer receipt is UTF-8 with BOM for Inno Setup, including Unicode prof
   const script=path.join(root,'write.ps1'),receipt=path.join(root,'receipt.txt');
   const expected='C:\\Users\\한글 이름\\AppData\\Local\\Programs\\ByeollogCollector\\versions\\1.0.0.43\\byeollog.exe';
   await writeFile(script,'\ufeffparam([string]$ResultPath)\r\n$ErrorActionPreference="Stop"\r\n$installedExe=\''+expected+'\'\r\n'+writer+'\r\n');
-  const result=spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',script,receipt],{encoding:'utf8',windowsHide:true,timeout:10000});
+  // Hosted Windows starts many test workers together; allow cold PowerShell startup.
+  const result=spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',script,receipt],{encoding:'utf8',windowsHide:true,timeout:30000});
+  assert.ifError(result.error);
   assert.equal(result.status,0,result.stderr);
   const bytes=await readFile(receipt);
   assert.equal(bytes.subarray(0,3).toString('hex'),'efbbbf','UTF-16 cannot be consumed by LoadStringsFromFile');
