@@ -3567,15 +3567,9 @@ async function saveItem(){
       const refreshed=await api('?id=eq.'+encodeURIComponent(saved.id));
       if(refreshed?.[0])editTaskSnapshot={...refreshed[0]};
     }else if(!existing){
-      const created=(await apiTable('bangsel_fans','',{
-        method:'POST',write:true,
-        body:JSON.stringify({
-          soop_id:soopId,
-          alias:body.fan,
-          current_nickname:body.fan,
-          station_url:canonicalStationUrl(soopId)
-        })
-      }))[0];
+      // The task write creates a missing fan in the same DB transaction.
+      const created=(await apiTable('bangsel_fans','?soop_id=eq.'+encodeURIComponent(soopId)))[0];
+      if(!created)throw new Error('저장된 시청자 정보를 다시 불러오지 못했습니다.');
       fanProfiles[soopId]=created;
     }
   }

@@ -6448,6 +6448,62 @@
       "after": "71056f7a299ec1354691db5bd3039518a6331fec4baa14f404c565b751b701b5",
       "status": "changed",
       "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/web/lib/admin-source.html",
+      "before": "5f34f91999b1d7cc10f42bc1d8488a0f93f0046eea08600338ea7ae5dde6febb",
+      "after": "3a075ddcacc62a91b954c25668d5fed146fd722f263e18bd67d74f7e5c5970de",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/web/lib/admin-html.js",
+      "before": "4463c1ef9890eb7662d0f55d0fd19562cf44c572bea6bfb971c176cad4744e26",
+      "after": "f25af1bc4c68e329551f63a5ae3e989f02050e2beae9f5fe24473f1976e9e16b",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "5f34f91999b1d7cc10f42bc1d8488a0f93f0046eea08600338ea7ae5dde6febb",
+      "after": "3a075ddcacc62a91b954c25668d5fed146fd722f263e18bd67d74f7e5c5970de",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "4463c1ef9890eb7662d0f55d0fd19562cf44c572bea6bfb971c176cad4744e26",
+      "after": "f25af1bc4c68e329551f63a5ae3e989f02050e2beae9f5fe24473f1976e9e16b",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-source.html",
+      "before": "2df5ace4fde029f8552958c8047016db6f5dd013b30a6f2f047320678a11de87",
+      "after": "7d24559d2693c1857057be294c341aa63043ef7d832b616f5f032a26137c2ba7",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-html.js",
+      "before": "73e10270df91f18796d102267d1d558becd14d2d6b7a7ea2c23bc563e8691ee5",
+      "after": "5f15835b3ec11aadddf2a74f2a9f9999c42b653b481b70d9e9929710aa02a15d",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-source.html",
+      "before": "2df5ace4fde029f8552958c8047016db6f5dd013b30a6f2f047320678a11de87",
+      "after": "7d24559d2693c1857057be294c341aa63043ef7d832b616f5f032a26137c2ba7",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-html.js",
+      "before": "73e10270df91f18796d102267d1d558becd14d2d6b7a7ea2c23bc563e8691ee5",
+      "after": "5f15835b3ec11aadddf2a74f2a9f9999c42b653b481b70d9e9929710aa02a15d",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
     }
   ]
 }
