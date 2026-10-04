@@ -27,6 +27,7 @@ apps/
 services/soop-gateway/  지속 실행되는 SOOP 연결 수집기
 supabase/              확인한 운영 마이그레이션·Edge Function 원본
 operations/ncp/        운영 구성·보관 정책
+operations/iwinv/      현행 수집 호스트 이전·복구와 연구 부팅 보호
 tests/                 통합 기준에서 실행하는 회귀 검사
 test-support/          검사 전용 과거 기능 자료
 tools/                 소스 일치·게시 전 검사
