@@ -7,8 +7,6 @@ import queue, secrets, signal, subprocess, sys, threading, time, uuid
 
 BASE = pathlib.Path(__file__).resolve().parent
 compare_path = BASE / "soak-compare.py"
-if not compare_path.exists():
-    compare_path = BASE.parent / "soop-browserless-lab" / "soak-compare.py"
 spec = importlib.util.spec_from_file_location("compare", compare_path)
 compare_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(compare_module)
@@ -53,7 +51,7 @@ def safe_packet_diagnostic(event):
     limits={'opcode':15,'payloadChars':100000,'byteLength':1000000,'packetOffset':65536,'serviceCode':9999,'declaredLength':999999,'retCode':99,'remainingBodyBytes':1000000}
     details={k:event.get(k) if type(event.get(k)) is int and 0<=event[k]<=limit else None for k,limit in limits.items()}
     details['headerValid']=event.get('headerValid') if type(event.get('headerValid')) is bool else None
-    codes={'invalid_packet_size','invalid_header','invalid_packet_length','invalid_utf8','invalid_field_boundary','unsupported_opcode','invalid_payload','invalid_base64','packet_decode_failed','content_rejected','missing_event_fields','invalid_donation_count','invalid_mission_json','unknown_mission_type','invalid_image_key','event_owner_mismatch','invalid_actor'}
+    codes={'comparison_room_missing','comparison_diagnostic_capacity','invalid_packet_size','invalid_header','invalid_packet_length','invalid_utf8','invalid_field_boundary','unsupported_opcode','invalid_payload','invalid_base64','packet_decode_failed','content_rejected','missing_event_fields','invalid_donation_count','invalid_mission_json','unknown_mission_type','invalid_image_key','event_owner_mismatch','invalid_actor'}
     if 'code' in event:details['code']=event['code'] if event['code'] in codes else 'packet_decode_failed'
     return details
 
@@ -74,7 +72,7 @@ def safe_connection_diagnostic(event):
              'chatinfo_owner_mismatch','invalid_chat_address','invalid_duration','invalid_timing','unexpected_login_ack',
              'unexpected_join_ack','content_before_ready','unknown_code_capacity','invalid_field','packet_too_large',
              'invalid_client_credentials','invalid_image_key','invalid_mission_json','unknown_mission_type','event_owner_mismatch',
-             'invalid_actor','auth_rate_limited','chatinfo_http_failed','chatinfo_provider_rejected'}
+             'invalid_actor','auth_rate_limited','chatinfo_http_failed','chatinfo_provider_rejected','comparison_room_missing','comparison_diagnostic_capacity'}
     result['reason']=event.get('reason') if event.get('reason') in reasons else 'connection_failed'
     return result
 
@@ -122,6 +120,13 @@ def session(target, bundle, end, evidence):
     salt = secrets.token_hex(32)
     def metadata(source,event):
         kind=event.get('kind')
+        if kind=='comparison_diagnostic' and source=='candidate':
+            diagnostic_kind=event.get('diagnosticKind')
+            if diagnostic_kind not in ['handoff_content_mismatch','handoff_wire_only_difference','handoff_unmatched']:raise ValueError('comparison_diagnostic_invalid')
+            a=compare_module.safe_record(event['old']) if event.get('old') else None
+            b=compare_module.safe_record(event['replacement']) if event.get('replacement') else None
+            if not a and not b:raise ValueError('comparison_diagnostic_invalid')
+            evidence.emit(kind,diagnosticKind=diagnostic_kind,old=a,replacement=b,**(compare_module.difference(a,b) if a and b else {}));return True
         if kind=='connection_ended' and source=='candidate':
             details=safe_connection_diagnostic(event)
             details.update(expected=event.get('expected') is True,role=event.get('role') if event.get('role') in ['active','replacement'] else 'unknown',generation=event.get('generation') if type(event.get('generation')) is int and 1<=event['generation']<=1000000 else None)
@@ -236,7 +241,7 @@ def session(target, bundle, end, evidence):
                 evidence.emit('isolation',passed=bool(isolated),memoryLimit=host['Memory'],pidsLimit=host['PidsLimit'],user=inspected['Config']['User'],hostMounts=len(host_mounts))
                 if not isolated:raise RuntimeError('container_isolation_failed')
             elif kind=='ready':
-                report['ready']=True;ready_since=now;comparison=Comparison(int(time.time()*1000));evidence.emit('ready')
+                report['ready']=True;ready_since=now;comparison=Comparison(int(time.time()*1000),on_diagnostic=lambda d:evidence.emit('comparison_diagnostic',**d));evidence.emit('ready',comparisonSchema=2)
             elif kind in ['telemetry','original_health']:
                 evidence.emit(kind,**{k:v for k,v in event.items() if k not in ['kind','at']})
             elif metadata(source,event):pass

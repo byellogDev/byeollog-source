@@ -20,7 +20,7 @@ async function setup(t,mode='normal'){
  const next=n=>({...cfg,accessToken:'synthetic-replacement-'+n,providerTokenExpiresAt:new Date(Date.now()+600000*n).toISOString()});
  const send=()=>{if(!sockets.get(activeToken)?.joined||sockets.get(activeToken)?.readyState!==1)return;
   const f=fixtures().find(f=>f.code===18);
-  for(let i=0;i<2;i++){produced++;for(const s of sockets.values())if(s.readyState===1&&s.joined){const fields=[...f.fields];if(mode==='mismatch'&&s.token!==cfg.accessToken)fields[3]='999';s.send(encodePacket(18,fields))}}
+  for(let i=0;i<2;i++){produced++;for(const s of sockets.values())if(s.readyState===1&&s.joined){const fields=[...f.fields];if(mode==='mismatch'&&s.token!==cfg.accessToken)fields[3]='999';if(mode==='wire-only'&&s.token!==cfg.accessToken)fields[4]='999';s.send(encodePacket(18,fields))}}
  };
  const task=observeRolling(cfg,{WebSocketImpl:Transport,fetchImpl:async()=>new Response(JSON.stringify(infoFor())),signal:abort.signal,timing,subscribeReplacement:fn=>{replace=fn;return()=>{replace=null}},onReport:r=>{
   reports.push(r);if(r.kind==='frame'){selected++;if(phase===2&&selected===produced)queueMicrotask(()=>abort.abort())}
@@ -50,6 +50,15 @@ for(const mode of ['reject','mismatch','quiet'])test(mode+' replacement retains 
  const r=await setup(t,mode);assert.equal(r.phase,0);assert.equal(r.result.cleanupComplete,true);assert(r.reports.some(x=>x.kind==='handoff_blocked'&&x.oldPreserved));assert(r.selected>0);
 });
 test('cross-account replacement is rejected before opening a second socket',async t=>{const r=await setup(t,'owner');assert.equal(r.maxSockets,1);assert.equal(r.result.reason,'replacement_owner_or_application_mismatch');assert.equal(r.result.cleanupComplete,true)});
+test('wire-only overlap difference permits handoff and emits field diagnostics',async t=>{
+ const r=await setup(t,'wire-only');assert.equal(r.phase,2);assert.equal(r.selected,r.produced);
+ const d=r.reports.find(x=>x.diagnosticKind==='handoff_wire_only_difference');assert(d);assert.deepEqual(d.wireFields,[4]);assert.deepEqual(d.businessFields,[]);
+});
+test('content overlap difference preserves named diagnostics before discarding replacement',async t=>{
+ const r=await setup(t,'mismatch');const d=r.reports.find(x=>x.diagnosticKind==='handoff_content_mismatch');
+ assert(d);assert(d.businessFields.includes('event.message.count'));assert.equal(r.phase,0);
+ assert(r.reports.some(x=>x.diagnosticKind==='handoff_unmatched'));assert(!JSON.stringify(d).includes('synthetic-user'));
+});
 test('provider eviction of active socket is a failure, not a successful switch',async t=>{const r=await setup(t,'evict');assert.equal(r.phase,0);assert.equal(r.result.reason,'socket_closed');assert.equal(r.result.stage,'receiving');assert.equal(r.result.transport.closeCode,1005);assert(r.reports.some(x=>x.kind==='connection_ended'&&x.role==='active'&&!x.expected));assert.equal(r.result.cleanupComplete,true)});
 
 async function quietSetup(t,mode='healthy'){

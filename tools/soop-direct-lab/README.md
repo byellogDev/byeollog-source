@@ -1,5 +1,7 @@
 # SDK 없는 SOOP 직접 연결 후보
 
+2026-10-05: 연구 bundle v5는 원문 동일성과 별록 처리 결과 동일성을 분리한다. `comparison-record.mjs`와 직접 연결 전용 `soak-compare.py`가 계정·방송·내용·횟수를 비교하며 위치별/필드별 HMAC·길이 진단을 남긴다. 평문은 저장하지 않는다. `node --test tools/soop-direct-lab/comparison-record.test.mjs tools/soop-direct-lab/monitor-comparison.test.mjs` 및 `python -B tools/soop-direct-lab/soak-compare.test.py`로 추가 경로를 검사한다. [배포 및 실제 재관측 한계](../../docs/releases/2026-10-05-semantic-comparison.md).
+
 2026-09-28: 기존 수집 내용 비교는 사용자 수락 완료. 이후 작업은 [운영 전환 준비](../../docs/research/2026-09-28-direct-production-readiness.md)를 따른다. 별도 `handoff-probe.mjs`/`handoff-probe-entry.mjs`와 `delivery-candidate.mjs`는 연결 교체·내구성 전송을 검증하는 **미배포 후보**이며 현재 bundle에 포함하지 않는다. `node --test tests/soop-direct-handoff.test.mjs`로 실제 로컬 WebSocket·암호화 임시 큐 검사 18건을 실행한다. 새 토큰은 승인된 감독 파이프에서 읽고 후보가 직접 갱신하지 않는다. 실행 입력·중단 조건·남은 통합은 위 절차에 명시한다.
 
 연구용 수신기다. 운영 gateway에서 import하지 않으며 DB·outbox·자격증명 갱신 기능이 없다. 기존 공식 SDK의 OAuth 접속 절차와 패킷 입출력을 확인하여 Node/ws로 구현했다. Meloming/Rogi Go 소스는 반입하지 않았으며 공식 지원 SDK라고 표시하지 않는다.

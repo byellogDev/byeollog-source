@@ -1,9 +1,18 @@
-import importlib.util,pathlib,unittest,types,json,queue
+import importlib.util,pathlib,unittest,types,json,queue,tempfile
 from unittest.mock import patch
 spec=importlib.util.spec_from_file_location('controller',pathlib.Path(__file__).with_name('soak-controller.py'))
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
-def frame(at=8000):return {'at':at,'code':18,'digest':'synthetic'}
+def frame(at=8000):return {'schema':2,'at':at,'code':18,'digest':'a'*64,'rawDigest':'a'*64,'semanticKind':'event','fields':[{'digest':'a'*64,'bytes':3}],'business':{'event.message.count':{'digest':'a'*64,'bytes':3}}}
 class ConnectionDiagnosticTests(unittest.TestCase):
+ def test_real_evidence_file_contains_differences_and_no_plaintext(self):
+  with tempfile.TemporaryDirectory() as folder,patch.object(m,'BASE',pathlib.Path(folder)):
+   e=m.Evidence('test');c=m.Comparison(0,on_diagnostic=lambda d:e.emit('comparison_diagnostic',**d))
+   a=frame();b=frame(8001);b['rawDigest']='b'*64;b['fields']=[{'digest':'b'*64,'bytes':9}]
+   c.add('original',a);c.add('candidate',b)
+   c.add('original',frame(9000));b={**b,'at':9001,'digest':'b'*64,'business':{'event.message.count':{'digest':'b'*64,'bytes':1}}};c.add('candidate',b)
+   c.expire(20000);rows=[json.loads(x) for x in e.path.read_text().splitlines()]
+   self.assertEqual(len(rows),3);self.assertEqual(rows[0]['wireFields'],[0]);self.assertEqual(rows[1]['businessFields'],['event.message.count'])
+   self.assertTrue(c.mismatched());self.assertTrue(all(x['kind']=='comparison_diagnostic' for x in rows))
  def test_close_code_survives_without_peer_reason_or_unknown_fields(self):
   d=m.safe_connection_diagnostic({'reason':'socket_closed','stage':'receiving','transport':{'closeCode':1008,'closeReasonBytes':20,'connectedMs':1569918,'closeReason':'private-marker','token':'private-marker'}})
   self.assertEqual(d['transport'],{'closeCode':1008,'closeReasonBytes':20,'connectedMs':1569918})
@@ -14,7 +23,7 @@ class ConnectionDiagnosticTests(unittest.TestCase):
   self.assertEqual(d,{'reason':'connection_failed','stage':None,'transport':{}})
 
 class FinalizationTests(unittest.TestCase):
- def session_fixture(self,drained_peer=False,diagnostic=None,before_ready=False,replacement=False,basis=None):
+ def session_fixture(self,drained_peer=False,diagnostic=None,before_ready=False,replacement=False,basis=None,wire_difference=False,handoff_diagnostic=False):
   clock=[100.0]
   events=[('original',{'kind':'private_config','config':{'synthetic':True}}),('original',{'kind':'monitor_ready','before':{}}),('candidate',{'kind':'ready'}),('original',{'kind':'frame',**frame(108000)}),('original',{'kind':'monitor_done','after':{}})]
   evidence=[]
@@ -24,6 +33,10 @@ class FinalizationTests(unittest.TestCase):
    events.insert(4,('candidate',{'kind':'handoff_committed','matched':0 if basis=='quiet_provider_traffic' else 3,'overlapMs':30000,'handoffs':1,'accessToken':'private-marker','basis':basis,'contentVerified':True}))
   if diagnostic is not None:events.insert(-1,('original',{'kind':'original_decode_error',**diagnostic}))
   tail=[('candidate',{'kind':'frame',**frame(108050)})] if drained_peer else []
+  if wire_difference:
+   tail[0][1]['rawDigest']='b'*64;tail[0][1]['fields'][0]['digest']='b'*64
+  if handoff_diagnostic:
+   tail.append(('candidate',{'kind':'comparison_diagnostic','diagnosticKind':'handoff_content_mismatch','old':frame(),'replacement':{**frame(),'digest':'b'*64,'business':{'event.message.count':{'digest':'b'*64,'bytes':3}}},'accessToken':'private-marker'}))
   if before_ready:
    events=events[:2]+[('original',{'kind':'abort','reason':'original_socket_closed'})]
    tail=[('candidate',{'kind':'candidate_decode_error','code':'invalid_header','byteLength':14})]
@@ -90,6 +103,15 @@ class FinalizationTests(unittest.TestCase):
  def test_full_session_drains_matching_peer_before_final_verdict(self):
   result=self.session_fixture(drained_peer=True)
   self.assertEqual(result['reason'],'campaign_complete');self.assertEqual(result['comparison']['matched'],{'18':1});self.assertFalse(result.get('reviewRequired',False))
+ def test_wire_diagnostics_persist_through_shutdown_drain(self):
+  result=self.session_fixture(drained_peer=True,wire_difference=True)
+  self.assertEqual(result['reason'],'campaign_complete')
+  record=next(x for x in result['_evidence'] if x['kind']=='comparison_diagnostic')
+  self.assertEqual(record['diagnosticKind'],'wire_only_difference');self.assertEqual(record['wireFields'],[0])
+ def test_handoff_diagnostics_persist_through_shutdown_drain(self):
+  result=self.session_fixture(drained_peer=True,handoff_diagnostic=True)
+  record=next(x for x in result['_evidence'] if x['kind']=='comparison_diagnostic')
+  self.assertEqual(record['businessFields'],['event.message.count']);self.assertNotIn('private-marker',json.dumps(record))
  def test_campaign_reports_review_instead_of_finishing(self):
   records=[]
   class Evidence:

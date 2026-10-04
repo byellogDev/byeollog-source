@@ -82,8 +82,7 @@ export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onE
           onReport({kind:'ready',chatNumber:room.chatNumber});continue;
         }
         if(!result.ready)throw fault('content_before_ready');
-        onFrame(packet);
-        let event;try{event=contentEvent(packet,room)}catch(e){onReport({kind:'candidate_decode_error',code:e.code,...packetDiagnostic(packet.bytes)});throw e}
+        let event;try{event=contentEvent(packet,room);onFrame(packet)}catch(e){onReport({kind:'candidate_decode_error',code:e.code,...packetDiagnostic(packet.bytes)});throw e}
         if(event){sequence++;result.counts[event.action]=(result.counts[event.action]||0)+1;onEvent({...event,room:{bjId:room.broadcasterId,chatNumber:room.chatNumber},sequence,receivedAt:new Date().toISOString()})}
         else if(!(code in result.unknownCodes)&&Object.keys(result.unknownCodes).length>=128)throw fault('unknown_code_capacity');
         else result.unknownCodes[code]=(result.unknownCodes[code]||0)+1;

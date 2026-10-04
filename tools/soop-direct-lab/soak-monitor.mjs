@@ -9,7 +9,7 @@ const input=readline.createInterface({input:process.stdin});
 let contact=Date.now();input.on('line',()=>contact=Date.now());
 const [first]=await once(input,'line');const config=JSON.parse(first);
 const {workspaceId,salt}=config,tag=crypto.createHash('sha256').update(workspaceId).digest('hex').slice(0,12);
-const out=x=>console.log(JSON.stringify(x));let selected=null,ended=false;
+const out=x=>console.log(JSON.stringify(x));let selected=null,ended=false,observedChatNumber=null;
 const state=()=>{const s=JSON.parse(fs.readFileSync('/var/lib/byeollog/worker-state.json','utf8'));return {channel:s.channels.find(c=>c.workspace===tag),heartbeatAt:s.heartbeatAt,pending:s.queue.pending,deadLetters:s.queue.deadLetters}};
 const halt=reason=>{if(!ended){ended=true;out({kind:'abort',reason});process.exitCode=1}};
 input.on('close',()=>halt('supervisor_disconnected'));
@@ -49,12 +49,18 @@ try{
         if(decoded.error){out({kind:'original_decode_error',...decoded.error});halt('original_packet_decode_failed');return}
         for(const p of decoded.packets){
           if(p.code===88&&p.ret===0){out({kind:'broadcast_signal',...packetDiagnostic(p.bytes)});halt('original_broadcast_closed');break}
-          if(CONTENT_CODES.includes(p.code))out({kind:'frame',code:p.code,at:Date.now(),digest:crypto.createHmac('sha256',salt).update(p.bytes).digest('hex')});
+          if(CONTENT_CODES.includes(p.code)){
+            try{out({kind:'frame',...comparisonRecord(p,{broadcasterId:lease.providerAccountId,chatNumber:observedChatNumber},salt)})}
+            catch(e){out({kind:'original_decode_error',code:e.code,...packetDiagnostic(p.bytes)});halt('original_packet_decode_failed');break}
+          }
         }
       }
     },()=>{if(attached&&!ended)halt('original_observer_disconnected')});
     const result=await client.send('Runtime.evaluate',{expression,returnByValue:true});
     if(result.result?.value===true){
+      const room=await client.send('Runtime.evaluate',{expression:'[...chats.values()][0].getRoomInfo().chatNumber',returnByValue:true});
+      observedChatNumber=Number(room.result?.value);
+      if(!Number.isSafeInteger(observedChatNumber)||observedChatNumber<1)throw Error('original_room_missing');
       selected=client;attached=true;await client.send('Network.enable');
       scope.authorize(await inspectSocketInventory(client,lease.providerAccountId));
       if(ended)throw Error('original_not_ready');

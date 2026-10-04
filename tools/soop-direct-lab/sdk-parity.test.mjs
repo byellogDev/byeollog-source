@@ -33,6 +33,7 @@ test('direct authentication bytes and business event projections match pinned SD
   assert.deepEqual(writes[0],loginPacket(c.accessToken));
   assert.deepEqual(writes[1],joinPacket({chatNumber:1000,ticket:'synthetic-ticket-lab0'},c.clientId,c.clientSecret));
   const cases=fixtures();
+  for(const index of [4,5,6,9,10]){const f={...fixtures()[2],fields:[...fixtures()[2].fields]};f.fields[index]='777';cases.push(f)}
   for(const count of [1,9,10,49,50,99,100,499,500,999,1000]){const f={...fixtures()[2],fields:[...fixtures()[2].fields]};f.fields[3]=String(count);cases.push(f)}
   for(const f of cases)upstream.send(encodePacket(f.code,f.fields));
   await until(()=>messages.length===cases.length);

@@ -1,7 +1,7 @@
 // Receive-only rolling observation. OAuth refresh remains owned by production.
-import {createHmac} from 'node:crypto';
 import {runDirect} from './client.mjs';
 import {CONTENT_CODES,contentEvent,fault} from './protocol.mjs';
+import {comparisonRecord,comparisonDifference} from './comparison-record.mjs';
 
 export async function observeRolling(config,{WebSocketImpl,fetchImpl=fetch,signal,onReport=()=>{},subscribeReplacement=()=>()=>{},timing={}}={}){
  const limits={settleMs:1000,overlapMs:30000,attemptMs:90000,pollMs:100,maxFrames:10000,healthFreshMs:60000,...timing};
@@ -15,7 +15,9 @@ export async function observeRolling(config,{WebSocketImpl,fetchImpl=fetch,signa
  const emit=(kind,x={})=>onReport({kind,...x});
  const finish=why=>{if(!finished){finished=true;reason=why;resolveDone()}};
  const abort=()=>finish('supervisor_stopped');
- const block=why=>{if(!next)return;const old=next;next=null;old.expected=true;old.abort.abort();emit('handoff_blocked',{reason:why,oldPreserved:!!active?.ready&&!active?.ended})};
+ const block=why=>{if(!next)return;const old=next;next=null;
+  for(const side of ['old','next'])for(const record of old.pending[side].slice(0,20))emit('comparison_diagnostic',{diagnosticKind:'handoff_unmatched',[side==='old'?'old':'replacement']:record});
+  old.expected=true;old.abort.abort();emit('handoff_blocked',{reason:why,oldPreserved:!!active?.ready&&!active?.ended})};
  function frame(leg,p){
   if(finished)return;
   // Passive provider traffic after validated room admission; no injected WS ping.
@@ -25,22 +27,27 @@ export async function observeRolling(config,{WebSocketImpl,fetchImpl=fetch,signa
    if(p.ret===0&&[0,4,127].includes(p.code)){leg.healthAt=Date.now();leg.healthCode=p.code;}
    return;
   }
-  contentEvent(p,{broadcasterId:config.broadcasterId});
-  if(leg===active)emit('frame',{code:p.code,at:Date.now(),digest:createHmac('sha256',config.salt).update(p.bytes).digest('hex')});
+  const record=comparisonRecord(p,{broadcasterId:config.broadcasterId,chatNumber:leg.chatNumber},config.salt);
+  if(leg===active)emit('frame',record);
   // Content during warmup also disqualifies a quiet switch. It cannot be
   // re-labelled silence merely because it falls outside the common window.
   if(next&&[active,next].includes(leg))next.sawContent=true;
   if(!next?.commonAt||Date.now()<next.commonAt||![active,next].includes(leg))return;
   const side=leg===active?'old':'next',pending=next.pending;
-  if(pending[side].length>=limits.maxFrames){block('comparison_capacity');return}
-  pending[side].push(p.code+':'+createHmac('sha256',config.salt).update(p.bytes).digest('hex'));
+  const recordBytes=Buffer.byteLength(JSON.stringify(record));
+  if(pending[side].length>=limits.maxFrames||next.pendingBytes+recordBytes>4*1024*1024){block('comparison_capacity');return}
+  next.pendingBytes+=recordBytes;
+  pending[side].push(record);
   while(next&&pending.old.length&&pending.next.length){
-   if(pending.old[0]!==pending.next[0]){block('overlap_order_or_content_mismatch');return}
-   pending.old.shift();pending.next.shift();next.matched++;
+   const a=pending.old[0],b=pending.next[0];
+   if(a.code!==b.code||a.digest!==b.digest){emit('comparison_diagnostic',{diagnosticKind:'handoff_content_mismatch',old:a,replacement:b,...comparisonDifference(a,b)});block('overlap_order_or_content_mismatch');return}
+   if(a.rawDigest!==b.rawDigest)emit('comparison_diagnostic',{diagnosticKind:'handoff_wire_only_difference',old:a,replacement:b,...comparisonDifference(a,b)});
+   next.pendingBytes-=Buffer.byteLength(JSON.stringify(a))+Buffer.byteLength(JSON.stringify(b));
+   pending.old.shift();pending.next.shift();if(a.semanticKind==='event')next.matched++;
   }
  }
  function launch(credentials){
-  const leg={credentials,abort:new AbortController(),ready:false,ended:false,expected:false,pending:{old:[],next:[]},matched:0,started:Date.now(),commonAt:null,sawContent:false,healthAt:0,healthCode:null,chatNumber:null,generation:++generation};legs.add(leg);
+  const leg={credentials,abort:new AbortController(),ready:false,ended:false,expected:false,pending:{old:[],next:[]},pendingBytes:0,matched:0,started:Date.now(),commonAt:null,sawContent:false,healthAt:0,healthCode:null,chatNumber:null,generation:++generation};legs.add(leg);
   // Assign authority before any async transport callback can run.
   if(!active)active=leg;else next=leg;
   leg.promise=runDirect({...credentials,durationMs:Math.max(100,end-Date.now())},{WebSocketImpl,fetchImpl,signal:leg.abort.signal,

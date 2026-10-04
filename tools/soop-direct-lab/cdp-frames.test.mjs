@@ -49,7 +49,7 @@ test('oversize and invalid UTF8 are not silently skipped',()=>{
 });
 test('deployed monitor bundle executes the tested adapter and retains socket-close stop',()=>{
  const {bundle}=buildBundle();const prefix=bundle.monitor.slice(0,bundle.monitor.indexOf("import fs from 'node:fs'"));
- const context=vm.createContext({Buffer,TextDecoder});vm.runInContext(prefix.replace(/^export /gm,'')+';globalThis.adapter=readCdpPackets;',context);
+ const context=vm.createContext({Buffer,TextDecoder});vm.runInContext(prefix.replace(/^import .*;\r?\n/gm,'').replace(/^export /gm,'')+';globalThis.adapter=readCdpPackets;',context);
  assert.equal(context.adapter({opcode:10,payloadData:''}).control,true);
  assert.equal(context.adapter({opcode:1,payloadData:'broken'}).error.code,'invalid_packet_size');
  assert.match(bundle.monitor,/const decoded=readCdpPackets\(event.params\?\.response\)/);
