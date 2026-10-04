@@ -610,6 +610,7 @@ test('browser gateway follows the current SOOP Chat SDK lifecycle and resolves t
   assert.doesNotMatch(source,/room:null/);
   assert.match(source,/sdk_room_owner_mismatch/);
   assert.match(source,/retireShard=true/);
+  assert.doesNotMatch(source,/retireShard=false/,'closed SDK pages must never be reused');
   assert.match(source,/candidate\.alive&&!candidate\.retiring/);
   assert.match(source,/shard\.stop\(sessionId,\{retire:retireShard\}\)/);
   assert.match(source,/const chats=new Map\(\)/);

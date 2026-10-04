@@ -6735,6 +6735,13 @@
       "after": "7b0db92f87e6f6a4ca51b8d368b81a15518f779fe686dad34d7903b1254b5917",
       "status": "changed",
       "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "services/soop-gateway/services/soop-chat-gateway/browser-session.mjs",
+      "before": "109acc89b449c0fbe80d23490379aeac6d6b26842acb4220a758b5e38ce4bcfe",
+      "after": "a12fd30b9c1252d29f0b672b14068abf6b987ece621c16543e34b38f75015fdd",
+      "status": "changed",
+      "release": "2026.10.05-sdk-lifecycle"
     }
   ]
 }

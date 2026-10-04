@@ -390,7 +390,11 @@ export async function runSoopBrowserSession({clientId,clientSecret,accessToken,e
   const host=await browserHost();
   if(signal?.aborted)return {reason:'aborted',ready:false,errorCode:null,errorMessage:null};
   const expectedRoomOwner=String(expectedBroadcasterId||'').trim().toLowerCase();
-  let settled=false,ready=false,lastErrorCode=null,lastErrorMessage=null,shard=null,sessionId=null,connectTimer=null,retireShard=false;
+  // The official SDK destroys its page-global emitter on socket close. A new
+  // ChatSDK object cannot restore it. Retire every session's context, including
+  // failed initialization and offline attempts, before another account/session
+  // can acquire it. The shared Chromium process remains alive.
+  let settled=false,ready=false,lastErrorCode=null,lastErrorMessage=null,shard=null,sessionId=null,connectTimer=null,retireShard=true;
   let finish;const finished=new Promise(resolve=>{finish=reason=>{if(settled)return;settled=true;resolve(reason)}});
   const abort=()=>finish('aborted');signal?.addEventListener('abort',abort,{once:true});
   try{
