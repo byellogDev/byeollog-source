@@ -60,6 +60,8 @@ internal static partial class Program
 
         try
         {
+            await DrawBoardTestsAsync(root);
+            if (args.Contains("--draw-board-only")) { Console.WriteLine($"PASS: {_assertions} draw board assertions"); return; }
             await WallpaperAppearanceTestsAsync(root);
             if (args.Contains("--appearance-only")) { Console.WriteLine($"PASS: {_assertions} appearance assertions"); return; }
             await WallpaperDetachedTestsAsync(root);

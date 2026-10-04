@@ -2364,6 +2364,18 @@ internal sealed class ByeollogOverlayService : IDisposable
                     await WriteResponseAsync(stream, 200, "text/html; charset=utf-8", OverlayHtml, headOnly, timeout.Token);
                     return;
                 }
+                if (path == "/overlay/draw-board")
+                {
+                    await WriteResponseAsync(stream, 200, "text/html; charset=utf-8", DrawBoardRenderer.Html, headOnly, timeout.Token);
+                    return;
+                }
+                if (path == "/overlay/draw-board-state")
+                {
+                    var state = CurrentWallpaper.DrawBoardView?.Invoke();
+                    var bytes = state is null ? Encoding.UTF8.GetBytes("{\"board\":null}") : JsonSerializer.SerializeToUtf8Bytes(state.Value);
+                    await WriteResponseAsync(stream, 200, "application/json; charset=utf-8", bytes, headOnly, timeout.Token);
+                    return;
+                }
                 if (path == "/overlay/wallpaper")
                 {
                     await WriteResponseAsync(stream, 200, "text/html; charset=utf-8", OverlayHtml, headOnly, timeout.Token);

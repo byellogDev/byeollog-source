@@ -131,4 +131,12 @@
       <Reference Remove="@(Reference)" Condition="'%(Reference.Filename)' == 'Microsoft.Web.WebView2.Wpf'" />
     </ItemGroup>
   </Target>
+
+  <ItemGroup>
+    <Compile Include="../DrawBoard.cs" Link="DrawBoard.cs" />
+    <Compile Include="../DrawBoardRenderer.cs" Link="DrawBoardRenderer.cs" />
+    <EmbeddedResource Include="../Ui/draw-board-editor.js" LogicalName="HurogiCollector.Ui.draw-board-editor.js" />
+    <EmbeddedResource Include="../Ui/draw-board.css" LogicalName="HurogiCollector.Ui.draw-board.css" />
+    <EmbeddedResource Include="../Ui/draw-board-overlay.html" LogicalName="HurogiCollector.Ui.draw-board-overlay.html" />
+  </ItemGroup>
 </Project>

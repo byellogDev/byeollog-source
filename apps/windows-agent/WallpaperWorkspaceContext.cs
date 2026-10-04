@@ -96,6 +96,7 @@ internal sealed class WallpaperWorkspaceContext : IDisposable
             linked.Token.ThrowIfCancellationRequested();
             _prepared = true;
             Editor.Baekdusan.Start();
+            Editor.DrawBoard.Start();
         }
         finally { _prepare.Release(); }
     }

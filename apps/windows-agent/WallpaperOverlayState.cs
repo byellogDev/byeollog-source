@@ -144,6 +144,7 @@ internal sealed class WallpaperOverlayState : IDisposable
         }
     }
 
+    internal Func<JsonElement>? DrawBoardView { get; set; }
     internal Func<JsonElement>? BaekdusanView { get; set; }
     internal Func<JsonElement>? DetachedView { get; set; }
     internal Func<JsonElement>? AppearanceView { get; set; }

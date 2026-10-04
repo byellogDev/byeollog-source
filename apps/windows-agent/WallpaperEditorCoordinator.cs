@@ -43,10 +43,11 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
     internal static readonly TimeSpan MinimumEventRefreshInterval = TimeSpan.FromSeconds(15);
     internal static readonly TimeSpan BackupInterval = TimeSpan.FromMinutes(1);
     internal event Action? StateChanged;
+    internal DrawBoard DrawBoard { get; }
     internal WallpaperBaekdusan Baekdusan { get; }
     internal WallpaperDetachedCards Detached { get; }
     internal WallpaperAppearance Appearance { get; }
-    private JsonElement Decorate(JsonElement source) => Appearance.Decorate(Detached.Decorate(Baekdusan.Decorate(source)));
+    private JsonElement Decorate(JsonElement source) => DrawBoard.Decorate(Appearance.Decorate(Detached.Decorate(Baekdusan.Decorate(source))));
 
     internal WallpaperEditorCoordinator(
         Func<bool> isSignedIn,
@@ -64,6 +65,8 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
         _wallpaper = wallpaper;
         _cachePath = Path.Combine(rootPath, "wallpaper-editor-cache-v1.json");
         _log = log;
+        DrawBoard = new DrawBoard(rootPath, _isSignedIn, _sendControl, () => StateChanged?.Invoke(), startWorker: scheduleInitialBackup, clock: _clock);
+        _wallpaper.DrawBoardView = () => DrawBoard.PublicView();
         Appearance = new WallpaperAppearance(rootPath);
         _wallpaper.AppearanceView = () => Appearance.View;
         Detached = new WallpaperDetachedCards(rootPath);
@@ -113,6 +116,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
     internal void NotifyWallpaperChanged()
     {
         Baekdusan.Notify();
+        DrawBoard.Notify();
         Interlocked.Increment(ref _refreshRequested);
         StateChanged?.Invoke();
     }
@@ -186,6 +190,12 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
             throw new InvalidDataException("풍벽지 요청이 올바르지 않습니다.");
         var action = control.TryGetProperty("action", out var actionValue)
             ? actionValue.GetString() : null;
+        if (action?.StartsWith("draw-board-", StringComparison.Ordinal) == true)
+        {
+            if (action == "draw-board-history") return await DrawBoard.HistoryAsync(control, cancellationToken);
+            await DrawBoard.ControlAsync(control, cancellationToken);
+            return await GetStateAsync(cancellationToken);
+        }
         if (action is "appearance-save" or "appearance-reset")
         {
             Appearance.Apply(control, cancellationToken);
@@ -487,6 +497,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
 
     public void Dispose()
     {
+        DrawBoard.Dispose();
         Baekdusan.Dispose();
         _lifetime.Cancel();
         StateChanged = null;
@@ -496,6 +507,7 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
     internal async Task DrainAsync()
     {
         Dispose();
+        await DrawBoard.DrainAsync();
         await Baekdusan.DrainAsync();
         // Public operations link lifetime before entering any lane. No new operation
         // can enter after retirement; drain in the same order as explicit controls.

@@ -6602,6 +6602,55 @@
       "after": "f5d85c1078135c167c0e8844955a785ee83a3455b438a37f1eadb41cc129eec6",
       "status": "changed",
       "release": "2026.10.04-agent-10048"
+    },
+    {
+      "target": "apps/windows-agent/ByeollogOverlayService.cs",
+      "before": "6e110f203deb97b9889c23f09f41603fd5ff9a67e0469d4ebbf9cd1285a83ffc",
+      "after": "64625723a4e908f618cf0069770f1ccf239ff68d8be8d04a3f4a1b153afa709d",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "4377709afce756fa3bb6e08e85dcc53dd8fc5e664b658e9b2a74ddda3a32e2ae",
+      "after": "c75e81af04d5b06a549a8ef1ee51df97ddb683b0dfa080e0b924986056078177",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "b33ab7041d06e9f8af1c4554f0b2783327ddf76db0465a4f81a93d40723aafdb",
+      "after": "e746a7c452d1a8c04b965a44f234eb5676ff42981d2af166dc346199acb11c31",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "f5d85c1078135c167c0e8844955a785ee83a3455b438a37f1eadb41cc129eec6",
+      "after": "965ca6db0dff73cf5de72489a8943ca10c1b299ec9ddc367121c0314b5d87d04",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperEditorCoordinator.cs",
+      "before": "f58fabc7f963450370b971ee9725bb4391f992d13033666356f38b3ea5853bd6",
+      "after": "e5f665899e61e513d861312e0a8452df533edaeea731d49306646cc98a20b915",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperOverlayState.cs",
+      "before": "8916d659e7850fa262e130b4d663da7af26ef97df20320564002198b18af1bb6",
+      "after": "337844ba52b7a21ec80ab8bff343b427eb99b16d95ec0f2698722a469a335681",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperWorkspaceContext.cs",
+      "before": "07369eb9cd0335890c6c4c1e9e3313f93970f894fc532f65b4956baa29ffb358",
+      "after": "4a7f5ea8e3e3c4fe329c919046d57cd743150ff02dd3ab660a9b7e86c933b26e",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
     }
   ]
 }

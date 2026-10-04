@@ -8,8 +8,8 @@
     <Nullable>enable</Nullable>
     <AssemblyName>byeollog</AssemblyName>
     <RootNamespace>HurogiCollector</RootNamespace>
-    <Version>1.0.0.48</Version>
-    <InformationalVersion>1.0.0.48</InformationalVersion>
+    <Version>1.0.0.49</Version>
+    <InformationalVersion>1.0.0.49-draw-candidate</InformationalVersion>
     <Product>별록 풍벽지</Product>
     <AssemblyTitle>별록 풍벽지</AssemblyTitle>
     <Description>OBS에 별록 풍벽지 화면을 연결하는 전용 프로그램</Description>
@@ -68,5 +68,11 @@
     <None Update="Assets\hurogi_balloon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Ui/draw-board-editor.js" LogicalName="HurogiCollector.Ui.draw-board-editor.js" />
+    <EmbeddedResource Include="Ui/draw-board.css" LogicalName="HurogiCollector.Ui.draw-board.css" />
+    <EmbeddedResource Include="Ui/draw-board-overlay.html" LogicalName="HurogiCollector.Ui.draw-board-overlay.html" />
   </ItemGroup>
 </Project>

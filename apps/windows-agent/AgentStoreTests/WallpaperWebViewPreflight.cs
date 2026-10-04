@@ -18,6 +18,7 @@ internal sealed class VNextLocalAgent : IDisposable
     internal bool Online = true;
     internal int DelayMs = 60;
     internal int RemoteWrites;
+    internal List<WallpaperBaekdusan.Tip> DrawTips = [];
     internal WallpaperWorkspaceContext Context { get; private set; }
     private readonly string _root;
     private string[] _selected = [];
@@ -29,7 +30,7 @@ internal sealed class VNextLocalAgent : IDisposable
     private JsonElement EditorState() => JsonSerializer.SerializeToElement(new {
         revision=_revision, selectedSessionIds=_selected, live=new {isLive=false}, total=_selected.Length, count=_selected.Length,
         session=_selected.Length==0 ? null : new {id="fixture",state="offline",canvasWidth=1920,canvasHeight=1080},
-        sessions=new[] {new {id="session-a",label="격리 시험 A",tileCount=1,startedAt="2026-09-06T01:00:00Z"},new {id="session-b",label="격리 시험 B",tileCount=1,startedAt="2026-09-06T02:00:00Z"}},
+        sessions=new[] {new {id="11111111-1111-4111-8111-111111111111",label="격리 시험 A",tileCount=1,startedAt="2026-09-06T01:00:00Z"},new {id="22222222-2222-4222-8222-222222222222",label="격리 시험 B",tileCount=1,startedAt="2026-09-06T02:00:00Z"}},
         groups=_selected.Select((s,i)=>new {id="group-"+i,amount=2,displayKind="subscription",imageUrl=(string?)null,
             tileIds=new[]{Id(i)},x=i*300,y=100,width=240,height=226,cardWidth=240,cardHeight=226,rowsPerColumn=1,slotColumns=2,scale=1,
             cards=new[]{new {id=Id(i),actorName="격리 시험",displayKind="subscription",amount=2,imageUrl=(string?)null,x=0,y=0,width=240,height=226}}})
@@ -41,6 +42,11 @@ internal sealed class VNextLocalAgent : IDisposable
         if(control is not null) {
             var action=control.Value.GetProperty("action").GetString();
             if(action=="verify-cache-ownership")return JsonSerializer.SerializeToElement(new {owned=false,workspaceId=WallpaperWorkspaceId});
+            if(action=="baekdusan-log") {
+                var q=control.Value;var sid=q.GetProperty("sessionId").GetString();var cursor=q.GetProperty("afterSequence").GetInt64();
+                var page=DrawTips.Where(t=>t.SessionId==sid&&t.SequenceNo>cursor).OrderBy(t=>t.SequenceNo).Take(200).ToArray();
+                return JsonSerializer.SerializeToElement(new {sessionId=sid,tiles=page,closed=false,hasMore=false,nextSequence=page.LastOrDefault()?.SequenceNo??cursor},new JsonSerializerOptions{PropertyNamingPolicy=JsonNamingPolicy.CamelCase});
+            }
             RemoteWrites++;
             if(action=="select-sessions")_selected=control.Value.GetProperty("sessionIds").EnumerateArray().Select(x=>x.GetString()!).ToArray();
             _revision++;
@@ -110,6 +116,9 @@ internal static class WallpaperWebViewPreflight
         using var rendered=new WebView2 {Dock=DockStyle.Fill};host.Controls.Add(rendered);
         await rendered.EnsureCoreWebView2Async(environment);rendered.Source=new Uri($"http://127.0.0.1:{port}/overlay/wallpaper");
         await WaitAsync(rendered,"document.readyState==='complete'","overlay bootstrap");
+        await DrawBoardExerciseAsync(web, rendered, agent, port, root);
+        rendered.Source=new Uri($"http://127.0.0.1:{port}/overlay/wallpaper");
+        await WaitAsync(rendered,"document.readyState==='complete' && !document.getElementById('board')","wallpaper restored");
         // Deterministic HTTPS font transport; no external service is contacted.
         foreach(var target in new[]{web,rendered}){
             target.CoreWebView2.AddWebResourceRequestedFilter("https://font-fixture.example/*",CoreWebView2WebResourceContext.Font);
@@ -202,6 +211,65 @@ internal static class WallpaperWebViewPreflight
         Console.WriteLine("PASS: real WebView2 Form+editor JS+coordinator+local HTTP renderer: appearance preview/save/cancel/reset, editor/OBS color parity, unchanged compact text with separate nickname color and font bounds on both renderers, 36 sequential toggles, 54 rapid toggles with slow ACK, local merge save/reopen/refresh, offline persisted layout, 8 account document reloads. Fake remote transport; not installed EXE or actual OBS.");
         Console.WriteLine("WEBVIEW_ARTIFACT_ROOT="+root);
         form.Close();
+    }
+    private static async Task DrawBoardExerciseAsync(WebView2 web, WebView2 rendered, VNextLocalAgent agent, int port, string root)
+    {
+        int writes=agent.RemoteWrites;
+        await web.ExecuteScriptAsync("document.getElementById('openDrawBoardBtn').click()");
+        await WaitAsync(web,"document.getElementById('drawBoardDialog')?.open","draw board dialog");
+        using(var screenshot=File.Create(Path.Combine(root,"draw-board-setup.png")))
+            await web.CoreWebView2.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,screenshot);
+        await web.ExecuteScriptAsync("document.getElementById('drawMode').value='manual';document.getElementById('drawMode').dispatchEvent(new Event('input'));document.getElementById('drawSize').value='9';document.getElementById('drawColumns').value='3';document.getElementById('startDrawBoardBtn').click()");
+        await WaitAsync(web,"!!document.getElementById('revealDrawBoardBtn')","manual board created via trusted bridge");
+        rendered.Source=new Uri($"http://127.0.0.1:{port}/overlay/draw-board");
+        await WaitAsync(rendered,"document.querySelectorAll('.cell').length===9","OBS draw board initial cells");
+        await web.ExecuteScriptAsync("document.getElementById('drawManualNumber').value='4';document.getElementById('revealDrawBoardBtn').click()");
+        await WaitAsync(rendered,"document.querySelectorAll('.cell.open').length===1","saved manual result revealed");
+        await web.ExecuteScriptAsync("document.getElementById('drawManualNumber').value='4';document.getElementById('revealDrawBoardBtn').click()");
+        await WaitAsync(web,"!document.getElementById('drawBoardDialog').dataset.busy","duplicate manual reply");
+        if(agent.Context.Editor.DrawBoard.View.GetProperty("board").GetProperty("results").GetArrayLength()!=1)throw new Exception("manual duplicate drew again");
+        rendered.Reload();await WaitAsync(rendered,"document.querySelectorAll('.cell.open').length===1","OBS reload restores exact result");
+        using(var screenshot=File.Create(Path.Combine(root,"draw-board-running.png")))
+            await web.CoreWebView2.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,screenshot);
+        using(var screenshot=File.Create(Path.Combine(root,"draw-board-overlay.png")))
+            await rendered.CoreWebView2.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,screenshot);
+        using var http=new HttpClient();
+        using var attack=new HttpRequestMessage(HttpMethod.Get,$"http://127.0.0.1:{port}/overlay/draw-board-state");
+        attack.Headers.Add("Origin","https://untrusted.example");
+        using var denied=await http.SendAsync(attack);
+        if(denied.StatusCode!=HttpStatusCode.Forbidden)throw new Exception("foreign origin read accepted");
+        using var post=await http.PostAsync($"http://127.0.0.1:{port}/overlay/draw-board-state",new StringContent("{}"));
+        if(post.StatusCode!=HttpStatusCode.MethodNotAllowed)throw new Exception("OBS mutation accepted");
+        if(agent.RemoteWrites!=writes)throw new Exception("manual board mutated remote data");
+        await web.ExecuteScriptAsync("document.getElementById('drawBoardDialog').close()");
+        agent.Online=false;
+        await WaitAsync(rendered,"document.getElementById('board').hidden","signed out board concealed");
+        agent.Online=true;
+        await WaitAsync(rendered,"!document.getElementById('board').hidden && document.querySelectorAll('.cell.open').length===1","sign in restores same revealed board");
+        // Random donation flow through the same UI, feed boundary and OBS projection.
+        await web.ExecuteScriptAsync("document.getElementById('openDrawBoardBtn').click();Array.from(document.querySelectorAll('#drawBoardDialog button')).find(b=>b.textContent==='이 뽑기판 종료').click();Array.from(document.querySelectorAll('#drawBoardDialog button')).find(b=>b.textContent.startsWith('종료 확정')).click()");
+        await WaitAsync(web,"Array.from(document.querySelectorAll('#drawBoardDialog button')).some(b=>b.textContent==='새 뽑기판 만들기')","manual board ended");
+        await web.ExecuteScriptAsync("Array.from(document.querySelectorAll('#drawBoardDialog button')).find(b=>b.textContent==='새 뽑기판 만들기').click();document.getElementById('drawSize').value='25';document.getElementById('drawColumns').value='5';document.getElementById('drawCount').value='2';document.getElementById('startDrawBoardBtn').click()");
+        await WaitAsync(web,"!!document.getElementById('copyDrawBoardBtn') && document.querySelector('.draw-mode')?.textContent.includes('자동')","random board started via UI");
+        await WaitAsync(rendered,"document.querySelectorAll('.cell').length===25 && document.querySelectorAll('.cell.open').length===0","random initial overlay");
+        await web.ExecuteScriptAsync("document.querySelector('.draw-controls > details').open=true;document.querySelector('.draw-controls > details details').open=true");
+        await WaitAsync(web,"document.querySelector('.draw-controls > details details p')?.textContent.includes('4번')","archived results lazy load");
+        var sid="11111111-1111-4111-8111-111111111111";
+        agent.DrawTips.Add(new(Guid.NewGuid().ToString(),sid,1,"화면 시험 후원자",100,DateTimeOffset.UtcNow.ToString("O")));
+        await agent.Context.Editor.DrawBoard.PollOnceAsync(default);
+        await WaitAsync(rendered,"document.querySelectorAll('.cell.open').length===2","one donation reveals two serial results");
+        var stable=await rendered.ExecuteScriptAsync("document.getElementById('grid').innerText");
+        await agent.Context.Editor.DrawBoard.PollOnceAsync(default);rendered.Reload();
+        await WaitAsync(rendered,"document.querySelectorAll('.cell.open').length===2","random OBS reload deduplicated");
+        if(stable!=await rendered.ExecuteScriptAsync("document.getElementById('grid').innerText"))throw new Exception("random result changed after reload");
+        using(var screenshot=File.Create(Path.Combine(root,"draw-board-random.png")))
+            await rendered.CoreWebView2.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,screenshot);
+        if(agent.RemoteWrites!=writes)throw new Exception("draw board sent remote mutation");
+        await web.ExecuteScriptAsync("document.getElementById('drawBoardDialog').close()");
+        await agent.SwitchAsync();
+        await WaitAsync(rendered,"document.getElementById('board').hidden","other workspace cannot see board");
+        await WaitAsync(web,"document.querySelectorAll('#wallpaperSessions input').length===2 && !document.getElementById('drawBoardDialog')","workspace document changed");
+        Console.WriteLine("PASS: draw board real WebView setup, manual and donation-triggered random drawing, serial reveal, duplicate, OBS reload, origin/method boundary, sign-out and workspace isolation. Fake remote; not actual OBS.");
     }
     private static async Task VerifySmallAppearanceAsync(WebView2 web)
     {
