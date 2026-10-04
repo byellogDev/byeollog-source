@@ -6651,6 +6651,41 @@
       "after": "4a7f5ea8e3e3c4fe329c919046d57cd743150ff02dd3ab660a9b7e86c933b26e",
       "status": "changed",
       "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "9d583eba69521829851e01200d663bfa064721aefe85c0c530ac16be202047d1",
+      "after": "6b9fdfaa7f8ced40dccf4aae465a77bbbde3d0f740f2523e71653311cd4d0eb2",
+      "status": "changed",
+      "release": "2026.10.04-agent-10049"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "9d583eba69521829851e01200d663bfa064721aefe85c0c530ac16be202047d1",
+      "after": "6b9fdfaa7f8ced40dccf4aae465a77bbbde3d0f740f2523e71653311cd4d0eb2",
+      "status": "changed",
+      "release": "2026.10.04-agent-10049"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "9a4be4946c0e62bc8d230a369848c1b1fab0f4c5e1165bd647e697ffc34a78e0",
+      "after": "5216bab233bbf3b92b37169a013222464563c46ad687d8ee969e18d23c662b18",
+      "status": "changed",
+      "release": "2026.10.04-agent-10049"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "c75e81af04d5b06a549a8ef1ee51df97ddb683b0dfa080e0b924986056078177",
+      "after": "ff7de8ab4c17d03231ff442b18703e46ab996d36894f6fb83da74e3b2b93cfcd",
+      "status": "changed",
+      "release": "2026.10.04-agent-10049"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "965ca6db0dff73cf5de72489a8943ca10c1b299ec9ddc367121c0314b5d87d04",
+      "after": "fd1f677d8e806cd769929d97fb5cb661bb472f8ca0814a9340d3da44cbec2359",
+      "status": "changed",
+      "release": "2026.10.04-agent-10049"
     }
   ]
 }

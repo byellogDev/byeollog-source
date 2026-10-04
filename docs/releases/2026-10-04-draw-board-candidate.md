@@ -68,3 +68,6 @@
 - [본 저장소 후보 GitHub Release](https://github.com/byellogDev/byeollog/releases/tag/agent-draw-board-20261004-candidate).
 - 후보 Release는 `draft=false`, `prerelease=true`, Latest 변경 없음으로 게시합니다. 소스 커밋과 최종 원격 검사 결과는 실제 게시 본문에 고정 링크로 기록합니다.
 - 설치 파일 저장소에는 이번 후보를 게시하지 않았습니다. 현재 정식 설치본·운영 업데이트 경로는 1.0.0.48을 유지합니다.
+
+
+후속 운영 반영: [Agent 1.0.0.49](2026-10-04-agent-10049.md). 위 내용은 미배포 후보 당시 기록이며 설치·피드 배포 결과는 후속 문서에서 확인합니다.
