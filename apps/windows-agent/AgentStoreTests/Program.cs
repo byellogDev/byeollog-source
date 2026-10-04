@@ -135,6 +135,12 @@ internal static partial class Program
             ActionSoundAssetTests();
 
             SessionVaultTests(root);
+            Equal("attention", AgentConnectionPresentation.RecoveryState(false, false, true, "ready", false), "invalidated saved login must not promise automatic recovery");
+            Equal("attention", AgentConnectionPresentation.RecoveryState(false, true, true, "ready", false), "stale connected status cannot hide a lost login");
+            Equal("recovering", AgentConnectionPresentation.RecoveryState(true, false, true, "retrying", false), "temporary network failure keeps recovery display");
+            Equal("ready", AgentConnectionPresentation.RecoveryState(true, true, true, "ready", false), "authenticated connection is ready");
+            Equal("failed", AgentConnectionPresentation.RecoveryState(true, false, false, "ready", true), "initialization failure is not a network retry");
+            Equal("attention", AgentConnectionPresentation.RecoveryState(false, false, false, "attention", false), "session explicitly requiring login remains actionable");
             ActionFreshnessTests();
             WallpaperSyncRequestTrackerTests();
             AgentWallpaperSnapshotMapperTests();

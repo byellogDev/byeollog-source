@@ -6686,6 +6686,55 @@
       "after": "fd1f677d8e806cd769929d97fb5cb661bb472f8ca0814a9340d3da44cbec2359",
       "status": "changed",
       "release": "2026.10.04-agent-10049"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "6b9fdfaa7f8ced40dccf4aae465a77bbbde3d0f740f2523e71653311cd4d0eb2",
+      "after": "7f7e81189146f0a53bb311ce23d0145bd7086c94315247bbc262a22fd68ac73e",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "6b9fdfaa7f8ced40dccf4aae465a77bbbde3d0f740f2523e71653311cd4d0eb2",
+      "after": "7f7e81189146f0a53bb311ce23d0145bd7086c94315247bbc262a22fd68ac73e",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "5216bab233bbf3b92b37169a013222464563c46ad687d8ee969e18d23c662b18",
+      "after": "31c145b5fa127af588da31a6ab0a5872a39ff1638da87c13e0ddb7e0b164a8fc",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "ff7de8ab4c17d03231ff442b18703e46ab996d36894f6fb83da74e3b2b93cfcd",
+      "after": "ae47a60072794f92065e19ad6a6272c2ae2adc6bd6240a618503ad74b0cf11d1",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "apps/windows-agent/MainForm.cs",
+      "before": "517f07f67d6870e4fae0171e9b83ff8b97cff72f409cef1c28f153203fb68c5a",
+      "after": "ed9a027bae0891ddbb1875f4991bec1dec1a0ff786c10ab79f6780182c6e60cd",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "apps/windows-agent/Ui/byeollog_ui.html",
+      "before": "d0191a29c25d422da8092281de0bd226a0ed9b003d329ff177e4312a68ffb142",
+      "after": "541c837239d59e44d5b2e93f247e8085aeecceaa641f3bbbb623d7aeacfca5f1",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "fd1f677d8e806cd769929d97fb5cb661bb472f8ca0814a9340d3da44cbec2359",
+      "after": "7b0db92f87e6f6a4ca51b8d368b81a15518f779fe686dad34d7903b1254b5917",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
     }
   ]
 }

@@ -1836,11 +1836,10 @@ public sealed class MainForm : Form
     {
         if (!_uiReady || _ui.CoreWebView2 is null) return;
         var localAgentStatus = _vNextLocalAgent?.Status;
-        var serverConnected = localAgentStatus?.Connected == true;
-        var serverRecoveryState = serverConnected
-            ? "ready"
-            : _vNextDevClient.IsSignedIn || localAgentStatus?.Running == true
-                ? "recovering" : _vNextDevClient.SessionRecoveryState;
+        var serverConnected = _vNextDevClient.IsSignedIn && localAgentStatus?.Connected == true;
+        var serverRecoveryState = AgentConnectionPresentation.RecoveryState(
+            _vNextDevClient.IsSignedIn, serverConnected, localAgentStatus?.Running == true,
+            _vNextDevClient.SessionRecoveryState, !string.IsNullOrEmpty(_vNextAgentStartupError));
         await ExecuteUiAsync("setMainState", new
         {
             streamerName = _storage.StreamerName,

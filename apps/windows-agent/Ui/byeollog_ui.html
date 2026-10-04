@@ -84,13 +84,15 @@
     document.querySelector('#supportButton').classList.toggle('hidden',state?.betaSupportEnabled!==true||loginMode);supportEpoch=Number(state?.supportSessionEpoch||0);
     const connected=!!state?.serverConnected;
     const recovery=String(state?.developmentRecoveryState||'ready');
+    const attention=!connected&&recovery==='attention';
+    const failed=!connected&&recovery==='failed';
     const waiting=!connected&&(recovery==='recovering'||recovery==='retrying');
     const mode=connected?'connected':waiting?'connecting':'offline';
     orbit.className='status-orbit '+mode;footer.className='footer-note '+mode;
     symbol.textContent=connected?'✓':waiting?'···':'!';
-    title.textContent=connected?'서버 연결됨':waiting?'서버 재연결 중':'서버 연결 안 됨';
-    message.textContent=connected?'풍벽지를 자동으로 동기화하고 있습니다.':waiting?'연결이 돌아오면 자동으로 다시 시작합니다.':'네트워크 또는 로그인 상태를 확인해주세요.';
-    footerText.textContent=connected?'백그라운드에서 정상 실행 중':waiting?'자동으로 연결을 복구하고 있어요':'연결 상태를 다시 확인하고 있어요';
+    title.textContent=connected?'서버 연결됨':attention?'다시 로그인해주세요':failed?'프로그램 시작 확인 필요':waiting?'서버 재연결 중':'서버 연결 안 됨';
+    message.textContent=connected?'풍벽지를 자동으로 동기화하고 있습니다.':attention?'트레이 메뉴에서 프로그램을 종료한 뒤 다시 실행하여 로그인해주세요.':failed?'로컬 기능을 시작하지 못했습니다. 진단 ZIP을 관리자에게 전달해주세요.':waiting?'연결이 돌아오면 자동으로 다시 시작합니다.':'네트워크 또는 로그인 상태를 확인해주세요.';
+    footerText.textContent=connected?'백그라운드에서 정상 실행 중':attention?'로그인이 필요하여 연결을 기다리고 있어요':failed?'저장된 데이터는 유지됩니다':waiting?'자동으로 연결을 복구하고 있어요':'연결 상태를 다시 확인하고 있어요';
     const streamer=String(state?.streamerName||'').trim().replace(/님$/,'');
     const version=String(state?.releaseLabel||'').trim();
     const owner=streamer?`${streamer}님`:'별록 풍벽지';
