@@ -46,6 +46,18 @@ async function harness(t,handler){
 const normalJoin=(s,p,owner='lab0')=>{if(p.code===16)s.send(encodePacket(1,[owner,'4|0']));if(p.code===2)s.send(encodePacket(2,['1000',owner,'0','20',']']))};
 const headerOnly=(code,ret=0)=>Buffer.from('\x1b\t'+String(code).padStart(4,'0')+'000000'+String(ret).padStart(2,'0'));
 
+test('session-suffixed JOIN preserves canonical owner and still receives donations',async t=>{
+ const events=[];
+ const h=await harness(t,(s,p)=>{normalJoin(s,p,'lab0(2)');if(p.code===2){const f=fixtures().find(f=>f.code===18);s.send(encodePacket(f.code,[f.fields[0]+'(2)',...f.fields.slice(1)]));s.send(encodePacket(88))}});
+ const r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:h.Transport,onEvent:e=>events.push(e)});
+ assert.equal(r.ready,true);assert.equal(r.reason,'broadcast_closed');assert.equal(events.length,1);assert.equal(events[0].room.bjId,'lab0');
+});
+for(const [owner,number] of [['other(2)','1000'],['lab0(2)','9999'],['lab0(2)other','1000']])test('JOIN rejects different owner/room '+owner+' '+number,async t=>{
+ const h=await harness(t,(s,p)=>{if(p.code===16)s.send(encodePacket(1,['lab0','4|0']));if(p.code===2)s.send(encodePacket(2,[number,owner,'0','20',']']))});
+ const r=await runDirect(configFor(),{fetchImpl:async()=>response(infoFor()),WebSocketImpl:h.Transport,onEvent:()=>assert.fail('no event may escape')});
+ assert.equal(r.ready,false);assert.equal(r.reason,'join_owner_mismatch');
+});
+
 test('14-byte controls are valid alongside content; truncated headers, length lies and empty donations still fail',()=>{
  const packet=encodePacket(5,fixtures()[0].fields);
  assert.deepEqual(decodePackets(Buffer.concat([headerOnly(0),packet,headerOnly(88)])).map(p=>p.code),[0,5,88]);

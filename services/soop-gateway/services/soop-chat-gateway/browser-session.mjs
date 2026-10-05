@@ -5,6 +5,7 @@ import {access,mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {cdpClient} from './cdp-client.mjs';
+import {normalizeSoopRoomOwner} from '../../lib/soop-room-identity.js';
 
 const SDK_URL='https://static.sooplive.com/asset/app/chat-sdk/sooplive-chat-sdk.js';
 // SOOP.ChatSDK keeps room state in page-global internals and may also touch
@@ -402,17 +403,17 @@ export async function runSoopBrowserSession({clientId,clientSecret,accessToken,e
       if(settled)return;
       try{
         if(event.kind==='ready'){
-          const room={chatNumber:Number(event.room?.chatNumber||0),bjId:String(event.room?.bjId||'').trim()};
+          const room={chatNumber:Number(event.room?.chatNumber||0),bjId:normalizeSoopRoomOwner(event.room?.bjId)};
           if(!room.bjId||!Number.isSafeInteger(room.chatNumber)||room.chatNumber<=0||!expectedRoomOwner||room.bjId.toLowerCase()!==expectedRoomOwner){
             lastErrorCode=room.bjId?'sdk_room_owner_mismatch':'sdk_room_identity_missing';
             lastErrorMessage='SOOP SDK room identity does not match the leased broadcaster';
-            onState({state:'error',at:event.at,code:lastErrorCode,message:lastErrorMessage});finish('room_identity_rejected');return;
+            onState({state:'error',at:event.at,code:lastErrorCode,message:lastErrorMessage,identityCheck:{ownerMatches:room.bjId===expectedRoomOwner,ownerValid:!!room.bjId,chatNumberValid:Number.isSafeInteger(room.chatNumber)&&room.chatNumber>0}});finish('room_identity_rejected');return;
           }
-          ready=true;if(connectTimer){clearTimeout(connectTimer);connectTimer=null}onState({state:'connected',at:event.at,message:event.message,room})
+          ready=true;if(connectTimer){clearTimeout(connectTimer);connectTimer=null}onState({state:'connected',at:event.at,message:event.message,room,ownerSuffixNormalized:/\([0-9]+\)$/.test(event.room.bjId)})
         }
         else if(event.kind==='connect_started')onState({state:'connecting',at:event.at,room:event.room});
         else if(event.kind==='event'){
-          const room={chatNumber:Number(event.room?.chatNumber||0),bjId:String(event.room?.bjId||'').trim()};
+          const room={chatNumber:Number(event.room?.chatNumber||0),bjId:normalizeSoopRoomOwner(event.room?.bjId)};
           if(!room.bjId||!Number.isSafeInteger(room.chatNumber)||room.chatNumber<=0){
             lastErrorCode='sdk_room_identity_missing';
             onState({state:'error',at:event.at,code:lastErrorCode,message:'SOOP SDK event has no verifiable room identity'});

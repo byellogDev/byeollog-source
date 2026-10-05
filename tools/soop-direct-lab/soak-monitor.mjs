@@ -4,6 +4,7 @@ import readline from 'node:readline';
 import {once} from 'node:events';
 import {signSoopGatewayRequest} from '/app/lib/soop-chat-gateway.js';
 import {cdpClient} from '/app/services/soop-chat-gateway/cdp-client.mjs';
+import {normalizeSoopRoomOwner} from '../../services/soop-gateway/lib/soop-room-identity.js';
 // protocol.mjs and cdp-frames.mjs are prepended by the research bundle builder.
 const input=readline.createInterface({input:process.stdin});
 let contact=Date.now();input.on('line',()=>contact=Date.now());
@@ -35,7 +36,7 @@ try{
   for(const pid of fs.readdirSync('/proc').filter(x=>/^\d+$/.test(x))){try{const s=fs.readFileSync(`/proc/${pid}/cmdline`,'utf8');const m=s.includes('chromium')&&s.match(/--remote-debugging-port=(\d+)/);if(m){port=Number(m[1]);break}}catch{}}
   if(!port)throw Error('debug_port_missing');
   const targets=await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
-  const expression=`(()=>{if(typeof chats==='undefined'||chats.size!==1)return false;return [...chats.values()].every(s=>{try{return s.isReady()&&s.getRoomInfo().bjId===${JSON.stringify(lease.providerAccountId)}}catch{return false}})})()`;
+  const expression=`(()=>{if(typeof chats==='undefined'||chats.size!==1)return false;return [...chats.values()].every(s=>{try{return s.isReady()&&(${normalizeSoopRoomOwner.toString()})(s.getRoomInfo().bjId)===${JSON.stringify(lease.providerAccountId)}}catch{return false}})})()`;
   for(const target of targets.filter(t=>t.type==='page')){
     let attached=false;const scope=createSocketScope(lease.providerAccountId);const client=cdpClient(target.webSocketDebuggerUrl,event=>{
       if(!attached||ended)return;

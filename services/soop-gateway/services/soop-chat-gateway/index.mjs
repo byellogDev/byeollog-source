@@ -196,14 +196,14 @@ async function runWorkspace(workspaceId,signal){
               const reconnectGap=Date.parse(readyAt)-Date.parse(lastDisconnectedAt||'');
               if(!connectedAt||(lastDisconnectedAt&&(!Number.isFinite(reconnectGap)||reconnectGap>20*60_000)))connectedAt=readyAt;
               state=reduceSoopSdkSession(state,{type:'connected'});room=event.room||room;chatNumber=Number(room?.chatNumber)||null;lastErrorCode=null;lastDisconnectedAt=null;
-              log('info','sdk_connected',{workspace:tag,chatNumberAvailable:chatNumber!==null});
+              log('info','sdk_connected',{workspace:tag,chatNumberAvailable:chatNumber!==null,ownerSuffixNormalized:event.ownerSuffixNormalized===true});
               void heartbeat({tokenExpiresAt:token.providerTokenExpiresAt||token.expiresAt}).catch(()=>{});
             }
             else if(event.state==='connecting'&&event.room)room=event.room;
             else if(event.state==='error'){
               const offline=isSoopBroadcastOfflineError(event);
               lastErrorCode=errorCode(offline?'broadcast_offline':event.code,'sdk_error');
-              if(!offline)log('warn','sdk_error',{workspace:tag,code:lastErrorCode,message:String(event.message||'').slice(0,240)})
+              if(!offline)log('warn','sdk_error',{workspace:tag,code:lastErrorCode,message:String(event.message||'').slice(0,240),...(event.identityCheck?{identityCheck:event.identityCheck}:{})})
             }
           },
           onEvent:event=>{

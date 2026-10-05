@@ -5937,9 +5937,10 @@
     {
       "path": "ncp-gateway/services/soop-chat-gateway/index.mjs",
       "before": "e94383bd106e9fa09c16f92f8900a861f2a999ac5b9abe223732a111bc1e2b47",
-      "after": "2509605bc37ae0ae5237f24ecd3ae0e32d4c71a6f4b341e15395806171c86ba3",
+      "after": "03bbfb1799cd632c1f5d904577b0a287c33fd7017111e1755f9445d4d8a11b4d",
       "status": "changed",
-      "target": "services/soop-gateway/services/soop-chat-gateway/index.mjs"
+      "target": "services/soop-gateway/services/soop-chat-gateway/index.mjs",
+      "release": "2026.10.05-owner-suffix"
     },
     {
       "path": "collector-runtime/lib/upbo-retry.js",
@@ -6739,9 +6740,9 @@
     {
       "target": "services/soop-gateway/services/soop-chat-gateway/browser-session.mjs",
       "before": "109acc89b449c0fbe80d23490379aeac6d6b26842acb4220a758b5e38ce4bcfe",
-      "after": "a12fd30b9c1252d29f0b672b14068abf6b987ece621c16543e34b38f75015fdd",
+      "after": "a6695713086eadedb977043c1d0a59971a8e87cd8b9da2515eff5936b4dea355",
       "status": "changed",
-      "release": "2026.10.05-sdk-lifecycle"
+      "release": "2026.10.05-owner-suffix"
     }
   ]
 }

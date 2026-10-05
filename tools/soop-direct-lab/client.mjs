@@ -1,4 +1,5 @@
 import {fault,decodePackets,encodePacket,loginPacket,joinPacket,contentEvent,MAX_PACKET_BYTES,packetDiagnostic} from './protocol.mjs';
+import {normalizeSoopRoomOwner} from '../../services/soop-gateway/lib/soop-room-identity.js';
 const CHATINFO='https://openapi.sooplive.com/broad/access/chatinfo';
 export async function loadRoom(config,{fetchImpl=fetch,signal}={}){
   if(!/^[a-z0-9_.-]{2,80}$/.test(config.broadcasterId||'')||typeof config.accessToken!=='string'||!config.accessToken.length||config.accessToken.length>8192||/[\x00-\x20\x7f]/.test(config.accessToken))throw fault('invalid_auth_config');
@@ -77,7 +78,7 @@ export async function runDirect(config,{WebSocketImpl,fetchImpl=fetch,signal,onE
         if(code===2){
           if(stage!=='join')throw fault('unexpected_join_ack');
           if(ret!==0)throw fault('join_rejected');
-          if(fields[1]!==room.broadcasterId||Number(fields[0])!==room.chatNumber)throw fault('join_owner_mismatch');
+          if(normalizeSoopRoomOwner(fields[1])!==room.broadcasterId||Number(fields[0])!==room.chatNumber)throw fault('join_owner_mismatch');
           stage='receiving';result.ready=true;readyAt=Date.now();clearTimeout(readyTimeout);
           onReport({kind:'ready',chatNumber:room.chatNumber});continue;
         }

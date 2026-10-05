@@ -1,4 +1,5 @@
 // Research-only protocol adapter. No SDK, database, credentials or global room state.
+import {normalizeSoopRoomOwner} from '../../services/soop-gateway/lib/soop-room-identity.js';
 export const MAX_PACKET_BYTES=65536;
 export const CONTENT_CODES=Object.freeze([5,18,26,33,86,87,103,105,107,109,121,125]);
 const utf8=new TextDecoder('utf-8',{fatal:true});
@@ -85,7 +86,7 @@ export function contentEvent(packet,room){
     action=j.type==='GIFT'?'BATTLE_MISSION_GIFTED':'CHALLENGE_MISSION_GIFTED';
     message={userId:j.user_id,userNickname:j.user_nick,count:integer(j.gift_count),imageUrl:resource+(j.type==='GIFT'?'/images/new_app/chat/mission/':'/images/chat/mission/')+j.image+'.png'};
   }
-  if(message.bjId&&message.bjId!==room.broadcasterId)throw fault('event_owner_mismatch');
+  if(message.bjId&&normalizeSoopRoomOwner(message.bjId)!==room.broadcasterId)throw fault('event_owner_mismatch');
   if(typeof message.userId!=='string'||!message.userId||message.userId.length>180||typeof message.userNickname!=='string'||message.userNickname.length>120)throw fault('invalid_actor');
   return {action,message};
 }
