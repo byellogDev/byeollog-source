@@ -46,3 +46,7 @@
 - [GitHub 연구 Release](https://github.com/byellogDev/byeollog/releases/tag/research-2026.10.08-weflab-displayed-results)
 - 작업 브랜치에 게시하며 기본 브랜치를 자동 병합하지 않는다. 설치 파일·정식 Latest 변경 없음.
 - 게시 본문에 소스 커밋을 기록하고 본문·태그 커밋·draft=false·prerelease=true·Latest 보존을 확인한다.
+
+## 후속 연구 후보
+
+[브라우저 없는 결과 조회·서버/PC 인계 후보](2026-10-08-weflab-browserless-handoff.md)에서 완료된 테스트 후원의 저장 결과를 실제 수신했다. 위 내용은 이전 검토 시점의 기록이며, 제품 통합·운영 반영은 후속 문서의 상태를 따른다.

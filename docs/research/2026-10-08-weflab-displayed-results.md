@@ -117,3 +117,7 @@ OBS 공식 문서는 기존 CEF 브라우저 소스에 Chromium 원격 디버깅
 - [OBS WebSocket 프로토콜](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md)
 - [Chromium Network 관측 프로토콜](https://chromedevtools.github.io/devtools-protocol/tot/Network/)
 - [연구 릴리스](../releases/2026-10-08-weflab-displayed-results.md)
+
+## 후속 구현 안내
+
+브라우저 없는 후보에서 완료된 테스트 후원의 저장 결과를 실제로 수신했다. 이전 소켓 시험과 구분하며, [결과 조회·서버/PC 인계 구현과 남은 과제](2026-10-08-weflab-browserless-handoff.md)를 참조한다. 위 기록은 당시 근거로 보존한다.
