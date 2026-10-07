@@ -3,7 +3,7 @@ import {runDirect} from './client.mjs';
 import {CONTENT_CODES,contentEvent,fault} from './protocol.mjs';
 import {comparisonRecord,comparisonDifference} from './comparison-record.mjs';
 
-export async function observeRolling(config,{WebSocketImpl,fetchImpl=fetch,signal,onReport=()=>{},subscribeReplacement=()=>()=>{},timing={}}={}){
+export async function observeRolling(config,{WebSocketImpl,fetchImpl=fetch,signal,onReport=()=>{},onEvent=()=>{},subscribeReplacement=()=>()=>{},timing={}}={}){
  const limits={settleMs:1000,overlapMs:30000,attemptMs:90000,pollMs:100,maxFrames:10000,healthFreshMs:60000,...timing};
  for(const [k,v] of Object.entries(limits))if(!Number.isSafeInteger(v)||v<1||v>(k==='maxFrames'?20000:180000))throw fault('invalid_handoff_limits');
  if(limits.settleMs+limits.overlapMs>=limits.attemptMs)throw fault('invalid_handoff_limits');
@@ -51,12 +51,12 @@ export async function observeRolling(config,{WebSocketImpl,fetchImpl=fetch,signa
   // Assign authority before any async transport callback can run.
   if(!active)active=leg;else next=leg;
   leg.promise=runDirect({...credentials,durationMs:Math.max(100,end-Date.now())},{WebSocketImpl,fetchImpl,signal:leg.abort.signal,
-   onFrame:p=>frame(leg,p),onEvent:e=>{if(leg===active&&!finished){sequence++;counts[e.action]=(counts[e.action]||0)+1}},
+   onFrame:p=>frame(leg,p),onEvent:e=>{if(leg===active&&!finished){sequence++;counts[e.action]=(counts[e.action]||0)+1;onEvent({...e,sequence})}},
    onReport:e=>{
     if(finished)return;
     if(e.kind==='ready'){
      leg.ready=true;leg.chatNumber=e.chatNumber;
-     if(leg===active){ready=true;emit('ready')}
+     if(leg===active){ready=true;emit('ready',{chatNumber:leg.chatNumber})}
      else if(leg===next){
       if(leg.chatNumber!==active.chatNumber){block('replacement_broadcast_mismatch');return}
       leg.commonAt=Date.now()+limits.settleMs;emit('handoff_overlap_started');

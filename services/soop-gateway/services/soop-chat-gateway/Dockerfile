@@ -9,6 +9,8 @@ COPY package.json package-lock.json ./
 COPY lib ./lib
 COPY services/soop-chat-gateway ./services/soop-chat-gateway
 
+RUN npm ci --prefix services/soop-chat-gateway/direct --omit=dev --ignore-scripts --no-audit --no-fund
+
 RUN useradd --create-home --uid 10001 byeollog \
   && mkdir -p /var/lib/byeollog \
   && chown -R byeollog:byeollog /app /var/lib/byeollog

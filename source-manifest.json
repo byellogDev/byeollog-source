@@ -5937,10 +5937,10 @@
     {
       "path": "ncp-gateway/services/soop-chat-gateway/index.mjs",
       "before": "e94383bd106e9fa09c16f92f8900a861f2a999ac5b9abe223732a111bc1e2b47",
-      "after": "03bbfb1799cd632c1f5d904577b0a287c33fd7017111e1755f9445d4d8a11b4d",
+      "after": "9bb2ebf119dc1cf74aab96352058d5e9ecbc12dfeeb1f79f5cef536dfc411c46",
       "status": "changed",
       "target": "services/soop-gateway/services/soop-chat-gateway/index.mjs",
-      "release": "2026.10.05-owner-suffix"
+      "release": "2026.10.08-direct-production"
     },
     {
       "path": "collector-runtime/lib/upbo-retry.js",
@@ -6743,6 +6743,13 @@
       "after": "a6695713086eadedb977043c1d0a59971a8e87cd8b9da2515eff5936b4dea355",
       "status": "changed",
       "release": "2026.10.05-owner-suffix"
+    },
+    {
+      "target": "services/soop-gateway/services/soop-chat-gateway/Dockerfile",
+      "before": "636f5efae3785ad9a3112b2256a313f4fd6b1b2a1128356ccfbb8ffeed32cbbe",
+      "status": "changed",
+      "after": "c1b92d56bbd2028bc0558bce9461287aa920c0cef95cc8236720c85abe8a744c",
+      "release": "2026.10.08-direct-production"
     }
   ]
 }

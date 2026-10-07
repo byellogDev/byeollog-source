@@ -8,6 +8,8 @@ import {EncryptedGatewayOutbox} from './outbox.mjs';
 import {WorkspaceEventSequencer} from './workspace-event-sequencer.mjs';
 import {enqueueDurably} from './durable-enqueue.mjs';
 import {singleFlight,sleep} from './single-flight.mjs';
+import {runSoopDirectSession} from './direct/session.mjs';
+import {readTransportPolicy,reconcileTransportWorkers} from './transport-policy.mjs';
 
 const RECONCILE_MS=60_000,OUTBOX_FLUSH_MS=1_000;
 const LEASE_REFRESH_SKEW_MS=60_000,DONOR_CHAT_WINDOW_MS=120_000;
@@ -125,10 +127,10 @@ async function enqueueGatewayEvent(body){
   void flushOutbox().catch(error=>log('warn','outbox_flush_failed',{code:errorCode(error?.code,'outbox_flush_failed')}));
 }
 
-async function runWorkspace(workspaceId,signal){
+async function runWorkspace(workspaceId,signal,transport='sdk'){
   const replay=new SoopGatewayReplayGuard(),chatGate=new SoopRelevantChatGate({windowMs:DONOR_CHAT_WINDOW_MS}),eventSequencer=new WorkspaceEventSequencer();let generation=0,sequence=0,lastEventAt=null,chatNumber=null,connectedAt=null,lastDisconnectedAt=null;
   const tag=workspaceTag(workspaceId);let lastErrorCode=null;
-  channelDiagnostics.set(workspaceId,()=>({workspace:tag,state:state.status,lastEventAt,lastErrorCode,
+  channelDiagnostics.set(workspaceId,()=>({workspace:tag,transport,state:state.status,lastEventAt,lastErrorCode,
     memoryPending:eventSequencer.pendingItems,memoryOldestAgeMs:eventSequencer.oldestAgeMs}));
   let state={status:'idle',reconnectCount:0,retryAttempt:0};
   const retrySleep=async(baseMs,scope)=>{
@@ -189,14 +191,16 @@ async function runWorkspace(workspaceId,signal){
       const connectionId=`${instanceId}:${workspaceId}:${generation}`;
       room=null;
       try{
-        const result=await runSoopBrowserSession({clientId:token.clientId,clientSecret:token.clientSecret,accessToken:token.accessToken,expectedBroadcasterId:token.providerAccountId,signal,
+        const sessionRunner=transport==='direct'?runSoopDirectSession:runSoopBrowserSession;
+        const result=await sessionRunner({clientId:token.clientId,clientSecret:token.clientSecret,accessToken:token.accessToken,expectedBroadcasterId:token.providerAccountId,providerTokenExpiresAt:token.providerTokenExpiresAt,getCredentials:()=>currentLease(),signal,
+          onDiagnostic:event=>log('info','direct_transport',{workspace:tag,...event}),
           onState:event=>{
             if(event.state==='connected'){
               const readyAt=new Date(event.at||Date.now()).toISOString();
               const reconnectGap=Date.parse(readyAt)-Date.parse(lastDisconnectedAt||'');
               if(!connectedAt||(lastDisconnectedAt&&(!Number.isFinite(reconnectGap)||reconnectGap>20*60_000)))connectedAt=readyAt;
               state=reduceSoopSdkSession(state,{type:'connected'});room=event.room||room;chatNumber=Number(room?.chatNumber)||null;lastErrorCode=null;lastDisconnectedAt=null;
-              log('info','sdk_connected',{workspace:tag,chatNumberAvailable:chatNumber!==null,ownerSuffixNormalized:event.ownerSuffixNormalized===true});
+              log('info',transport==='direct'?'direct_connected':'sdk_connected',{workspace:tag,chatNumberAvailable:chatNumber!==null,ownerSuffixNormalized:event.ownerSuffixNormalized===true});
               void heartbeat({tokenExpiresAt:token.providerTokenExpiresAt||token.expiresAt}).catch(()=>{});
             }
             else if(event.state==='connecting'&&event.room)room=event.room;
@@ -255,6 +259,15 @@ async function runWorkspace(workspaceId,signal){
         if(!result.ready)lastErrorCode=errorCode(offline?'broadcast_offline':result.errorCode,'sdk_connect_failed');
         state=reduceSoopSdkSession(state,{type:result.ready?'connection_closed':offline?'broadcast_offline':'temporary_error'});
       }catch(error){
+        if(error?.directTerminal){
+          lastErrorCode=errorCode(error.code,'direct_authorization_revoked');
+          state=reduceSoopSdkSession(state,{type:'authorization_failed'});
+          log('error','direct_terminal',{workspace:tag,code:lastErrorCode});
+          await heartbeat().catch(()=>{});
+          // Stay quarantined until explicit policy/reconcile removal or shutdown.
+          while(!signal.aborted)await sleep(1000,signal);
+          break;
+        }
         if(state.status==='connected')lastDisconnectedAt=new Date().toISOString();
         const offline=isSoopBroadcastOfflineError(error);
         if(!offline&&/token|unauthor|forbidden|401|403/i.test(`${error?.code||''} ${error?.message||''}`))lease=null;
@@ -274,8 +287,10 @@ async function runWorkspace(workspaceId,signal){
 
 async function reconcile(){
   const enabled=await enabledWorkspaceIds();
-  for(const [workspaceId,worker] of workers){if(!enabled.has(workspaceId)){worker.abort.abort();workers.delete(workspaceId)}}
-  for(const workspaceId of enabled){if(workers.has(workspaceId))continue;const abort=new AbortController(),tag=workspaceTag(workspaceId);const promise=runWorkspace(workspaceId,abort.signal).catch(error=>log('error','workspace_crashed',{workspace:tag,code:errorCode(error?.code,'workspace_crashed')})).finally(()=>workers.delete(workspaceId));workers.set(workspaceId,{abort,promise});log('info','workspace_started',{workspace:tag})}
+  const direct=await readTransportPolicy(stateDirectory);
+  await reconcileTransportWorkers({workers,enabled,direct,run:runWorkspace,
+    onStart:(id,transport)=>log('info','workspace_started',{workspace:workspaceTag(id),transport}),
+    onError:(id,error)=>log('error','workspace_crashed',{workspace:workspaceTag(id),code:errorCode(error?.code,'workspace_crashed')})});
 }
 
 async function main(){
