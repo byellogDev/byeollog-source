@@ -6750,6 +6750,55 @@
       "status": "changed",
       "after": "c1b92d56bbd2028bc0558bce9461287aa920c0cef95cc8236720c85abe8a744c",
       "release": "2026.10.08-direct-production"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "7f7e81189146f0a53bb311ce23d0145bd7086c94315247bbc262a22fd68ac73e",
+      "after": "bade8473e58ba71dcb35f7c47ece33091bfad9884bec06b519ac3c3d4ae25dbb",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "7f7e81189146f0a53bb311ce23d0145bd7086c94315247bbc262a22fd68ac73e",
+      "after": "bade8473e58ba71dcb35f7c47ece33091bfad9884bec06b519ac3c3d4ae25dbb",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "31c145b5fa127af588da31a6ab0a5872a39ff1638da87c13e0ddb7e0b164a8fc",
+      "after": "8027971b0820e71b969122472ebed3f78801375966f1b5b095f8965bc1a565c7",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "ae47a60072794f92065e19ad6a6272c2ae2adc6bd6240a618503ad74b0cf11d1",
+      "after": "fa88a6f9a81894fb21a4221852313fa566442f5d63eb1bcef3220cdb06cadb07",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/windows-agent/MainForm.cs",
+      "before": "ed9a027bae0891ddbb1875f4991bec1dec1a0ff786c10ab79f6780182c6e60cd",
+      "after": "0816fb8162ab6d78111de7864380773ee7af4c50a39f5d113fbf4ab33ae9b8b3",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/windows-agent/Ui/byeollog_ui.html",
+      "before": "541c837239d59e44d5b2e93f247e8085aeecceaa641f3bbbb623d7aeacfca5f1",
+      "after": "f993a3de745343e417914a540fe18e7edfc76372893a25f338112365781d7795",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/windows-agent/VNextLocalAgent.cs",
+      "before": "91ae6a223345a59d5b18ddc060acd71f5fcdeb5298249779499851718b406f29",
+      "after": "0fe56dc93bc9139be36e035f4bd5a86272f706136d7373b61d2c8e0de6596174",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
     }
   ]
 }

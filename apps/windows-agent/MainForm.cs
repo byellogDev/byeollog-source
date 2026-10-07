@@ -1389,6 +1389,10 @@ public sealed class MainForm : Form
                         : "rules";
                     QueueVNextAutomationSettingsOpen(automationView);
                     return;
+                case "weflabSettings":
+                    if (!_vNextDevClient.IsSignedIn) { await ShowUiToastAsync("로그인 후 설정할 수 있습니다."); return; }
+                    using (var settings = new WeflabSettingsForm(_vNextDevClient)) settings.ShowDialog(this);
+                    return;
             }
         }
         catch (Exception ex)

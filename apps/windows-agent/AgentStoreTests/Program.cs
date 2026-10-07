@@ -60,6 +60,8 @@ internal static partial class Program
 
         try
         {
+            WeflabTrialProtocolTests();
+            if (args.Contains("--weflab-trial-only")) { Console.WriteLine($"PASS: {_assertions} Weflab trial assertions"); return; }
             await DrawBoardTestsAsync(root);
             if (args.Contains("--draw-board-only")) { Console.WriteLine($"PASS: {_assertions} draw board assertions"); return; }
             await WallpaperAppearanceTestsAsync(root);

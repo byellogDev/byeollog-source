@@ -26,7 +26,7 @@
 <div class="app">
   <header class="topbar" id="windowDragArea">
     <div class="brand"><img src="byeollog_logo_dark_safe.png" alt=""><strong>별록 풍벽지</strong></div>
-    <div class="window-actions"><button class="window-button support-button hidden" id="supportButton" title="긴급 호출 · 무료 베타" aria-label="장애 내용 보내기">!</button><button class="window-button" id="minimize" title="최소화" aria-label="창 최소화">—</button><button class="window-button close" id="close" title="닫기" aria-label="창 닫기">×</button></div>
+    <div class="window-actions"><button class="window-button" id="weflabSettings" title="위플랩 후원 URL 설정" aria-label="위플랩 후원 URL 설정">⚙</button><button class="window-button support-button hidden" id="supportButton" title="긴급 호출 · 무료 베타" aria-label="장애 내용 보내기">!</button><button class="window-button" id="minimize" title="최소화" aria-label="창 최소화">—</button><button class="window-button close" id="close" title="닫기" aria-label="창 닫기">×</button></div>
   </header>
   <main class="status-view" aria-live="polite">
     <div class="status-orbit connecting" id="statusOrbit"><span class="status-symbol" id="statusSymbol">···</span></div>
@@ -56,6 +56,7 @@
 </div>
 <script>
   const app=document.querySelector('.app');
+  document.querySelector('#weflabSettings').onclick=()=>post('weflabSettings');
   const orbit=document.querySelector('#statusOrbit');
   const symbol=document.querySelector('#statusSymbol');
   const title=document.querySelector('#statusTitle');

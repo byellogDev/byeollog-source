@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="../WeflabTrialProtocol.cs" Link="WeflabTrialProtocol.cs" />
     <Compile Include="../AgentConnectionPresentation.cs" Link="AgentConnectionPresentation.cs" />
     <Compile Include="../WallpaperBaekdusan.cs" Link="WallpaperBaekdusan.cs" />
     <Compile Include="../WallpaperAppearance.cs" Link="WallpaperAppearance.cs" />
