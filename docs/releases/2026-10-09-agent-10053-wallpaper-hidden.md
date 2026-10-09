@@ -56,3 +56,7 @@
 - [본 저장소 정식 Release](https://github.com/byellogDev/byeollog/releases/tag/agent-v1.0.0.53): 최종 소스 커밋·CI 근거를 본문에서 연결한다.
 - [설치 파일 Release](https://github.com/byellogDev/byeollog-releases/releases/tag/agent-v1.0.0.53).
 - 게시 완료 조건: 본문 일치, draft=false, prerelease=false, 태그 커밋 및 Latest를 읽어 확인한다.
+
+## 후속 수정
+
+기존 설치의 고정 UI 캐시 때문에 새 버튼이 보이지 않는 결함이 후속 신고로 확인됐다. 해당 경로와 자동로그인 중복 트레이를 [1.0.0.54](2026-10-09-agent-10054-ui-cache-tray.md)에서 수정했다. 위 1.0.0.53 검증 기록은 당시 확인 범위로 보존한다.

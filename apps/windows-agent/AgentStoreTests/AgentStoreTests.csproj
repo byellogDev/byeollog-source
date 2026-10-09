@@ -9,6 +9,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="../UiAssetStore.cs" Link="UiAssetStore.cs" />
+    <EmbeddedResource Include="../Assets/byeollog_symbol.png" LogicalName="HurogiCollector.Assets.byeollog_symbol.png" />
+    <EmbeddedResource Include="../Ui/byeollog_ui.html" LogicalName="HurogiCollector.Ui.byeollog_ui.html" />
+    <EmbeddedResource Include="../Ui/agent_automation.html" LogicalName="HurogiCollector.Ui.agent_automation.html" />
+    <EmbeddedResource Include="../Ui/wallpaper-hidden-editor.js" LogicalName="HurogiCollector.Ui.wallpaper-hidden-editor.js" />
+    <EmbeddedResource Include="../Ui/wallpaper-hidden-editor.css" LogicalName="HurogiCollector.Ui.wallpaper-hidden-editor.css" />
+    <EmbeddedResource Include="../Ui/wallpaper-baekdusan-editor.js" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan-editor.js" />
+    <EmbeddedResource Include="../Ui/wallpaper-baekdusan-editor.css" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan-editor.css" />
+    <EmbeddedResource Include="../Ui/wallpaper-custom-editor.js" LogicalName="HurogiCollector.Ui.wallpaper-custom-editor.js" />
+    <EmbeddedResource Include="../Ui/wallpaper-custom-editor.css" LogicalName="HurogiCollector.Ui.wallpaper-custom-editor.css" />
+    <EmbeddedResource Include="../Ui/wallpaper_editor.html" LogicalName="HurogiCollector.Ui.wallpaper_editor.html" />
+    <EmbeddedResource Include="../Ui/byeollog-theme.css" LogicalName="HurogiCollector.Ui.byeollog_theme.css" />
+    <EmbeddedResource Include="../Ui/startup_loading.html" LogicalName="HurogiCollector.Ui.startup_loading.html" />
+    <EmbeddedResource Include="../Ui/byeollog_logo_dark_safe.png" LogicalName="HurogiCollector.Ui.byeollog_logo_dark_safe.png" />
+    <EmbeddedResource Include="../Ui/byeollog_logo_light_safe.png" LogicalName="HurogiCollector.Ui.byeollog_logo_light_safe.png" />
+
     <Compile Remove="legacy-fixtures/**/*.cs" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4022.49" />
     <PackageReference Include="NAudio" Version="2.2.1" />

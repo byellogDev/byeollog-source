@@ -23,6 +23,7 @@ internal sealed class CollectorLoginWebForm : Form
     private bool _loginInProgress;
     private bool _accountLoginCommitted;
     private bool _allowClose;
+    private bool _ownedResourcesDisposed;
 
     // 로그인 성공 뒤 top-level 창이 하나도 없는 상태에서 MainForm을 만드는
     // 공백을 없애기 위해 Program이 메인 폼을 미리 준비할 수 있게 합니다.
@@ -54,21 +55,18 @@ internal sealed class CollectorLoginWebForm : Form
         ApplyRoundedRegion(24);
         Resize += (_, _) => ApplyRoundedRegion(24);
 
-        Shown += async (_, _) => await InitializeUiForDisplayAsync();
+        Shown += async (_, _) =>
+        {
+            _trayIcon.Visible = true;
+            await InitializeUiForDisplayAsync();
+        };
         FormClosing += (_, e) =>
         {
             if (_allowClose || e.CloseReason != CloseReason.UserClosing) return;
             e.Cancel = true;
             HideToTray();
         };
-        FormClosed += (_, _) =>
-        {
-            _trayIcon.Visible = false;
-            _trayIcon.Dispose();
-            _trayMenu.Dispose();
-            _appIcon?.Dispose();
-            _appIcon = null;
-        };
+
     }
 
     private void SetupLoginTray()
@@ -92,7 +90,8 @@ internal sealed class CollectorLoginWebForm : Form
         _trayIcon.Text = "별록 풍벽지 · 서버 연결 필요";
         _trayIcon.ContextMenuStrip = _trayMenu;
         _trayIcon.DoubleClick += (_, _) => RestoreFromTray();
-        _trayIcon.Visible = true;
+        // Do not expose a preloaded login that remembered-session startup may skip.
+        _trayIcon.Visible = false;
     }
 
     private void HideToTray()
@@ -504,8 +503,15 @@ internal sealed class CollectorLoginWebForm : Form
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing)
+        if (disposing && !_ownedResourcesDisposed)
         {
+            _ownedResourcesDisposed = true;
+            // Direct Dispose does not raise FormClosed (auto-login/startup cancellation).
+            _trayIcon.Visible = false;
+            _trayIcon.Dispose();
+            _trayMenu.Dispose();
+            _appIcon?.Dispose();
+            _appIcon = null;
             _adaptiveWindow.Dispose();
             _http.Dispose();
         }

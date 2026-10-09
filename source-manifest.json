@@ -6869,6 +6869,48 @@
       "after": "71de50fed6d8dd9e38d1e0664f339facbb0c318ee95e2b8d74f152ab31e82f57",
       "status": "changed",
       "release": "2026.10.09-agent-10053"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "8939701c886b0c11170976c91cbac9ce18411a89caf8f5570b0a92cc727ee1ec",
+      "after": "4eebdaf2d2586c09169be18ef7cec72e51f6d4fdd23726c128d3ca183f722ec3",
+      "status": "changed",
+      "release": "2026.10.09-agent-10054"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "8939701c886b0c11170976c91cbac9ce18411a89caf8f5570b0a92cc727ee1ec",
+      "after": "4eebdaf2d2586c09169be18ef7cec72e51f6d4fdd23726c128d3ca183f722ec3",
+      "status": "changed",
+      "release": "2026.10.09-agent-10054"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "cbacef52f761069468eac7f4d9b552cd4d1f814eec3b27111a1156a672203669",
+      "after": "44eded74e04aa9d4dc14f89d4a1f30a0a2d26ab0b8393549c481c8fb9539ad94",
+      "status": "changed",
+      "release": "2026.10.09-agent-10054"
+    },
+    {
+      "target": "apps/windows-agent/CollectorLoginWebForm.cs",
+      "before": "f1b69584b6292fd50f0bc22695c9bca3b6e6b696cdb34e46b30bb1a58212c3a3",
+      "after": "21508bf3c77b58baac609c1523976e42b48cec8de89fc0f7c9f263cc5ce7ca78",
+      "status": "changed",
+      "release": "2026.10.09-agent-10054"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "71de50fed6d8dd9e38d1e0664f339facbb0c318ee95e2b8d74f152ab31e82f57",
+      "after": "47e71c67b6dad62c49422c5fcd81cbd22b0672ba43a1b1bc59d508aa962fcfd4",
+      "status": "changed",
+      "release": "2026.10.09-agent-10054"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "4920319c84a42949e07c2209dce34da262ed7502d8f5f38a4e716c33b2f11168",
+      "after": "a093572692b1cf2f83682213b812278f90f4714f921aea915a0b31382bb2eafc",
+      "status": "changed",
+      "release": "2026.10.09-agent-10054"
     }
   ]
 }

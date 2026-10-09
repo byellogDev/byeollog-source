@@ -4,14 +4,18 @@ namespace HurogiCollector;
 
 internal static class UiAssetStore
 {
-    // A new directory is required whenever an embedded UI changes because
-    // WriteResource intentionally preserves an existing versioned cache.
-    private const string UiVersion = "v1.0.0.50";
+    // Embedded assets belong to the exact build. Do not depend on a manually
+    // bumped UI version: existing installations otherwise keep stale HTML/JS.
+    // MVID is stable across restarts and changes when assembly inputs change.
+    private static readonly string UiVersion = "bundle-" +
+        typeof(UiAssetStore).Assembly.ManifestModule.ModuleVersionId.ToString("N");
 
-    internal static string Prepare()
+    internal static string Prepare() => Prepare(AgentDataPaths.PrepareDataRoot().RootPath);
+
+    internal static string Prepare(string dataRoot)
     {
         var root = Path.Combine(
-            AgentDataPaths.PrepareDataRoot().RootPath,
+            dataRoot,
             "ui",
             UiVersion);
 

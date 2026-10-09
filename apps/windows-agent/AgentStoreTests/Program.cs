@@ -35,6 +35,14 @@ internal static partial class Program
             Equal("testRt012345", session.RefreshToken, "new process restores the exact short token");
             return;
         }
+        if (args.Contains("--ui-cache-only") || args.Contains("--ui-cache-webview"))
+        {
+            var cacheRoot = Path.Combine(Path.GetTempPath(), "byeollog-ui-cache-tests", Guid.NewGuid().ToString("N"));
+            var preparedUi = UiAssetCacheTests(cacheRoot);
+            Console.WriteLine($"PASS: {_assertions} UI cache assertions");
+            if (args.Contains("--ui-cache-webview")) await WallpaperWebViewPreflight.RunAsync(preparedUi, true);
+            return;
+        }
         if (args.Length >= 2 && args[0] == "--webview-preflight")
         {
             await WallpaperWebViewPreflight.RunAsync(Path.GetFullPath(args[1]), args.Contains("--hidden-only"));
@@ -60,6 +68,7 @@ internal static partial class Program
 
         try
         {
+            UiAssetCacheTests(Path.Combine(root, "ui-cache"));
             WeflabTrialProtocolTests();
             if (args.Contains("--weflab-trial-only")) { Console.WriteLine($"PASS: {_assertions} Weflab trial assertions"); return; }
             await DrawBoardTestsAsync(root);
