@@ -27,6 +27,7 @@ globalThis.ByeollogBaekdusan = (() => {
         Object.assign(cell.style,{minWidth:'0',minHeight:'0',overflow:'hidden',borderRadius:'5px',border:tip?'1px solid #77e6bf':'1px dashed #4b6381',
           background:tip?'#174d46':'#12253d',color:tip?'#fff':'#8398b2',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',fontSize:font+'px'});
         cell.dataset.amount=String(amount);cell.dataset.filled=String(Boolean(tip));
+        if(tip)cell.dataset.tileId=tip.id;
         const number=document.createElement('b');number.textContent=String(amount);cell.append(number);
         if(tip){const name=document.createElement('span');name.textContent=tip.actorName;Object.assign(name.style,{maxWidth:'100%',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'});cell.title=`${tip.actorName} · ${tip.amount}개 · ${tip.receivedAt}`;cell.append(name);}
         grid.append(cell);

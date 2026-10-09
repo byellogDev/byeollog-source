@@ -732,6 +732,7 @@ internal sealed class ByeollogOverlayService : IDisposable
           let node = entry.cards.get(card.id);
           if (!node) {
             node = document.createElement('article'); node.className = 'wallpaper-tile';
+            node.dataset.tileId = card.id;
             const image = document.createElement('img'); image.alt = ''; image.decoding = 'async';
             image.onerror = () => {
               image.dataset.retryAt = String(Date.now() + 5000);
@@ -776,6 +777,7 @@ internal sealed class ByeollogOverlayService : IDisposable
         }
       }
       ByeollogWallpaperAppearance.apply(wallpaperCanvas,state.appearance);
+      ByeollogHiddenCards.apply(wallpaperCanvas,state.hiddenCards);
       wallpaperRevision = Number(state.revision) || 0;
       wallpaperDisplayRevision = String(state.displayRevision ?? state.revision);
       scheduleWallpaperObservation(wallpaperRevision);

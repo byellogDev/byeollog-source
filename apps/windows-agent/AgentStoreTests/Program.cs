@@ -37,7 +37,7 @@ internal static partial class Program
         }
         if (args.Length >= 2 && args[0] == "--webview-preflight")
         {
-            await WallpaperWebViewPreflight.RunAsync(Path.GetFullPath(args[1]));
+            await WallpaperWebViewPreflight.RunAsync(Path.GetFullPath(args[1]), args.Contains("--hidden-only"));
             return;
         }
         if (args.Length >= 2 && string.Equals(args[0], "--wallpaper-harness", StringComparison.Ordinal))
@@ -65,6 +65,7 @@ internal static partial class Program
             await DrawBoardTestsAsync(root);
             if (args.Contains("--draw-board-only")) { Console.WriteLine($"PASS: {_assertions} draw board assertions"); return; }
             await WallpaperAppearanceTestsAsync(root);
+            await WallpaperHiddenCardsTestsAsync(root);
             if (args.Contains("--appearance-only")) { Console.WriteLine($"PASS: {_assertions} appearance assertions"); return; }
             await WallpaperDetachedTestsAsync(root);
             if (args.Contains("--detached-only")) { Console.WriteLine($"PASS: {_assertions} detached assertions"); return; }

@@ -56,6 +56,9 @@
     <EmbeddedResource Include="Ui\wallpaper-baekdusan.js" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan.js" />
     <EmbeddedResource Include="Ui\wallpaper-appearance.js" LogicalName="HurogiCollector.Ui.wallpaper-appearance.js" />
     <EmbeddedResource Include="Ui\wallpaper-detached.js" LogicalName="HurogiCollector.Ui.wallpaper-detached.js" />
+    <EmbeddedResource Include="Ui\wallpaper-hidden.js" LogicalName="HurogiCollector.Ui.wallpaper-hidden.js" />
+    <EmbeddedResource Include="Ui\wallpaper-hidden-editor.js" LogicalName="HurogiCollector.Ui.wallpaper-hidden-editor.js" />
+    <EmbeddedResource Include="Ui\wallpaper-hidden-editor.css" LogicalName="HurogiCollector.Ui.wallpaper-hidden-editor.css" />
     <EmbeddedResource Include="Ui\wallpaper-baekdusan-editor.js" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan-editor.js" />
     <EmbeddedResource Include="Ui\wallpaper-baekdusan-editor.css" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan-editor.css" />
     <EmbeddedResource Include="Ui\wallpaper-custom-editor.js" LogicalName="HurogiCollector.Ui.wallpaper-custom-editor.js" />

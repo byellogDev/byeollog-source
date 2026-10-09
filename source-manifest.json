@@ -6799,6 +6799,48 @@
       "after": "0fe56dc93bc9139be36e035f4bd5a86272f706136d7373b61d2c8e0de6596174",
       "status": "changed",
       "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/windows-agent/ByeollogOverlayService.cs",
+      "before": "64625723a4e908f618cf0069770f1ccf239ff68d8be8d04a3f4a1b153afa709d",
+      "after": "af9bd1434cc003dc2eff7e4ae1cbceccad5ab8321e40e0e133a217e27cd311d5",
+      "status": "changed",
+      "release": "2026.10.09-wallpaper-hidden-cards-candidate"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "fa88a6f9a81894fb21a4221852313fa566442f5d63eb1bcef3220cdb06cadb07",
+      "after": "87415f1bbe0b61d39c3accd2a1152bd50a2cc666c33bede38f394a56f9d47683",
+      "status": "changed",
+      "release": "2026.10.09-wallpaper-hidden-cards-candidate"
+    },
+    {
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "e746a7c452d1a8c04b965a44f234eb5676ff42981d2af166dc346199acb11c31",
+      "after": "b24959a375197cede5dd62233f0227fd99a16468e8582adbc964c739dfe153c7",
+      "status": "changed",
+      "release": "2026.10.09-wallpaper-hidden-cards-candidate"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "7b0db92f87e6f6a4ca51b8d368b81a15518f779fe686dad34d7903b1254b5917",
+      "after": "4920319c84a42949e07c2209dce34da262ed7502d8f5f38a4e716c33b2f11168",
+      "status": "changed",
+      "release": "2026.10.09-wallpaper-hidden-cards-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperEditorCoordinator.cs",
+      "before": "e5f665899e61e513d861312e0a8452df533edaeea731d49306646cc98a20b915",
+      "after": "038810b9b3ce09fecade4c7d3477fddad0c123357e8dddee6751ca2d71974738",
+      "status": "changed",
+      "release": "2026.10.09-wallpaper-hidden-cards-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperOverlayState.cs",
+      "before": "337844ba52b7a21ec80ab8bff343b427eb99b16d95ec0f2698722a469a335681",
+      "after": "5beb2ea57726e5c8ea64931a018dbd8a0bd2ff62f12508c8e984c2787beb3cf1",
+      "status": "changed",
+      "release": "2026.10.09-wallpaper-hidden-cards-candidate"
     }
   ]
 }

@@ -77,13 +77,13 @@ internal sealed class VNextDevelopmentException : Exception
 }
 internal static class WallpaperWebViewPreflight
 {
-    internal static Task RunAsync(string uiRoot)
+    internal static Task RunAsync(string uiRoot, bool hiddenOnly = false)
     {
         var done=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var thread=new Thread(()=>{
             using var host=new Form {ShowInTaskbar=false,StartPosition=FormStartPosition.Manual,Location=new(-32000,-32000),Size=new(1200,800)};
             host.Shown+=async (_,_)=>{
-                try{await ExerciseAsync(uiRoot,host);done.TrySetResult();}
+                try{await ExerciseAsync(uiRoot,host,hiddenOnly);done.TrySetResult();}
                 catch(Exception ex){done.TrySetException(ex);}
                 finally{host.Close();}
             };
@@ -100,7 +100,7 @@ internal static class WallpaperWebViewPreflight
         }
         throw new Exception("WebView check timed out: "+label+" state="+await web.ExecuteScriptAsync("document.body.innerText.slice(-1800)"));
     }
-    private static async Task ExerciseAsync(string uiRoot,Form host)
+    private static async Task ExerciseAsync(string uiRoot,Form host,bool hiddenOnly)
     {
         var root=Path.Combine(Path.GetTempPath(),"byeollog-webview-preflight",Guid.NewGuid().ToString("N"));Directory.CreateDirectory(root);
         using var agent=new VNextLocalAgent(root);
@@ -116,6 +116,21 @@ internal static class WallpaperWebViewPreflight
         using var rendered=new WebView2 {Dock=DockStyle.Fill};host.Controls.Add(rendered);
         await rendered.EnsureCoreWebView2Async(environment);rendered.Source=new Uri($"http://127.0.0.1:{port}/overlay/wallpaper");
         await WaitAsync(rendered,"document.readyState==='complete'","overlay bootstrap");
+        if(hiddenOnly)
+        {
+            await web.ExecuteScriptAsync("document.querySelectorAll('#wallpaperSessions input')[0].click();document.querySelectorAll('#wallpaperSessions input')[1].click()");
+            await WaitAsync(web,"!wallpaperBaekdusanBridge.wallpaperSettingsBusy() && document.querySelectorAll('#wallpaperPreview .wallpaper-tile').length===2","two same-amount cards selected");
+            await WaitAsync(rendered,"document.querySelectorAll('.wallpaper-tile').length===2","overlay selected");
+            await HiddenCardsExerciseAsync(web,rendered,agent,root);
+            await VerifyHiddenKindsAsync(web);
+            await VerifyHiddenKindsAsync(rendered);
+            await web.ExecuteScriptAsync("document.querySelector('#wallpaperPreview .wallpaper-card-hide').click()");
+            await WaitAsync(web,"document.querySelector('#wallpaperPreview [data-card-hidden=true]') && !wallpaperBaekdusanBridge.wallpaperSettingsBusy()","rehide for account switch");
+            await agent.SwitchAsync();
+            await WaitAsync(web,"document.getElementById('openWallpaperHiddenBtn')?.textContent==='숨긴 풍벽지 (0)' && !document.querySelector('#wallpaperPreview .wallpaper-tile')","account switch clears hidden list");
+            Console.WriteLine("PASS: same-amount sibling, all card renderers, account switch hidden-list isolation.");
+            Console.WriteLine("WEBVIEW_ARTIFACT_ROOT="+root);form.Close();return;
+        }
         await DrawBoardExerciseAsync(web, rendered, agent, port, root);
         rendered.Source=new Uri($"http://127.0.0.1:{port}/overlay/wallpaper");
         await WaitAsync(rendered,"document.readyState==='complete' && !document.getElementById('board')","wallpaper restored");
@@ -152,6 +167,7 @@ internal static class WallpaperWebViewPreflight
         await WaitAsync(web,"!document.getElementById('refreshWallpaperBtn').disabled && document.querySelectorAll('#wallpaperPreview .wallpaper-tile').length>0","settings fixture selected");
         // Local appearance goes through the actual bridge and display snapshot.
         var appearanceWrites=agent.RemoteWrites;
+        await HiddenCardsExerciseAsync(web, rendered, agent, root);
         await web.ExecuteScriptAsync("document.getElementById('openWallpaperCustomBtn').click();document.getElementById('wallpaperCustomNameColor').value='#2367ab';document.getElementById('wallpaperCustomTextColor').value='#ffffff';document.getElementById('wallpaperCustomBackground').value='#102030';document.getElementById('wallpaperCustomSizeNumber').value='12';document.getElementById('wallpaperCustomSizeNumber').dispatchEvent(new Event('input'))");
         await WaitAsync(web,"getComputedStyle(document.querySelector('.wallpaper-custom-sample .wallpaper-meta-name')).color==='rgb(35, 103, 171)'","nickname preview color");
         using(var screenshot=File.Create(Path.Combine(root,"wallpaper-custom-dialog.png")))
@@ -212,6 +228,58 @@ internal static class WallpaperWebViewPreflight
         Console.WriteLine("WEBVIEW_ARTIFACT_ROOT="+root);
         form.Close();
     }
+    private static async Task HiddenCardsExerciseAsync(WebView2 web, WebView2 rendered, VNextLocalAgent agent, string root)
+    {
+        var writes=agent.RemoteWrites;
+        await WaitAsync(web,"document.querySelector('#wallpaperPreview .wallpaper-card-hide') && !document.querySelector('#wallpaperPreview .wallpaper-card-hide').disabled","hide button ready");
+        await web.ExecuteScriptAsync("document.querySelector('#wallpaperPreview .wallpaper-card-hide').scrollIntoView({block:'center'})");
+        if(await web.ExecuteScriptAsync("(()=>{const b=document.querySelector('#wallpaperPreview .wallpaper-card-hide'),r=b.getBoundingClientRect();return document.elementFromPoint(r.left+r.width/2,r.top+r.height/2)===b})()")!="true")throw new Exception("hide button is covered by card text or another element");
+        await web.ExecuteScriptAsync("window.hiddenTestId=document.querySelector('#wallpaperPreview .wallpaper-tile').dataset.tileId; window.hiddenTestLayout=JSON.stringify(wallpaperBaekdusanBridge.state.wallpaper.groups);document.querySelector('#wallpaperPreview .wallpaper-card-hide').click()");
+        await WaitAsync(web,"document.querySelector('#wallpaperPreview [data-card-hidden=true]') && document.getElementById('openWallpaperHiddenBtn').textContent.includes('(1)') && !wallpaperBaekdusanBridge.wallpaperSettingsBusy()","editor hides exact card");
+        await WaitAsync(rendered,"document.querySelector('[data-card-hidden=true]') && getComputedStyle(document.querySelector('[data-card-hidden=true]')).visibility==='hidden' && !document.querySelector('.wallpaper-card-hide')","overlay hides card without editor buttons");
+        if(await web.ExecuteScriptAsync("JSON.stringify(wallpaperBaekdusanBridge.state.wallpaper.groups)===window.hiddenTestLayout")!="true")throw new Exception("hide changed grouped layout");
+        var reloaded=new WallpaperHiddenCards(agent.Context.RootPath);
+        if(reloaded.View.GetProperty("cards").EnumerateObject().Count()!=1)throw new Exception("hidden card not persisted");
+        await web.ExecuteScriptAsync("document.getElementById('refreshWallpaperBtn').click()");
+        await WaitAsync(web,"!wallpaperBaekdusanBridge.wallpaperSettingsBusy() && document.querySelector('#wallpaperPreview [data-card-hidden=true]')","remote refresh cannot resurrect hidden card");
+        await web.ExecuteScriptAsync("document.getElementById('openWallpaperHiddenBtn').click()");
+        await WaitAsync(web,"document.getElementById('wallpaperHiddenDialog')?.open && document.querySelector('[data-restore-id]')","restore list opens");
+        using(var shot=File.Create(Path.Combine(root,"wallpaper-hidden-list.png")))await web.CoreWebView2.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,shot);
+        await web.ExecuteScriptAsync("document.querySelector('#wallpaperHiddenDialog input').value='no-such-name';document.querySelector('#wallpaperHiddenDialog input').dispatchEvent(new Event('input'))");
+        await WaitAsync(web,"!document.querySelector('[data-restore-id]') && document.querySelector('.wallpaper-hidden-empty')","hidden list search");
+        agent.Online=false;
+        await web.ExecuteScriptAsync("document.querySelector('#wallpaperHiddenDialog input').value='';document.querySelector('#wallpaperHiddenDialog input').dispatchEvent(new Event('input'));document.querySelector('[data-restore-id]').click()");
+        await WaitAsync(web,"document.querySelector('.wallpaper-hidden-empty') && !document.querySelector('#wallpaperPreview [data-card-hidden=true]')","offline restore removes list item");
+        await WaitAsync(rendered,"!document.querySelector('[data-card-hidden=true]') && getComputedStyle(document.querySelector('.wallpaper-tile')).visibility==='visible'","overlay restores card");
+        agent.Online=true;
+        await web.ExecuteScriptAsync("document.getElementById('wallpaperHiddenDialog').close()");
+        if(agent.RemoteWrites!=writes)throw new Exception("hide/restore wrote operating data");
+        Console.WriteLine("PASS: actual WebView hide/list/search/offline restore, HTTP overlay parity, durable state, refresh persistence; no remote writes or OBS buttons.");
+    }
+
+    private static async Task VerifyHiddenKindsAsync(WebView2 web)
+    {
+        var result=await web.ExecuteScriptAsync("""
+        (()=>{
+          const canvas=document.createElement('div');document.body.append(canvas);canvas.style.position='relative';canvas.style.width='1920px';canvas.style.height='1080px';
+          const tiles=[{id:'a',amount:1000,actorName:'첫 카드'},{id:'b',amount:1000,actorName:'같은 금액 두번째 카드'}],detached={ranges:[{min:1000,max:1000}],positions:{a:{x:400,y:500,width:240,height:46}}};
+          const baek={selectedSessionIds:['s'],runs:[{id:'r',sessionId:'s',start:1,target:2,columns:2,x:0,y:0,width:480,height:300,members:[{id:'c',amount:1,actorName:'백두산'}]}]};
+          ByeollogDetached.render(canvas,tiles,detached,[],new Set(),()=>{});ByeollogBaekdusan.render(canvas,baek);
+          const before=JSON.stringify({tiles,detached,baek});
+          if(ByeollogHiddenCards.apply(canvas,{cards:{a:{},c:{}}})!==1)throw Error('visible count');
+          const a=canvas.querySelector('[data-tile-id=a]'),b=canvas.querySelector('[data-tile-id=b]'),c=canvas.querySelector('[data-tile-id=c]');
+          if(getComputedStyle(a).visibility!=='hidden'||getComputedStyle(b).visibility!=='visible'||getComputedStyle(c).visibility!=='hidden'||a.tabIndex!==-1)throw Error('individual visibility');
+          ByeollogDetached.render(canvas,tiles,detached,[],new Set(),()=>{});ByeollogBaekdusan.render(canvas,baek);ByeollogHiddenCards.apply(canvas,{cards:{a:{},c:{}}});
+          if(getComputedStyle(a).visibility!=='hidden')throw Error('refresh resurrected hidden card');
+          ByeollogHiddenCards.apply(canvas,{cards:{}});
+          if(getComputedStyle(a).visibility!=='visible'||getComputedStyle(c).visibility!=='visible'||a.style.left!=='400px'||a.tabIndex!==0)throw Error('restore lost placement');
+          if(before!==JSON.stringify({tiles,detached,baek})||ByeollogBaekdusan.owned(baek).size!==1)throw Error('ledger/progress mutated');
+          canvas.remove();return 'ok';
+        })()
+        """);
+        if(result!="\"ok\"")throw new Exception("Shared hidden render checks failed: "+result);
+    }
+
     private static async Task DrawBoardExerciseAsync(WebView2 web, WebView2 rendered, VNextLocalAgent agent, int port, string root)
     {
         int writes=agent.RemoteWrites;

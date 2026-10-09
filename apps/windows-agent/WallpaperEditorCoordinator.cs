@@ -47,7 +47,8 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
     internal WallpaperBaekdusan Baekdusan { get; }
     internal WallpaperDetachedCards Detached { get; }
     internal WallpaperAppearance Appearance { get; }
-    private JsonElement Decorate(JsonElement source) => DrawBoard.Decorate(Appearance.Decorate(Detached.Decorate(Baekdusan.Decorate(source))));
+    internal WallpaperHiddenCards HiddenCards { get; }
+    private JsonElement Decorate(JsonElement source) => HiddenCards.Decorate(DrawBoard.Decorate(Appearance.Decorate(Detached.Decorate(Baekdusan.Decorate(source)))));
 
     internal WallpaperEditorCoordinator(
         Func<bool> isSignedIn,
@@ -69,6 +70,8 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
         _wallpaper.DrawBoardView = () => DrawBoard.PublicView();
         Appearance = new WallpaperAppearance(rootPath);
         _wallpaper.AppearanceView = () => Appearance.View;
+        HiddenCards = new WallpaperHiddenCards(rootPath);
+        _wallpaper.HiddenCardsView = () => HiddenCards.View;
         Detached = new WallpaperDetachedCards(rootPath);
         _wallpaper.DetachedView = () => Detached.View;
         Baekdusan = new WallpaperBaekdusan(rootPath, _isSignedIn, _sendControl, () => StateChanged?.Invoke(), startWorker: scheduleInitialBackup);
@@ -199,6 +202,14 @@ internal sealed class WallpaperEditorCoordinator : IDisposable
         if (action is "appearance-save" or "appearance-reset")
         {
             Appearance.Apply(control, cancellationToken);
+            StateChanged?.Invoke();
+            return await GetStateAsync(cancellationToken);
+        }
+        if (action is "card-hide" or "card-restore")
+        {
+            await _gate.WaitAsync(cancellationToken);
+            try { HiddenCards.Apply(control, Decorate(LoadCache() ?? BuildFallbackState()), cancellationToken); }
+            finally { _gate.Release(); }
             StateChanged?.Invoke();
             return await GetStateAsync(cancellationToken);
         }

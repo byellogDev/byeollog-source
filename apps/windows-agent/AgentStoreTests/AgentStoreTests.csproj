@@ -21,6 +21,8 @@
     <Compile Include="../WallpaperBaekdusan.cs" Link="WallpaperBaekdusan.cs" />
     <Compile Include="../WallpaperAppearance.cs" Link="WallpaperAppearance.cs" />
     <Compile Include="../WallpaperDetachedCards.cs" Link="WallpaperDetachedCards.cs" />
+    <Compile Include="../WallpaperHiddenCards.cs" Link="WallpaperHiddenCards.cs" />
+    <EmbeddedResource Include="../Ui/wallpaper-hidden.js" LogicalName="HurogiCollector.Ui.wallpaper-hidden.js" />
     <Compile Include="../WallpaperBaekdusanRenderer.cs" Link="WallpaperBaekdusanRenderer.cs" />
     <EmbeddedResource Include="../Ui/wallpaper-baekdusan.js" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan.js" />
     <EmbeddedResource Include="../Ui/wallpaper-appearance.js" LogicalName="HurogiCollector.Ui.wallpaper-appearance.js" />

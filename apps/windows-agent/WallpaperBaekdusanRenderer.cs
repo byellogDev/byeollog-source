@@ -2,7 +2,7 @@ namespace HurogiCollector;
 
 internal static class WallpaperBaekdusanRenderer
 {
-    internal static readonly string Script = Load("wallpaper-appearance.js") + "\n" + Load("wallpaper-baekdusan.js") + "\n" + Load("wallpaper-detached.js");
+    internal static readonly string Script = Load("wallpaper-hidden.js") + "\n" + Load("wallpaper-appearance.js") + "\n" + Load("wallpaper-baekdusan.js") + "\n" + Load("wallpaper-detached.js");
     private static string Load(string file)
     {
         using var stream = typeof(WallpaperBaekdusanRenderer).Assembly.GetManifestResourceStream("HurogiCollector.Ui." + file)

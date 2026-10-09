@@ -148,28 +148,34 @@ internal sealed class WallpaperOverlayState : IDisposable
     internal Func<JsonElement>? BaekdusanView { get; set; }
     internal Func<JsonElement>? DetachedView { get; set; }
     internal Func<JsonElement>? AppearanceView { get; set; }
+    internal Func<JsonElement>? HiddenCardsView { get; set; }
     private byte[]? _baekBaseBytes, _baekDisplayBytes;
-    private long _baekViewVersion = -1, _detachedVersion = -1, _appearanceVersion = -1;
+    private long _baekViewVersion = -1, _detachedVersion = -1, _appearanceVersion = -1, _hiddenVersion = -1;
     internal byte[] DisplaySnapshotBytes()
     {
         if (BaekdusanView is null) return SnapshotBytes();
         var view = BaekdusanView();
         var detached = DetachedView?.Invoke();
         var appearance = AppearanceView?.Invoke();
+        var hidden = HiddenCardsView?.Invoke();
+        var hiddenVersion = hidden?.GetProperty("version").GetInt64() ?? -1;
         var appearanceVersion = appearance?.GetProperty("version").GetInt64() ?? -1;
         var detachedVersion = detached?.GetProperty("version").GetInt64() ?? -1;
         lock (_gate)
         {
 
             var version = view.GetProperty("version").GetInt64();
-            if (ReferenceEquals(_stateBytes, _baekBaseBytes) && version == _baekViewVersion && detachedVersion == _detachedVersion && appearanceVersion == _appearanceVersion)
+            if (ReferenceEquals(_stateBytes, _baekBaseBytes) && version == _baekViewVersion && detachedVersion == _detachedVersion && appearanceVersion == _appearanceVersion && hiddenVersion == _hiddenVersion)
                 return _baekDisplayBytes!.ToArray();
             var root = JsonNode.Parse(_stateBytes)!.AsObject();
             root["baekdusan"] = JsonNode.Parse(view.GetRawText());
             if (detached is not null) root["detached"] = JsonNode.Parse(detached.Value.GetRawText());
             if (appearance is not null) root["appearance"] = JsonNode.Parse(appearance.Value.GetRawText());
+            if (hidden is not null) root["hiddenCards"] = JsonNode.Parse(hidden.Value.GetRawText());
             root["displayRevision"] = (root["displayRevision"]?.ToString() ?? root["revision"]?.ToString() ?? "0") + ":baek:" + version + ":detached:" + detachedVersion + ":appearance:" + appearanceVersion;
             _baekBaseBytes = _stateBytes; _baekViewVersion = version; _detachedVersion = detachedVersion; _appearanceVersion = appearanceVersion;
+            root["displayRevision"] = root["displayRevision"]?.ToString() + ":hidden:" + hiddenVersion;
+            _hiddenVersion = hiddenVersion;
             _baekDisplayBytes = JsonSerializer.SerializeToUtf8Bytes(root);
             return _baekDisplayBytes.ToArray();
         }
