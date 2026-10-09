@@ -675,7 +675,7 @@ internal sealed class ByeollogOverlayService : IDisposable
         && layout.x >= 0 && layout.y >= 0 && layout.width >= WALLPAPER_MIN_WIDTH && layout.height >= WALLPAPER_MIN_HEIGHT
         && layout.x + layout.width <= canvasWidth && layout.y + layout.height <= canvasHeight;
     }
-    function wallpaperGroups(tiles, canvasWidth, canvasHeight, sizeRanges = []) {
+    function wallpaperGroups(tiles, canvasWidth, canvasHeight, sizeRanges = [], hiddenCards = null) {
       const map = new Map();
       for (const tile of tiles) {
         const layoutPriority = Number.isSafeInteger(Number(tile.layoutPriority)) && Number(tile.layoutPriority) >= 0
@@ -692,7 +692,7 @@ internal sealed class ByeollogOverlayService : IDisposable
           group.nextSide = tile.layout.nextSide === 'left' ? 'left' : 'right';
         }
       }
-      const groups = [...map.values()].sort((a,b) => (Number.isInteger(a.layer) ? a.layer : Number.MAX_SAFE_INTEGER) - (Number.isInteger(b.layer) ? b.layer : Number.MAX_SAFE_INTEGER));
+      const groups = ByeollogHiddenCards.visibleGroups([...map.values()], hiddenCards).sort((a,b) => (Number.isInteger(a.layer) ? a.layer : Number.MAX_SAFE_INTEGER) - (Number.isInteger(b.layer) ? b.layer : Number.MAX_SAFE_INTEGER));
       const rules = (Array.isArray(sizeRanges) ? sizeRanges : []).slice(0, 20).filter(rule => rule && Number.isInteger(rule.min) && Number.isInteger(rule.max) && rule.min >= 1 && rule.max >= rule.min && rule.max <= 1000000 && Number.isInteger(rule.width) && rule.width >= 80 && rule.width <= 480);
       for (const group of groups) group.sizeRule = group.displayKind === 'donation' ? rules.find(rule => group.tiles.every(tile => tile.amount >= rule.min && tile.amount <= rule.max)) : null;
       for (const group of groups) if (group.mergeRange) group.tiles.sort((a,b) => a.amount-b.amount || Date.parse(a.receivedAt||0)-Date.parse(b.receivedAt||0));
@@ -709,7 +709,7 @@ internal sealed class ByeollogOverlayService : IDisposable
       const height = Number.isInteger(state.canvasHeight) ? state.canvasHeight : 1080;
       wallpaperResize(width, height);
       const owned = ByeollogBaekdusan.owned(state.baekdusan);
-      const groups = wallpaperGroups((Array.isArray(state.tiles) ? state.tiles : []).filter(t => !owned.has(t.id) && !ByeollogDetached.matches(t,state.detached)), width, height, state.sizeRanges);
+      const groups = wallpaperGroups((Array.isArray(state.tiles) ? state.tiles : []).filter(t => !owned.has(t.id) && !ByeollogDetached.matches(t,state.detached)), width, height, state.sizeRanges, state.hiddenCards);
       ByeollogBaekdusan.render(wallpaperCanvas, state.baekdusan);
       ByeollogDetached.render(wallpaperCanvas,state.tiles,state.detached,state.sizeRanges||[],owned);
       const incomingGroups = new Set(groups.map(group => group.id));

@@ -52,3 +52,8 @@
 - [본 저장소 Release](https://github.com/byellogDev/byeollog/releases/tag/agent-v1.0.0.54): 최종 소스 커밋과 CI 근거를 연결한다.
 - [설치 파일 Release](https://github.com/byellogDev/byeollog-releases/releases/tag/agent-v1.0.0.54).
 - 게시 완료는 본문·태그 커밋·draft=false·prerelease=false·Latest 읽기 확인을 포함한다.
+
+
+## 후속 쌓기 정책 수정
+
+사용자 요청에 따라 [Agent 1.0.0.55](2026-10-09-agent-10055-hidden-stacks.md)에서 일반 묶음의 숨긴 카드를 쌓기 계산에서 제외한다. 이 문서의 이전 검증·배포 기록은 보존한다.

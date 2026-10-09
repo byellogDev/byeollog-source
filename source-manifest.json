@@ -6911,6 +6911,48 @@
       "after": "a093572692b1cf2f83682213b812278f90f4714f921aea915a0b31382bb2eafc",
       "status": "changed",
       "release": "2026.10.09-agent-10054"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "4eebdaf2d2586c09169be18ef7cec72e51f6d4fdd23726c128d3ca183f722ec3",
+      "after": "33f4a0c6ea6d845b6a4e2577b220e6a38d3910dd8cb2a39733fc2c965fbb5a22",
+      "status": "changed",
+      "release": "2026.10.09-agent-10055"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "4eebdaf2d2586c09169be18ef7cec72e51f6d4fdd23726c128d3ca183f722ec3",
+      "after": "33f4a0c6ea6d845b6a4e2577b220e6a38d3910dd8cb2a39733fc2c965fbb5a22",
+      "status": "changed",
+      "release": "2026.10.09-agent-10055"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "44eded74e04aa9d4dc14f89d4a1f30a0a2d26ab0b8393549c481c8fb9539ad94",
+      "after": "a93e7dbaf532ca9aef332b3bc531e8c700deb6fba5445af402ae529ae59f3e18",
+      "status": "changed",
+      "release": "2026.10.09-agent-10055"
+    },
+    {
+      "target": "apps/windows-agent/ByeollogOverlayService.cs",
+      "before": "af9bd1434cc003dc2eff7e4ae1cbceccad5ab8321e40e0e133a217e27cd311d5",
+      "after": "e565e18d2a93427d8bde180e604ae87cc595f8db1b60aa8862afc6332ffc7ec3",
+      "status": "changed",
+      "release": "2026.10.09-agent-10055"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "47e71c67b6dad62c49422c5fcd81cbd22b0672ba43a1b1bc59d508aa962fcfd4",
+      "after": "055a8e89580deae5c943354ebe798ba014dbdffee6763d3519a02968ab2c9039",
+      "status": "changed",
+      "release": "2026.10.09-agent-10055"
+    },
+    {
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "b24959a375197cede5dd62233f0227fd99a16468e8582adbc964c739dfe153c7",
+      "after": "0dafab67d627e5729a9b821a99e922ef8bc5e8f8ef48ae1e2d4b8ecef5c8bc87",
+      "status": "changed",
+      "release": "2026.10.09-agent-10055"
     }
   ]
 }

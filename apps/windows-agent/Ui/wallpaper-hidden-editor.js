@@ -66,7 +66,7 @@
     dialog = el('dialog', undefined, 'wallpaper-hidden-dialog'); dialog.id = 'wallpaperHiddenDialog'; dialog.setAttribute('aria-labelledby', 'wallpaperHiddenTitle');
     const header = el('header'), heading = el('div'), title = el('h2', '숨긴 풍벽지'), close = el('button', '닫기'); title.id = 'wallpaperHiddenTitle';
     heading.append(title, el('p', '이 PC · 현재 계정에서 숨긴 카드')); header.append(heading, close);
-    const note = el('p', '후원 기록은 그대로 보관됩니다. 복원한 카드는 해당 방송과 금액이 표시 중일 때 원래 자리에 나타납니다. 방송 기록 보관 기간(최근 7일)이 지난 카드는 다시 표시되지 않습니다.', 'wallpaper-hidden-note');
+    const note = el('p', '숨긴 카드를 빼고 나머지 카드를 빈칸 없이 쌓습니다. 복원하면 해당 방송과 금액이 표시 중일 때 원래 순서에 다시 들어갑니다. 개별 배치 위치와 백두산 번호는 유지됩니다. 방송 기록 보관 기간(최근 7일)이 지난 카드는 다시 표시되지 않습니다.', 'wallpaper-hidden-note');
     search = el('input'); search.type = 'search'; search.placeholder = '후원자 · 수량 · 날짜 검색'; search.setAttribute('aria-label', '숨긴 풍벽지 검색'); search.oninput = () => { page = 0; render(); };
     count = el('p', '', 'wallpaper-hidden-count'); list = el('ul', undefined, 'wallpaper-hidden-list');
     const footer = el('footer'), message = el('div'); message.id = 'wallpaperHiddenStatus'; message.setAttribute('role', 'status');

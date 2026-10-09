@@ -10,6 +10,7 @@ const renderer=readFileSync(auditURL('../../BYEOLLOG_AGENT_DEV_v07022/ByeollogOv
 const html=readFileSync(auditURL('../../BYEOLLOG_AGENT_DEV_v07022/Ui/wallpaper_editor.html',import.meta.url),'utf8');
 function context(){
   const ctx=vm.createContext({state:{wallpaperDraft:[]}});
+  vm.runInContext(readFileSync(new URL('../../apps/windows-agent/Ui/wallpaper-hidden.js',import.meta.url),'utf8'),ctx);
   const constants=renderer.split(/\r?\n/).filter(l=>/^\s*const WALLPAPER_(CARD_WIDTH|MIN_WIDTH|CANVAS_MARGIN)\s*=/.test(l)).join('\n');
   vm.runInContext(constants+'\n'+renderer.slice(renderer.indexOf('    function wallpaperColumns('),renderer.indexOf('    function renderWallpaper(state)')),ctx);
   vm.runInContext(html.split(/\r?\n/).filter(l=>/^function (wallpaperDraftBaseCardHeight|layoutWallpaperDraftGroup|fitWallpaperDraftGroup|applyWallpaperWidthRule)\(/.test(l)).join('\n'),ctx);

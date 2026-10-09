@@ -36,6 +36,7 @@ test('new cards follow size rule while manually detached size remains stable',()
 test('editor groups omit detached cards without changing source tiles',()=>{
  const html=fs.readFileSync(new URL('../../apps/windows-agent/Ui/wallpaper_editor.html',import.meta.url),'utf8');
  const context=vm.createContext({ByeollogDetached:detached});
+ vm.runInContext(fs.readFileSync(new URL('../../apps/windows-agent/Ui/wallpaper-hidden.js',import.meta.url),'utf8'),context);
  vm.runInContext(html.slice(html.indexOf('const localWallpaperLayout='),html.indexOf('async function request(')),context);
  const tiles=[tile('a',1000),tile('b',1000),tile('c',33)],data={localRulesLayout:true,tiles,detached:{ranges:[{min:1000,max:1000}]}};
  context.input=data;const result=vm.runInContext('applyLocalWallpaperLayout(input)',context);

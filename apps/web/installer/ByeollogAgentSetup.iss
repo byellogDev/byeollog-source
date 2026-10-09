@@ -1,20 +1,20 @@
 #ifndef AppVersion
-  #define AppVersion "1.0.0.54"
+  #define AppVersion "1.0.0.55"
 #endif
 #ifndef AppDisplayVersion
-  #define AppDisplayVersion "1.0.0.54"
+  #define AppDisplayVersion "1.0.0.55"
 #endif
 #ifndef PackageFile
-  #define PackageFile "byeollog_wallpaper_v10054_WIN_X64.zip"
+  #define PackageFile "byeollog_wallpaper_v10055_WIN_X64.zip"
 #endif
 #ifndef PackageUrl
-  #define PackageUrl "https://byeollog.com/agent-updates/releases/1.0.0.54/byeollog_wallpaper_v10054_WIN_X64.zip"
+  #define PackageUrl "https://byeollog.com/agent-updates/releases/1.0.0.55/byeollog_wallpaper_v10055_WIN_X64.zip"
 #endif
 #ifndef PackageSha256
-  #define PackageSha256 "740cf38d4fe7cc56bbe8da6aaf521157ae54e5b1376861c4def79ce5153d6839"
+  #define PackageSha256 "270276f3cbb22a495d19978da9071e26758c23d5781a01c522fc423a4f6b10cd"
 #endif
 #ifndef PackageExpandedBytes
-  #define PackageExpandedBytes "73670135"
+  #define PackageExpandedBytes "73670488"
 #endif
 
 [Setup]

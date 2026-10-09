@@ -408,8 +408,13 @@ function wallpaperGroupsDoNotOverlap(groups){
 
 return {groupWallpaperTiles,layoutWallpaperGroups};})();
 function applyLocalWallpaperLayout(data){
- if(!data?.localRulesLayout||!Array.isArray(data.tiles))return data;
- const groups=localWallpaperLayout.layoutWallpaperGroups(localWallpaperLayout.groupWallpaperTiles(data.tiles.filter(t=>!ByeollogDetached.matches(t,data.detached))),{
+ if(!data?.localRulesLayout||!Array.isArray(data.tiles)){
+  if(!Array.isArray(data?.groups)||!Object.keys(ByeollogHiddenCards.records(data.hiddenCards)).length)return data;
+  const hidden=ByeollogHiddenCards.records(data.hiddenCards);
+  const groups=data.groups.map(group=>({...group,cards:(group.cards||[]).filter(card=>!Object.hasOwn(hidden,card.id))})).filter(group=>group.cards.length);
+  return {...data,groups:groups.map(group=>fitWallpaperDraftGroup(group))};
+ }
+ const groups=localWallpaperLayout.layoutWallpaperGroups(ByeollogHiddenCards.visibleGroups(localWallpaperLayout.groupWallpaperTiles(data.tiles.filter(t=>!ByeollogDetached.matches(t,data.detached))),data.hiddenCards),{
   canvasWidth:data.session?.canvasWidth||1920,canvasHeight:data.session?.canvasHeight||1080,sizeRanges:data.size?.rules||[]});
  return {...data,groups,hasManualLayout:groups.some(group=>group.manualLayout)};
 }

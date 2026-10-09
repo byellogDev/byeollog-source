@@ -1,7 +1,14 @@
-/* Shared presentation only: keep slots, layouts and Baekdusan membership intact. */
+/* Shared presentation only: compact ordinary stacks, preserve source/layout identity. */
 globalThis.ByeollogHiddenCards = (() => {
   const selector = '.wallpaper-tile[data-tile-id],.wallpaper-detached[data-tile-id],.baekdusan-region [data-tile-id]';
   const records = view => view?.cards || {};
+  function visibleGroups(groups, view) {
+    const hidden = records(view);
+    // Keep tileIds and the saved group layout, including a hidden anchor card.
+    // Restoration and moving a group must still include its original members.
+    return (groups || []).map(group => ({...group, tiles: group.tiles.filter(tile => !Object.hasOwn(hidden, tile.id))}))
+      .filter(group => group.tiles.length > 0);
+  }
   function apply(canvas, view) {
     let visible = 0;
     for (const node of canvas.querySelectorAll(selector)) {
@@ -14,5 +21,5 @@ globalThis.ByeollogHiddenCards = (() => {
     }
     return visible;
   }
-  return {selector, records, apply};
+  return {selector, records, visibleGroups, apply};
 })();
