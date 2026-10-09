@@ -51,3 +51,7 @@
 - [PR #4](https://github.com/byellogDev/byeollog/pull/4), `codex/integration-observer-records-20260924`에 기록한다. 기본 브랜치 병합과 운영 배포는 별도다.
 - [본 저장소 후보 Release](https://github.com/byellogDev/byeollog/releases/tag/candidate-2026.10.09-wallpaper-hidden-cards): 검증한 소스 커밋을 연결하고 prerelease로 게시한다. 기존 Latest를 유지한다.
 - 신규 설치 파일 릴리스는 없다. 게시 완료는 Release 본문·태그 커밋·draft/prerelease·Latest를 읽어 확인한다.
+
+## 후속 정식 배포
+
+위 기록은 후보 검증 당시 상태이며, 사용자 배포 승인 후 [Agent 1.0.0.53 정식 배포](2026-10-09-agent-10053-wallpaper-hidden.md)로 이어졌다.

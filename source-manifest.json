@@ -6841,6 +6841,34 @@
       "after": "5beb2ea57726e5c8ea64931a018dbd8a0bd2ff62f12508c8e984c2787beb3cf1",
       "status": "changed",
       "release": "2026.10.09-wallpaper-hidden-cards-candidate"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "bade8473e58ba71dcb35f7c47ece33091bfad9884bec06b519ac3c3d4ae25dbb",
+      "after": "8939701c886b0c11170976c91cbac9ce18411a89caf8f5570b0a92cc727ee1ec",
+      "status": "changed",
+      "release": "2026.10.09-agent-10053"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "bade8473e58ba71dcb35f7c47ece33091bfad9884bec06b519ac3c3d4ae25dbb",
+      "after": "8939701c886b0c11170976c91cbac9ce18411a89caf8f5570b0a92cc727ee1ec",
+      "status": "changed",
+      "release": "2026.10.09-agent-10053"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "8027971b0820e71b969122472ebed3f78801375966f1b5b095f8965bc1a565c7",
+      "after": "cbacef52f761069468eac7f4d9b552cd4d1f814eec3b27111a1156a672203669",
+      "status": "changed",
+      "release": "2026.10.09-agent-10053"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "87415f1bbe0b61d39c3accd2a1152bd50a2cc666c33bede38f394a56f9d47683",
+      "after": "71de50fed6d8dd9e38d1e0664f339facbb0c318ee95e2b8d74f152ab31e82f57",
+      "status": "changed",
+      "release": "2026.10.09-agent-10053"
     }
   ]
 }
