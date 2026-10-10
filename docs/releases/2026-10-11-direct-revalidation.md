@@ -70,4 +70,4 @@
 - [PR #4](https://github.com/byellogDev/byeollog/pull/4), 브랜치 codex/integration-observer-records-20260924. 기본 브랜치 자동 병합 없음.
 - [GitHub 연구 릴리스](https://github.com/byellogDev/byeollog/releases/tag/research-2026.10.11-direct-revalidation)의 태그 커밋이 이 문서의 게시 기준이다.
 - 연구 prerelease로 게시하고 본문·태그 커밋·draft=false·prerelease=true 및 기존 Latest 유지를 게시 후 확인한다.
-- 설치 파일 변경 없음. 기존 [Agent 1.0.0.55](https://github.com/byellogDev/byeollog-releases/releases/tag/agent-1.0.0.55)는 이번 연구의 배포물이 아니다.
+- 설치 파일 변경 없음. 기존 [Agent 1.0.0.55](https://github.com/byellogDev/byeollog-releases/releases/tag/agent-v1.0.0.55)는 이번 연구의 배포물이 아니다.
