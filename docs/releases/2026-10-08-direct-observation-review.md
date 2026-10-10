@@ -74,3 +74,6 @@
 - [연구 GitHub Release](https://github.com/byellogDev/byeollog/releases/tag/research-2026.10.08-direct-review), [PR #4](https://github.com/byellogDev/byeollog/pull/4).
 - `codex/integration-observer-records-20260924`의 문서 커밋을 게시하며 기본 브랜치 자동 병합 없음. 설치 파일 변경 없음.
 - 게시 시 본문·태그 커밋·draft=false·prerelease=true를 확인하고 기존 Latest Agent를 유지한다. 정확한 확인 결과는 비공개 게시 영수증에 저장한다.
+
+
+후속: [2026-10-11 실제 비교 및 운영 저장 재검증](2026-10-11-direct-revalidation.md). 이전 단계 기록은 당시 기준으로 보존합니다.

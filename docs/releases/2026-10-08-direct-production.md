@@ -48,3 +48,6 @@
 - [PR #4](https://github.com/byellogDev/byeollog/pull/4), 작업 브랜치 `codex/integration-observer-records-20260924`. 기본 브랜치 자동 병합 없음.
 - [본 저장소 Release](https://github.com/byellogDev/byeollog/releases/tag/ops-2026.10.08-direct-production). 실제 게시 시 해당 커밋과 상세 문서를 본문에 고정한다.
 - 설치 파일 변경 없음. Agent 최신 배포와 Latest 표시는 유지한다.
+
+
+후속: [2026-10-11 실제 비교 및 운영 저장 재검증](2026-10-11-direct-revalidation.md). 이전 단계 기록은 당시 기준으로 보존합니다.
