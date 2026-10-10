@@ -40,3 +40,5 @@
 - [PR 4](https://github.com/byellogDev/byeollog/pull/4), codex/integration-observer-records-20260924. 기본 브랜치 병합 없음.
 - [연구 GitHub Release](https://github.com/byellogDev/byeollog/releases/tag/research-2026.10.09-weflab-live-comparison): prerelease, 안정 Latest 1.0.0.52 유지. 본문·태그 커밋·게시 상태 읽기 확인.
 - 신규 설치 파일 없음. [기존 정식 설치 버전](https://github.com/byellogDev/byeollog-releases/releases/tag/agent-v1.0.0.52) 유지.
+
+후속: [10/11 추가 방송·다회 룰렛 재검증](../releases/2026-10-11-weflab-revalidation.md). 이전 단일 회차 비교 기록은 보존하며 새 구간에서 기존 경로보다 결과 1개를 추가 확보했다.

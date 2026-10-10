@@ -1,5 +1,7 @@
 # 변경 이력
 
+- [2026-10-11 위플랩 룰렛 재검증](docs/releases/2026-10-11-weflab-revalidation.md): 다회 11개 순서 일치, 13회에서 기존 기록에 없는 결과 1개 확보. 누락 단계 미확정, 후원 시각 기준·별도 저장 한계 기록.
+
 - [2026-10-11 직접 WebSocket 전체 운영 전환](docs/releases/2026-10-11-direct-all-production.md): 모든 활성 계정의 기본 경로 direct, 신규 계정 자동 적용·계정별 SDK 복귀. 운영 5계정 방송 대기 확인, 전체 회귀 917건 통과.
 
 - [2026-10-11 직접 WebSocket 재검증](docs/releases/2026-10-11-direct-revalidation.md): 새 비교 6,196건 일치, 직접 운영 후원 24건·3,455개 저장. 교체 보류·일시 HTTP 실패와 미검증 범위 구분. 배포 없음.
