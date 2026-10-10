@@ -39,6 +39,33 @@ test('SDK -> direct -> SDK switch waits for old durable drain and never overlaps
  assert.equal(workers.size,0);assert.equal(activeA,0);
 });
 
+test('default direct covers new accounts and explicit SDK rollback preserves other workers',async()=>{
+ const a='00000000-0000-4000-8000-000000000001',b='00000000-0000-4000-8000-000000000002';
+ const policy={schemaVersion:2,defaultTransport:'direct',directWorkspaceIds:[],sdkWorkspaceIds:[]};
+ const all=parseTransportPolicy(policy),workers=new Map(),enabled=new Set([a]);
+ const run=async(id,signal)=>new Promise(resolve=>signal.addEventListener('abort',resolve,{once:true}));
+ await reconcileTransportWorkers({workers,enabled,direct:all,run});await Promise.resolve();
+ const first=workers.get(a);assert.equal(first.transport,'direct');
+ enabled.add(b);await reconcileTransportWorkers({workers,enabled,direct:all,run});await Promise.resolve();
+ assert.equal(workers.get(a),first);assert.equal(workers.get(b).transport,'direct');
+ const second=workers.get(b),rollback=parseTransportPolicy({...policy,sdkWorkspaceIds:[a]});
+ await reconcileTransportWorkers({workers,enabled,direct:rollback,run});await Promise.resolve();
+ assert.equal(workers.get(a).transport,'sdk');assert.equal(workers.get(b),second);
+ await reconcileTransportWorkers({workers,enabled,direct:all,run});await Promise.resolve();
+ assert.equal(workers.get(a).transport,'direct');assert.equal(workers.get(b),second);
+ await reconcileTransportWorkers({workers,enabled:new Set(),direct:all,run});assert.equal(workers.size,0);
+ const legacy=parseTransportPolicy({schemaVersion:1,directWorkspaceIds:[a]});
+ assert(legacy.has(a));assert(!legacy.has(b));
+ const sdkDefault=parseTransportPolicy({...policy,defaultTransport:'sdk',directWorkspaceIds:[a]});
+ assert(sdkDefault.has(a));assert(!sdkDefault.has(b));
+});
+
+test('default transport rejects ambiguous or malformed rollback policy',()=>{
+ const id='00000000-0000-4000-8000-000000000001';
+ const valid={schemaVersion:2,defaultTransport:'direct',directWorkspaceIds:[],sdkWorkspaceIds:[]};
+ for(const p of [{...valid,defaultTransport:'auto'},{...valid,sdkWorkspaceIds:null},{...valid,directWorkspaceIds:null},{...valid,sdkWorkspaceIds:['all']},{...valid,sdkWorkspaceIds:[id,id]},{...valid,directWorkspaceIds:[id],sdkWorkspaceIds:[id]},{...valid,schemaVersion:3}])assert.throws(()=>parseTransportPolicy(p));
+});
+
 async function runFixture(t,{mode='normal',onEvent=()=>{}}={}){
  const server=new WebSocketServer({host:'127.0.0.1',port:0});await new Promise(r=>server.once('listening',r));
  const stop=new AbortController(),sockets=[],logs=[],states=[],events=[];let sends=0,handoffs=0,polls=0,maxSockets=0,next=0;

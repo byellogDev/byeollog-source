@@ -4,6 +4,16 @@
 
 ## 현재 운영 기준
 
+- **2026-10-11 07:13 KST 전체 direct 전환:** 현재 5계정과 이후 추가되는 활성 계정은 기본 직접 WebSocket을 사용한다. SDK는 계정별 복귀용으로 보존한다. 비교 연구 unit은 정지·부팅 자동 실행 해제했으며 원문을 보존한다. 아래 SDK 단독·연구 상시 실행 설명은 이전 단계 이력이다. [현재 전환·검증·복구](../../docs/releases/2026-10-11-direct-all-production.md).
+
+비공개 상태 볼륨의 `transport-policy.json`은 다음 기본값을 사용한다. 별도 계정 권한을 부여하거나 비활성 계정 수집을 켜는 설정이 아니다.
+
+```json
+{"schemaVersion":2,"defaultTransport":"direct","directWorkspaceIds":[],"sdkWorkspaceIds":[]}
+```
+
+특정 계정을 SDK로 복귀할 때는 `sdkWorkspaceIds`에만 지정한다. 반대 목록과 중복된 정책은 거부한다. 파일 변경은 원자적으로 적용하고 기존 소유권을 유지한다. 정책 파일 부재는 이전 호환 동작인 SDK 기본으로 돌아가므로 삭제를 전환 수단으로 사용하지 않는다. 이전 이미지로 복귀할 때는 이전 schemaVersion 1 정책도 함께 복구한다.
+
 - 2026-10-05 19:25 SDK 계정 접미사 수정 이미지로 교체하고 연구 v6를 새 구간에서 시작했다. 이전 시점의 동일 이미지 설명은 이전 완료 당시의 기록이다. [장애 원인·수정·검증·복구](../../docs/releases/2026-10-05-room-owner-suffix.md).
 
 - 기존 Chromium/SDK 경로만 운영에 반영한다. 직접 WebSocket 후보는 동일 호스트에서 격리된 수신 전용 관측을 계속한다.

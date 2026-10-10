@@ -1,5 +1,7 @@
 # 변경 이력
 
+- [2026-10-11 직접 WebSocket 전체 운영 전환](docs/releases/2026-10-11-direct-all-production.md): 모든 활성 계정의 기본 경로 direct, 신규 계정 자동 적용·계정별 SDK 복귀. 운영 5계정 방송 대기 확인, 전체 회귀 917건 통과.
+
 - [2026-10-11 직접 WebSocket 재검증](docs/releases/2026-10-11-direct-revalidation.md): 새 비교 6,196건 일치, 직접 운영 후원 24건·3,455개 저장. 교체 보류·일시 HTTP 실패와 미검증 범위 구분. 배포 없음.
 
 - [2026-10-10 로컬 산출물 정리](docs/releases/2026-10-10-local-artifact-cleanup.md): 빌드·캐시·중복 사본 4.463GiB 제거, 보존 파일 5,093개 해시 일치. 운영 배포 없음.

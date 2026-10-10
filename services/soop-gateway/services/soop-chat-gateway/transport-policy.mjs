@@ -1,9 +1,20 @@
 import {readFile} from 'node:fs/promises';
-export function parseTransportPolicy(value){
- if(!value||value.schemaVersion!==1||!Array.isArray(value.directWorkspaceIds)||value.directWorkspaceIds.length>10000)throw Error('invalid_transport_policy');
- const ids=value.directWorkspaceIds;
+function identitySet(ids){
+ if(!Array.isArray(ids)||ids.length>10000)throw Error('invalid_transport_policy');
  if(ids.some(x=>typeof x!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x))||new Set(ids).size!==ids.length)throw Error('invalid_transport_policy');
  return new Set(ids);
+}
+export function parseTransportPolicy(value){
+ if(!value||![1,2].includes(value.schemaVersion))throw Error('invalid_transport_policy');
+ const direct=identitySet(value.directWorkspaceIds);
+ // Keep the original allowlist contract for previously deployed policies.
+ if(value.schemaVersion===1)return direct;
+ if(!['sdk','direct'].includes(value.defaultTransport))throw Error('invalid_transport_policy');
+ const defaultDirect=value.defaultTransport==='direct';
+ const sdk=identitySet(value.sdkWorkspaceIds);
+ if([...sdk].some(id=>direct.has(id)))throw Error('invalid_transport_policy');
+ // Resolve new enabled accounts at reconciliation time, not from a rollout snapshot.
+ return Object.freeze({has:id=>direct.has(id)||(!sdk.has(id)&&defaultDirect)});
 }
 export async function readTransportPolicy(directory){
  if(!directory)return new Set();

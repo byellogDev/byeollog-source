@@ -51,3 +51,5 @@
 
 
 후속: [2026-10-11 실제 비교 및 운영 저장 재검증](2026-10-11-direct-revalidation.md). 이전 단계 기록은 당시 기준으로 보존합니다.
+
+후속: [전체 계정 직접 WebSocket 운영 전환](2026-10-11-direct-all-production.md).
