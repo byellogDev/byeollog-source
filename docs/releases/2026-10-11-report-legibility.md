@@ -45,3 +45,7 @@
 - [PR #4](https://github.com/byellogDev/byeollog/pull/4), `codex/integration-observer-records-20260924`. 기본 브랜치 자동 병합 없음. 정확한 커밋은 Release에 연결합니다.
 - [Agent 1.0.0.56 유지](https://github.com/byellogDev/byeollog-releases/releases/tag/agent-v1.0.0.56).
 - 게시 완료 시 CI·Release 본문·draft=false·prerelease=false·태그 커밋·Latest를 읽어 확인합니다.
+
+## CI 후속 보완
+
+GitHub 검사에서 기존 WebSocket 관측 테스트가 두 번의 교체 중 한 번만 완료해 실패했습니다. 합성 후원을 준비 경계 양쪽에 걸쳐 보낼 수 있던 타이머 의존성을 제거하고 테스트 전용 교체 대기 여유를 400ms에서 1500ms로 늘렸습니다. 실제 운영의 90초 교체 제한·비교 기준·수집 코드는 변경하지 않았습니다. 관련 16개 검사를 통과했으며 전체 CI를 다시 확인합니다.
