@@ -7254,6 +7254,62 @@
       "after": "3451ba7a24b66d3ddc8fa2c68d4a8f4d2750efb7f4a1b2ba71fb7bfc814ff8fb",
       "status": "changed",
       "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "677102dcaa0df3ab0ddd31e98bb5bcd7a43f541da169500a8b02de57180d4aff",
+      "after": "f50f0652d93884dc43f7c7a14d5f708e27d6ded112df3dfd161d8ded39642ae7",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "366ece6b425083885d54c437034e583bf422787303b3770a4f513cb91deb8b73",
+      "after": "2d89070a36de03750452d53bb6300bf859bd01cf92c8543eb391426dd4ae236a",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-html.js",
+      "before": "b75aef17c9bb92ef92dde8d1d1cdc30d873593248636b83d7c06ed2c87119b0c",
+      "after": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-source.html",
+      "before": "6cded0653a77c97f0e8fa3c317d2c5590ab5251430d10d59af74a371bc8cee82",
+      "after": "35ea8f1b94289608211a45a21cd290dbf068c3ee7553967317b2d768560c2e80",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-html.js",
+      "before": "b75aef17c9bb92ef92dde8d1d1cdc30d873593248636b83d7c06ed2c87119b0c",
+      "after": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-source.html",
+      "before": "6cded0653a77c97f0e8fa3c317d2c5590ab5251430d10d59af74a371bc8cee82",
+      "after": "35ea8f1b94289608211a45a21cd290dbf068c3ee7553967317b2d768560c2e80",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/web/lib/admin-html.js",
+      "before": "677102dcaa0df3ab0ddd31e98bb5bcd7a43f541da169500a8b02de57180d4aff",
+      "after": "f50f0652d93884dc43f7c7a14d5f708e27d6ded112df3dfd161d8ded39642ae7",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/web/lib/admin-source.html",
+      "before": "366ece6b425083885d54c437034e583bf422787303b3770a4f513cb91deb8b73",
+      "after": "2d89070a36de03750452d53bb6300bf859bd01cf92c8543eb391426dd4ae236a",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
     }
   ]
 }

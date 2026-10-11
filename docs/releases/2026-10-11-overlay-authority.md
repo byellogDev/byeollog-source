@@ -54,3 +54,5 @@
 - [본 저장소 릴리스](https://github.com/byellogDev/byeollog/releases/tag/ops-2026.10.11-overlay-authority). 태그의 소스 커밋에 이 문서를 고정한다.
 - [Agent 1.0.0.56 설치 파일](https://github.com/byellogDev/byeollog-releases/releases/tag/agent-v1.0.0.56). 이번 변경에 새 설치 파일은 필요하지 않다.
 - 게시 완료 조건: 실제 본문·draft=false·prerelease=false·태그 커밋·Latest를 읽어 확인한다.
+
+후속 수정: [학습 이후 특수룰렛 배수 보존](2026-10-11-late-classification-multiplier.md).
