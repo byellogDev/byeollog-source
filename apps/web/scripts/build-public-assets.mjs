@@ -39,6 +39,8 @@ export const PUBLIC_FILES=Object.freeze([
   'privacy.html',
   'legal/previous/privacy-20260909.html',
   'legal/previous/terms-20260909.html',
+  'legal/previous/privacy-20260914.html',
+  'legal/previous/terms-20260914.html',
   'reset-password.html',
   'signup-status.html',
   'signup.html',

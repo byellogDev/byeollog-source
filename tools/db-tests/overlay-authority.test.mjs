@@ -134,4 +134,16 @@ await test('late durable completion recovers a reservation warning without repea
  assert.equal((await q('select count(*)::int n from bangsel_collector_staging where source_uid=$1',['overlay:'+done.k]))[0].n,1);
  assert.ok((await call({action:'get'})).needsReviewCount>=1);
 });
+await db.exec(migration('20261011095823_refresh_legal_consent_versions.sql').slice(migration('20261011095823_refresh_legal_consent_versions.sql').indexOf('-- Read-only management view.')).replace('commit;',''));
+await test('management history reads overlay receipts and rejects cross-workspace or public calls',async()=>{
+ const [r]=await q('select byeollog_special_history_v1($1,$2) result',[a,u]);
+ const overlay=r.result.specialRecent.filter(x=>x.source==='overlay');
+ assert.ok(overlay.length>0);assert.ok(overlay.some(x=>x.special_roulette.appliedMultiplier===2));
+ assert.ok(overlay.every(x=>x.actor_name));assert.ok(r.result.specialRecent.length<=50);
+ assert.doesNotMatch(JSON.stringify(r),/serverSecret|FixturePage|response|context/);
+ await assert.rejects(q('select byeollog_special_history_v1($1,$2)',[b,u]),e=>e.code==='42501');
+ await db.exec('set role authenticated');
+ await assert.rejects(q('select byeollog_special_history_v1($1,$2)',[a,u]),e=>e.code==='42501');
+ await db.exec('reset role');
+});
 await db.close();

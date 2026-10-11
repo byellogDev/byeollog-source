@@ -462,3 +462,7 @@
 ## ops-2026.10.11-report-legibility
 
 - 리포트 숫자·날짜·설명 크기와 대비를 높이고 분포표를 전체 너비로 확장했습니다. PNG 2배 해상도 유지, 집계 변경 없음. [릴리스](docs/releases/2026-10-11-report-legibility.md).
+
+## ops-2026.10.11-guide-credit-history
+
+- 현행 수집 기준의 약관·개인정보·체크리스트·11쪽 PDF 갱신. 크레딧 내역을 마이페이지로 이동하고 추천 가입 표시 이름을 출력합니다. 연결 대기 메뉴를 제거하고 오버레이 포함 특수룰렛 이력을 관리에 배치했습니다. 19:28 KST 운영 반영. [릴리스](docs/releases/2026-10-11-guide-credit-history.md).

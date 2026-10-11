@@ -22,13 +22,22 @@ export async function uxControlsRequest({sb,workspaceId,userId,method,query={},b
   }
   if(method!=='GET')return {status:405,body:{message:'Method not allowed'}};
   if(kind==='readiness')return {status:200,body:await broadcastReadiness({sb,workspaceId,userId})};
+  if(kind==='special-history'){
+    const data=await sb('rpc/byeollog_special_history_v1','',{method:'POST',body:{p_workspace_id:workspaceId,p_user_id:userId},signal:AbortSignal.timeout(8000)});
+    return {status:200,body:{ok:true,...data}};
+  }
   if(kind==='notifications'){
     const data=await sb('rpc/byeollog_dashboard_counts_v1','',{method:'POST',body:{p_workspace_id:workspaceId,p_user_id:userId},signal:AbortSignal.timeout(8000)});
     return {status:200,body:{ok:true,...data}};
   }
   if(kind==='credits'){
-    const credits=await sb('byeollog_credit_ledger',`?workspace_id=eq.${workspaceId}&select=credit_delta,entry_type,created_at&order=created_at.desc&limit=50`);
-    return {status:200,body:{ok:true,creditEntries:list(credits)}};
+    const credits=await sb('byeollog_credit_ledger',`?workspace_id=eq.${workspaceId}&select=credit_delta,entry_type,created_at,source_key&order=created_at.desc&limit=50`);
+    // Resolve only referrals that paid this authenticated workspace. Never expose source keys or signup identifiers.
+    const entries=list(credits),referralId=entry=>entry.entry_type==='signup_referral'&&entry.source_key?.startsWith('signup_referral:')?entry.source_key.slice(16):null;
+    const ids=[...new Set(entries.map(referralId).filter(id=>uuid.test(id||'')))];
+    const referrals=ids.length?await sb('byeollog_signup_applications',`?referrer_workspace_id=eq.${workspaceId}&id=in.(${ids.join(',')})&status=eq.approved&select=id,streamer_name&limit=50`):[];
+    const names=new Map(list(referrals).filter(row=>ids.includes(row.id)).map(row=>[row.id,String(row.streamer_name||'').trim().slice(0,80)]));
+    return {status:200,body:{ok:true,creditEntries:entries.map(({credit_delta,entry_type,created_at,...entry})=>({credit_delta,entry_type,created_at,referral_name:names.get(referralId({...entry,entry_type}))||null}))}};
   }
   if(kind==='history'){
     let range;try{range=historyRange(query)}catch(error){return {status:400,body:{message:error.message}}}

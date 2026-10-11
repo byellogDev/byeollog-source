@@ -370,7 +370,6 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
   <div class="toolbarMain">
     <button class="primary" onclick="openAdd()">+ 업보 추가</button>
     <button id="toggleCollectorBtn" class="toggleBtn" aria-controls="collectorBox" aria-expanded="false" onclick="toggleCollectorBox()">학습 필요한 별풍선 <span id="collectorCountBadge" class="notificationCount" hidden></span></button>
-    <button id="toggleRoulettePendingBtn" class="toggleBtn" aria-controls="roulettePendingPanel" aria-expanded="false">룰렛 연결 대기 확인 <span id="roulettePendingBadge" class="notificationCount" hidden></span></button>
     <button id="toggleRouletteExceptionsBtn" class="toggleBtn" aria-controls="exceptionsPanel" aria-expanded="false">예외 처리된 룰렛 <span id="rouletteExceptionsBadge" class="notificationCount" hidden></span></button>
     <span class="toolbarSpacer"></span>
     <button id="viewerPageBtn" class="toggleBtn managementMainBtn" onclick="openManagementItem('viewerPage')">시청자용 페이지 관리</button>
@@ -387,7 +386,7 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
       <span class="muted">처음 보는 유형만 수동 분류하며, 학습된 유형은 자동 처리됩니다.</span>
     </div>
     <div id="collectorPreview" class="previewTableWrap" style="margin-top:10px"><div class="muted" style="padding:10px">수신함을 불러오세요.</div></div>
-  </div></section><section id="roulettePendingPanel" class="reviewPanel hidden" aria-labelledby="pendingReviewTitle"><header class="reviewHeader"><div class="reviewHeading"><span class="reviewIcon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v5l3 2"/></svg></span><div><h2 id="pendingReviewTitle">룰렛 연결 대기 확인</h2><p>후원에 연결될 룰렛 결과가 남아 있는지 확인하세요.</p></div></div><div class="reviewHeaderActions"><button id="uxRefreshStatus" type="button">새로고침</button><button type="button" data-review-close="pending" aria-label="룰렛 연결 대기 확인 닫기">닫기</button></div></header><article class="reviewBody card uxStatusCard"><p class="reviewNotice muted"><b>수동 룰렛은 후원들의 결과 처리가 모두 끝나고, 연결 대기 후원이 없는 상황에서 사용해주세요.</b><br>수동 결과와 후원 결과의 채팅 문구가 같아 자동으로 구분할 수 없습니다. 대기 후원이 있으면 수동 결과가 그 후원에 연결될 수 있습니다. 0건 확인 후에도 새 후원이 들어올 수 있으니 실행 전후로 확인해주세요.</p><p id="uxStatusMessage" role="status" class="muted">확인 전입니다.</p><details><summary>대기 후원 상세 · 자동 종료 내역</summary><p class="muted">후원 후 첫 결과 또는 마지막 결과부터 3분 동안 추가 결과가 없으면 연결 대기가 자동 종료됩니다. 후원 금액과 이미 수집한 결과·업보는 그대로 남습니다.</p><div id="uxPendingList" class="saved"></div><h3>최근 자동 종료 내역</h3><div id="uxExpiredList" class="saved"></div></details><details><summary>특수룰렛 배수 대기 · 최근 결과</summary><div id="uxSpecialPending" class="saved"></div><div id="uxSpecialRecent" class="saved"></div><p class="muted">배수 대기는 방송 단위이며, 다음 결과가 비업보이면 효과가 소멸합니다. 아래 배수는 결과 수신 시 확정된 값이며 실제 업보 등록 여부는 후원 내역에서 확인해주세요.</p></details></article></section><section id="exceptionsPanel" role="region" aria-labelledby="exceptionsReviewTitle" class="reviewPanel hidden"><header class="reviewHeader"><div class="reviewHeading"><span class="reviewIcon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v7M12 14v7M3 12h7M14 12h7M6 6l5 5M13 13l5 5M6 18l5-5M13 11l5-5"/></svg></span><div><h2 id="exceptionsReviewTitle">예외 처리된 룰렛</h2><p>후원에 연결되지 않은 결과를 확인하고, 제외하거나 후원자를 지정해주세요.</p></div></div><div class="reviewHeaderActions"><button id="refreshExceptions" type="button">새로고침</button><button type="button" data-review-close="exceptions" aria-label="예외 처리된 룰렛 닫기">닫기</button></div></header><article class="reviewBody card">
+  </div></section><section id="specialHistoryBox" class="hidden"><p class="muted">같은 후원자·방송 회차의 특수룰렛 배수 대기와 결과별 적용 배수를 확인합니다. 미분류 결과도 당시 배수가 보존되며 나중에 업보로 분류하면 적용됩니다.</p><button id="uxRefreshStatus" type="button">새로고침</button><p id="uxStatusMessage" role="status" class="muted">확인 전입니다.</p><div id="uxSpecialPending" class="saved"></div><div id="uxSpecialRecent" class="saved"></div><p class="muted">아래 배수는 결과 수신 시 확정된 값입니다. 실제 업보 등록 여부와 수량은 후원 내역에서 확인하세요. 다음 결과가 비업보이면 해당 결과에서 배수가 소모됩니다.</p></section><section id="exceptionsPanel" role="region" aria-labelledby="exceptionsReviewTitle" class="reviewPanel hidden"><header class="reviewHeader"><div class="reviewHeading"><span class="reviewIcon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v7M12 14v7M3 12h7M14 12h7M6 6l5 5M13 13l5 5M6 18l5-5M13 11l5-5"/></svg></span><div><h2 id="exceptionsReviewTitle">예외 처리된 룰렛</h2><p>후원에 연결되지 않은 결과를 확인하고, 제외하거나 후원자를 지정해주세요.</p></div></div><div class="reviewHeaderActions"><button id="refreshExceptions" type="button">새로고침</button><button type="button" data-review-close="exceptions" aria-label="예외 처리된 룰렛 닫기">닫기</button></div></header><article class="reviewBody card">
 <p class="reviewNotice muted">다른 후원에 자동으로 배정되지 않습니다. 비업보로 분류된 결과는 자동 제외됩니다.</p><details class="reviewHelp"><summary>기록 보관 기간 안내</summary><p class="muted"><strong>정상 등록된 업보·확정 후원 내역은 30일 정리 대상이 아닙니다.</strong> 여기서 후원자를 지정해 등록한 업보도 유지됩니다.<br>30일 정리 대상은 후원·룰렛 연결용 원본 기록과 예외 처리 기록입니다. 보류 중인 예외 결과도 서버 수집일로부터 30일이 지나면 정리되므로, 필요한 예외 기록은 미리 내보내세요.</p></details>
 <div class="exceptionToolbar"><label for="exceptionFilter">표시</label><select id="exceptionFilter"><option value="pending">보류 중</option><option value="processed">처리 완료</option><option value="all">전체</option></select></div>
 <div class="exceptionToolbar reviewFilterGrid"><label>발생 시작일 <input id="exceptionFrom" type="date"></label><label>종료일 <input id="exceptionUntil" type="date"></label><label>사유 <select id="exceptionReason"><option value="">전체 사유</option><option value="fifo_head_stale">대기 시간 초과</option><option value="fifo_head_roulette_mismatch">룰렛 이름 불일치</option><option value="unmatched">대기 후원 없음</option></select></label><label>결과 검색 <input id="exceptionSearchText" maxlength="100" type="search"></label></div>
@@ -552,6 +551,7 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
         <div id="soopAccountMessage" class="status" style="margin-top:8px" aria-live="polite"></div>
       </div>
       <button type="button" class="primary" style="width:100%;padding:12px" onclick="location.href='/change-password'">비밀번호 변경</button>
+      <a class="button" style="text-align:center;padding:12px" href="/credits">크레딧 내역</a>
       <button type="button" class="danger" style="width:100%;padding:12px" onclick="location.href='/withdraw.html'">회원 탈퇴</button>
     </div>
   </div></div>
@@ -584,6 +584,7 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
         <button class="managementCard" onclick="openManagementItem('rules')"><span class="managementIcon"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="18" r="2"/></svg></span><span><b>학습된 분류 관리</b><span>업보·비업보로 학습된 룰렛 결과를 수정하거나 삭제합니다.</span></span></button>
         <!-- 매니저용 Collector 연결 기능: 구현은 유지하되 베타 기본 UI에서는 숨김 -->
         <button class="managementCard" data-hidden-feature="manager-collector-pairing" style="display:none" onclick="openManagementItem('collectorDevices')"><span class="managementIcon"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span><span><b>Collector 연결</b><span>1회용 코드로 Collector를 연결하고 등록된 기기를 관리합니다.</span></span></button>
+        <button type="button" class="managementCard" onclick="openManagementItem('specialHistory')"><span class="managementIcon" aria-hidden="true">×2</span><span><b>특수룰렛 이력</b><span>현재 배수 대기와 최근 결과의 적용 배수를 확인합니다.</span></span></button>
         <button class="managementCard" onclick="openManagementItem('rouletteRecords')"><span class="managementIcon"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v7M12 14v7M3 12h7M14 12h7M6 6l5 5M13 13l5 5M6 18l5-5M13 11l5-5"/></svg></span><span><b>룰렛 기록 관리</b><span>후원별 결과를 확인하고 잘못 등록된 룰렛 묶음을 취소합니다.</span></span></button>
         <button class="managementCard hidden" id="signupApplicationsCard" onclick="openManagementItem('signupApplications')"><span class="managementIcon"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8 12 3 3 5-6"/></svg></span><span><b>가입 기록</b><span>SOOP 인증으로 완료된 가입과 메일 발송 상태를 확인합니다.</span></span></button>
         <button class="managementCard hidden" id="inquiriesCard" onclick="openManagementItem('inquiries')"><span class="managementIcon"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 7 9 6 9-6"/></svg></span><span><b>문의 내용 확인</b><span>메인 페이지 문의하기로 접수된 내용을 확인하고 보관·삭제합니다.</span></span></button>
@@ -1002,6 +1003,7 @@ function openManagementHub(){
 function closeManagementHub(){document.getElementById('managementModal')?.classList.remove('open')}
 let managementDetailMount=null;
 const managementDetailMeta={
+  specialHistory:{id:'specialHistoryBox',title:'특수룰렛 이력',sub:'배수 대기와 결과별 적용 이력을 확인합니다.',load:()=>uxRefreshStatus()},
   users:{id:'userBox',title:'유저 관리',sub:'SOOP ID, 별명과 방송국 연결 정보를 한 화면에서 관리합니다.',load:()=>{if(document.getElementById('userBox')?.classList.contains('hidden'))toggleUserBox()}},
   nonupbo:{id:'nonBangselBox',title:'비업보 관리',sub:'비업보로 보관된 원본을 확인하고 필요한 항목을 업보로 변경합니다.',load:()=>{const b=document.getElementById('nonBangselBox');if(b?.classList.contains('hidden'))toggleNonBangselBox();else loadCollectorIgnored(false)}},
   stats:{id:'donationStatsBox',title:'별풍선 통계',sub:'받은 후원의 인원·날짜·개수별 통계를 확인합니다.',load:()=>{const b=document.getElementById('donationStatsBox');if(b?.classList.contains('hidden'))toggleDonationStatsBox();else loadDonationStats(false)}},
@@ -1879,7 +1881,7 @@ function historyDiagnosticSteps(d){
  const process=stage?.process_status;
  return [
  {title:'서버 수집',status:d.original||donation||stage?'서버에 수집됨':'기록 확인 필요',detail:'서버에 저장된 후원 기록을 기준으로 확인합니다.',ok:!!(d.original||donation||stage)},
- {title:'룰렛 결과 연결',status:waiting?'룰렛 결과 기다리는 중':donation?.user_closed_at?'사용자가 대기 종료함':donation?.status==='expired'?'연결 대기 종료됨':donation?.expected_spins!=null&&count>=expected?'결과 연결 완료':'연결 기록 없음',detail:donation?.expected_spins!=null?count+' / '+expected+'회 결과 연결':'일반 후원이거나 연결 기록의 보관 기간이 지난 경우일 수 있습니다.',ok:!waiting&&donation?.expected_spins!=null&&count>=expected,action:waiting?'pending':null},
+ {title:'룰렛 결과 연결',status:waiting?'룰렛 결과 기다리는 중':donation?.user_closed_at?'사용자가 대기 종료함':donation?.status==='expired'?'연결 대기 종료됨':donation?.expected_spins!=null&&count>=expected?'결과 연결 완료':'연결 기록 없음',detail:donation?.expected_spins!=null?count+' / '+expected+'회 결과 연결':'일반 후원이거나 연결 기록의 보관 기간이 지난 경우일 수 있습니다.',ok:!waiting&&donation?.expected_spins!=null&&count>=expected,action:null},
  {title:'업보 처리',status:({processed:'처리 완료',ignored:'비업보로 처리됨',pending:'처리 대기',processing:'처리 중',needs_review:'분류 확인 필요',failed:'처리 확인 필요'})[process]||'업보 처리 기록 없음',detail:process==='needs_review'?'처음 나온 결과의 업보·비업보 분류를 확인하세요.':process==='failed'?'처리를 마치지 못했습니다. 학습 목록에서 내용을 확인해주세요.':!stage?'일반 후원은 업보가 생기지 않을 수 있습니다.':'처리 결과는 이 후원에 연결된 기록을 기준으로 표시합니다.',ok:['processed','ignored'].includes(process),action:['needs_review','pending','failed'].includes(process)?'learning':null},
  {title:'풍벽지 준비',status:d.wallpaperPrepared?'표시할 후원 타일 저장됨':'표시 타일 기록 없음',detail:d.wallpaperPrepared?'방송 PC에 전달할 후원 기록이 있습니다.':'표시 설정이나 풍벽지 기록 보관 기간에 따라 타일이 없을 수 있습니다.',ok:!!d.wallpaperPrepared},
  {title:'방송 화면 표시',status:'방송 PC에서 확인',detail:'서버 기록만으로 실제 화면 표시를 확정할 수 없습니다. 별록 풍벽지와 OBS·프릭샷 화면을 확인해주세요.',ok:false}
@@ -1892,7 +1894,7 @@ async function showHistoryDiagnostic(key){
   try{const r=await fetch('/api/admin?'+new URLSearchParams({operation:'ux-controls',kind:'diagnostic',key}),{cache:'no-store'}),d=await r.json();if(dialog.dataset.revision!==revision)return;if(!r.ok)throw Error(d.message||'상태를 확인하지 못했습니다.');body.replaceChildren();
     const dt=v=>v?new Date(v).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'시각 기록 없음';
     const states=historyDiagnosticSteps(d),steps=document.createElement('ol');steps.className='historyDiagnosticSteps';
-    for(const state of states){const li=document.createElement('li'),head=document.createElement('h3'),badge=document.createElement('span'),detail=document.createElement('p');head.textContent=state.title;badge.textContent=state.status;badge.className='historyDiagnosticBadge';badge.dataset.ok=String(state.ok);detail.textContent=state.detail;li.append(head,badge,detail);if(state.action){const button=document.createElement('button');button.type='button';button.textContent=state.action==='pending'?'연결 대기 확인하기':'학습 필요한 별풍선 확인하기';button.onclick=()=>{dialog.close();closeRecentCollectorHistory();toggleDashboardReviewPanel(state.action,true)};li.append(button)}steps.append(li)}body.append(steps);
+    for(const state of states){const li=document.createElement('li'),head=document.createElement('h3'),badge=document.createElement('span'),detail=document.createElement('p');head.textContent=state.title;badge.textContent=state.status;badge.className='historyDiagnosticBadge';badge.dataset.ok=String(state.ok);detail.textContent=state.detail;li.append(head,badge,detail);if(state.action){const button=document.createElement('button');button.type='button';button.textContent='학습 필요한 별풍선 확인하기';button.onclick=()=>{dialog.close();closeRecentCollectorHistory();toggleDashboardReviewPanel(state.action,true)};li.append(button)}steps.append(li)}body.append(steps);
     const time=document.createElement('p');time.textContent='서버 수집 시각: '+dt(d.original?.imported_at||d.donation?.created_at||d.stage?.uploaded_at)+' (한국 시간)';body.append(time);
     for(const result of d.results||[]){const p=document.createElement('p');p.textContent=dt(result.occurred_at)+' · '+result.result_text;body.append(p)}
   }catch(error){if(dialog.dataset.revision===revision)body.textContent=error.message}
@@ -4086,29 +4088,20 @@ dashboardMenu?.addEventListener('click',()=>{const expanded=dashboardMenu.getAtt
 let uxStatus=null,uxStatusLoading=false;
 const uxDate=value=>value?new Date(value).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false}):'기록 없음';
 function uxText(tag,text){const el=document.createElement(tag);el.textContent=text;return el}
-function uxMappingCounts(){for(const row of $('rouletteSaved')?.querySelectorAll('.mappingRule')||[]){const amount=Number(row.querySelector('b')?.textContent.replace(/[^0-9]/g,''));let label=row.querySelector('.uxPendingCount');if(!label){label=uxText('span','');label.className='chips uxPendingCount';row.append(label)}label.textContent=uxStatus?'연결 대기 '+Number(uxStatus.byAmount?.find(x=>Number(x.amount)===amount)?.count||0)+'건':'연결 대기 확인 전'}}
 async function uxRefreshStatus(){
-  if(uxStatusLoading)return;uxStatusLoading=true;$('uxRefreshStatus').disabled=true;$('uxStatusMessage').textContent='현재 대기를 확인하는 중입니다.';
+  if(uxStatusLoading)return;uxStatusLoading=true;$('uxRefreshStatus').disabled=true;$('uxStatusMessage').textContent='특수룰렛 이력을 확인하는 중입니다.';
   try{
-    const response=await fetch('/api/admin?operation=ux-controls&kind=status',{cache:'no-store'}),data=await response.json();if(!response.ok)throw Error(data.message||'대기를 확인하지 못했습니다.');uxStatus=data;
-    setDashboardCount?.('roulettePendingBadge',data.pendingCount,'연결 대기');
-    $('uxStatusMessage').textContent='연결 대기 '+data.pendingCount+'건 · '+uxDate(data.checkedAt)+' (한국 시간) 확인. '+(data.pendingCount?'수동 룰렛 사용을 미뤄주세요.':'새 후원이 들어오면 대기가 다시 생길 수 있습니다.');
-    const host=$('uxPendingList');host.replaceChildren();if(!data.pending?.length)host.append(uxText('p','현재 표시할 대기 후원이 없습니다.'));
-    for(const item of data.pending||[]){const row=uxText('div','');row.className='exceptionRow';row.append(uxText('b',(item.actor_name||'이름 없음')+' · '+Number(item.amount).toLocaleString()+'개 · '+(item.roulette_name||'룰렛')));row.append(uxText('p',uxDate(item.occurred_at)+' · '+item.result_count+'/'+item.expected_spins+'회 결과 수집'));
-      row.append(uxText('p','대기 종료 예정: '+uxDate(item.wait_expires_at)));host.append(row)}
-    const expired=$('uxExpiredList');expired.replaceChildren();if(!data.expiredRecent?.length)expired.append(uxText('p','자동 종료된 내역이 없습니다.'));
-    for(const item of data.expiredRecent||[]){const row=uxText('div','');row.className='exceptionRow';row.append(uxText('b',(item.actor_name||'이름 없음')+' · '+Number(item.amount).toLocaleString()+'개'));row.append(uxText('p',uxDate(item.wait_expired_at)+' · 3분 동안 추가 결과 없음 · '+item.result_count+'/'+item.expected_spins+'회 결과 보존'));expired.append(row)}
-    if(data.pendingCount>50)host.append(uxText('p','가장 오래된 50건을 표시했습니다.'));
+    const response=await fetch('/api/admin?operation=ux-controls&kind=special-history',{cache:'no-store'}),data=await response.json();if(!response.ok)throw Error(data.message||'이력을 확인하지 못했습니다.');uxStatus=data;
+    $('uxStatusMessage').textContent=uxDate(data.checkedAt)+' (한국 시간) 확인';
     const pending=$('uxSpecialPending');pending.replaceChildren(uxText('h3','현재 방송의 배수 대기'));
     if(!data.specialPending?.length)pending.append(uxText('p','적용을 기다리는 배수가 없습니다.'));
     for(const s of data.specialPending||[])pending.append(uxText('p',s.fan+' · '+s.multiplier+'배 · '+uxDate(s.expires_at)+' 만료'));
-    const recent=$('uxSpecialRecent');recent.replaceChildren(uxText('h3','최근 결과 최대 50건'));
-    for(const s of data.specialRecent||[]){const receipt=s.special_roulette||{};recent.append(uxText('p',uxDate(s.occurred_at)+' · '+(s.actor_name||'후원자 기록 없음')+' · '+s.result_text+' · '+(receipt.controlEvent?'다음 '+receipt.pendingMultiplier+'배 대기':'이번 결과 '+(receipt.appliedMultiplier||1)+'배')))}
-  }catch(error){uxStatus=null;$('uxPendingList').replaceChildren();$('uxExpiredList').replaceChildren();$('uxSpecialPending').replaceChildren();$('uxSpecialRecent').replaceChildren();$('uxStatusMessage').textContent=error.message+' 현재 대기가 없는 것으로 판단하지 마세요.'}
-  finally{uxStatusLoading=false;$('uxRefreshStatus').disabled=false;uxMappingCounts()}
+    const recent=$('uxSpecialRecent');recent.replaceChildren(uxText('h3','최근 결과 최대 50건'));if(!data.specialRecent?.length)recent.append(uxText('p','아직 기록된 특수룰렛 결과가 없습니다.'));
+    for(const s of data.specialRecent||[]){const receipt=s.special_roulette||{};recent.append(uxText('p',uxDate(s.occurred_at)+' · '+(s.source==='overlay'?'오버레이':'기존 채팅')+' · '+(s.actor_name||'후원자 기록 없음')+' · '+s.result_text+' · '+(receipt.controlEvent?'다음 '+receipt.pendingMultiplier+'배 대기':'이번 결과 '+(receipt.appliedMultiplier||1)+'배')))}
+  }catch(error){uxStatus=null;$('uxSpecialPending').replaceChildren();$('uxSpecialRecent').replaceChildren();$('uxStatusMessage').textContent=error.message+' 잠시 후 다시 확인해주세요.'}
+  finally{uxStatusLoading=false;$('uxRefreshStatus').disabled=false}
 }
 $('uxRefreshStatus').onclick=uxRefreshStatus;
-if($('rouletteSaved'))new MutationObserver(()=>{if(!$('rouletteSaved').querySelector('.mappingRule:not(:has(.uxPendingCount))'))return;uxMappingCounts()}).observe($('rouletteSaved'),{childList:true});
 
 (()=>{
 const $=id=>document.getElementById(id);
@@ -4251,13 +4244,11 @@ async function refreshDashboardCounts(){
     if(!response.ok)throw Error('count unavailable');
     const data=await response.json();
     setDashboardCount('collectorCountBadge',data.reviewCount,'학습 필요한 별풍선');
-    setDashboardCount('roulettePendingBadge',data.pendingCount,'룰렛 연결 대기');
     setDashboardCount('rouletteExceptionsBadge',data.exceptionCount,'예외 처리된 룰렛 보류');
     dashboardCountFailures=0;
   }catch{
     dashboardCountFailures++;
     setDashboardCount('collectorCountBadge',null,'학습 필요한 별풍선');
-    setDashboardCount('roulettePendingBadge',null,'룰렛 연결 대기');
     setDashboardCount('rouletteExceptionsBadge',null,'예외 처리된 룰렛 보류');
   }finally{
     dashboardCountsBusy=false;
@@ -4265,7 +4256,7 @@ async function refreshDashboardCounts(){
   }
 }
 function toggleDashboardReviewPanel(kind,forceOpen=false){
-  const panels={learning:['collectorBox','toggleCollectorBtn'],pending:['roulettePendingPanel','toggleRoulettePendingBtn'],exceptions:['exceptionsPanel','toggleRouletteExceptionsBtn']};
+  const panels={learning:['collectorBox','toggleCollectorBtn'],exceptions:['exceptionsPanel','toggleRouletteExceptionsBtn']};
   const target=panels[kind];if(!target)return;
   const open=forceOpen||document.getElementById(target[0]).classList.contains('hidden');
   if(!window.dashboardExceptionPanel.close())return;
@@ -4275,18 +4266,18 @@ function toggleDashboardReviewPanel(kind,forceOpen=false){
     document.getElementById(panelId).classList.toggle('hidden',!active);
     button.classList.toggle('active',active);button.setAttribute('aria-expanded',String(active));button.setAttribute('aria-pressed',String(active));
   }
-  if(open){if(kind==='learning')void loadCollectorInbox(false);else if(kind==='pending')void uxRefreshStatus();else void window.dashboardExceptionPanel.load()}
+  if(open){if(kind==='learning')void loadCollectorInbox(false);else void window.dashboardExceptionPanel.load()}
 }
 document.querySelectorAll('[data-review-close]').forEach(button=>button.addEventListener('click',()=>{
  const kind=button.dataset.reviewClose;toggleDashboardReviewPanel(kind);
- const target={learning:'toggleCollectorBtn',pending:'toggleRoulettePendingBtn',exceptions:'toggleRouletteExceptionsBtn'}[kind];
+ const target={learning:'toggleCollectorBtn',exceptions:'toggleRouletteExceptionsBtn'}[kind];
  if(document.getElementById(target)?.getAttribute('aria-expanded')==='false')document.getElementById(target).focus();
 }));
-document.getElementById('toggleRoulettePendingBtn').onclick=()=>toggleDashboardReviewPanel('pending');
+
 document.getElementById('toggleRouletteExceptionsBtn').onclick=()=>toggleDashboardReviewPanel('exceptions');
 window.addEventListener('byeollog:exceptions-updated',()=>{void refreshDashboardCounts()});
 window.addEventListener('byeollog:exception-resolved',()=>{void loadServer()});
-function openSetupDestination(){const kind=location.hash.slice(1);if(['exceptions','pending','learning'].includes(kind))toggleDashboardReviewPanel(kind,true);else if(kind==='account')openMyPage();else if(kind==='history')openRecentCollectorHistory()}
+function openSetupDestination(){const kind=location.hash.slice(1);if(['exceptions','learning'].includes(kind))toggleDashboardReviewPanel(kind,true);else if(kind==='special-history')openManagementItem('specialHistory');else if(kind==='account')openMyPage();else if(kind==='history')openRecentCollectorHistory()}
 window.addEventListener('hashchange',openSetupDestination);
 queueMicrotask(openSetupDestination);
 document.addEventListener('visibilitychange',()=>{clearTimeout(dashboardCountTimer);if(!document.hidden)void refreshDashboardCounts()});

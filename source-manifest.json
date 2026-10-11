@@ -7401,6 +7401,209 @@
       "after": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
       "status": "changed",
       "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "3b7040f82237bd1425fba2b822ae156023f55d40faec8851922520d57a57a703",
+      "after": "9cf92b7bfa63fb725c85fe30bed87072ce7a15c12f93e14625d07a88737c9cff",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "064dcbb35159787d4f4f6e8755759eaf04fef6e8b0dd34e549804353ec1a05e1",
+      "after": "eed4d618f71aa12c2ef611e301d934518fafc1c4daf050e7b9466513a4228863",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/lib/broadcast-readiness.js",
+      "before": "8cadc1ab93c73933bd0e5a1f723c9a0b0e5d8249f875a3217dda5f5fbcd3fbe1",
+      "after": "8c48c740058cf5829ce5a401fec3cf77298a4e39b359cde8d44b569cf3c0650b",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/lib/dashboard-notifications.js",
+      "before": "ecd32af989cbb4f139bcaf3494eabae1a54f96ce9eb7da4df2580d48733ec2d7",
+      "after": "e43254c2dab0bcf52ad6832d817262facfcd69a970595896bcc20a0a65312cec",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/lib/signup.js",
+      "before": "ee59a5d96079212cd30ae0a0c9aea022f11c983670f823e72e87274ae3100101",
+      "after": "b73c7255f2e6a0550c7f79c4c4a96857bed46e8b74d0288b319e65be2eeb9413",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/lib/ux-controls.js",
+      "before": "f228cb86fab54bc53609410754ae302891817e8b65f59924478de5473d2c4fe2",
+      "after": "e02b86f4150d0d3f08339b72e336e97cde7de5358fdc79397585c64e274faebd",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/lib/ux-roulette-html.js",
+      "before": "71056f7a299ec1354691db5bd3039518a6331fec4baa14f404c565b751b701b5",
+      "after": "bc0912f7aa3c286013396cc93e755ec3981e4effe433af6eae02f5c5aee69234",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/assets/credits-page.js",
+      "before": "1b76838c5856fb4b88b48461afdb618e205278a8c1d6edc640d8872e87e66396",
+      "after": "68f7755ce8f35297b914b0ce0ba57f51b7df72ef4bf5639bdbfbf1f073196e4a",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/assets/manuals/byeollog-start-guide.pdf",
+      "before": "9f48dbf6e6657391928e2393f349c944d068acbf20328691b7a480610d3b089c",
+      "after": "334f2322788c62a5ef7602a25d1f89e34c17541b3c0f00b90c35b7806b0d75c4",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/assets/setup-page.js",
+      "before": "2fec1744e9213ae6c30708d3a56738ae00a001c321b0524cf984d3ad8231a0a6",
+      "after": "6317e5b99402d2da7181a475e0cb76c360ac307d25e41eadf9de4c31ff1709c4",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/assets/signup-page.js",
+      "before": "2d89c6296a94bd3ef04656a9e6b4905a99be265b818977c8101a6fac9a86fa16",
+      "after": "9ca0f1ed469dd3c3deeb59791de173ea7cd7b9f3b529a67fa815f4bef1d36060",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/credits.html",
+      "before": "0259d086a9f13ea5af6c15e5c5f3497acbcdbd4e4c2c0e37c6a875a47914523c",
+      "after": "dec1d052ac8bcebfdd380074355344e700c48f5308ddb62a19b629a3a9f89b6e",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/docs/manual/build_start_guide.py",
+      "before": "087f560cd273eee5ae047a2a177a6ff235089627e040b1ef826c38da79fe80f5",
+      "after": "83e55e2ecc7cee6febe0b5e18913235514d3b9bb5413f3ec94707c665516177c",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/admin-html.js",
+      "before": "3b7040f82237bd1425fba2b822ae156023f55d40faec8851922520d57a57a703",
+      "after": "9cf92b7bfa63fb725c85fe30bed87072ce7a15c12f93e14625d07a88737c9cff",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/admin-source.html",
+      "before": "064dcbb35159787d4f4f6e8755759eaf04fef6e8b0dd34e549804353ec1a05e1",
+      "after": "eed4d618f71aa12c2ef611e301d934518fafc1c4daf050e7b9466513a4228863",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/broadcast-readiness.js",
+      "before": "8cadc1ab93c73933bd0e5a1f723c9a0b0e5d8249f875a3217dda5f5fbcd3fbe1",
+      "after": "8c48c740058cf5829ce5a401fec3cf77298a4e39b359cde8d44b569cf3c0650b",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/dashboard-notifications.js",
+      "before": "ecd32af989cbb4f139bcaf3494eabae1a54f96ce9eb7da4df2580d48733ec2d7",
+      "after": "e43254c2dab0bcf52ad6832d817262facfcd69a970595896bcc20a0a65312cec",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/signup.js",
+      "before": "ee59a5d96079212cd30ae0a0c9aea022f11c983670f823e72e87274ae3100101",
+      "after": "b73c7255f2e6a0550c7f79c4c4a96857bed46e8b74d0288b319e65be2eeb9413",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/ux-controls.js",
+      "before": "f228cb86fab54bc53609410754ae302891817e8b65f59924478de5473d2c4fe2",
+      "after": "e02b86f4150d0d3f08339b72e336e97cde7de5358fdc79397585c64e274faebd",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/ux-roulette-html.js",
+      "before": "71056f7a299ec1354691db5bd3039518a6331fec4baa14f404c565b751b701b5",
+      "after": "bc0912f7aa3c286013396cc93e755ec3981e4effe433af6eae02f5c5aee69234",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/privacy.html",
+      "before": "d49fce5a5c04b7b52a1982ab1c802a5a01df51237d5be5657df61f348cc8a27e",
+      "after": "e75624f1169ef824ec7ef91ad985c9643cc2ca9f4bf1b241f9be28241704add5",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/scripts/build-public-assets.mjs",
+      "before": "1bf7d07a8f436dcb1f2137f611751b7bd1ac62ae2294b22642f6f6ef0d610dd3",
+      "after": "ced78ea0bff911e8a30c4b67d73efb85a5740943a6b608d36fb0d95c226dab1c",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/scripts/generate-admin-html.mjs",
+      "before": "7e4bd2343cf5c80763615e42bbb1eca829911fb638363c6a32ceba141f879805",
+      "after": "f7ab0045caa31cdf2a6ff0f906d8d71079b8660e2791565baa620273c62e543a",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/setup.html",
+      "before": "1a56a1b3988375427c3409c5fd7480df104fa202c542b78fa7dbd4825c4a784e",
+      "after": "796987291374f78b69a88696cded52e050cb0e894ac029493a827d2fab629da0",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/signup.html",
+      "before": "d8b1ae9d93094f446ddd0995aa6993d70f37211ff3f6b49d2966c4b76ec6d744",
+      "after": "0be4bec1a4ce868adadeb7d81f08ac1248a8606afd68d2437d675a63b0230571",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/terms.html",
+      "before": "df5d75649ceb5f0241b4be25b3da04467bd701918d8906a8410ef6df50f5b059",
+      "after": "c0a4f88fc37ae489e4571bd71c83fb817efd2f38a99cc9b23b419737f239060d",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/test/privacy-policy.test.mjs",
+      "before": "e6a738585726cbf6bc89ac9da28fd7d02db29ba17c7a79f406474330bccf9e70",
+      "after": "4d2a1b6ec8a083855668d712e00c755138ff8026c5099ac490f4b639f25db9ed",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/test/signup-referral-credit.test.mjs",
+      "before": "b3c2d306b51ce975b46e1a07db76c3d6f44868a722425315f4452d776878fa39",
+      "after": "18a925ee69beb3df010b564445780d486ebb255941453c51a6e58ac433a598ab",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "74b6a555016b26bcb7884bb84018ae8833d9925317e26679dcf6b497671f6c9d",
+      "after": "47ef9e31dc1e556ae8f21f78d40e604cc4a447a3db31ef6f81fcbf45a720f05b",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
     }
   ]
 }

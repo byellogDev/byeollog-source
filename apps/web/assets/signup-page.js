@@ -151,7 +151,7 @@ document.addEventListener('click',event=>{if(!event.target.closest('.referralWra
 function saveDraft(){
   try{sessionStorage.setItem(draftKey,JSON.stringify({
     email:$('email').value,streamerName:$('streamerName').value,
-    referrer:selectedReferrer,agreeTerms:$('agreeTerms').checked,agreeCollect:$('agreeCollect').checked,agreeAge:$('agreeAge').checked,consentVersion:'2026-09-14'
+    referrer:selectedReferrer,agreeTerms:$('agreeTerms').checked,agreeCollect:$('agreeCollect').checked,agreeAge:$('agreeAge').checked,consentVersion:'2026-10-11'
   }));}catch{/* Storage may be disabled; account connection must remain usable. */}
 }
 
@@ -160,7 +160,7 @@ function restoreDraft(){
     const draft=JSON.parse(sessionStorage.getItem(draftKey)||'null');
     if(!draft||typeof draft!=='object')return;
     $('email').value=String(draft.email||'');$('streamerName').value=String(draft.streamerName||'');
-    $('agreeTerms').checked=draft.consentVersion==='2026-09-14'&&draft.agreeTerms===true;$('agreeCollect').checked=draft.consentVersion==='2026-09-14'&&draft.agreeCollect===true;$('agreeAge').checked=draft.consentVersion==='2026-09-14'&&draft.agreeAge===true;
+    $('agreeTerms').checked=draft.consentVersion==='2026-10-11'&&draft.agreeTerms===true;$('agreeCollect').checked=draft.consentVersion==='2026-10-11'&&draft.agreeCollect===true;$('agreeAge').checked=draft.consentVersion==='2026-10-11'&&draft.agreeAge===true;
     if(draft.referrer?.key&&draft.referrer?.name)chooseReferrer({key:String(draft.referrer.key),name:String(draft.referrer.name)});
   }catch{try{sessionStorage.removeItem(draftKey)}catch{}}
 }
@@ -208,7 +208,7 @@ $('signupForm').addEventListener('submit',async e=>{
   submitting=true;updateSubmitState();
   try{
     if(!await refreshSoopConnection()){showError('SOOP 연결을 다시 확인해주세요. 입력한 정보는 유지됩니다.',$('soopConnectButton'));return}
-    const r=await fetch('/api/login?operation=signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:$('email').value,streamer_name:$('streamerName').value,referrer_workspace_slug:selectedReferrer?.key||'',consents:{termsVersion:'2026-09-14',privacyVersion:'2026-09-14',termsAgreed:$('agreeTerms').checked,collectionAgreed:$('agreeCollect').checked,age14Confirmed:$('agreeAge').checked}})});
+    const r=await fetch('/api/login?operation=signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:$('email').value,streamer_name:$('streamerName').value,referrer_workspace_slug:selectedReferrer?.key||'',consents:{termsVersion:'2026-10-11',privacyVersion:'2026-10-11',termsAgreed:$('agreeTerms').checked,collectionAgreed:$('agreeCollect').checked,age14Confirmed:$('agreeAge').checked}})});
     const j=await r.json().catch(()=>({}));
     if(j.code==='soop_signup_connection_required'){
       soopConnected=false;$('soopConnection').classList.remove('connected');$('soopConnection').classList.add('connectionError');
