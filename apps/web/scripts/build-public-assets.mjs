@@ -10,6 +10,9 @@ export const PUBLIC_OUTPUT_DIRECTORY='public-dist';
 // project directory.
 export const PUBLIC_FILES=Object.freeze([
   '.well-known/security.txt',
+  'announcements/feed.json',
+  'announcements/announcement.css',
+  'announcements/2026-10-11-upbo-collection.html',
   'agent-updates/stable/win-x64.json',
   'assets/byeollog-theme.css',
   'assets/byeollog-ui.js',

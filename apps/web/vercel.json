@@ -180,7 +180,7 @@
     },
     {
       "source": "/agent/download",
-      "destination": "/agent-updates/releases/1.0.0.56/Byeollog-Wallpaper-Setup-v1.0.0.56-online.exe",
+      "destination": "/agent-updates/releases/1.0.0.57/Byeollog-Wallpaper-Setup-v1.0.0.57-online.exe",
       "permanent": false
     },
     {
@@ -444,6 +444,23 @@
         {
           "key": "Referrer-Policy",
           "value": "no-referrer"
+        }
+      ]
+    },
+    {
+      "source": "/announcements/:path*",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60, s-maxage=300"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
         }
       ]
     }

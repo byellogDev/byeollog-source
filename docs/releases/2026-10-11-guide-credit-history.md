@@ -54,3 +54,5 @@
 - 원격 소스: codex/integration-observer-records-20260924. 커밋은 릴리스 태그에서 확인하며 기본 브랜치를 자동 병합하지 않습니다.
 - 게시 확인: 실제 릴리스 본문·정식/draft 여부·태그 SHA·Latest를 읽어 검증한 뒤 완료 보고합니다.
 - 기존 Agent 설치 파일: https://github.com/byellogDev/byeollog-releases/releases/tag/agent-v1.0.0.56
+
+후속 사용자 공지: [Agent 1.0.0.57 공지 바로가기](2026-10-11-agent-announcements.md).

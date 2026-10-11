@@ -7604,6 +7604,90 @@
       "after": "47ef9e31dc1e556ae8f21f78d40e604cc4a447a3db31ef6f81fcbf45a720f05b",
       "status": "changed",
       "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "36ee8081b244efa45c8c9e95a54460aa0e6f927403cb8e6aa036bf09cb2da961",
+      "after": "11fd1c5e2ff03b89d63c2d09e38c426929bc36c17b2a5d4d2e2ef2677ea0bc04",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "36ee8081b244efa45c8c9e95a54460aa0e6f927403cb8e6aa036bf09cb2da961",
+      "after": "11fd1c5e2ff03b89d63c2d09e38c426929bc36c17b2a5d4d2e2ef2677ea0bc04",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/web/installer/ByeollogAgentSetup.iss",
+      "before": "0e1baa5dca8a60eeed6353d96b604460f8d0dc7c4845796176285af74359e34b",
+      "after": "c4ab2a0ae6e728ada125e07417cf8d23fe6ab84613ed0901a103b7468933c1e4",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/web/scripts/build-public-assets.mjs",
+      "before": "ced78ea0bff911e8a30c4b67d73efb85a5740943a6b608d36fb0d95c226dab1c",
+      "after": "bc16e1c643f1748074a0ded3887fd73c26ea8e70a8b200b635981e81c67766b9",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "47ef9e31dc1e556ae8f21f78d40e604cc4a447a3db31ef6f81fcbf45a720f05b",
+      "after": "3fe599a57673052e0926418817b27f77c589a5cf14a82918244ac65bc4d9772c",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/AgentStoreTests/AgentStoreTests.csproj",
+      "before": "3b05a50595254d5032837a39dffc0c1ce5c98322a5aaf103bb51f0eac8e67c3d",
+      "after": "b219387db4d7899abb67524cc4cc55482a2cca5ceb56a94e3610cd2055f201ac",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/AgentStoreTests/Program.cs",
+      "before": "36a6213add1e5ca35dece4b7911ff2e9e17896211843249489d1b2a5087796a8",
+      "after": "756ce03cb1b3276b5bb72583fdab267e95331ee3ea51169c36d26ae58842de07",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/CoreProductScope.cs",
+      "before": "aa7229b77e6fd3979c3c4b47c78984e1e2913267ee16c98d1033cf4a9d4d0534",
+      "after": "18c83c0a9ecf54d97ec8fb9cfe46a1f8d762fca338c05c930ca2cb666f420124",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "f2864458cd6999e15a3f0eeed79fe17178e5b69e56c864cffba19b12741aa3ab",
+      "after": "2c2359128d7e3e135ae98b168a69796cbc2195dadc3e32e1de2d051d02cc5e2f",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/MainForm.cs",
+      "before": "0816fb8162ab6d78111de7864380773ee7af4c50a39f5d113fbf4ab33ae9b8b3",
+      "after": "3b6dca948c0e8833275862bcc0c59c434e9ce16f8fa781956b70cab83086f61f",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/Ui/byeollog_ui.html",
+      "before": "02346fb2e588f58dec9a68aa901689825bc8127dbb05e02b63a5850b230b8afd",
+      "after": "baa3334ccf935b0a11231902eabec4255ab3434d8ec32b36000b70e690b84ea3",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/WebViewTrustPolicy.cs",
+      "before": "30eb663908a578cfa25de3bdfd7cfa93a52863d21e49a10ef19f56f8e54ae7fc",
+      "after": "0d65e25118e8ee915bc04bd45035e505427458b33e52828ba76a243164af9bc6",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
     }
   ]
 }

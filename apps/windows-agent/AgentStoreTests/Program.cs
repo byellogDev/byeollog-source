@@ -68,6 +68,7 @@ internal static partial class Program
 
         try
         {
+            await AnnouncementTestsAsync();
             UiAssetCacheTests(Path.Combine(root, "ui-cache"));
             WeflabTrialProtocolTests();
             if (args.Contains("--weflab-trial-only")) { Console.WriteLine($"PASS: {_assertions} Weflab trial assertions"); return; }

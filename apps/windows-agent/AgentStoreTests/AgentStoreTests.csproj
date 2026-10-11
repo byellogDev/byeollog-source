@@ -50,6 +50,7 @@
     <Compile Include="../ByeollogOverlayService.cs" Link="ByeollogOverlayService.cs" />
     <Compile Include="../WallpaperOverlayState.cs" Link="WallpaperOverlayState.cs" />
     <Compile Include="../WallpaperApplicationQueue.cs" Link="WallpaperApplicationQueue.cs" />
+    <Compile Include="../AgentAnnouncement.cs" Link="AgentAnnouncement.cs" />
     <Compile Include="../AgentUpdateNotice.cs" Link="AgentUpdateNotice.cs" />
     <Compile Include="../BoundedDiagnosticLog.cs" Link="BoundedDiagnosticLog.cs" />
     <Compile Include="../WallpaperEditorImageLocalizer.cs" Link="WallpaperEditorImageLocalizer.cs" />

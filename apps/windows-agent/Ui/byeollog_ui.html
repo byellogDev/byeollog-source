@@ -20,6 +20,7 @@
     .hidden{display:none!important}.login-view{height:calc(100% - 58px);padding:34px 34px 28px}.login-card{height:100%;display:flex;flex-direction:column;padding:28px;border:1px solid var(--line);border-radius:20px;background:#20213d}.login-card h1{margin:0 0 26px;font-size:25px;letter-spacing:-.04em}.login-field{margin-bottom:15px;text-align:left}.login-field label{display:block;margin:0 0 7px;color:#c7cae0;font-size:12px;font-weight:700}.login-input{width:100%;height:44px;border:1px solid #444867;border-radius:11px;background:#17182d;color:#fff;padding:0 13px;font:inherit;outline:none}.login-input:focus{border-color:var(--amber);box-shadow:0 0 0 3px #f3bd5514}.login-options{display:flex;align-items:center;justify-content:space-between;color:#9296b6;font-size:11px}.remember{display:flex;align-items:center;gap:6px}.login-status{min-height:34px;margin:15px 0 0!important;color:var(--red)!important;font-size:12px!important}.login-status[hidden]{display:none!important}.login-status.ok{color:var(--green)!important}.login-submit{flex:0 0 46px;height:46px;min-height:46px;margin-top:auto;border:0;border-radius:12px;background:var(--amber);color:#31240a;font-weight:900;cursor:pointer}.login-submit:disabled{opacity:.55;cursor:wait}.login-links{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:15px;color:#777b9c;font-size:11px}.login-links button{border:0;background:transparent;color:#a9acc7;cursor:pointer}
     @media(prefers-reduced-motion:no-preference){.status-orbit.connecting .status-symbol{animation:pulse 1.7s ease-in-out infinite}@keyframes pulse{50%{scale:.92;opacity:.78}}}
     .support-button{border:1px solid #f3bd5580;color:var(--amber);font-size:16px;font-weight:800}.support-panel{position:absolute;z-index:5;inset:58px 14px 14px;padding:22px;border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:auto;text-align:left}.support-panel h2{margin:0 0 12px;font-size:23px}.support-panel p{font-size:13px;line-height:1.6;color:var(--muted)}.support-panel label{display:block;margin:18px 0 8px;font-size:14px}.support-panel textarea{width:100%;resize:none;padding:12px;border:1px solid #5e6388;border-radius:10px;background:var(--shell);color:var(--text);font:inherit;font-size:14px}.support-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.support-actions button{min-height:42px;padding:10px 20px;border-radius:10px;border:1px solid #5e6388;background:var(--shell);color:var(--text)}#supportSend{background:var(--amber);color:#17182d;font-weight:800}.support-actions button:disabled{opacity:.5}
+  .announcement-link{display:inline-flex;align-items:center;gap:6px;min-height:32px;margin-top:7px;padding:3px 8px;border:0;border-radius:7px;background:transparent;color:var(--amber);font-size:13px;font-weight:700;cursor:pointer}.announcement-link:hover{background:var(--amber-soft);text-decoration:underline;text-underline-offset:3px}.announcement-link:after{content:"↗"}.has-announcement .status-orbit{width:158px;height:158px}.has-announcement .status-copy{margin-top:18px}.has-announcement.has-update-warning .status-orbit{width:130px;height:130px}
   </style>
 </head>
 <body>
@@ -30,7 +31,7 @@
   </header>
   <main class="status-view" aria-live="polite">
     <div class="status-orbit connecting" id="statusOrbit"><span class="status-symbol" id="statusSymbol">···</span></div>
-    <div class="status-copy"><h1 id="statusTitle">서버 연결 확인 중</h1><p id="statusMessage">별록 서버와 연결 상태를 확인하고 있습니다.</p><div class="account" id="accountName">별록 풍벽지</div><p id="updateWarning" class="hidden" style="color:var(--amber);font-size:11px;line-height:1.4" role="status"></p></div>
+    <div class="status-copy"><h1 id="statusTitle">서버 연결 확인 중</h1><button id="announcementLink" class="announcement-link hidden" type="button"></button><p id="statusMessage">별록 서버와 연결 상태를 확인하고 있습니다.</p><div class="account" id="accountName">별록 풍벽지</div><p id="updateWarning" class="hidden" style="color:var(--amber);font-size:11px;line-height:1.4" role="status"></p></div>
     <div class="shortcut-actions" aria-label="바로가기">
       <button class="shortcut-button editor-button hidden" id="editorButton" type="button"><span class="shortcut-icon" aria-hidden="true">▦</span><span class="shortcut-title">풍벽지 배치 편집</span><span class="shortcut-note">방송 화면 편집</span></button>
       <button class="shortcut-button dashboard-button hidden" id="dashboardButton" type="button"><span class="shortcut-icon" aria-hidden="true">↗</span><span class="shortcut-title" id="dashboardLabel">대시보드 바로가기</span><span class="shortcut-note">웹에서 업보 · 이미지 관리</span></button>
@@ -81,7 +82,16 @@
   function post(action,payload={}){try{if(!window.chrome?.webview?.postMessage)return false;window.chrome.webview.postMessage({action,payload});return true}catch(_){return false}}
   function setDashboardBusy(busy){dashboardButton.disabled=!!busy;dashboardButton.setAttribute('aria-busy',String(!!busy));document.querySelector('#dashboardLabel').textContent=busy?'대시보드 여는 중…':'대시보드 바로가기'}
   function showToast(text){clearTimeout(toastTimer);toast.textContent=String(text||'');toast.classList.add('show');toastTimer=setTimeout(()=>toast.classList.remove('show'),1700)}
+  let announcementExpiryTimer;
+  const announcementLink=document.querySelector("#announcementLink");
+  announcementLink.onclick=()=>{if(!post("openAnnouncement"))showToast("별록 풍벽지 프로그램에서 열어주세요.")};
   function setMainState(state){
+    clearTimeout(announcementExpiryTimer);
+    const notice=state?.announcement, remaining=Number(notice?.expiresAt)-Date.now();
+    const visible=!loginMode&&remaining>0&&remaining<=72*60*60*1000&&typeof notice?.label==="string";
+    announcementLink.textContent=visible?notice.label:"";
+    announcementLink.classList.toggle("hidden",!visible);app.classList.toggle("has-announcement",visible);
+    if(visible)announcementExpiryTimer=setTimeout(()=>{announcementLink.classList.add("hidden");app.classList.remove("has-announcement")},remaining);
     document.querySelector('#supportButton').classList.toggle('hidden',state?.betaSupportEnabled!==true||loginMode);supportEpoch=Number(state?.supportSessionEpoch||0);
     const connected=!!state?.serverConnected;
     const recovery=String(state?.developmentRecoveryState||'ready');

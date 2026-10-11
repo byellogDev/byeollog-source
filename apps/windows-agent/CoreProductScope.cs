@@ -15,6 +15,7 @@ internal static class CoreProductScope
         "forgotPassword" or
         "signup" or
         "dashboard" or
+        "openAnnouncement" or
         "openAutomationSettings";
 
     public static bool IsAllowedWallpaperUiAction(string action) => action is
