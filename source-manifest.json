@@ -7373,6 +7373,34 @@
       "after": "1c0f5dee000b46978368b9c0635d8416b80c4aaaad18507e0b13f11be81f5a62",
       "status": "changed",
       "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-source.html",
+      "before": "938d479cf992c8afc4e7d91beb77c2f359d5f4fb628664b9c4b1ed8059a2f728",
+      "after": "35ea8f1b94289608211a45a21cd290dbf068c3ee7553967317b2d768560c2e80",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-html.js",
+      "before": "c75e8dc5fa6ef1ea968f1668990d1e718770b97fc61548dfd4de337644cac561",
+      "after": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-source.html",
+      "before": "938d479cf992c8afc4e7d91beb77c2f359d5f4fb628664b9c4b1ed8059a2f728",
+      "after": "35ea8f1b94289608211a45a21cd290dbf068c3ee7553967317b2d768560c2e80",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-html.js",
+      "before": "c75e8dc5fa6ef1ea968f1668990d1e718770b97fc61548dfd4de337644cac561",
+      "after": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
     }
   ]
 }
