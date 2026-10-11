@@ -44,3 +44,5 @@
 - 소스와 문서는 `codex/integration-observer-records-20260924`에 게시하며 기본 브랜치를 자동 병합하지 않습니다. 정확한 커밋은 Release에 연결합니다.
 - [기존 Agent 설치 파일](https://github.com/byellogDev/byeollog-releases/releases/tag/agent-v1.0.0.56): 이번 변경으로 재설치할 필요 없습니다.
 - 게시 확인: CI 완료 뒤 Release 본문·draft/prerelease·태그 커밋·Latest를 읽어 확인합니다.
+
+후속 화면 개선: [별풍선 리포트 가독성](2026-10-11-report-legibility.md).

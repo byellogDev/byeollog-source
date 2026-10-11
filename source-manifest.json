@@ -7310,6 +7310,69 @@
       "after": "2d89070a36de03750452d53bb6300bf859bd01cf92c8543eb391426dd4ae236a",
       "status": "changed",
       "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "f50f0652d93884dc43f7c7a14d5f708e27d6ded112df3dfd161d8ded39642ae7",
+      "after": "3b7040f82237bd1425fba2b822ae156023f55d40faec8851922520d57a57a703",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "2d89070a36de03750452d53bb6300bf859bd01cf92c8543eb391426dd4ae236a",
+      "after": "064dcbb35159787d4f4f6e8755759eaf04fef6e8b0dd34e549804353ec1a05e1",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-html.js",
+      "before": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
+      "after": "c75e8dc5fa6ef1ea968f1668990d1e718770b97fc61548dfd4de337644cac561",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-source.html",
+      "before": "35ea8f1b94289608211a45a21cd290dbf068c3ee7553967317b2d768560c2e80",
+      "after": "938d479cf992c8afc4e7d91beb77c2f359d5f4fb628664b9c4b1ed8059a2f728",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-html.js",
+      "before": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
+      "after": "c75e8dc5fa6ef1ea968f1668990d1e718770b97fc61548dfd4de337644cac561",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-source.html",
+      "before": "35ea8f1b94289608211a45a21cd290dbf068c3ee7553967317b2d768560c2e80",
+      "after": "938d479cf992c8afc4e7d91beb77c2f359d5f4fb628664b9c4b1ed8059a2f728",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/web/lib/admin-html.js",
+      "before": "f50f0652d93884dc43f7c7a14d5f708e27d6ded112df3dfd161d8ded39642ae7",
+      "after": "3b7040f82237bd1425fba2b822ae156023f55d40faec8851922520d57a57a703",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/web/lib/admin-source.html",
+      "before": "2d89070a36de03750452d53bb6300bf859bd01cf92c8543eb391426dd4ae236a",
+      "after": "064dcbb35159787d4f4f6e8755759eaf04fef6e8b0dd34e549804353ec1a05e1",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/web/lib/donation-report-client.js",
+      "before": "cb1577f1013615f05b44783b8c69f524a850cdbef09212b59a64cf8634949bce",
+      "after": "1c0f5dee000b46978368b9c0635d8416b80c4aaaad18507e0b13f11be81f5a62",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
     }
   ]
 }

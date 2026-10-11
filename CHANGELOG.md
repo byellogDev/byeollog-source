@@ -458,3 +458,7 @@
 ## ops-2026.10.11-late-classification-multiplier
 
 - 개별 업보등록·비업보 변경을 서버 처리로 통일해 학습 이후에도 저장된 2배를 적용하고 중복 등록을 방지합니다. [릴리스 기록](docs/releases/2026-10-11-late-classification-multiplier.md).
+
+## ops-2026.10.11-report-legibility
+
+- 리포트 숫자·날짜·설명 크기와 대비를 높이고 분포표를 전체 너비로 확장했습니다. PNG 2배 해상도 유지, 집계 변경 없음. [릴리스](docs/releases/2026-10-11-report-legibility.md).
