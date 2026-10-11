@@ -51,3 +51,4 @@
 - [PR #4](https://github.com/byellogDev/byeollog/pull/4), codex/integration-observer-records-20260924. 기본 브랜치 자동 병합 없음.
 - [설치 자산](https://github.com/byellogDev/byeollog-releases/releases/tag/agent-v1.0.0.56), [기본 다운로드](https://byeollog.com/agent/download).
 - 정식 릴리스 게시 후 본문·draft=false·prerelease=false·태그 SHA·Latest 일치를 다시 확인한다.
+> 후속 운영 변경: [오버레이 결과 기준 업보 수집](2026-10-11-overlay-authority.md). 아래는 설정 화면과 Agent 배포 당시 기록이며, 결과 처리 경로는 후속 문서를 따른다.

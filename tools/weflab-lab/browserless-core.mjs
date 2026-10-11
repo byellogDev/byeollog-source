@@ -27,6 +27,7 @@ export function lookupPlan(context, pin, message, rules) {
   if (rules.data?.checkbox?.item_alert_rouletteuse !== 'on') fail('roulette_disabled');
   const matches = (rules.data?.donation?.item_roulette_donation || []).filter(r =>
     r.checkbox?.setup_roulette_use === 'on' && Number(r.text?.setup_alert_giftmin) <= amount && Number(r.text?.setup_alert_giftmax) >= amount);
+  if (!matches.length) fail('no_roulette_rule');
   if (matches.length !== 1) fail('ambiguous_rule');
   const r = matches[0];
   if (Number(r.text.setup_alert_giftmin) !== amount || Number(r.text.setup_alert_giftmax) !== amount || r.checkbox.setup_roulette_range === 'on') fail('unsupported_range');

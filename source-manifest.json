@@ -7170,6 +7170,90 @@
       "after": "f2864458cd6999e15a3f0eeed79fe17178e5b69e56c864cffba19b12741aa3ab",
       "status": "changed",
       "release": "candidate-2026.10.11-upbo-deployment"
+    },
+    {
+      "target": "apps/admin-runtime/lib/collector-processor.js",
+      "before": "8665873b6fee2e7fb537fced793846b845c7bdc99a7b2a5d450c1996611b3326",
+      "after": "01ac39c1ea425eca8ca908e8a34f2cb1fd39f9145ae591a1c474042f54b61d1b",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/admin-runtime/lib/upbo-collection-html.js",
+      "before": "f8c3edb0b0c546181b475d3da4744f0525c25295e808f85c003a821f7ce1b503",
+      "after": "17f3fc6e68eb25d7b607865f4b53e2f9d89faa760090ea476cd6a371f91d08ab",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/admin-runtime/lib/upbo-collection.js",
+      "before": "18dbacf1d3cb335aa881ffb1e3c70b49f5c65428a3cd92830ab50acb27e0097d",
+      "after": "eef1e464b1b5fd4839721842ae286c7b3d8fbd7cdf94323eb2f419876367cea8",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/admin-runtime/lib/weflab-collection-config.js",
+      "before": "e1b74c9ed7788b8bc2d346460c940831ef101723d42b7423873692c4860c05f8",
+      "after": "0f14490f4b10f305f48c0cfb45229b4d54be2ebf659f995101a09b5b76790d4d",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/collector-runtime/lib/collector-processor.js",
+      "before": "8665873b6fee2e7fb537fced793846b845c7bdc99a7b2a5d450c1996611b3326",
+      "after": "01ac39c1ea425eca8ca908e8a34f2cb1fd39f9145ae591a1c474042f54b61d1b",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/collector-runtime/lib/upbo-collection-html.js",
+      "before": "f8c3edb0b0c546181b475d3da4744f0525c25295e808f85c003a821f7ce1b503",
+      "after": "17f3fc6e68eb25d7b607865f4b53e2f9d89faa760090ea476cd6a371f91d08ab",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/collector-runtime/lib/weflab-collection-config.js",
+      "before": "e1b74c9ed7788b8bc2d346460c940831ef101723d42b7423873692c4860c05f8",
+      "after": "0f14490f4b10f305f48c0cfb45229b4d54be2ebf659f995101a09b5b76790d4d",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/public-runtime/lib/collector-processor.js",
+      "before": "8665873b6fee2e7fb537fced793846b845c7bdc99a7b2a5d450c1996611b3326",
+      "after": "01ac39c1ea425eca8ca908e8a34f2cb1fd39f9145ae591a1c474042f54b61d1b",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/public-runtime/lib/upbo-collection-html.js",
+      "before": "f8c3edb0b0c546181b475d3da4744f0525c25295e808f85c003a821f7ce1b503",
+      "after": "17f3fc6e68eb25d7b607865f4b53e2f9d89faa760090ea476cd6a371f91d08ab",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/web/lib/collector-processor.js",
+      "before": "8665873b6fee2e7fb537fced793846b845c7bdc99a7b2a5d450c1996611b3326",
+      "after": "01ac39c1ea425eca8ca908e8a34f2cb1fd39f9145ae591a1c474042f54b61d1b",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/web/lib/upbo-collection-html.js",
+      "before": "f8c3edb0b0c546181b475d3da4744f0525c25295e808f85c003a821f7ce1b503",
+      "after": "17f3fc6e68eb25d7b607865f4b53e2f9d89faa760090ea476cd6a371f91d08ab",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "tools/weflab-lab/browserless-core.mjs",
+      "before": "a0fb492869fdb6bd06e40012b4362a0e479b018effd97a167a89e4b002b5de81",
+      "after": "3451ba7a24b66d3ddc8fa2c68d4a8f4d2750efb7f4a1b2ba71fb7bfc814ff8fb",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
     }
   ]
 }

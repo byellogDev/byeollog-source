@@ -26,7 +26,10 @@ export async function upboCollectionRequest({sb,workspaceId,userId,method,body={
   }else return {status:405,body:{message:'Method not allowed'}};
   if(request.action==='settings_save'&&request.enabled){
     const rows=await sb('byeollog_workspaces',`?id=eq.${encodeURIComponent(workspaceId)}&select=soop_id&limit=1`);
-    try{request.rules=await fetchRules(request.url,rows?.[0]?.soop_id)}
+    try{
+      const loaded=await fetchRules(request.url,rows?.[0]?.soop_id,{includeContext:true});
+      request.rules=loaded.rules;request.overlayConfig=loaded.config;
+    }
     catch{return {status:400,body:{message:'오버레이 설정을 확인하지 못했습니다. 연결된 숲 계정과 룰렛 설정을 확인해주세요. 지원하지 않는 조건이 있으면 연결할 수 없습니다. 수집 상태는 변경하지 않았습니다.'}}}
   }
   const result=await sb('rpc/byeollog_upbo_collection_settings_v1','',{method:'POST',body:{p_workspace_id:workspaceId,p_user_id:userId,p_request:request}});

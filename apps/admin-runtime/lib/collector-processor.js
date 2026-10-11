@@ -15,13 +15,16 @@ function wsb(body,workspaceId){
   return {...body,workspace_id:workspaceId};
 }
 function nowIso(){return new Date().toISOString();}
+function receiptProvider(row){return ['soop_chat_sdk','overlay_result'].includes(collectorProvider(row));}
 function collectorProvider(row){
+  if(row?.raw_payload?.source_provider==='overlay_result')return 'overlay_result';
   return String(row?.raw_payload?.source_provider||'').trim()==='soop_chat_sdk'
     ?'soop_chat_sdk':'weflab_collector';
 }
 function collectorSourceKey(row){
   const uid=String(row?.source_uid||'').trim();
-  if(collectorProvider(row)==='soop_chat_sdk')return uid.startsWith('soop_sdk:')?uid:`soop_sdk:${uid}`;
+  if(collectorProvider(row)==='overlay_result')return uid;
+  if(receiptProvider(row))return uid.startsWith('soop_sdk:')?uid:`soop_sdk:${uid}`;
   return uid.startsWith('weflab:')?uid:`weflab:${uid}`;
 }
 
@@ -36,9 +39,9 @@ function collectorDateTime(row){
 function collectorResultList(row){
   if(Array.isArray(row.roulette_results))return row.roulette_results.map(x=>({
     result:String(x?.result??x?.Result??''),probability:String(x?.probability??x?.Probability??''),
-    ...(collectorProvider(row)==='soop_chat_sdk'&&typeof x?.receipt_identity==='string'
+    ...(receiptProvider(row)&&typeof x?.receipt_identity==='string'
       ?{receipt_identity:x.receipt_identity}:{}),
-    ...(collectorProvider(row)==='soop_chat_sdk'&&x&&Object.hasOwn(x,'special_roulette')
+    ...(receiptProvider(row)&&x&&Object.hasOwn(x,'special_roulette')
       ?{special_roulette:x.special_roulette}:{})
   })).filter(x=>x.result);
   const raw=row.raw_payload||{};let list=raw.list;
@@ -140,7 +143,7 @@ export function assessCollectorRow(row,rules,multiplierRules,{allowValidationRev
   const kind=donationKind(row);
   const results=collectorResultList(row);
   const fixedRewards=fixedRewardList(row);
-  if(collectorProvider(row)==='soop_chat_sdk'&&results.some(item=>!storedSpecialRouletteDecision(item)))
+  if(receiptProvider(row)&&results.some(item=>!storedSpecialRouletteDecision(item)))
     return {processable:false,reason:'invalid_special_roulette_decision',donationKind:kind};
 
   // 구독 개월 수는 별풍선 수가 아니며 후원 통계·고정 규칙·룰렛 액션 대상이 아닙니다.
@@ -152,7 +155,7 @@ export function assessCollectorRow(row,rules,multiplierRules,{allowValidationRev
 
   // Donation-time activation snapshot: preserve result history and fixed
   // rewards, but never retroactively activate donations received while off.
-  if(collectorProvider(row)==='soop_chat_sdk'&&row.raw_payload?.roulette_enabled===false)
+  if(receiptProvider(row)&&row.raw_payload?.roulette_enabled===false)
     return {processable:true,statOnly:fixedRewards.length===0,recordDonation:kind!=='mission',results,fixedRewards,donationKind:kind,rouletteDisabled:true};
 
   // 영상후원은 실제 지급 후원입니다. 고정 규칙이 있으면 통계와 고정 업보를 함께 처리합니다.
@@ -163,9 +166,9 @@ export function assessCollectorRow(row,rules,multiplierRules,{allowValidationRev
   if(kind==='mission'){
     if(results.length){
       for(const rr of results){
-        if(collectorProvider(row)==='soop_chat_sdk'&&storedSpecialRouletteDecision(rr).multiplierControl)continue;
+        if(receiptProvider(row)&&storedSpecialRouletteDecision(rr).multiplierControl)continue;
         const rule=collectorRuleFor(rules,row,rr.result);
-        const multiplierRule=collectorProvider(row)==='soop_chat_sdk'?null:multiplierRules.get(`weflab\u001f${rr.result}`);
+        const multiplierRule=receiptProvider(row)?null:multiplierRules.get(`weflab\u001f${rr.result}`);
         if((!rule&&!multiplierRule)||rule?.action==='review')return {processable:false,reason:'unknown_rule',donationKind:kind};
       }
     }
@@ -190,9 +193,9 @@ export function assessCollectorRow(row,rules,multiplierRules,{allowValidationRev
 
   if(results.length){
     for(const rr of results){
-      if(collectorProvider(row)==='soop_chat_sdk'&&storedSpecialRouletteDecision(rr).multiplierControl)continue;
+      if(receiptProvider(row)&&storedSpecialRouletteDecision(rr).multiplierControl)continue;
       const rule=collectorRuleFor(rules,row,rr.result);
-      const multiplierRule=collectorProvider(row)==='soop_chat_sdk'?null:multiplierRules.get(`weflab\u001f${rr.result}`);
+      const multiplierRule=receiptProvider(row)?null:multiplierRules.get(`weflab\u001f${rr.result}`);
       if((!rule&&!multiplierRule)||rule?.action==='review')return {processable:false,reason:'unknown_rule',donationKind:kind};
     }
   }else if(String(row.event_name||'').trim()&&fixedRewards.length===0){
@@ -203,7 +206,7 @@ export function assessCollectorRow(row,rules,multiplierRules,{allowValidationRev
 
 export function stableDevelopmentHash(seed){return createHash('sha256').update(String(seed),'utf8').digest('hex').slice(0,32);}
 export function rouletteExternalEventId(row,index){
-  const provider=collectorProvider(row)==='soop_chat_sdk'?'soop_sdk':'weflab';
+  const provider=receiptProvider(row)?'soop_sdk':'weflab';
   const base=`${provider}_${stableDevelopmentHash(`${row.session_id||''}|${row.source_uid||''}|${row.donated_time_text||''}`)}`;
   return `${base}_roulette_${index+1}`;
 }
@@ -212,7 +215,7 @@ export function rewardMultiplierLedgerKeys(baseKey,multiplier){
   return Array.from({length:count},(_,index)=>index===0?baseKey:`${baseKey}|reward-multiplier-${index+1}`);
 }
 async function resolveRewardMultipliers(row,results,multiplierRules,workspaceId){
-  if(collectorProvider(row)==='soop_chat_sdk'){
+  if(receiptProvider(row)){
     return results.map(item=>{
       const decision=storedSpecialRouletteDecision(item);
       if(!decision)throw new Error('Stored special roulette decision is invalid');
@@ -305,6 +308,8 @@ async function recoverStaleProcessing(workspaceId=null){
 }
 
 async function saveDonation(row,results,workspaceId=null){
+  // Overlay is authoritative for upbo only. SOOP already owns donation statistics.
+  if(collectorProvider(row)==='overlay_result')return;
   const kind=donationKind(row);
   const isChallengeSuccess=kind==='challenge_success';
   if((+row.balloons||0)<=0||(!isChallengeSuccess&&(!row.soop_id||!row.nickname)))return;
@@ -362,7 +367,7 @@ async function processTaskGroup(group,row,profile,workspaceId=null){
 
 async function createTasks(row,results,rules,profile,workspaceId=null){
   const groups=new Map();
-  const soopSdk=collectorProvider(row)==='soop_chat_sdk';
+  const soopSdk=receiptProvider(row);
   for(let ri=0;ri<results.length;ri++){
     const rr=results[ri],rule=collectorRuleFor(rules,row,rr.result);
     if(rr.multiplierControl||!rule||rule.action!=='include')continue;

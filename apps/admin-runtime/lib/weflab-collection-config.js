@@ -20,7 +20,7 @@ async function boundedText(response,limit){
   try{for(;;){const {value,done}=await reader.read();if(done)break;length+=value.length;if(length>limit)throw Error('weflab_settings_size');chunks.push(value)}}finally{await reader.cancel()}
   return Buffer.concat(chunks).toString('utf8');
 }
-export async function fetchAutomaticRouletteRules(url,owner,{fetchImpl=fetch}={}){
+export async function fetchAutomaticRouletteRules(url,owner,{fetchImpl=fetch,includeContext=false}={}){
   if(typeof url!=='string'||url.length>256||!/^https:\/\/weflab\.com\/page\/[A-Za-z0-9]+$/.test(url)||!owner)throw Error('weflab_settings_scope');
   const signal=AbortSignal.timeout(10000);
   const html=await boundedText(await fetchImpl(url,{redirect:'error',signal}),2*1024*1024);
@@ -31,7 +31,13 @@ export async function fetchAutomaticRouletteRules(url,owner,{fetchImpl=fetch}={}
   // Configuration read only. Saving and refreshing never call roulette_result.
   const raw=await boundedText(await fetchImpl('https://weflab.com/api/',{method:'POST',redirect:'error',signal,
     body:new URLSearchParams({type:'page_load',pagetype:'page',pageid:'alert',idx:String(c.idx),preset:String(c.preset),dir:c.dir,ver:String(c.config.ver)})}),2*1024*1024);
-  return readAutomaticRouletteRules(JSON.parse(raw));
+  const rules=readAutomaticRouletteRules(JSON.parse(raw));
+  if(includeContext){
+    if(rules.some(r=>r.amount!==r.amountMax||r.spins>100))throw Error('overlay_rule_unsupported');
+    if(c.config?.url?.socket!=='https://ssmain.weflab.com'||c.config?.url?.socket_afreeca!=='https://ssafreeca.weflab.com')throw Error('overlay_socket_origin');
+    return {rules,config:{url,owner:String(owner).toLowerCase(),idx:String(c.idx),preset:String(c.preset)}};
+  }
+  return rules;
 }
 export async function refreshAutomaticRouletteRules(workspaceId,{sb,fetchImpl=fetch}={}){
   // The database shares this reservation across runtime instances, including failed attempts.
