@@ -6953,6 +6953,195 @@
       "after": "0dafab67d627e5729a9b821a99e922ef8bc5e8f8ef48ae1e2d4b8ecef5c8bc87",
       "status": "changed",
       "release": "2026.10.09-agent-10055"
+    },
+    {
+      "target": "apps/admin-runtime/handlers/admin.js",
+      "before": "a2b37da878292e8cc38a23e71bab9aa15b3bd7bd634c88b6f9e742c5dde8780e",
+      "after": "20bcbd95df6911528a040d7b0de4edb1f5606d6e403b46cfbc39770d418bebfb",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "f25af1bc4c68e329551f63a5ae3e989f02050e2beae9f5fe24473f1976e9e16b",
+      "after": "677102dcaa0df3ab0ddd31e98bb5bcd7a43f541da169500a8b02de57180d4aff",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "3a075ddcacc62a91b954c25668d5fed146fd722f263e18bd67d74f7e5c5970de",
+      "after": "366ece6b425083885d54c437034e583bf422787303b3770a4f513cb91deb8b73",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/lib/dashboard-navigation.js",
+      "before": "178934c525bb712b376b2d039446d6913c73d9c65270765f87e8988858842177",
+      "after": "2d4c1168e871892078f474bd1d800aba3f53bbfb85e76f4dc8f75106f826634f",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/lib/dashboard-shell-client.js",
+      "before": "d5f56faf157c869f3cf18f3911c96676c10a93c0aa9ee8769398397041131085",
+      "after": "abffffb3bc336a7e4849bcf9a1188144ae073fa0fc7df4ca735e78b25698b197",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/lib/roulette-classification-html.js",
+      "before": "1059c417ca0fcfdd5f48e843d9fbb17cad4958fe965a63bd024ab7841c060f79",
+      "after": "f1c5b3ba7aced2602923b9cdee49f5a664cca1bf443e2b3e11d538d2e9b96a3d",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/lib/soop-gateway-api.js",
+      "before": "822266e9e6fd1a7e9fc70c21ea61c10c9fda0b18a0ceba9cb4d04cab32784ed6",
+      "after": "6d685e296ce600062a45accb729e6e464066d3533762fa292823abf7c5d26336",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-html.js",
+      "before": "5f15835b3ec11aadddf2a74f2a9f9999c42b653b481b70d9e9929710aa02a15d",
+      "after": "b75aef17c9bb92ef92dde8d1d1cdc30d873593248636b83d7c06ed2c87119b0c",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-source.html",
+      "before": "7d24559d2693c1857057be294c341aa63043ef7d832b616f5f032a26137c2ba7",
+      "after": "6cded0653a77c97f0e8fa3c317d2c5590ab5251430d10d59af74a371bc8cee82",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/collector-runtime/lib/dashboard-navigation.js",
+      "before": "178934c525bb712b376b2d039446d6913c73d9c65270765f87e8988858842177",
+      "after": "2d4c1168e871892078f474bd1d800aba3f53bbfb85e76f4dc8f75106f826634f",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/collector-runtime/lib/dashboard-shell-client.js",
+      "before": "d5f56faf157c869f3cf18f3911c96676c10a93c0aa9ee8769398397041131085",
+      "after": "abffffb3bc336a7e4849bcf9a1188144ae073fa0fc7df4ca735e78b25698b197",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/collector-runtime/lib/roulette-classification-html.js",
+      "before": "1059c417ca0fcfdd5f48e843d9fbb17cad4958fe965a63bd024ab7841c060f79",
+      "after": "f1c5b3ba7aced2602923b9cdee49f5a664cca1bf443e2b3e11d538d2e9b96a3d",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/collector-runtime/lib/soop-gateway-api.js",
+      "before": "c6f2d561468e0dc29b3d87d56390afd60518c41cdcadf55688cb6374feaee9ad",
+      "after": "b35b0f569ab6dee2921a616f53c956c928e293ba21fafb13a75af371051220f9",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-html.js",
+      "before": "5f15835b3ec11aadddf2a74f2a9f9999c42b653b481b70d9e9929710aa02a15d",
+      "after": "b75aef17c9bb92ef92dde8d1d1cdc30d873593248636b83d7c06ed2c87119b0c",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-source.html",
+      "before": "7d24559d2693c1857057be294c341aa63043ef7d832b616f5f032a26137c2ba7",
+      "after": "6cded0653a77c97f0e8fa3c317d2c5590ab5251430d10d59af74a371bc8cee82",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/public-runtime/lib/dashboard-navigation.js",
+      "before": "178934c525bb712b376b2d039446d6913c73d9c65270765f87e8988858842177",
+      "after": "2d4c1168e871892078f474bd1d800aba3f53bbfb85e76f4dc8f75106f826634f",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/public-runtime/lib/dashboard-shell-client.js",
+      "before": "d5f56faf157c869f3cf18f3911c96676c10a93c0aa9ee8769398397041131085",
+      "after": "abffffb3bc336a7e4849bcf9a1188144ae073fa0fc7df4ca735e78b25698b197",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/public-runtime/lib/roulette-classification-html.js",
+      "before": "1059c417ca0fcfdd5f48e843d9fbb17cad4958fe965a63bd024ab7841c060f79",
+      "after": "f1c5b3ba7aced2602923b9cdee49f5a664cca1bf443e2b3e11d538d2e9b96a3d",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/lib/admin-html.js",
+      "before": "f25af1bc4c68e329551f63a5ae3e989f02050e2beae9f5fe24473f1976e9e16b",
+      "after": "677102dcaa0df3ab0ddd31e98bb5bcd7a43f541da169500a8b02de57180d4aff",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/lib/admin-source.html",
+      "before": "3a075ddcacc62a91b954c25668d5fed146fd722f263e18bd67d74f7e5c5970de",
+      "after": "366ece6b425083885d54c437034e583bf422787303b3770a4f513cb91deb8b73",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/lib/dashboard-navigation.js",
+      "before": "178934c525bb712b376b2d039446d6913c73d9c65270765f87e8988858842177",
+      "after": "2d4c1168e871892078f474bd1d800aba3f53bbfb85e76f4dc8f75106f826634f",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/lib/dashboard-shell-client.js",
+      "before": "d5f56faf157c869f3cf18f3911c96676c10a93c0aa9ee8769398397041131085",
+      "after": "abffffb3bc336a7e4849bcf9a1188144ae073fa0fc7df4ca735e78b25698b197",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/lib/roulette-classification-html.js",
+      "before": "1059c417ca0fcfdd5f48e843d9fbb17cad4958fe965a63bd024ab7841c060f79",
+      "after": "f1c5b3ba7aced2602923b9cdee49f5a664cca1bf443e2b3e11d538d2e9b96a3d",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/setup.html",
+      "before": "16d8802a32515cebdc2a795f299f2e33d2dfeb35cd8ae28c9cc85ada9e9cb59b",
+      "after": "1a56a1b3988375427c3409c5fd7480df104fa202c542b78fa7dbd4825c4a784e",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/test/roulette-classification.test.mjs",
+      "before": "5931f6a846588ae3fe09ae548e18f61f87e3aabb62b4088159e4ab844e3bcb9d",
+      "after": "88153b8fb6413ca3554125c7ffba233dd46dcdc2cfcba0d35dd90536e6076fdd",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/windows-agent/Ui/byeollog_ui.html",
+      "before": "f993a3de745343e417914a540fe18e7edfc76372893a25f338112365781d7795",
+      "after": "02346fb2e588f58dec9a68aa901689825bc8127dbb05e02b63a5850b230b8afd",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "0dafab67d627e5729a9b821a99e922ef8bc5e8f8ef48ae1e2d4b8ecef5c8bc87",
+      "after": "7c5a32ed2beb9051b4ab268178d3eb3b1361bb357775200ee325058be9506fe3",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
     }
   ]
 }

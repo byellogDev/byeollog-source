@@ -1,7 +1,7 @@
 import {dashboardIcon} from './dashboard-icons.js';
 export const DASHBOARD_NAV_ITEMS=Object.freeze([
   Object.freeze({key:'signatures',href:'/dashboard/signatures',label:'풍벽지',icon:'wallpaper',title:'풍벽지'}),
-  Object.freeze({key:'roulette-rules',href:'/dashboard/roulette-rules',label:'업보 분류 설정',icon:'rules',title:'업보 분류 설정'}),
+  Object.freeze({key:'roulette-rules',href:'/dashboard/roulette-rules',label:'업보 수집 설정',icon:'rules',title:'업보 수집 설정'}),
   Object.freeze({key:'upbo',href:'/dashboard',label:'업보',icon:'tasks',title:'업보'})
 ]);
 

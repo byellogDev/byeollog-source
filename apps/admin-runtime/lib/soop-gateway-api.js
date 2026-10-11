@@ -1,3 +1,4 @@
+import {refreshAutomaticRouletteRules} from './weflab-collection-config.js';
 import {safeEqual} from './auth.js';
 import {isJsonRequest} from './request-origin.js';
 import {normalizeSoopSdkRelayEnvelope} from './soop-sdk-relay.js';
@@ -51,7 +52,7 @@ export function getSoopGatewayIngressReadiness(env=process.env){
 }
 
 async function controlFor(workspaceId,sbImpl){
-  const rows=await sbImpl('byeollog_soop_runtime_controls',`?select=gateway_enabled,core_collection_enabled,native_roulette_enabled,live_diagnostics_enabled&workspace_id=eq.${encodeURIComponent(workspaceId)}&limit=1`);
+  const rows=await sbImpl('byeollog_soop_runtime_controls',`?select=gateway_enabled,core_collection_enabled,native_roulette_enabled,live_diagnostics_enabled,upbo_settings_protocol&workspace_id=eq.${encodeURIComponent(workspaceId)}&limit=1`);
   return Array.isArray(rows)?rows[0]||null:null;
 }
 
@@ -210,6 +211,10 @@ async function event(body,control,sbImpl,env,processCollector){
   };
   let result,resultRow;
   if(relay.eventType==='donation'){
+    if(control.upbo_settings_protocol===1){
+      try{await refreshAutomaticRouletteRules(workspaceId,{sb:sbImpl})}
+      catch{console.error('[soop-gateway] configuration refresh failed',{code:'upbo_auto_rules_refresh_failed'});}
+    }
     await claimOwnership();
     const event=relay.event;
     const donationRpc=event.donationTypeLabel==='애드벌룬'

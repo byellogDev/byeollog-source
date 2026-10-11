@@ -1,3 +1,4 @@
+import {upboCollectionRequest,upboCollectionError} from '../lib/upbo-collection.js';
 import {sendDashboardShell,prepareDashboardContent,wantsDashboardShell} from '../lib/dashboard-shell.js';
 import {reverseFanDayRequest,reverseFanDayError} from '../lib/reverse-fan-day.js';
 import {rouletteExceptionsRequest,exceptionError} from '../lib/roulette-exceptions.js';
@@ -967,6 +968,16 @@ async function handleSpecialRouletteRules(req,res){
   }catch{return res.status(502).json({message:'특수룰렛 설정을 저장하지 못했습니다. 목록을 다시 확인해주세요.'})}
 }
 
+async function handleUpboCollection(req,res){
+  res.setHeader('Cache-Control','no-store, private');
+  const session=await requireCapabilityLive(req,res,req.method==='GET'?'data:read':'data:write');if(!session)return;
+  const workspaceId=await workspaceForSession(session);if(!workspaceId)return res.status(403).json({message:'워크스페이스를 확인할 수 없습니다.'});
+  if(['POST','DELETE'].includes(req.method)&&!requireSafeJsonMutation(req,res))return;
+  let result;try{result=await upboCollectionRequest({sb,workspaceId,userId:session.user_id,method:req.method,query:req.query,body:bodyOf(req)})}
+  catch(error){result=upboCollectionError(error)}
+  return res.status(result.status).json(result.body);
+}
+
 async function handleReverseFanDay(req,res){
   res.setHeader('Cache-Control','no-store, private');
   const session=await requireCapabilityLive(req,res,req.method==='GET'?'data:read':'data:write');if(!session)return;
@@ -1099,6 +1110,7 @@ export default async function handler(req,res){
 
   if(operation==='dashboard-bootstrap')return handleDashboardBootstrap(req,res);
   if(operation==='weflab-public-import')return handleWeflabPublicImport(req,res);
+  if(operation==='upbo-collection')return handleUpboCollection(req,res);
   if(operation==='roulette-classification-rules')return handleRouletteClassificationRules(req,res);
   if(operation==='fixed-upbo-rules')return handleFixedUpboRules(req,res);
   if(operation==='reverse-fan-day')return handleReverseFanDay(req,res);
