@@ -172,3 +172,5 @@
 - [2026-10-11 · Agent 1.0.0.58 톱니바퀴 제거·UI 캐시 무결성](2026-10-11-agent-ui-integrity.md)
 
 - [2026-10-11 · 메인 페이지 기능 설명 최신화](2026-10-11-homepage-features.md)
+
+- [2026-10-11 · 메인 제품 소개의 설정·통계 링크 제거](2026-10-11-homepage-features.md#후속-수정--ops-20261011-homepage-intro)

@@ -478,3 +478,7 @@
 ## ops-2026.10.11-homepage-features
 
 - 메인 페이지를 최신 기능 설명 중심으로 갱신했습니다. 오버레이 주소·수집 ON·최초 분류, 자동 이벤트명, 풍벽지 개별 숨김·백두산·커스텀과 월별 통계·PNG 리포트를 안내합니다. 23:27 KST 운영 확인. [검증·복구](docs/releases/2026-10-11-homepage-features.md).
+
+## ops-2026.10.11-homepage-intro
+
+- 메인 제품 소개에서 업보·풍벽지 설정 및 통계 열기 링크 3개를 제거했습니다. [변경·검증](docs/releases/2026-10-11-homepage-features.md).

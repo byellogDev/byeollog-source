@@ -7772,6 +7772,13 @@
       "after": "36e4e4d3b47f0d0c8aa709946c5320d63540ed4f9068beddfb902b7c86f42055",
       "status": "changed",
       "release": "ops-2026.10.11-homepage-features"
+    },
+    {
+      "target": "apps/web/index.html",
+      "before": "fc40ed53a22be4745314882209d40ac6f483bfd7a4462b6eaa6bd41e3d2c23e2",
+      "after": "c8708f47e6da252a0158d515e6216e3931e9ce7fa0e6ede3e36f6ee7c652a634",
+      "status": "changed",
+      "release": "ops-2026.10.11-homepage-intro"
     }
   ]
 }
