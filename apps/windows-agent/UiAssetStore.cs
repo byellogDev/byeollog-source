@@ -4,6 +4,7 @@ namespace HurogiCollector;
 
 internal static class UiAssetStore
 {
+    private static readonly object ResourceWriteLock = new();
     // Embedded assets belong to the exact build. Do not depend on a manually
     // bumped UI version: existing installations otherwise keep stale HTML/JS.
     // MVID is stable across restarts and changes when assembly inputs change.
@@ -44,11 +45,33 @@ internal static class UiAssetStore
 
     private static void WriteResource(string resourceName, string destination)
     {
-        if (File.Exists(destination)) return;
         var assembly = Assembly.GetExecutingAssembly();
         using var input = assembly.GetManifestResourceStream(resourceName)
             ?? throw new InvalidOperationException($"UI 리소스를 찾지 못했습니다: {resourceName}");
-        using var output = new FileStream(destination, FileMode.Create, FileAccess.Write, FileShare.Read);
-        input.CopyTo(output);
+        using var buffer = new MemoryStream();
+        input.CopyTo(buffer);
+        var expected = buffer.ToArray();
+        lock (ResourceWriteLock)
+        {
+            if (File.Exists(destination))
+            {
+                if ((File.GetAttributes(destination) & FileAttributes.ReparsePoint) != 0)
+                    throw new IOException("UI 캐시에 연결 파일을 사용할 수 없습니다.");
+                if (File.ReadAllBytes(destination).AsSpan().SequenceEqual(expected)) return;
+            }
+            // Never serve a partially written file. Cache is disposable; user settings
+            // and older build directories are never modified here.
+            var temporary = destination + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            try
+            {
+                using (var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                {
+                    output.Write(expected);
+                    output.Flush(flushToDisk: true);
+                }
+                File.Move(temporary, destination, overwrite: true);
+            }
+            finally { if (File.Exists(temporary)) File.Delete(temporary); }
+        }
     }
 }

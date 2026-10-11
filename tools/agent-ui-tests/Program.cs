@@ -24,6 +24,17 @@ internal static class Program
             throw new InvalidOperationException("Published application reuses stale editor UI");
         if ((string)prepare.Invoke(null, new object[] { root })! != actualUi)
             throw new InvalidOperationException("UI bundle is not stable across restart preparation");
+        var mainPath = Path.Combine(actualUi, "byeollog_ui.html");
+        var expectedMain = File.ReadAllBytes(mainPath);
+        var mainHtml = System.Text.Encoding.UTF8.GetString(expectedMain);
+        if (mainHtml.Contains("weflabSettings") || !mainHtml.Contains("announcementLink")
+            || assembly.GetType("HurogiCollector.WeflabSettingsForm") is not null)
+            throw new InvalidOperationException("Released UI contains retired settings or lacks announcement");
+        File.WriteAllText(mainPath, "stale or interrupted UI cache");
+        prepare.Invoke(null, new object[] { root });
+        if (!File.ReadAllBytes(mainPath).SequenceEqual(expectedMain))
+            throw new InvalidOperationException("Actual app did not repair changed UI cache");
+        Console.WriteLine("PASS: actual app UI repair, retired button/form absent, announcement retained.");
         Console.WriteLine("PASS: actual app assembly extracts current embedded UI with old v1.0.0.50 cache retained.");
         // Constructor uses RootPath only. Avoid CollectorStorage's production data-root constructor.
         var storage = RuntimeHelpers.GetUninitializedObject(storageType);

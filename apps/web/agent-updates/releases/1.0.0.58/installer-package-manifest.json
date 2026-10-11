@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 2,
+  "product": "byeollog-collector",
+  "version": "1.0.0.58",
+  "platform": "win-x64",
+  "packageLayout": "flat_v1",
+  "generatedAtUtc": "2026-10-11T11:48:37.3157399+00:00",
+  "fileCount": 18,
+  "totalByteSize": 73671268,
+  "authenticity": {
+    "mode": "trusted_channel_internal",
+    "scope": "package_integrity_only",
+    "signerThumbprint": null
+  },
+  "files": [
+    {
+      "path": "byeollog.exe",
+      "role": "app",
+      "byteSize": 73592740,
+      "sha256": "b2b4e0e6e5c9920c98547712e137890508f6f40420b29bfd116ba7ceca338744"
+    },
+    {
+      "path": "LAUNCH_BYEOLLOG.cmd",
+      "role": "install_root",
+      "byteSize": 498,
+      "sha256": "4a5b377dac51fbfaac196dba8a9aa39a6e8137469f672235b275ec2ce7a8e01a"
+    },
+    {
+      "path": "Byeollog-Launcher.ps1",
+      "role": "install_root",
+      "byteSize": 10064,
+      "sha256": "c213a2f3eb0f2a6c0f92d1f72f427f352bc06effc276bacd9b977be880ca6cae"
+    },
+    {
+      "path": "Install-Byeollog.ps1",
+      "role": "install_root",
+      "byteSize": 35725,
+      "sha256": "c1c7b4873873f6f6fd28577132ac063a059807992974113d3ac2dbb1b6e832cb"
+    },
+    {
+      "path": "ROLLBACK_LAST_VERSION.cmd",
+      "role": "install_root",
+      "byteSize": 292,
+      "sha256": "f1081b10b103489c2e0ccaa92b439ba79a12ee267a636980b2fffc590ae6a253"
+    },
+    {
+      "path": "VERIFY_INSTALL.cmd",
+      "role": "install_root",
+      "byteSize": 379,
+      "sha256": "70c17462b6f9fbdd514c8d28db7d18fbce2201f30e263acfdaa374ea8910a260"
+    },
+    {
+      "path": "RESTORE_PREUPDATE_STATE.cmd",
+      "role": "install_root",
+      "byteSize": 316,
+      "sha256": "3d9456b01ed4e0559eb1b65ca9c93f04c4574a57ea63d6b6a1da95b16eb529bf"
+    },
+    {
+      "path": "CREATE_SUPPORT_BUNDLE.cmd",
+      "role": "install_root",
+      "byteSize": 332,
+      "sha256": "d5bf1ffc784cd434e194dca35c77fcc8bd2c00677d61b7b79ad0e6fef66ef71a"
+    },
+    {
+      "path": "RUN_REPLAY_CANDIDATE_CHECK.cmd",
+      "role": "install_root",
+      "byteSize": 885,
+      "sha256": "d7e7c3dc1d57eb34baf0234d001e3ba121c898bf2d45fe4e2e39f5a29dd325dc"
+    },
+    {
+      "path": "Collect-SupportBundle.ps1",
+      "role": "install_root",
+      "byteSize": 10945,
+      "sha256": "e398083caaf3172bc1e02fdc0871151bb4f5d7483febf2956ae938d5899b70f7"
+    },
+    {
+      "path": "INSTALL_OR_UPDATE.cmd",
+      "role": "package_tool",
+      "byteSize": 451,
+      "sha256": "22a4d9c65813692b5e6e89ab168c442933319c4b7b55bc32695938dd54f20e7d"
+    },
+    {
+      "path": "INSTALL_AND_CHECK.cmd",
+      "role": "package_tool",
+      "byteSize": 596,
+      "sha256": "0a1944c4a5209afd98077b742b2e88853c8987654bb2de231aa4bfca316edfd0"
+    },
+    {
+      "path": "RUN_G4_CANARY_PREP.cmd",
+      "role": "package_tool",
+      "byteSize": 982,
+      "sha256": "a76e2f6fc05c4566156ea8b9c4eb5ff49da43a66e15a7c8e700846bc360989d8"
+    },
+    {
+      "path": "RUN_TESTER_READINESS.cmd",
+      "role": "package_tool",
+      "byteSize": 606,
+      "sha256": "b91604a340b0daa53cc0dc063496f29105ced685b01de3ef8a52d11df52578e4"
+    },
+    {
+      "path": "Test-TesterEnvironment.ps1",
+      "role": "package_tool",
+      "byteSize": 5982,
+      "sha256": "8fd293d48413945a3a3eb49fa46acbd54fee1beca7ce39e0acc0262e4c683016"
+    },
+    {
+      "path": "README_TESTER_v070_RC2_KO.txt",
+      "role": "documentation",
+      "byteSize": 3851,
+      "sha256": "df04b9f2837d8ecf0588e0da83196ffdbb6203c8f003cbb7dbc95f965a7f4f14"
+    },
+    {
+      "path": "G4_CANARY_v070_RC2_KO.md",
+      "role": "documentation",
+      "byteSize": 3855,
+      "sha256": "5c2b16c11eefdf97e91d981a9ed035a9caee4e8e0e80caa3283a85790a5f30be"
+    },
+    {
+      "path": "RELEASE_v07032_AUTO_UPDATE_BOOTSTRAP_KO.txt",
+      "role": "documentation",
+      "byteSize": 2769,
+      "sha256": "6b32fb89f63f5f421c805ee214662752ee88dd7ad8718ee8c48bfe1c4e969709"
+    }
+  ]
+}

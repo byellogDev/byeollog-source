@@ -7688,6 +7688,76 @@
       "after": "0d65e25118e8ee915bc04bd45035e505427458b33e52828ba76a243164af9bc6",
       "status": "changed",
       "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "11fd1c5e2ff03b89d63c2d09e38c426929bc36c17b2a5d4d2e2ef2677ea0bc04",
+      "after": "0e45fe27237359682f670cfbebdd278856a247b9b5844d0a769bb27ad9f4ee48",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "11fd1c5e2ff03b89d63c2d09e38c426929bc36c17b2a5d4d2e2ef2677ea0bc04",
+      "after": "0e45fe27237359682f670cfbebdd278856a247b9b5844d0a769bb27ad9f4ee48",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/web/installer/ByeollogAgentSetup.iss",
+      "before": "c4ab2a0ae6e728ada125e07417cf8d23fe6ab84613ed0901a103b7468933c1e4",
+      "after": "d60771d81f3f1bfc7bc9227c03b1f2b9626ad92376bb5733e151f23710c6cb83",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "3fe599a57673052e0926418817b27f77c589a5cf14a82918244ac65bc4d9772c",
+      "after": "904a3f8ab50761b7a4ef4496b8a8607a288e10d3f1812f09fb08e28d745af4cf",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/windows-agent/AgentStoreTests/UiAssetCacheTests.cs",
+      "before": "5a225460876b02d2f233676bd43e90edd7a2ea83d757a50183a7d1c360129504",
+      "after": "2f7de4436c52d0441053848fd92ce2d8a3288470cda8caa198dd8dea16d1b619",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "2c2359128d7e3e135ae98b168a69796cbc2195dadc3e32e1de2d051d02cc5e2f",
+      "after": "bd75875f3742ab36aac174ced375f7f5688b004c2102d46b902309d47e054b5c",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/windows-agent/MainForm.cs",
+      "before": "3b6dca948c0e8833275862bcc0c59c434e9ce16f8fa781956b70cab83086f61f",
+      "after": "832e2ef3f527923105e89e271ffdee9a1d7bb14991332f2aa8852e8654a73168",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/windows-agent/Ui/byeollog_ui.html",
+      "before": "baa3334ccf935b0a11231902eabec4255ab3434d8ec32b36000b70e690b84ea3",
+      "after": "c482b9a988bbee0797399b4b341df23a540ac302a08f7a921ce4e31295a9d746",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "a093572692b1cf2f83682213b812278f90f4714f921aea915a0b31382bb2eafc",
+      "after": "a9e6e75f2ade81014c49fb248e98b5c818db9e0b41866b66f44b692678067d1f",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/windows-agent/WeflabSettingsForm.cs",
+      "before": "6bad6027169d429d23b9b9a861f3284fe1a9f274abdf2ff1850bd597ee47c98f",
+      "after": null,
+      "status": "removed",
+      "release": "agent-1.0.0.58"
     }
   ]
 }

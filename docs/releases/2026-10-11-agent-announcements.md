@@ -51,3 +51,5 @@
 - PR: https://github.com/byellogDev/byeollog/pull/4
 - 소스·문서는 codex/integration-observer-records-20260924의 릴리스 태그 커밋에서 확인합니다. 기본 브랜치는 자동 병합하지 않았습니다.
 - 게시 완료 시 실제 본문·draft=false·prerelease=false·태그 커밋·Latest를 확인합니다.
+
+후속 UI 정리: [Agent 1.0.0.58 톱니바퀴 제거·UI 캐시 무결성](2026-10-11-agent-ui-integrity.md). 공지 게시 시각과 내용은 유지합니다.
