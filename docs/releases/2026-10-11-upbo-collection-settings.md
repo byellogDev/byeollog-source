@@ -55,3 +55,5 @@
 - 후보 prerelease로 게시하며 기존 Agent 정식 Latest 유지. 신규 설치 파일 없음. 기존 설치 파일은 [별도 저장소](https://github.com/byellogDev/byeollog-releases/releases) 유지.
 
 후속: [배포 준비와 운영 승격 보류 기록](2026-10-11-upbo-deployment.md). 최초 후보 상태는 위 기록대로 보존한다.
+
+후속 운영 반영: [2026-10-11 업보 수집 설정·Agent 1.0.0.56](2026-10-11-upbo-collection-production.md). 위 내용은 당시 상태의 기록이다.

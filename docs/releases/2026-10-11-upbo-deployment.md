@@ -48,3 +48,5 @@
 - [PR #4](https://github.com/byellogDev/byeollog/pull/4), codex/integration-observer-records-20260924. 기본 브랜치 자동 병합 없음.
 - [배포 준비 릴리스](https://github.com/byellogDev/byeollog/releases/tag/candidate-2026.10.11-upbo-deployment). prerelease로 게시하며 운영 완료로 표시하지 않는다. 게시 본문에서 실제 소스 커밋과 문서를 연결한다.
 - [Agent 1.0.0.56 설치 자산](https://github.com/byellogDev/byeollog-releases/releases/tag/agent-v1.0.0.56). 자산 게시와 안정 채널 승격은 별개다.
+
+후속 운영 반영: [2026-10-11 업보 수집 설정·Agent 1.0.0.56](2026-10-11-upbo-collection-production.md). 위 내용은 당시 상태의 기록이다.
