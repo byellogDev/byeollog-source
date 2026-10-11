@@ -170,3 +170,5 @@
 - [2026-10-11 · Agent 1.0.0.57 새 공지 바로가기](2026-10-11-agent-announcements.md)
 
 - [2026-10-11 · Agent 1.0.0.58 톱니바퀴 제거·UI 캐시 무결성](2026-10-11-agent-ui-integrity.md)
+
+- [2026-10-11 · 메인 페이지 기능 설명 최신화](2026-10-11-homepage-features.md)

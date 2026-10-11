@@ -7758,6 +7758,20 @@
       "after": null,
       "status": "removed",
       "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/web/index.html",
+      "before": "00eb97edc8722b4e30a17a22b08e74b08b352ab5551304ebc17048973cb191f7",
+      "after": "fc40ed53a22be4745314882209d40ac6f483bfd7a4462b6eaa6bd41e3d2c23e2",
+      "status": "changed",
+      "release": "ops-2026.10.11-homepage-features"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "904a3f8ab50761b7a4ef4496b8a8607a288e10d3f1812f09fb08e28d745af4cf",
+      "after": "36e4e4d3b47f0d0c8aa709946c5320d63540ed4f9068beddfb902b7c86f42055",
+      "status": "changed",
+      "release": "ops-2026.10.11-homepage-features"
     }
   ]
 }
