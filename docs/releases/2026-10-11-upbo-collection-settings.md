@@ -53,3 +53,5 @@
 - [PR #4](https://github.com/byellogDev/byeollog/pull/4), 작업 브랜치 codex/integration-observer-records-20260924. 기본 브랜치 자동 병합 없음.
 - [후보 GitHub Release](https://github.com/byellogDev/byeollog/releases/tag/candidate-2026.10.11-upbo-collection). 실제 게시 본문에서 소스 커밋과 이 문서를 고정 링크로 제공한다.
 - 후보 prerelease로 게시하며 기존 Agent 정식 Latest 유지. 신규 설치 파일 없음. 기존 설치 파일은 [별도 저장소](https://github.com/byellogDev/byeollog-releases/releases) 유지.
+
+후속: [배포 준비와 운영 승격 보류 기록](2026-10-11-upbo-deployment.md). 최초 후보 상태는 위 기록대로 보존한다.

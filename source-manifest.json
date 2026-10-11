@@ -7142,6 +7142,34 @@
       "after": "7c5a32ed2beb9051b4ab268178d3eb3b1361bb357775200ee325058be9506fe3",
       "status": "changed",
       "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "33f4a0c6ea6d845b6a4e2577b220e6a38d3910dd8cb2a39733fc2c965fbb5a22",
+      "after": "36ee8081b244efa45c8c9e95a54460aa0e6f927403cb8e6aa036bf09cb2da961",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-deployment"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "33f4a0c6ea6d845b6a4e2577b220e6a38d3910dd8cb2a39733fc2c965fbb5a22",
+      "after": "36ee8081b244efa45c8c9e95a54460aa0e6f927403cb8e6aa036bf09cb2da961",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-deployment"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "a93e7dbaf532ca9aef332b3bc531e8c700deb6fba5445af402ae529ae59f3e18",
+      "after": "74b6a555016b26bcb7884bb84018ae8833d9925317e26679dcf6b497671f6c9d",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-deployment"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "055a8e89580deae5c943354ebe798ba014dbdffee6763d3519a02968ab2c9039",
+      "after": "f2864458cd6999e15a3f0eeed79fe17178e5b69e56c864cffba19b12741aa3ab",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-deployment"
     }
   ]
 }
