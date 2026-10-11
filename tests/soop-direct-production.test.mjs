@@ -97,7 +97,7 @@ async function runFixture(t,{mode='normal',onEvent=()=>{}}={}){
    // A frame straddling warmup is correctly refused, covered by rolling tests.
    if(e.kind==='handoff_preparing')clearInterval(loop);
    if(e.kind==='handoff_overlap_started')timers.push(setTimeout(()=>{send();loop=setInterval(send,15)},35));
-   if(e.kind==='handoff_committed'){handoffs++;next++;if(handoffs===2){clearInterval(loop);send();timers.push(setTimeout(()=>{for(const s of sockets)if(s.readyState===1)s.send(encodePacket(88,[]))},30))}}
+   if(e.kind==='handoff_committed'){handoffs++;if(handoffs<2)next++;if(handoffs===2){clearInterval(loop);send();timers.push(setTimeout(()=>{for(const s of sockets)if(s.readyState===1)s.send(encodePacket(88,[]))},30))}}
   }
  };
  let result,error;try{result=await runSoopDirectSession(args)}catch(e){error=e}
@@ -110,6 +110,8 @@ test('production session selects one stream across two replacements; encrypted r
  const delivery=createCandidateDelivery({workspaceId:'synthetic-a',instanceId:'synthetic-instance',logicalConnectionId:'synthetic-direct-session',expectedBroadcasterId:'lab0',leaseToken:'synthetic-lease',outbox:box});
  const r=await runFixture(t,{onEvent:e=>delivery.accept({...e,receivedAt:e.at})});await delivery.drain();
  assert.equal(r.error,undefined);assert.equal(r.result.errorCode,'broadcast_offline',JSON.stringify(r.logs));assert.equal(r.handoffs,2);assert.equal(r.maxSockets,2);assert.equal(r.events.length,r.sends);
+ // Keep the final token stable: a third replacement used to restart gift timers after broadcast close.
+ assert.equal(r.logs.filter(e=>e.kind==='handoff_preparing').length,2);
  assert.equal(r.states.length,1);assert.deepEqual(r.states[0].room,{bjId:'lab0',chatNumber:1000});
  assert(r.events.every(e=>e.at&&e.room.bjId==='lab0'));assert(r.logs.some(e=>e.kind==='credential_unavailable_keep_active'));
  assert.equal(await box.count(),r.sends);for(const f of await box.files())assert.doesNotMatch(await fs.readFile(join(directory,f),'utf8'),/synthetic-user|synthetic-lease/);
