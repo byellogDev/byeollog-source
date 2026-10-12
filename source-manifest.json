@@ -7779,6 +7779,20 @@
       "after": "c8708f47e6da252a0158d515e6216e3931e9ce7fa0e6ede3e36f6ee7c652a634",
       "status": "changed",
       "release": "ops-2026.10.11-homepage-intro"
+    },
+    {
+      "target": "apps/web/lib/upbo-collection-html.js",
+      "before": "17f3fc6e68eb25d7b607865f4b53e2f9d89faa760090ea476cd6a371f91d08ab",
+      "after": "949766ed928262a3ee2b990bda062bc69452d4f586c463fe00035a8e1238c518",
+      "status": "changed",
+      "release": "ops-2026.10.13-overlay-url-masking"
+    },
+    {
+      "target": "apps/admin-runtime/lib/upbo-collection-html.js",
+      "before": "17f3fc6e68eb25d7b607865f4b53e2f9d89faa760090ea476cd6a371f91d08ab",
+      "after": "949766ed928262a3ee2b990bda062bc69452d4f586c463fe00035a8e1238c518",
+      "status": "changed",
+      "release": "ops-2026.10.13-overlay-url-masking"
     }
   ]
 }

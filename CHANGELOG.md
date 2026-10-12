@@ -482,3 +482,7 @@
 ## ops-2026.10.11-homepage-intro
 
 - 메인 제품 소개에서 업보·풍벽지 설정 및 통계 열기 링크 3개를 제거했습니다. [변경·검증](docs/releases/2026-10-11-homepage-features.md).
+
+## ops-2026.10.13-overlay-url-masking
+
+- 오버레이 주소 기본 마스킹과 입력칸 안쪽 눈 버튼을 추가했습니다. [변경·검증](docs/releases/2026-10-13-overlay-url-masking.md).
