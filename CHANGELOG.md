@@ -1,5 +1,7 @@
 # 변경 이력
 
+- [2026-10-13 소스 연결 지도](docs/releases/2026-10-13-source-connection-map.md): HTTP·RPC·이벤트 경계 근거 보강, 외딴 묶음 분류. 로컬 연구 도구, 운영 변경 없음.
+
 - [2026-10-11 오버레이 결과 기준 업보 수집](docs/releases/2026-10-11-overlay-authority.md): 새 접수 건의 결과를 오버레이로만 처리. 반복 결과 순서·중복 방지·OFF 후 마무리·통계 분리, 검증 후보 운영 승격.
 
 - [2026-10-11 업보 수집 설정·Agent 1.0.0.56 운영 반영](docs/releases/2026-10-11-upbo-collection-production.md): 주소·ON 중심 설정과 선택 이벤트명, 인증 API 검증 후 동일 후보 승격. 자동 업데이트·다운로드 반영.
