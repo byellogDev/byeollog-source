@@ -1,5 +1,7 @@
 # 변경 이력
 
+- [2026-10-13 상호작용 소스 그래프](docs/releases/2026-10-13-interactive-source-graph.md): Graphify 형태의 점·선 탐색, 확대·이동·파일 펼치기. 로컬 연구 도구, 운영 변경 없음.
+
 - [2026-10-13 소스 연결 지도](docs/releases/2026-10-13-source-connection-map.md): HTTP·RPC·이벤트 경계 근거 보강, 외딴 묶음 분류. 로컬 연구 도구, 운영 변경 없음.
 
 - [2026-10-11 오버레이 결과 기준 업보 수집](docs/releases/2026-10-11-overlay-authority.md): 새 접수 건의 결과를 오버레이로만 처리. 반복 결과 순서·중복 방지·OFF 후 마무리·통계 분리, 검증 후보 운영 승격.

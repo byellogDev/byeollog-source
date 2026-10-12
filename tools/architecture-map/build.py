@@ -1,5 +1,6 @@
 """Offline, evidence-backed architecture view. Never contacts application services."""
 import hashlib
+import base64
 import json
 import re
 import subprocess
@@ -192,17 +193,43 @@ def build():
             for m in call_re.finditer(content):
                 calls[m[1]].append(dict(file=p,line=content.count('\n',0,m.start())+1))
     rpc = [dict(name=k, calls=v, definitions=definitions.get(k, []), status='이름 일치 후보' if k in definitions else '정의 미확인') for k,v in sorted(calls.items())]
+    file_edges = Counter()
+    unresolved_edges = 0
+    for e in raw_edges:
+        a = nodes[e['source']].get('source_file', '')
+        b = nodes[e['target']].get('source_file', '')
+        if not a or not b:
+            unresolved_edges += 1
+            continue
+        if a == b:
+            continue
+        # The input is undirected. Do not invent call direction for AST relations.
+        a, b = sorted((a, b))
+        kind = 'inferred' if e.get('confidence') == 'INFERRED' else 'ast'
+        file_edges[(a, b, kind)] += 1
     data = dict(schemaVersion=1, sourceCommit=git('rev-parse','HEAD'), generatedAt=__import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat(),
                 scope='로컬 소스 분석 · 배포 및 실제 통신 미검증',
                 rawGraphSha256=hashlib.sha256((OUT/'graph.json').read_bytes()).hexdigest(),
                 stats=dict(nodes=len(nodes), edges=len(raw_edges), communities=len(groups), islands=len(islands), isolatedNodes=sum(degree[n]==0 for n in nodes), inferredEdges=sum(e.get('confidence')=='INFERRED' for e in raw_edges), files=len(files), sourceMissingNodes=len(sources.get('',[]))),
                 components=[dict(id=i,title=t,description=d,col=x,row=y) for i,t,d,x,y in COMPONENTS],
-                connections=edges, files=sorted(files,key=lambda x:x['path']), islands=sorted(islands,key=lambda x:(x['category'],x['id'])), rpcCandidates=rpc)
+                connections=edges, files=sorted(files,key=lambda x:x['path']), islands=sorted(islands,key=lambda x:(x['category'],x['id'])), rpcCandidates=rpc,
+                graphView=dict(fileEdges=[dict(source=a,target=b,kind=k,count=v) for (a,b,k),v in sorted(file_edges.items())], unresolvedEdges=unresolved_edges))
     OUT.mkdir(exist_ok=True)
     text=json.dumps(data,ensure_ascii=False,separators=(',',':'))
     (OUT/'architecture-evidence.json').write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8')
     template=(Path(__file__).parent/'template.html').read_text(encoding='utf-8')
-    (OUT/'architecture.html').write_text(template.replace('__DATA__',text.replace('<','\\u003c')),encoding='utf-8')
+    (OUT/'architecture-details.html').write_text(template.replace('__DATA__',text.replace('<','\\u003c')),encoding='utf-8')
+    graph_template=(Path(__file__).parent/'graph-template.html').read_text(encoding='utf-8')
+    # Optional, pinned local cache: no download or executable installation here.
+    vis_cache=ROOT/'.local/architecture-vis-network.min.js'
+    if vis_cache.is_file():
+        library=vis_cache.read_bytes()
+        integrity=base64.b64encode(hashlib.sha384(library).digest()).decode()
+        if integrity!='Ux6phic9PEHJ38YtrijhkzyJ8yQlH8i/+buBR8s3mAZOJrP1gwyvAcIYl3GWtpX1':
+            raise ValueError('vis-network cache integrity mismatch')
+        graph_template=re.sub(r'<script src="https://unpkg.com/vis-network@9\.1\.6/[^>]+></script>',
+                              lambda _: '<script>'+library.decode('utf-8').replace('</script', '<\\/script')+'</script>',graph_template,count=1)
+    (OUT/'architecture.html').write_text(graph_template.replace('__DATA__',text.replace('<','\\u003c')),encoding='utf-8')
     print(json.dumps(dict(connections=len(edges),evidence=sum(len(e['evidence']) for e in edges),files=len(files),islands=len(islands),rpcCandidates=len(rpc),matchedRpc=sum(bool(r['definitions']) for r in rpc),stats=data['stats']),ensure_ascii=False))
 
 if __name__=='__main__': build()

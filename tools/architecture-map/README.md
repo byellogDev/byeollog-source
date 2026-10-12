@@ -10,10 +10,15 @@ Python 3 표준 라이브러리와 Git만 사용합니다. 먼저 저장소 루�
 python tools/architecture-map/build.py
 ```
 
-- `graphify-out/architecture.html`: 네트워크 연결 없이 열 수 있는 서비스 지도·파일 분류·RPC 대조·외딴 묶음 분석.
+- `graphify-out/architecture.html`: Graphify와 같은 vis-network 기반 점·선 그래프. 이동·확대·검색·서비스 파일 펼치기와 근거 확인을 지원합니다.
+- `graphify-out/architecture-details.html`: 네트워크 연결 없이 열 수 있는 기존 고정 지도·파일 분류·RPC 대조·외딴 묶음 분석.
 - `graphify-out/architecture-evidence.json`: 근거 경로·줄·앵커·파일 SHA-256, 원본 그래프 SHA-256, 분석 기준 커밋.
 - 기존 `graph.json`과 `graph.html`은 수정하지 않습니다.
 - 위 산출물은 로컬 분석 자료입니다. 생성기가 이를 커밋·업로드하지 않습니다.
+
+그래프 라이브러리는 원본 Graphify와 동일한 vis-network 9.1.6 및 SRI를 사용합니다. `.local/architecture-vis-network.min.js` 캐시가 있으면 SHA-384 검증 후 HTML에 내장하여 오프라인으로 엽니다. 캐시가 없으면 원본과 같은 고정 CDN 주소를 사용하며, 로드 실패 시 오프라인 분석표 링크를 표시합니다. 생성기는 다운로드하지 않습니다.
+
+그래프는 기본적으로 서비스와 확인한 핵심 파일만 표시합니다. 서비스를 더블클릭하거나 옆의 펼치기 버튼을 누르면 관련 서비스 소스 파일을 펼칩니다. 전체 코드·테스트/SQL/도구·추론 연결은 선택해서 표시합니다. 점선 소속 관계는 통신이 아닙니다. 원본의 방향 없는 AST 관계에 호출 방향을 덧붙이지 않으며, 수동 보강 선은 중계 단계를 포함하는 경로를 요약할 수 있습니다.
 
 ## 해석 원칙
 
