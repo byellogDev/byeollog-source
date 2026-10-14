@@ -67,6 +67,15 @@ class PolicyTests(unittest.TestCase):
         with self.assertRaisesRegex(ApiError,'owner_mismatch'):endpoint(payload,'other',lambda host:[])
         with self.assertRaisesRegex(ApiError,'dns_mismatch'):endpoint(payload,'fixture',lambda host:['8.8.8.8'])
         self.assertIsNone(endpoint({'result':-1302},'fixture',lambda host: self.fail('offline DNS query')))
+    def test_provider_create_requires_uppercase_enums(self):
+        class Opener:
+            def open(inner,request,timeout):
+                body=json.loads(request.data)
+                self.assertEqual(body['bound'],'OUT')
+                self.assertEqual(body['protocol'],'TCP')
+                return io.BytesIO(b'{"code":"0x00","error_code":"SUCCESS"}')
+        api=FirewallApi('fake','fake','42',opener=Opener())
+        api.create('110.10.76.111',8041,'blg-auto-'+'a'*16)
     def test_manual_baseline_does_not_create(self):
         self.assertEqual(self.engine.ensure('110.10.76.111',443),'baseline')
         self.assertEqual(self.api.posts,0)

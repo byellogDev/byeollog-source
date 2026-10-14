@@ -36,7 +36,7 @@ class FirewallApi:
             try:
                 if not isinstance(body,dict) or set(body)!=set(('bound','protocol','port','ip','title','content')):raise ValueError()
                 network=ipaddress.IPv4Network(body['ip'],strict=True)
-                if network.prefixlen!=32 or not network.network_address.is_global or body['bound']!='outbound' or body['protocol']!='tcp' or not re.fullmatch(r'[0-9]{4,5}',body['port']) or not 1024<=int(body['port'])<=65535 or not re.fullmatch(r'blg-auto-[a-f0-9]{16}',body['title']) or body['content']!='SOOP verified outbound':raise ValueError()
+                if network.prefixlen!=32 or not network.network_address.is_global or body['bound']!='OUT' or body['protocol']!='TCP' or not re.fullmatch(r'[0-9]{4,5}',body['port']) or not 1024<=int(body['port'])<=65535 or not re.fullmatch(r'blg-auto-[a-f0-9]{16}',body['title']) or body['content']!='SOOP verified outbound':raise ValueError()
             except (ValueError,TypeError,KeyError):raise ApiError('api_mutation_denied') from None
         # Stay below the provider's 60/minute limit, including verification reads.
         wait=1.1-(self.clock()-self.last_call)
@@ -73,7 +73,7 @@ class FirewallApi:
         except ValueError:raise ApiError('invalid_destination') from None
         if not address.is_global or type(port)!=int or not 1024<=port<=65535 or not re.fullmatch(r'blg-auto-[a-f0-9]{16}',title):
             raise ApiError('invalid_destination')
-        return self.request('POST','/rules',{'bound':'outbound','protocol':'tcp','port':str(port),
+        return self.request('POST','/rules',{'bound':'OUT','protocol':'TCP','port':str(port),
                                             'ip':str(address)+'/32','title':title,'content':'SOOP verified outbound'})
 
     def delete_owned(self, rule_id):

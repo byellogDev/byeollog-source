@@ -60,3 +60,9 @@ test('auto egress monitor redaction regressions',()=>{
  const result=spawnSync(process.env.PYTHON||'python',['-B',script],{encoding:'utf8',windowsHide:true,timeout:15000});
  assert.equal(result.status,0,result.stderr||result.error?.message||result.stdout);
 });
+
+test('deployment waits for fresh account readiness',()=>{
+ const script=fileURLToPath(new URL('../operations/iwinv/auto-egress/promotion.test.py',import.meta.url));
+ const result=spawnSync(process.env.PYTHON||'python',['-B',script],{encoding:'utf8',windowsHide:true,timeout:15000});
+ assert.equal(result.status,0,result.stderr||result.error?.message||result.stdout);
+});
