@@ -1,5 +1,7 @@
 # 변경 이력
 
+- [2026-10-14 SOOP 출발 통신 복구](docs/releases/2026-10-14-soop-egress-recovery.md): TCP 8041 누락과 동적 목적지 확인, 승인된 방화벽 규칙 반영 후 19:58:06 채널 연결 복구. 프로그램 재배포·재시작 없음. 장애 구간 누락은 별도 미검증.
+
 - [2026-10-13 상호작용 소스 그래프](docs/releases/2026-10-13-interactive-source-graph.md): Graphify 형태의 점·선 탐색, 확대·이동·파일 펼치기. 로컬 연구 도구, 운영 변경 없음.
 
 - [2026-10-13 소스 연결 지도](docs/releases/2026-10-13-source-connection-map.md): HTTP·RPC·이벤트 경계 근거 보강, 외딴 묶음 분류. 로컬 연구 도구, 운영 변경 없음.
