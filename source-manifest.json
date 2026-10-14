@@ -7793,6 +7793,13 @@
       "after": "949766ed928262a3ee2b990bda062bc69452d4f586c463fe00035a8e1238c518",
       "status": "changed",
       "release": "ops-2026.10.13-overlay-url-masking"
+    },
+    {
+      "target": "services/soop-gateway/services/soop-chat-gateway/.env.gateway.example",
+      "before": "cd694a4e53b8ad2b974e130bd40b7c2b22339f000e05ac12a2210b6078ec4599",
+      "after": "b6128adb5932fa2b793d7b1e5d3150dc7fae703481eda129c9e74a306108b896",
+      "status": "changed",
+      "release": "candidate-2026.10.14-auto-egress"
     }
   ]
 }

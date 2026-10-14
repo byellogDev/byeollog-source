@@ -1,8 +1,11 @@
 import crypto from 'node:crypto';
 import WebSocket from 'ws';
 import {observeRolling} from './core.mjs';
+import {createEgressFetch} from './egress-fetch.mjs';
 
 export async function runSoopDirectSession({clientId,clientSecret,accessToken,expectedBroadcasterId,providerTokenExpiresAt,getCredentials,signal,onEvent=()=>{},onState=()=>{},onDiagnostic=()=>{},fetchImpl=fetch,WebSocketImpl=WebSocket,timing,credentialPollMs=30000,durationMs=172800000}={}){
+ const roomFetch=createEgressFetch({socketPath:process.env.SOOP_EGRESS_CONTROL_SOCKET,
+  baselinePorts:(process.env.SOOP_EGRESS_BASELINE_PORTS||'').split(',').filter(Boolean).map(Number),owner:expectedBroadcasterId,fetchImpl});
  const abort=new AbortController();
  const stop=()=>abort.abort();signal?.addEventListener('abort',stop,{once:true});if(signal?.aborted)abort.abort();
  let polling=false,receiver=null,timer=null,terminalCode=null;
@@ -22,7 +25,7 @@ export async function runSoopDirectSession({clientId,clientSecret,accessToken,ex
   }finally{polling=false}
  };
  try{
-  const result=await observeRolling(config,{WebSocketImpl,fetchImpl,signal:abort.signal,timing,
+  const result=await observeRolling(config,{WebSocketImpl,fetchImpl:roomFetch,signal:abort.signal,timing,
    subscribeReplacement:fn=>{receiver=fn;timer=setInterval(()=>void poll(),credentialPollMs);return()=>{clearInterval(timer);receiver=null}},
    onEvent:e=>onEvent({...e,at:e.receivedAt}),
    onReport:e=>{

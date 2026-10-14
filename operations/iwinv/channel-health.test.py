@@ -1,6 +1,7 @@
 import importlib.util
 import pathlib
 import unittest
+import hashlib
 
 spec = importlib.util.spec_from_file_location('channel_health', pathlib.Path(__file__).with_name('channel_health.py'))
 policy = importlib.util.module_from_spec(spec)
@@ -13,6 +14,24 @@ def observe(channels, previous=None, now=100, fresh=True):
     return policy.assess_channels(channels, previous or {}, now, fresh=fresh)
 
 class ChannelHealthTests(unittest.TestCase):
+    def test_auto_rule_covers_only_the_exact_destination(self):
+        key=hashlib.sha256(b'8.8.8.8:9041').hexdigest()
+        allowed=[{'digest':key,'port':9041}]
+        raw='ESTAB 0 0 172.18.0.2:50000 8.8.8.8:9041'
+        report=policy.assess_ports(raw,[],[],allowed,[])
+        self.assertEqual(report['unapprovedEgressPorts'],[])
+        report=policy.assess_ports(raw+'\nSYN-SENT 0 1 172.18.0.2:50001 8.8.4.4:9041',[],[],allowed,[])
+        self.assertEqual(report['unapprovedEgressPorts'],[9041])
+        self.assertEqual(len(report['unapprovedEgressEndpoints']),1)
+
+    def test_auto_permission_resolves_only_matching_remembered_endpoint(self):
+        raw='SYN-SENT 0 1 172.18.0.2:50000 8.8.8.8:9041'
+        old=policy.assess_ports(raw,[],[])
+        report=policy.assess_ports('',[],old['unapprovedEgressPorts'],old['unapprovedEgressEndpoints'],old['unapprovedEgressEndpoints'])
+        self.assertEqual(report['unapprovedEgressPorts'],[])
+        report=policy.assess_ports('',[],[9041],old['unapprovedEgressEndpoints'],[])
+        self.assertEqual(report['unapprovedEgressPorts'],[9041])
+
     def test_failure_connecting_does_not_recover(self):
         state, report = observe([channel('retry_wait', 'ready_timeout')])
         for tick in (130, 160, 500):

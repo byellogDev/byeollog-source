@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Local-only operational checks. Never restart a collector or log event bodies."""
-import datetime,json,os,pathlib,subprocess,sys,syslog,time,fcntl
+import datetime,json,os,pathlib,re,subprocess,sys,syslog,time,fcntl
 sys.path.insert(0, '/usr/local/lib/byeollog-monitor')
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from channel_health import assess_channels, assess_ports
@@ -53,11 +53,19 @@ def main():
     remembered,channel_report=assess_channels(raw_channels,previous.get('channels',{}),now,fresh=age('heartbeatAt')<=60)
     policy=json.loads(POLICY.read_text());allowed=policy['approvedTcpPorts']
     if policy.get('schemaVersion')!=1 or not allowed or any(type(p)!=int or p<1 or p>65535 for p in allowed):raise ValueError('invalid_egress_policy')
+    approved_destinations=[]
+    if pathlib.Path('/etc/byeollog-egress/enabled').exists():
+        try:
+            auto=json.loads(pathlib.Path('/var/lib/byeollog-egress/status.json').read_text())
+            rows=auto.get('ownedDestinations')
+            if auto.get('schema')==1 and auto.get('enabled') is True and auto.get('lastError') is None and auto.get('needsReview') is False and -5<=now-auto['at']<=90 and isinstance(rows,list) and len(rows)<=24:
+                approved_destinations=[x for x in rows if isinstance(x,dict) and isinstance(x.get('digest'),str) and re.fullmatch('[a-f0-9]{64}',x['digest']) and type(x.get('port'))==int and 1024<=x['port']<=65535]
+        except (OSError,ValueError,TypeError,KeyError):pass
     try:
         sockets=command(['nsenter','-t',str(d['State']['Pid']),'-n','ss','-H','-n','-t'])
-        port_report=assess_ports(sockets,allowed,previous.get('unapprovedPorts',[]));port_report['egressTelemetryAvailable']=True
+        port_report=assess_ports(sockets,allowed,previous.get('unapprovedPorts',[]),approved_destinations,previous.get('unapprovedEndpoints',[]));port_report['egressTelemetryAvailable']=True
     except (subprocess.SubprocessError,OSError):
-        port_report=assess_ports('',allowed,previous.get('unapprovedPorts',[]));port_report['egressTelemetryAvailable']=False
+        port_report=assess_ports('',allowed,previous.get('unapprovedPorts',[]),approved_destinations,previous.get('unapprovedEndpoints',[]));port_report['egressTelemetryAvailable']=False
     s={'at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'diskPercent':round(100*(1-disk.f_bavail/disk.f_blocks)),
        'memoryAvailablePercent':round(100*mem['MemAvailable']/mem['MemTotal']),'pids':pids,'pidLimit':d['HostConfig']['PidsLimit'],
        'pidPercent':round(100*pids/max(1,d['HostConfig']['PidsLimit'])),'container':d['State']['Status']+':'+d['State'].get('Health',{}).get('Status','missing'),
@@ -69,7 +77,7 @@ def main():
        'lastDeliveryAt':worker.get('lastDeliveryAt'),
        'lastEventAt':max((x.get('lastEventAt') for x in channels if isinstance(x.get('lastEventAt'),str)),default=None)}
     s.update(evaluate(s));encoded=json.dumps(s,sort_keys=True)
-    atomic(statefile,{'schemaVersion':1,'channels':remembered,'unapprovedPorts':port_report['unapprovedEgressPorts']})
+    atomic(statefile,{'schemaVersion':1,'channels':remembered,'unapprovedPorts':port_report['unapprovedEgressPorts'],'unapprovedEndpoints':port_report['unapprovedEgressEndpoints']})
     atomic(ROOT/'health.json',s)
     syslog.openlog('byeollog-health');syslog.syslog(syslog.LOG_ERR if s['level']=='critical' else syslog.LOG_WARNING if s['level']=='warning' else syslog.LOG_INFO,encoded)
     print(encoded);return 1 if s['level']=='critical' else 0

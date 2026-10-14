@@ -1,5 +1,6 @@
 """Pure channel/egress assessment. Does not connect, change rules, or send alerts."""
 import ipaddress
+import hashlib
 
 GRACE_SECONDS = 90
 
@@ -45,9 +46,12 @@ def assess_channels(channels, previous, now, *, fresh=True):
                      'channelHealthReasons': sorted(reasons)}
 
 
-def assess_ports(socket_text, allowed_ports, previous_unapproved):
+def assess_ports(socket_text, allowed_ports, previous_unapproved, approved_destinations=None, previous_endpoints=None):
     allowed = set(allowed_ports)
     observed, syn = set(), set()
+    approved = {(x['digest'], x['port']) for x in (approved_destinations or [])}
+    remembered = {(x['digest'], x['port']) for x in (previous_endpoints or [])}
+    unknown = set(remembered)
     for line in socket_text.splitlines():
         fields = line.split()
         if len(fields) < 5 or fields[0] not in ('ESTAB', 'SYN-SENT'):
@@ -60,9 +64,17 @@ def assess_ports(socket_text, allowed_ports, previous_unapproved):
         if not address.is_global or not 1 <= port <= 65535:
             continue
         observed.add(port)
+        fingerprint = hashlib.sha256(f'{address}:{port}'.encode()).hexdigest()
+        unknown.add((fingerprint, port))
         if fields[0] == 'SYN-SENT':
             syn.add(port)
     # Do not hide a discovered gap simply because the socket timed out.
-    unapproved = (observed | set(previous_unapproved)) - allowed
+    # Permission is per destination, not per port. Approving one IP must not
+    # conceal a different IP using the same port. Legacy unknown ports remain
+    # unresolved until explicitly approved; modern records retain keyed proof.
+    unknown = {(key, port) for key, port in unknown if port not in allowed and (key, port) not in approved}
+    legacy = set(previous_unapproved) - {port for _, port in remembered}
+    unapproved = ({port for _, port in unknown} | legacy) - allowed
     return {'observedEgressPorts': sorted(observed), 'synSentPorts': sorted(syn),
-            'unapprovedEgressPorts': sorted(unapproved)}
+            'unapprovedEgressPorts': sorted(unapproved),
+            'unapprovedEgressEndpoints': [{'digest': key, 'port': port} for key, port in sorted(unknown)]}
