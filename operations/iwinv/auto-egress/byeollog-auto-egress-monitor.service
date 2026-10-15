@@ -1,0 +1,15 @@
+[Unit]
+Description=Byeollog local auto-egress alert observer
+After=byeollog-auto-egress.service
+ConditionPathExists=/etc/byeollog-egress/enabled
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/byeollog-ops-monitor --auto-egress-only
+UMask=0077
+TimeoutStartSec=25
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/byeollog-ops/monitor
