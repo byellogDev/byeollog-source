@@ -1,5 +1,7 @@
 # 변경 이력
 
+- [2026-10-16 자동 통신 API 반복 인증 실패 수정](docs/releases/2026-10-16-egress-auth-clock.md): 초 경계의 INVALID_SIGNATURE를 A/B 재현, 서명 시각 1초 여유와 비밀값 없는 상세 진단을 운영 반영. 수집기·야추·방화벽 규칙 유지.
+
 - [2026-10-16 야추 독립 서버 이전](docs/releases/2026-10-16-yatch-independent-hosting.md): `/yatch` 공개 운영, 별도 프로세스·DB·자원 제한·백업. 기존 별록 앱과 수집기 유지, 공개 다인 게임 및 재시작 보존 검증.
 
 - [2026-10-16 자동 출발 통신 알림 지연 개선](docs/releases/2026-10-16-auto-egress-alert-latency.md): 제어기 상태·복구 알림을 로컬 30초 감시로 분리. 정상 두 표본 확인·중복 방지·기존 DB 조회 주기 유지, 수집기 재시작 없이 운영 반영.

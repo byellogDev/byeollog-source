@@ -5,6 +5,7 @@ import json
 import io
 import tempfile
 import unittest
+import urllib.error
 from pathlib import Path
 from iwinv_api import ApiError, FirewallApi, signature
 from policy import Engine, endpoint, digest
@@ -56,7 +57,7 @@ class PolicyTests(unittest.TestCase):
         self.assertEqual(api.rules(),BASE)
         self.assertEqual(calls[0].full_url,'https://api-kr.iwinv.kr/v1/security-groups/42/rules')
         headers={k.lower():v for k,v in calls[0].header_items()}
-        self.assertEqual(headers['x-iwinv-signature'],signature('fake-secret',1720000000,'/v1/security-groups/42/rules'))
+        self.assertEqual(headers['x-iwinv-signature'],signature('fake-secret',1720000000-1,'/v1/security-groups/42/rules'))
         class Incomplete:
             def open(self,*args,**kwargs):return io.BytesIO(b'{"code":"0x00","error_code":"SUCCESS","count":100,"result":[]}')
         api.opener=Incomplete()
@@ -133,5 +134,62 @@ class PolicyTests(unittest.TestCase):
         self.now+=1000
         with self.assertRaisesRegex(ApiError,'owned_rule_drift'):self.engine.cleanup({'ok':True,'at':self.now,'active':[]})
         self.assertFalse(self.api.deletes)
+
+class ClockBoundaryTests(unittest.TestCase):
+    def test_provider_behind_at_second_boundary_accepts_signed_timestamp(self):
+        # Reproduced provider behavior: host .002, response Date previous second.
+        host_now=1720000000.002
+        provider_now=1719999999.980
+        calls=[]
+        class Opener:
+            def open(inner,request,timeout):
+                headers={k.lower():v for k,v in request.header_items()}
+                stamp=int(headers['x-iwinv-timestamp']);calls.append(stamp)
+                self.assertLessEqual(stamp,int(provider_now))
+                self.assertLess(provider_now-stamp,300)
+                self.assertEqual(headers['x-iwinv-signature'],signature('fake-secret',stamp,'/v1/security-groups/42/rules'))
+                return io.BytesIO(b'{"code":"0x00","error_code":"SUCCESS","count":0,"result":[]}')
+        api=FirewallApi('fake-access','fake-secret','42',opener=Opener(),clock=lambda:host_now)
+        self.assertEqual(api.rules(),[])
+        self.assertEqual(calls,[1719999999])
+
+    def test_signature_is_fresh_after_rate_limit_wait(self):
+        now=[1720000000.95];stamps=[]
+        class Opener:
+            def open(inner,request,timeout):
+                stamps.append(int(request.get_header('X-iwinv-timestamp')))
+                return io.BytesIO(b'{"code":"0x00","error_code":"SUCCESS"}')
+        api=FirewallApi('fake','fake','42',opener=Opener(),clock=lambda:now[0],sleep=lambda n:now.__setitem__(0,now[0]+n))
+        api.request('GET','/instances');api.request('GET','/rules')
+        self.assertEqual(stamps,[1719999999,1720000001])
+
+    def test_auth_failure_logs_only_safe_fields_and_never_retries_mutation(self):
+        calls=[]
+        class Opener:
+            def open(inner,request,timeout):
+                calls.append(request)
+                raise urllib.error.HTTPError(request.full_url,401,'fake-secret',{'Date':'Wed, 03 Jul 2024 09:46:39 GMT'},
+                    io.BytesIO(b'{"error_code":"INVALID_SIGNATURE","message":"fake-access fake-secret @everyone","result":"private"}'))
+        api=FirewallApi('fake-access','fake-secret','42',opener=Opener(),clock=lambda:1720000000.002)
+        with self.assertLogs('iwinv_api',level='WARNING') as logs:
+            with self.assertRaisesRegex(ApiError,'api_http_401'):
+                api.create('110.10.76.111',8041,'blg-auto-'+'a'*16)
+        self.assertEqual(len(calls),1)
+        output='\n'.join(logs.output)
+        self.assertIn('INVALID_SIGNATURE',output)
+        for secret in ['fake-access','fake-secret','@everyone','private','110.10.76.111']:
+            self.assertNotIn(secret,output)
+
+    def test_arbitrary_or_oversized_error_body_never_enters_diagnostics(self):
+        for body in [b'{"error_code":"fake-secret"}',b'x'*5000]:
+            class Opener:
+                def open(inner,request,timeout):
+                    raise urllib.error.HTTPError(request.full_url,401,'secret',{},io.BytesIO(body))
+            api=FirewallApi('fake','fake','42',opener=Opener())
+            with self.assertLogs('iwinv_api',level='WARNING') as logs:
+                with self.assertRaisesRegex(ApiError,'api_http_401'):api.rules()
+            output='\n'.join(logs.output)
+            self.assertNotIn('fake-secret',output)
+            self.assertNotIn('x'*50,output)
 
 if __name__=='__main__':unittest.main()

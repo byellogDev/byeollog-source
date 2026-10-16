@@ -2,8 +2,10 @@
 import hashlib
 import hmac
 import json
+import logging
 import re
 import time
+from email.utils import parsedate_to_datetime
 import urllib.error
 import urllib.request
 
@@ -18,6 +20,33 @@ def signature(secret, timestamp, path):
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):raise ApiError('api_redirect_denied')
+
+
+def record_http_failure(error, method, suffix, timestamp, observed_at):
+    # HTTPError may contain credentials in its URL, reason, headers or body.
+    # Persist only enumerated codes and numeric times in the service journal.
+    provider = 'OTHER'
+    server_at = None
+    try:
+        raw = error.read(4097)
+        value = json.loads(raw) if len(raw) <= 4096 else None
+        code = value.get('error_code') if isinstance(value, dict) else None
+        if code in ('INVALID_SIGNATURE', 'INVALID_CREDENTIAL', 'UNAUTHORIZED',
+                    'ACCESS_DENIED', 'RATE_LIMIT_EXCEEDED'):
+            provider = code
+    except Exception:
+        pass
+    try:
+        candidate = parsedate_to_datetime(error.headers.get('Date', '')).timestamp()
+        if abs(candidate-observed_at) <= 86400: server_at = int(candidate)
+    except (ValueError, TypeError, AttributeError, OverflowError):
+        pass
+    logging.getLogger(__name__).warning('iwinv_api_failure %s', json.dumps({
+        'httpStatus': error.code, 'providerCode': provider,
+        'operation': method+' '+('/rules/item' if method=='DELETE' else suffix or '/group'),
+        'requestTimestamp': timestamp, 'observedAt': round(observed_at, 3),
+        'serverTimestamp': server_at}, sort_keys=True))
+
 
 class FirewallApi:
     def __init__(self, access, secret, group, *, opener=None, clock=time.time, sleep=time.sleep):
@@ -41,7 +70,12 @@ class FirewallApi:
         # Stay below the provider's 60/minute limit, including verification reads.
         wait=1.1-(self.clock()-self.last_call)
         if wait>0:self.sleep(wait)
-        timestamp=int(self.clock());self.last_call=self.clock()
+        now=self.clock();self.last_call=now
+        # The provider rejects a just-entered second when its clock is still
+        # in the preceding second (401 INVALID_SIGNATURE, reproduced live).
+        # One second of backward slack is inside its documented 5-minute
+        # validity window. Header and HMAC always use this same captured value.
+        timestamp=int(now)-1
         path='/v1/security-groups/'+self.group+suffix
         headers={'X-iwinv-Timestamp':str(timestamp),'X-iwinv-Credential':self.access,
                  'X-iwinv-Signature':signature(self.secret,timestamp,path),'Content-Type':'application/json'}
@@ -53,7 +87,10 @@ class FirewallApi:
                 raw=response.read(262145)
                 if len(raw)>262144:raise ApiError('api_response_too_large')
                 value=json.loads(raw)
-        except urllib.error.HTTPError as e:raise ApiError('api_http_'+str(e.code)) from None
+        except urllib.error.HTTPError as e:
+            try: record_http_failure(e, method, suffix, timestamp, self.clock())
+            finally: e.close()
+            raise ApiError('api_http_'+str(e.code)) from None
         except ApiError:raise
         except Exception:raise ApiError('api_unavailable') from None
         if not isinstance(value,dict) or value.get('error_code')!='SUCCESS' or str(value.get('code')).lower()!='0x00':
