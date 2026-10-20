@@ -77,7 +77,8 @@ def main():
     lib = pathlib.Path('/usr/local/lib/byeollog-egress')
     lib.mkdir(mode=0o755, exist_ok=True)
     lib.chmod(0o755)
-    names = ('controller.py', 'iwinv_api.py', 'policy.py', 'observe.py')
+    names = ('controller.py', 'iwinv_api.py', 'policy.py', 'observe.py',
+             'diagnostics.py', 'diagnostic-report.py')
     for name in names:
         shutil.copyfile(source/name, lib/name)
         (lib/name).chmod(0o644)

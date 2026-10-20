@@ -8,6 +8,7 @@ import socket
 import ssl
 import time
 import http.client
+import uuid
 from email.utils import parsedate_to_datetime
 import urllib.error
 import urllib.request
@@ -25,7 +26,48 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):raise ApiError('api_redirect_denied')
 
 
-def record_transport_failure(error, method, suffix, phase, elapsed, observed_at):
+class ObservedHTTPSConnection(http.client.HTTPSConnection):
+    """Time standard-library operations; preserve TLS and connection behavior."""
+    def __init__(self,host,observation,**kwargs):
+        super().__init__(host,**kwargs)
+        self.observation=observation
+        original=self._create_connection
+        def connect_tcp(*args,**options):
+            self.observation['networkPhase']='tcp_dns';started=time.monotonic()
+            try:
+                result=original(*args,**options)
+                self.observation['networkPhase']='tls_or_tunnel'
+                self.tcp_finished=time.monotonic()
+                return result
+            finally:self.observation['tcpDnsMs']=round((time.monotonic()-started)*1000)
+        self._create_connection=connect_tcp
+
+    def connect(self):
+        self.tcp_finished=None
+        try:
+            super().connect()
+            self.observation['networkPhase']='connected'
+        finally:
+            if self.tcp_finished is not None:
+                self.observation['tlsOrTunnelMs']=round((time.monotonic()-self.tcp_finished)*1000)
+
+    def getresponse(self):
+        self.observation['networkPhase']='response_headers';started=time.monotonic()
+        try:return super().getresponse()
+        finally:self.observation['responseHeadersWaitMs']=round((time.monotonic()-started)*1000)
+
+
+class ObservedHTTPSHandler(urllib.request.HTTPSHandler):
+    def https_open(self,request):
+        observation=getattr(request,'egress_observation',{})
+        options={'context':self._context}
+        # Python 3.10 forwards this separately; 3.12 stores it on the context.
+        if hasattr(self,'_check_hostname'):options['check_hostname']=self._check_hostname
+        return self.do_open(lambda host,**kwargs:ObservedHTTPSConnection(host,observation,**kwargs),
+                            request,**options)
+
+
+def transport_kind(error):
     # Never serialize exceptions: reason/args can contain URLs, keys or body.
     reason = error.reason if isinstance(error, urllib.error.URLError) else error
     if isinstance(reason, ssl.SSLError): kind = 'tls'
@@ -37,9 +79,14 @@ def record_transport_failure(error, method, suffix, phase, elapsed, observed_at)
     elif isinstance(reason, OSError): kind = 'os_error'
     else: kind = 'unexpected'
     errno = getattr(reason, 'errno', None)
+    return kind, errno if type(errno) == int and -10000 <= errno <= 10000 else None
+
+
+def record_transport_failure(error, method, suffix, phase, elapsed, observed_at):
+    kind, errno = transport_kind(error)
     logging.getLogger(__name__).warning('iwinv_api_transport_failure %s', json.dumps({
         'failureKind': kind, 'phase': phase,
-        'errno': errno if type(errno) == int and -10000 <= errno <= 10000 else None,
+        'errno': errno,
         'operation': method+' '+('/rules/item' if method == 'DELETE' else suffix or '/group'),
         'elapsedMs': round(max(0, elapsed)*1000), 'observedAt': round(observed_at, 3)
     }, sort_keys=True))
@@ -72,13 +119,15 @@ def record_http_failure(error, method, suffix, timestamp, observed_at):
 
 
 class FirewallApi:
-    def __init__(self, access, secret, group, *, opener=None, clock=time.time, sleep=time.sleep):
+    def __init__(self, access, secret, group, *, opener=None, clock=time.time, sleep=time.sleep, observer=None):
         if not re.fullmatch(r'[A-Za-z0-9_-]{1,100}',str(group)):
             raise ApiError('invalid_group')
         self.access,self.secret,self.group=access,secret,str(group)
-        self.opener=opener or urllib.request.build_opener(NoRedirect())
+        self.opener=opener or urllib.request.build_opener(NoRedirect(),ObservedHTTPSHandler())
         self.clock,self.sleep=clock,sleep
         self.last_call=0
+        self.observer=observer
+        self.last_observation=None
 
     def request(self, method, suffix='', body=None):
         if (method,suffix) not in [('GET',''),('GET','/rules'),('GET','/instances'),('POST','/rules')] and not (method=='DELETE' and re.fullmatch(r'/rules/[0-9]+',suffix)):
@@ -106,24 +155,60 @@ class FirewallApi:
             data=json.dumps(body,separators=(',',':')).encode() if body is not None else None,
             headers=headers,method=method)
         started=time.monotonic();phase='connect'
+        observation={'event':'api_request','requestId':uuid.uuid4().hex[:16],
+                     'operation':method+' '+('/rules/item' if method=='DELETE' else suffix or '/group'),
+                     'startedAt':now,'outcome':'ok','failureKind':None,'errno':None,
+                     'httpStatus':None,'headersMs':None,'bodyMs':None,'responseBytes':None,
+                     'contentType':'unknown','serverOffsetSeconds':None,'networkPhase':'not_started',
+                     'tcpDnsMs':None,'tlsOrTunnelMs':None,'responseHeadersWaitMs':None}
+        req.egress_observation=observation
+        def headers(response):
+            observation['headersMs']=round((time.monotonic()-started)*1000)
+            status=getattr(response,'status',getattr(response,'code',None))
+            observation['httpStatus']=status if type(status)==int and 100<=status<=599 else None
+            values=getattr(response,'headers',None) or {}
+            mime=str(values.get('Content-Type','')).split(';',1)[0].lower().strip()
+            observation['contentType']=mime if mime in ('application/json','text/html','text/plain') else 'other'
+            try:
+                offset=parsedate_to_datetime(values.get('Date','')).timestamp()-self.clock()
+                if abs(offset)<=86400:observation['serverOffsetSeconds']=round(offset,3)
+            except (ValueError,TypeError,AttributeError,OverflowError):pass
         try:
             with self.opener.open(req,timeout=8) as response:
+                headers(response);body_started=time.monotonic()
                 phase='read'
+                observation['networkPhase']='response_body'
                 raw=response.read(262145)
+                observation['bodyMs']=round((time.monotonic()-body_started)*1000)
+                observation['responseBytes']=len(raw)
                 if len(raw)>262144:raise ApiError('api_response_too_large')
                 phase='decode'
+                observation['networkPhase']='decode'
                 value=json.loads(raw)
+            if not isinstance(value,dict) or value.get('error_code')!='SUCCESS' or str(value.get('code')).lower()!='0x00':
+                raise ApiError('api_rejected')
+            return value
         except urllib.error.HTTPError as e:
+            headers(e);phase='http';observation['outcome']='api_http_'+str(e.code)
             try: record_http_failure(e, method, suffix, timestamp, self.clock())
             finally: e.close()
             raise ApiError('api_http_'+str(e.code)) from None
-        except ApiError:raise
+        except ApiError as error:
+            observation['outcome']=error.code if error.code in ('api_redirect_denied','api_response_too_large','api_rejected') else 'other_error'
+            raise
         except Exception as error:
+            observation['outcome']='api_unavailable'
+            observation['failureKind'],observation['errno']=transport_kind(error)
             record_transport_failure(error,method,suffix,phase,time.monotonic()-started,self.clock())
             raise ApiError('api_unavailable') from None
-        if not isinstance(value,dict) or value.get('error_code')!='SUCCESS' or str(value.get('code')).lower()!='0x00':
-            raise ApiError('api_rejected')
-        return value
+        finally:
+            observation.update({'at':self.clock(),'phase':phase,
+                                'elapsedMs':round((time.monotonic()-started)*1000)})
+            self.last_observation=observation
+            if self.observer:
+                try:self.observer(dict(observation))
+                except Exception:
+                    logging.getLogger(__name__).warning('iwinv_api_observer_failed')
 
     def rules(self):
         value=self.request('GET','/rules');rows=value.get('result')

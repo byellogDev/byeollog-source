@@ -27,6 +27,22 @@ class MonitorTests(unittest.TestCase):
             message=module.auto_egress_detail(True,detail)
             self.assertIn('HTTP '+str(status),message)
             self.assertNotIn('API 인증 실패',message)
+    def test_transport_failure_is_safe_fresh_and_specific(self):
+        value={'at':1000,'lastError':'api_unavailable','lastApi':{'at':999,'outcome':'api_unavailable',
+               'failureKind':'timeout','phase':'connect','elapsedMs':8001,'secret':'private-secret'}}
+        detail=module.capture_auto_egress(value,1000)
+        message=module.auto_egress_detail(True,detail)
+        self.assertIn('API 응답 시간 초과',message)
+        self.assertIn('8.0초',message)
+        self.assertNotIn('private',str(detail))
+        value['lastApi']['at']=1
+        self.assertIsNone(module.capture_auto_egress(value,1000)['apiFailure'])
+        value['lastApi']['at']=999;value['lastApi']['failureKind']='@everyone'
+        self.assertIsNone(module.capture_auto_egress(value,1000)['apiFailure'])
+    def test_logging_failure_does_not_silently_look_healthy(self):
+        detail=module.capture_auto_egress({'at':1000,'diagnosticsHealthy':False},1000)
+        self.assertEqual(detail['error'],'diagnostics_unavailable')
+        self.assertIn('로그 저장 실패',module.auto_egress_detail(True,detail))
     @unittest.skipUnless(SOURCE,'requires installed source fixture')
     def test_actual_patched_pipeline_uses_mock_discord(self):
         patched=module.patch(SOURCE)

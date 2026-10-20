@@ -4,6 +4,7 @@ import argparse
 import fcntl
 import http.server
 import json
+import logging
 import os
 import re
 import socket
@@ -17,6 +18,7 @@ import urllib.request
 from pathlib import Path
 from iwinv_api import ApiError, FirewallApi, NoRedirect
 from policy import Engine, endpoint, save
+from diagnostics import Diagnostics
 
 CHATINFO = 'https://openapi.sooplive.com/broad/access/chatinfo'
 
@@ -42,7 +44,12 @@ def resolve(host):
 class Control:
     def __init__(self, config, credential):
         self.config, self.lock = config, threading.Lock()
-        self.api = FirewallApi(credential['access'], credential['secret'], config['group'])
+        try:self.diagnostics=Diagnostics(Path(config['status']).with_name('diagnostics.jsonl'))
+        except OSError:
+            self.diagnostics=None
+            logging.getLogger(__name__).warning('egress_diagnostics_unavailable')
+        self.api = FirewallApi(credential['access'], credential['secret'], config['group'],
+                               observer=self.diagnostics.api if self.diagnostics else None)
         self.engine = Engine(self.api, config['state'], config['baseline'])
         self.last_code, self.last_success, self.created = None, None, 0
 
@@ -52,6 +59,8 @@ class Control:
              'lastError': self.last_code, 'lastSuccessAt': self.last_success,
              'ownedCount': len(self.engine.state['owned']), 'createdCount': self.created,
              'needsReview': bool(self.engine.state['frozen']),
+             'diagnosticsHealthy':bool(getattr(self,'diagnostics',None) and not self.diagnostics.handler.failed),
+             'lastApi':getattr(self.api,'last_observation',None),
              'ownedDestinations': [{'digest': __import__('policy').digest(e['ip'], e['port']), 'port': e['port']}
                                   for e in self.engine.state['owned'] if not e.get('pending') and not e.get('deleting')]})
 
@@ -95,13 +104,21 @@ class Control:
     def maintain(self):
         while True:
             with self.lock:
+                started=time.monotonic();phase='association'
                 try:
                     self.check_association()
+                    phase='observation'
                     observation = json.loads(Path(self.config['observation']).read_text())
+                    phase='cleanup'
                     self.engine.cleanup(observation)
+                    phase='complete'
                     self.last_code = None
                 except ApiError as error: self.last_code = error.code
                 except Exception: self.last_code = 'controller_maintenance_failed'
+                if self.diagnostics:
+                    try:self.diagnostics.cycle(phase,self.last_code,round((time.monotonic()-started)*1000),self.api.last_observation)
+                    except Exception:
+                        self.diagnostics.handler.failed=True
                 self.status()
             time.sleep(30)
 
