@@ -7,7 +7,9 @@ import sys
 def capture_auto_egress(value, now):
     value = value if isinstance(value, dict) else {}
     at = value.get('at')
-    known = {'api_http_401', 'api_http_403', 'api_http_429', 'api_unavailable', 'api_rejected',
+    known = {'api_http_401', 'api_http_403', 'api_http_429',
+             'api_http_500', 'api_http_502', 'api_http_503', 'api_http_504',
+             'api_unavailable', 'api_rejected',
              'rule_capacity', 'creation_rate_limit', 'create_outcome_unknown', 'baseline_drift',
              'owned_rule_drift', 'owned_rule_missing', 'owned_rule_ambiguous', 'unreviewed_rule_drift',
              'instance_association_drift', 'connection_observation_stale', 'chatinfo_dns_mismatch',
@@ -26,6 +28,10 @@ def auto_egress_detail(opened, detail):
     code = detail.get('error')
     labels = {'api_http_401': 'API 인증 실패', 'api_http_403': 'API 권한 또는 호출 IP 제한',
               'api_http_429': 'API 호출 한도 초과', 'api_unavailable': 'API 응답 실패',
+              'api_http_500': '클라우드 API 서버 오류 (HTTP 500)',
+              'api_http_502': '클라우드 API 게이트웨이 오류 (HTTP 502)',
+              'api_http_503': '클라우드 API 서비스 사용 불가 (HTTP 503)',
+              'api_http_504': '클라우드 API 게이트웨이 시간 초과 (HTTP 504)',
               'rule_capacity': '자동 규칙 개수 한도 도달', 'creation_rate_limit': '규칙 생성 속도 제한',
               'create_outcome_unknown': '규칙 생성 결과 불명확: 중복 생성 중지',
               'controller_stale': '자동 제어기 상태 갱신 중단',

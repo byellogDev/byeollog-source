@@ -4,7 +4,10 @@ import hmac
 import json
 import logging
 import re
+import socket
+import ssl
 import time
+import http.client
 from email.utils import parsedate_to_datetime
 import urllib.error
 import urllib.request
@@ -20,6 +23,26 @@ def signature(secret, timestamp, path):
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):raise ApiError('api_redirect_denied')
+
+
+def record_transport_failure(error, method, suffix, phase, elapsed, observed_at):
+    # Never serialize exceptions: reason/args can contain URLs, keys or body.
+    reason = error.reason if isinstance(error, urllib.error.URLError) else error
+    if isinstance(reason, ssl.SSLError): kind = 'tls'
+    elif isinstance(reason, socket.gaierror): kind = 'dns'
+    elif isinstance(reason, TimeoutError): kind = 'timeout'
+    elif isinstance(reason, (json.JSONDecodeError, UnicodeDecodeError)): kind = 'invalid_json'
+    elif isinstance(reason, http.client.IncompleteRead): kind = 'incomplete_response'
+    elif isinstance(reason, (ConnectionError, http.client.RemoteDisconnected)): kind = 'connection'
+    elif isinstance(reason, OSError): kind = 'os_error'
+    else: kind = 'unexpected'
+    errno = getattr(reason, 'errno', None)
+    logging.getLogger(__name__).warning('iwinv_api_transport_failure %s', json.dumps({
+        'failureKind': kind, 'phase': phase,
+        'errno': errno if type(errno) == int and -10000 <= errno <= 10000 else None,
+        'operation': method+' '+('/rules/item' if method == 'DELETE' else suffix or '/group'),
+        'elapsedMs': round(max(0, elapsed)*1000), 'observedAt': round(observed_at, 3)
+    }, sort_keys=True))
 
 
 def record_http_failure(error, method, suffix, timestamp, observed_at):
@@ -82,17 +105,22 @@ class FirewallApi:
         req=urllib.request.Request('https://api-kr.iwinv.kr'+path,
             data=json.dumps(body,separators=(',',':')).encode() if body is not None else None,
             headers=headers,method=method)
+        started=time.monotonic();phase='connect'
         try:
             with self.opener.open(req,timeout=8) as response:
+                phase='read'
                 raw=response.read(262145)
                 if len(raw)>262144:raise ApiError('api_response_too_large')
+                phase='decode'
                 value=json.loads(raw)
         except urllib.error.HTTPError as e:
             try: record_http_failure(e, method, suffix, timestamp, self.clock())
             finally: e.close()
             raise ApiError('api_http_'+str(e.code)) from None
         except ApiError:raise
-        except Exception:raise ApiError('api_unavailable') from None
+        except Exception as error:
+            record_transport_failure(error,method,suffix,phase,time.monotonic()-started,self.clock())
+            raise ApiError('api_unavailable') from None
         if not isinstance(value,dict) or value.get('error_code')!='SUCCESS' or str(value.get('code')).lower()!='0x00':
             raise ApiError('api_rejected')
         return value

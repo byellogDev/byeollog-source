@@ -1,5 +1,7 @@
 # 변경 이력
 
+- [2026-10-20 자동 통신 API 응답 실패 진단](docs/releases/2026-10-20-egress-response-diagnostics.md): 비HTTP 실패 종류·단계 기록과 HTTP 5xx 알림 분류 운영 반영. 반복 API 장애 자체의 원인 해결은 미완료이며 수집기·방화벽 권한 유지.
+
 - [2026-10-17 야추 0.8.1 입력 동기화](docs/releases/2026-10-17-yatch-input-sync.md): 이동 주사위 클릭 누락·중복 입력 개선, 독립 게임 이미지 운영 반영. 기존 게임 DB와 별록 서비스 보존.
 
 - [2026-10-16 자동 통신 API 반복 인증 실패 수정](docs/releases/2026-10-16-egress-auth-clock.md): 초 경계의 INVALID_SIGNATURE를 A/B 재현, 서명 시각 1초 여유와 비밀값 없는 상세 진단을 운영 반영. 수집기·야추·방화벽 규칙 유지.

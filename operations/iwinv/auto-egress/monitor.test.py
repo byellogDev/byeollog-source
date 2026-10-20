@@ -19,6 +19,14 @@ class MonitorTests(unittest.TestCase):
         self.assertIsNone(safe['ownedCount'])
     def test_recovery_does_not_claim_channel_recovery(self):
         self.assertIn('별도 확인',module.auto_egress_detail(False,{}))
+    def test_provider_server_errors_are_not_controller_or_auth_errors(self):
+        for status in (500, 502, 503, 504):
+            code='api_http_'+str(status)
+            detail=module.capture_auto_egress({'at':1000,'lastError':code},1000)
+            self.assertEqual(detail['error'],code)
+            message=module.auto_egress_detail(True,detail)
+            self.assertIn('HTTP '+str(status),message)
+            self.assertNotIn('API 인증 실패',message)
     @unittest.skipUnless(SOURCE,'requires installed source fixture')
     def test_actual_patched_pipeline_uses_mock_discord(self):
         patched=module.patch(SOURCE)
