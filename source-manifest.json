@@ -7835,6 +7835,34 @@
       "after": "4df84c9d601d3d2a250e86219a8b909bc177807ce74a99e878d004a2ab101b0d",
       "status": "changed",
       "release": "candidate-2026.10.22-wallpaper-resize-bounds"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "0e45fe27237359682f670cfbebdd278856a247b9b5844d0a769bb27ad9f4ee48",
+      "after": "f6db97a507f996471d0e656a673b766cc08df4be690553279cba236f4290f8b2",
+      "status": "changed",
+      "release": "agent-v1.0.0.59"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "0e45fe27237359682f670cfbebdd278856a247b9b5844d0a769bb27ad9f4ee48",
+      "after": "f6db97a507f996471d0e656a673b766cc08df4be690553279cba236f4290f8b2",
+      "status": "changed",
+      "release": "agent-v1.0.0.59"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "36e4e4d3b47f0d0c8aa709946c5320d63540ed4f9068beddfb902b7c86f42055",
+      "after": "e284e440ba244059351450b099cf0bc1bc352784a69d4fa7d8f3c8c597dd6187",
+      "status": "changed",
+      "release": "agent-v1.0.0.59"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "bd75875f3742ab36aac174ced375f7f5688b004c2102d46b902309d47e054b5c",
+      "after": "d592e13e6658dd2bb1040e6313cfc18d5492ae19441beb62874689bad1d77f32",
+      "status": "changed",
+      "release": "agent-v1.0.0.59"
     }
   ]
 }

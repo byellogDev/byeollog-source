@@ -180,7 +180,7 @@
     },
     {
       "source": "/agent/download",
-      "destination": "/agent-updates/releases/1.0.0.58/Byeollog-Wallpaper-Setup-v1.0.0.58-online.exe",
+      "destination": "/agent-updates/releases/1.0.0.59/Byeollog-Wallpaper-Setup-v1.0.0.59-online.exe",
       "permanent": false
     },
     {
