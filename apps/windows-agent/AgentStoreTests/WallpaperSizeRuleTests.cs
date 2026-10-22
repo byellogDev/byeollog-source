@@ -8,6 +8,7 @@ internal static partial class Program
 {
     private static async Task WallpaperSizeRuleTestsAsync(string root, bool serve = false)
     {
+        await WallpaperResizeBoundsTestsAsync(root);
         const string workspace = "11111111-1111-4111-8111-111111111111";
         var raw = JsonSerializer.SerializeToElement(new {
             changed = true, revision = 41,
@@ -57,5 +58,36 @@ internal static partial class Program
                 "server snapshots without size rules preserve local size settings");
         }
         Console.WriteLine("PASS: mapper -> local state -> offline restart -> local size rules preserved");
+    }
+
+    private static async Task WallpaperResizeBoundsTestsAsync(string root)
+    {
+        // Payloads produced by the editor regression fixtures: right-edge rounding,
+        // a dense stack, and a compact group aligned to the bottom of the canvas.
+        var layouts = new[]
+        {
+            new { id = "00000000-0000-4000-8000-000000000001", x = 0, y = 0, width = 1911, height = 139, columns = 13, rows = 1, nextSide = "right", layer = 1 },
+            new { id = "00000000-0000-4000-8000-000000000002", x = 0, y = 0, width = 134, height = 1078, columns = 2, rows = 80, nextSide = "right", layer = 2 },
+            new { id = "00000000-0000-4000-8000-000000000003", x = 1440, y = 1020, width = 480, height = 60, columns = 2, rows = 1, nextSide = "right", layer = 3 }
+        };
+        var payload = JsonSerializer.SerializeToElement(layouts);
+        Equal(3, WallpaperOverlayState.NormalizeLayoutTiles(payload).Count, "resized editor geometry passes real Agent validation");
+        foreach (var invalid in new[] { layouts[0] with { width = 1924 }, layouts[1] with { height = 1287 }, layouts[2] with { y = 1034 } })
+        {
+            var rejected = false;
+            try { WallpaperOverlayState.NormalizeLayoutTiles(JsonSerializer.SerializeToElement(new[] { invalid })); }
+            catch (InvalidDataException) { rejected = true; }
+            True(rejected, "actual out-of-bounds geometry is still rejected");
+        }
+        var path = Path.Combine(root, "resize-bounds");
+        string generation;
+        using (var state = new WallpaperOverlayState(path, _ => { }))
+        {
+            generation = await state.ApplyLocalLayoutAsync(0, payload, payload, CancellationToken.None);
+            Equal(3, state.PendingLayout()!.Tiles.GetArrayLength(), "all corrected groups persist together");
+        }
+        using var restored = new WallpaperOverlayState(path, _ => { });
+        Equal(generation, restored.PendingLayout()!.Generation, "corrected layout survives offline restart");
+        Equal(payload.GetRawText(), restored.PendingLayout()!.Tiles.GetRawText(), "restart preserves exact coordinates and layout members");
     }
 }

@@ -7800,6 +7800,41 @@
       "after": "b6128adb5932fa2b793d7b1e5d3150dc7fae703481eda129c9e74a306108b896",
       "status": "changed",
       "release": "candidate-2026.10.14-auto-egress"
+    },
+    {
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "7c5a32ed2beb9051b4ab268178d3eb3b1361bb357775200ee325058be9506fe3",
+      "after": "88fbe333f9992d69909eeea1e7586f592dd5807aa96a200f06bb7b8755e99896",
+      "status": "changed",
+      "release": "candidate-2026.10.22-wallpaper-resize-bounds"
+    },
+    {
+      "target": "apps/web/lib/product-dashboard-html.js",
+      "before": "faeb7b2f39bdf0089c565b4219b15ca8578bbccea4e183ca47aecd490a191b2d",
+      "after": "4df84c9d601d3d2a250e86219a8b909bc177807ce74a99e878d004a2ab101b0d",
+      "status": "changed",
+      "release": "candidate-2026.10.22-wallpaper-resize-bounds"
+    },
+    {
+      "target": "apps/admin-runtime/lib/product-dashboard-html.js",
+      "before": "faeb7b2f39bdf0089c565b4219b15ca8578bbccea4e183ca47aecd490a191b2d",
+      "after": "4df84c9d601d3d2a250e86219a8b909bc177807ce74a99e878d004a2ab101b0d",
+      "status": "changed",
+      "release": "candidate-2026.10.22-wallpaper-resize-bounds"
+    },
+    {
+      "target": "apps/collector-runtime/lib/product-dashboard-html.js",
+      "before": "faeb7b2f39bdf0089c565b4219b15ca8578bbccea4e183ca47aecd490a191b2d",
+      "after": "4df84c9d601d3d2a250e86219a8b909bc177807ce74a99e878d004a2ab101b0d",
+      "status": "changed",
+      "release": "candidate-2026.10.22-wallpaper-resize-bounds"
+    },
+    {
+      "target": "apps/public-runtime/lib/product-dashboard-html.js",
+      "before": "faeb7b2f39bdf0089c565b4219b15ca8578bbccea4e183ca47aecd490a191b2d",
+      "after": "4df84c9d601d3d2a250e86219a8b909bc177807ce74a99e878d004a2ab101b0d",
+      "status": "changed",
+      "release": "candidate-2026.10.22-wallpaper-resize-bounds"
     }
   ]
 }
