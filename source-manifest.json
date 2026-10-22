@@ -7863,6 +7863,41 @@
       "after": "d592e13e6658dd2bb1040e6313cfc18d5492ae19441beb62874689bad1d77f32",
       "status": "changed",
       "release": "agent-v1.0.0.59"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "f6db97a507f996471d0e656a673b766cc08df4be690553279cba236f4290f8b2",
+      "after": "83953a5979a0070db4a88116765957b40bbc95d57cb6db34b8e01d26f0159034",
+      "status": "changed",
+      "release": "agent-v1.0.0.60"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "f6db97a507f996471d0e656a673b766cc08df4be690553279cba236f4290f8b2",
+      "after": "83953a5979a0070db4a88116765957b40bbc95d57cb6db34b8e01d26f0159034",
+      "status": "changed",
+      "release": "agent-v1.0.0.60"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "e284e440ba244059351450b099cf0bc1bc352784a69d4fa7d8f3c8c597dd6187",
+      "after": "f09598adae77fb8ae22fe7762b06af1aa9cc22a14ad10c2ba9c388600d6da27c",
+      "status": "changed",
+      "release": "agent-v1.0.0.60"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "d592e13e6658dd2bb1040e6313cfc18d5492ae19441beb62874689bad1d77f32",
+      "after": "02c167abba383ef252f6c3805d32f3d980f322361bcaa61f5148efc984341a6f",
+      "status": "changed",
+      "release": "agent-v1.0.0.60"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperOverlayState.cs",
+      "before": "5beb2ea57726e5c8ea64931a018dbd8a0bd2ff62f12508c8e984c2787beb3cf1",
+      "after": "eb10a222a4f6d7fec24f2a29b62a1546c3d5c3188f523b3b258ed445a916764a",
+      "status": "changed",
+      "release": "agent-v1.0.0.60"
     }
   ]
 }

@@ -10,9 +10,9 @@ const hash=x=>createHash('sha256').update(x).digest('hex');
 test('protocol v1 update preserves the deployed root and exactly the released application',async()=>{
  const base=await json('protocol-v1-root-baseline.json');
  const payload=JSON.parse(Buffer.from((await json('stable/win-x64.json')).payload,'base64'));
- const bytes=await read('releases/1.0.0.59/update-package-manifest.json');
- const manifest=JSON.parse(bytes),manualBytes=await read('releases/1.0.0.59/installer-package-manifest.json'),manual=JSON.parse(manualBytes);
- const provenance=await json('releases/1.0.0.59/release-provenance.json');
+ const bytes=await read('releases/1.0.0.60/update-package-manifest.json');
+ const manifest=JSON.parse(bytes),manualBytes=await read('releases/1.0.0.60/installer-package-manifest.json'),manual=JSON.parse(manualBytes);
+ const provenance=await json('releases/1.0.0.60/release-provenance.json');
  assert.equal(hash(bytes),payload.package.innerManifestSha256);
  assert.equal(hash(manualBytes),provenance.innerManifestSha256);
  assert.equal(manifest.version,payload.version);

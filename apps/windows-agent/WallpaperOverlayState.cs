@@ -219,7 +219,7 @@ internal sealed class WallpaperOverlayState : IDisposable
                 ?? throw new InvalidDataException("로컬 풍벽지 상태가 올바르지 않습니다.");
             var normalized = NormalizeLayoutTiles(layoutTiles);
             var baseTiles = baseLayoutTiles is { ValueKind: JsonValueKind.Array }
-                ? NormalizeLayoutTiles(baseLayoutTiles.Value)
+                ? NormalizeLayoutBaseline(baseLayoutTiles.Value)
                 : CaptureLayoutTiles(root, normalized);
             ApplyLayout(root, normalized);
             root["displayRevision"] = Guid.NewGuid().ToString("N");
@@ -859,7 +859,7 @@ internal sealed class WallpaperOverlayState : IDisposable
             if (string.IsNullOrWhiteSpace(generation)) return;
             var normalized = NormalizeLayoutTiles(tilesValue);
             var baseTiles = root.TryGetProperty("baseTiles", out var baseValue)
-                ? NormalizeLayoutTiles(baseValue)
+                ? NormalizeLayoutBaseline(baseValue)
                 : normalized;
             _pendingLayout = new PendingWallpaperLayout(
                 generation,
@@ -880,6 +880,15 @@ internal sealed class WallpaperOverlayState : IDisposable
     }
 
     internal static JsonArray NormalizeLayoutTiles(JsonElement source)
+        => NormalizeLayoutRecords(source, requireEditableBounds: true);
+
+    // Comparison-only server geometry may be compact (<60px) or predate bounds
+    // fixes. Keep it exact so optimistic conflict detection still works. Never
+    // use this path for requested placements or apply these records to display.
+    private static JsonArray NormalizeLayoutBaseline(JsonElement source)
+        => NormalizeLayoutRecords(source, requireEditableBounds: false);
+
+    private static JsonArray NormalizeLayoutRecords(JsonElement source, bool requireEditableBounds)
     {
         if (source.ValueKind != JsonValueKind.Array || source.GetArrayLength() > 216)
             throw new InvalidDataException("풍벽지 배치 정보가 올바르지 않습니다.");
@@ -896,11 +905,13 @@ internal sealed class WallpaperOverlayState : IDisposable
                 if (!value.TryGetProperty(names[index], out var number) || !number.TryGetInt32(out numbers[index]))
                     throw new InvalidDataException("풍벽지 배치 정보가 올바르지 않습니다.");
             if (!Guid.TryParseExact(id, "D", out _) || !ids.Add(id!)
-                || nextSide is not ("left" or "right")
-                || numbers[0] < 0 || numbers[1] < 0 || numbers[2] < 80 || numbers[3] < 60
+                || nextSide is not ("left" or "right"))
+                throw new InvalidDataException("풍벽지 배치 식별 정보가 올바르지 않습니다.");
+            if (requireEditableBounds && (numbers[0] < 0 || numbers[1] < 0 || numbers[2] < 80 || numbers[3] < 60
                 || (long)numbers[0] + numbers[2] > 1920 || (long)numbers[1] + numbers[3] > 1080
-                || numbers[4] is < 1 or > 217 || numbers[5] is < 1 or > 216 || numbers[6] is < 1 or > 216)
-                throw new InvalidDataException("풍벽지 카드가 편집 가능 영역을 벗어났습니다.");
+                || numbers[4] is < 1 or > 217 || numbers[5] is < 1 or > 216 || numbers[6] is < 1 or > 216))
+                throw new InvalidDataException("풍벽지 카드가 편집 가능 영역을 벗어났습니다. "
+                    + $"[배치 {result.Count + 1}: x={numbers[0]}, y={numbers[1]}, 너비={numbers[2]}, 높이={numbers[3]}, 열={numbers[4]}, 행={numbers[5]}, 순서={numbers[6]}]");
             result.Add(new JsonObject
             {
                 ["id"] = id,
