@@ -1,0 +1,1118 @@
+{
+  "sourceRepository": "byellogDev/byeollog",
+  "snapshotDate": "2026-10-23",
+  "documentSnapshot": "cd96769c8cdbac05faaeeb4a52c0c3d59a16ac30",
+  "entries": [
+    {
+      "originalTag": "maintenance-2026.10.23-public-source",
+      "publicTag": "public-source-2026.10.23",
+      "name": "2026-10-23 공개 소스·개발 이력 분리",
+      "originalPublishedAt": "2026-10-23T06:59:07Z",
+      "prerelease": false,
+      "publicCommit": null,
+      "documents": [
+        "docs/public-source/README.md"
+      ],
+      "mapping": "Public-source publication event; separate administrative commits, not an exact commit mapping."
+    },
+    {
+      "originalTag": "maintenance-2026.10.23-repository-governance",
+      "publicTag": "maintenance-2026.10.23-repository-governance",
+      "name": "Git 관리 정리 · 기본 브랜치·PR·릴리스 대응",
+      "originalPublishedAt": "2026-10-23T05:59:16Z",
+      "prerelease": false,
+      "publicCommit": "9ceb4322651c05bc023a8e265ed2f857c616d08b",
+      "documents": [
+        "docs/releases/2026-10-23-repository-governance.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.41",
+      "publicTag": "agent-v1.0.0.41",
+      "name": "Agent 1.0.0.41 · 자동 로그인·영상후원 (소스 기록 보완)",
+      "originalPublishedAt": "2026-10-23T05:51:58Z",
+      "prerelease": false,
+      "publicCommit": "81fc0c65b8702493c6770e773c187f26fb2875b1",
+      "documents": [
+        "docs/releases/2026-09-23-agent-login-video.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.60",
+      "publicTag": "agent-v1.0.0.60",
+      "name": "Agent 1.0.0.60 · 이전 배치 검사로 인한 크기 조절 실패 수정",
+      "originalPublishedAt": "2026-10-22T13:01:48Z",
+      "prerelease": false,
+      "publicCommit": "211d89e4582232e594b8f88b58e28de36712799f",
+      "documents": [
+        "docs/releases/2026-10-22-agent-10060.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.59",
+      "publicTag": "agent-v1.0.0.59",
+      "name": "Agent 1.0.0.59 · 풍벽지 크기 조절 오류 수정",
+      "originalPublishedAt": "2026-10-22T12:09:46Z",
+      "prerelease": false,
+      "publicCommit": "0b453ffdee343f71f0305a071ac4c6cbb520ede1",
+      "documents": [
+        "docs/releases/2026-10-22-agent-10059.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "candidate-2026.10.22-wallpaper-resize-bounds",
+      "publicTag": "candidate-2026.10.22-wallpaper-resize-bounds",
+      "name": "풍벽지 크기 조절 경계 보정 후보",
+      "originalPublishedAt": "2026-10-22T11:43:13Z",
+      "prerelease": true,
+      "publicCommit": "b84a815347a6b9d5f80cf99b1950faea150c9710",
+      "documents": [
+        "docs/releases/2026-10-22-wallpaper-resize-bounds.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.20-egress-request-telemetry",
+      "publicTag": "ops-2026.10.20-egress-request-telemetry",
+      "name": "자동 통신 API 요청·장애 기록 확대",
+      "originalPublishedAt": "2026-10-20T11:00:40Z",
+      "prerelease": false,
+      "publicCommit": "3bd8f48c0c19e568ecee4793303af865c14edf54",
+      "documents": [
+        "docs/releases/2026-10-20-egress-request-telemetry.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.20-egress-response-diagnostics",
+      "publicTag": "ops-2026.10.20-egress-response-diagnostics",
+      "name": "자동 통신 API 응답 실패 진단 보강",
+      "originalPublishedAt": "2026-10-20T09:53:36Z",
+      "prerelease": false,
+      "publicCommit": "6c6c6557def306378d8c3b38fd1d76d714f63d07",
+      "documents": [
+        "docs/releases/2026-10-20-egress-response-diagnostics.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.17-yatch-0.8.1",
+      "publicTag": "ops-2026.10.17-yatch-0.8.1",
+      "name": "야추 0.8.1 입력 동기화 수정",
+      "originalPublishedAt": "2026-10-16T16:17:55Z",
+      "prerelease": false,
+      "publicCommit": "f6c9a7fbb7e4b6b71f3cb0bf03fa27232a67ceaa",
+      "documents": [
+        "docs/releases/2026-10-17-yatch-input-sync.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.16-egress-auth-clock",
+      "publicTag": "ops-2026.10.16-egress-auth-clock",
+      "name": "자동 통신 API 반복 인증 실패 수정",
+      "originalPublishedAt": "2026-10-16T05:16:11Z",
+      "prerelease": false,
+      "publicCommit": "6a6922e251483390f8f0bec16025c44c702c9638",
+      "documents": [
+        "docs/releases/2026-10-16-egress-auth-clock.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.16-yatch-hosting",
+      "publicTag": "ops-2026.10.16-yatch-hosting",
+      "name": "야추 0.8.0 독립 서버 이전",
+      "originalPublishedAt": "2026-10-15T21:49:28Z",
+      "prerelease": false,
+      "publicCommit": "d097bf38725c7b4f93c69467af38f33ea9a61a13",
+      "documents": [
+        "docs/releases/2026-10-16-yatch-independent-hosting.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.16-alert-latency",
+      "publicTag": "ops-2026.10.16-alert-latency",
+      "name": "자동 출발 통신 복구 알림 지연 개선",
+      "originalPublishedAt": "2026-10-15T18:22:11Z",
+      "prerelease": false,
+      "publicCommit": "a6317f453dddfd473126d2b85682d301d4fe2480",
+      "documents": [
+        "docs/releases/2026-10-16-auto-egress-alert-latency.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.15-auto-egress",
+      "publicTag": "ops-2026.10.15-auto-egress",
+      "name": "SOOP 목적지별 자동 출발 통신 · 운영 반영",
+      "originalPublishedAt": "2026-10-14T19:23:41Z",
+      "prerelease": false,
+      "publicCommit": "2addb61dc36880edb86f1314d6ef83ab44e7c926",
+      "documents": [
+        "docs/releases/2026-10-15-auto-egress-production.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "candidate-2026.10.14-auto-egress",
+      "publicTag": "candidate-2026.10.14-auto-egress",
+      "name": "SOOP 자동 출발 통신 후보 · 운영 미배포",
+      "originalPublishedAt": "2026-10-14T13:19:46Z",
+      "prerelease": true,
+      "publicCommit": "a6531e0733ed2811b9c7c3f8cbc1284dd31f1f7f",
+      "documents": [
+        "docs/releases/2026-10-14-auto-egress-candidate.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.14-discord-connection-details",
+      "publicTag": "ops-2026.10.14-discord-connection-details",
+      "name": "Discord 수집 연결 오류 상세 안내",
+      "originalPublishedAt": "2026-10-14T12:23:24Z",
+      "prerelease": false,
+      "publicCommit": "cf010845478ee0a081ebd067101ae339a8ce1a04",
+      "documents": [
+        "docs/releases/2026-10-14-discord-connection-details.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.14-collector-health-hardening",
+      "publicTag": "ops-2026.10.14-collector-health-hardening",
+      "name": "수집 연결·출발 포트 감시 재발 방지 보완",
+      "originalPublishedAt": "2026-10-14T11:56:48Z",
+      "prerelease": false,
+      "publicCommit": "83988a500bba0e78a7e661fea5f6148028dbc0f2",
+      "documents": [
+        "docs/releases/2026-10-14-collector-health-hardening.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.14-soop-egress-recovery",
+      "publicTag": "ops-2026.10.14-soop-egress-recovery",
+      "name": "SOOP TCP 8041 출발 통신 복구",
+      "originalPublishedAt": "2026-10-14T11:01:41Z",
+      "prerelease": false,
+      "publicCommit": "6a446c0c1298aef7356f2324c225766c48802ff5",
+      "documents": [
+        "docs/releases/2026-10-14-soop-egress-recovery.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.13-interactive-source-graph",
+      "publicTag": "research-2026.10.13-interactive-source-graph",
+      "name": "점·선으로 탐색하는 소스 연결 그래프",
+      "originalPublishedAt": "2026-10-12T23:44:12Z",
+      "prerelease": true,
+      "publicCommit": "14581f0a301de82ad40b20d4b6d840a9d4e9ba5d",
+      "documents": [
+        "docs/releases/2026-10-13-interactive-source-graph.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.13-source-connection-map",
+      "publicTag": "research-2026.10.13-source-connection-map",
+      "name": "소스 연결 지도 · Graphify 경계 보강",
+      "originalPublishedAt": "2026-10-12T21:59:27Z",
+      "prerelease": true,
+      "publicCommit": "69f33c0887b3b66f1636eba716d0c74517d39ef1",
+      "documents": [
+        "docs/releases/2026-10-13-source-connection-map.md",
+        "docs/research/2026-10-13-source-connection-map.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.13-overlay-url-masking",
+      "publicTag": "ops-2026.10.13-overlay-url-masking",
+      "name": "오버레이 주소 마스킹 · 눈 아이콘 보기 버튼",
+      "originalPublishedAt": "2026-10-12T20:31:42Z",
+      "prerelease": false,
+      "publicCommit": "bdbfe61facdfa49d925998c90bc12e5b640b0624",
+      "documents": [
+        "docs/releases/2026-10-13-overlay-url-masking.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.11-homepage-intro",
+      "publicTag": "ops-2026.10.11-homepage-intro",
+      "name": "메인 제품 소개 · 설정·통계 링크 제거",
+      "originalPublishedAt": "2026-10-11T14:41:57Z",
+      "prerelease": false,
+      "publicCommit": "4c2f0d23f3259ee343af0ea717be6fd6c60fed68",
+      "documents": [
+        "docs/releases/2026-10-11-homepage-features.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.11-homepage-features",
+      "publicTag": "ops-2026.10.11-homepage-features",
+      "name": "메인 페이지 · 최신 기능과 사용 방법",
+      "originalPublishedAt": "2026-10-11T14:32:27Z",
+      "prerelease": false,
+      "publicCommit": "fd48ce17b50aa4a1315cd905e81bb471fb1062db",
+      "documents": [
+        "docs/releases/2026-10-11-homepage-features.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-1.0.0.58",
+      "publicTag": "agent-1.0.0.58",
+      "name": "Agent 1.0.0.58 · 톱니바퀴 제거·UI 캐시 무결성",
+      "originalPublishedAt": "2026-10-11T12:07:51Z",
+      "prerelease": false,
+      "publicCommit": "a04ef17551e3529a4540a787bee37fc0360c7f56",
+      "documents": [
+        "docs/releases/2026-10-11-agent-ui-integrity.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-1.0.0.57",
+      "publicTag": "agent-1.0.0.57",
+      "name": "Agent 1.0.0.57 · 새 공지 바로가기",
+      "originalPublishedAt": "2026-10-11T11:25:12Z",
+      "prerelease": false,
+      "publicCommit": "9376b9196591df3fc4a06742cd82ddf26b932234",
+      "documents": [
+        "docs/releases/2026-10-11-agent-announcements.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.11-guide-credit-history",
+      "publicTag": "ops-2026.10.11-guide-credit-history",
+      "name": "현행 이용 안내·마이페이지 크레딧·특수룰렛 관리",
+      "originalPublishedAt": "2026-10-11T10:35:35Z",
+      "prerelease": false,
+      "publicCommit": "0a224a027f7074a54f0b61ede2b2f26c6c50e65f",
+      "documents": [
+        "docs/releases/2026-10-11-guide-credit-history.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.11-report-legibility",
+      "publicTag": "ops-2026.10.11-report-legibility",
+      "name": "별풍선 리포트 글자·숫자 가독성 개선",
+      "originalPublishedAt": "2026-10-11T09:51:54Z",
+      "prerelease": false,
+      "publicCommit": "3fd15cca973438bc706852cd1e661a2a1f02c8c1",
+      "documents": [
+        "docs/releases/2026-10-11-report-legibility.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.11-late-classification-multiplier",
+      "publicTag": "ops-2026.10.11-late-classification-multiplier",
+      "name": "학습 이후 특수룰렛 2배 적용 수정",
+      "originalPublishedAt": "2026-10-11T09:36:51Z",
+      "prerelease": false,
+      "publicCommit": "eccc6f3e1f08a4a8e1ee9bd2272f4a95e9784946",
+      "documents": [
+        "docs/releases/2026-10-11-late-classification-multiplier.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.11-overlay-authority",
+      "publicTag": "ops-2026.10.11-overlay-authority",
+      "name": "오버레이 결과 기준 업보 수집 · 운영 전환",
+      "originalPublishedAt": "2026-10-11T08:59:00Z",
+      "prerelease": false,
+      "publicCommit": "8c6aaeea03f0a5d1d1b090262aa9b70831fa421a",
+      "documents": [
+        "docs/releases/2026-10-11-overlay-authority.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.56",
+      "publicTag": "agent-v1.0.0.56",
+      "name": "Agent 1.0.0.56 · 업보 수집 설정 운영 반영",
+      "originalPublishedAt": "2026-10-11T07:56:15Z",
+      "prerelease": false,
+      "publicCommit": "a539081f11d2d76b12077b93d9199fd009e9dfd1",
+      "documents": [
+        "docs/releases/2026-10-11-upbo-collection-production.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "candidate-2026.10.11-upbo-deployment",
+      "publicTag": "candidate-2026.10.11-upbo-deployment",
+      "name": "업보 수집 설정 · 배포 후보 및 Agent 1.0.0.56 준비",
+      "originalPublishedAt": "2026-10-11T07:24:43Z",
+      "prerelease": true,
+      "publicCommit": "734d02143de53ecedf66df37010c407e4f8027d9",
+      "documents": [
+        "docs/releases/2026-10-11-upbo-deployment.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "candidate-2026.10.11-upbo-collection",
+      "publicTag": "candidate-2026.10.11-upbo-collection",
+      "name": "업보 수집 설정 · 주소와 ON 중심 화면 후보",
+      "originalPublishedAt": "2026-10-11T06:22:33Z",
+      "prerelease": true,
+      "publicCommit": "e2bc6dcadbeb7095043a0dd2c19b10e5c4a8ce87",
+      "documents": [
+        "docs/releases/2026-10-11-upbo-collection-settings.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.11-weflab-revalidation",
+      "publicTag": "research-2026.10.11-weflab-revalidation",
+      "name": "위플랩 룰렛 재검증 · 다회 일치와 추가 결과 확보",
+      "originalPublishedAt": "2026-10-10T22:29:36Z",
+      "prerelease": true,
+      "publicCommit": "d15ef40a9e9b01b82a2a037ca2f5dca593017ab5",
+      "documents": [
+        "docs/releases/2026-10-11-weflab-revalidation.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.11-direct-all",
+      "publicTag": "ops-2026.10.11-direct-all",
+      "name": "직접 WebSocket 전체 계정 운영 전환",
+      "originalPublishedAt": "2026-10-10T22:15:36Z",
+      "prerelease": false,
+      "publicCommit": "8892b27efb9aa9d0c0b3cfe606068c91ba188082",
+      "documents": [
+        "docs/releases/2026-10-11-direct-all-production.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.11-direct-revalidation",
+      "publicTag": "research-2026.10.11-direct-revalidation",
+      "name": "직접 WebSocket 재검증 · 비교 일치와 실제 운영 저장",
+      "originalPublishedAt": "2026-10-10T21:55:52Z",
+      "prerelease": true,
+      "publicCommit": "61a8c524c8c9650eac8e5de7945f534750038d15",
+      "documents": [
+        "docs/releases/2026-10-11-direct-revalidation.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "maintenance-2026.10.10-local-artifact-cleanup",
+      "publicTag": "maintenance-2026.10.10-local-artifact-cleanup",
+      "name": "로컬 정리 · 빌드 및 중복 산출물 4.463GiB 제거",
+      "originalPublishedAt": "2026-10-09T21:36:47Z",
+      "prerelease": true,
+      "publicCommit": "23ce24c3eba1a933b91ab7dbc18c44f2dbc8cbfa",
+      "documents": [
+        "docs/releases/2026-10-10-local-artifact-cleanup.md",
+        "docs/releases/2026-10-05-local-tts-cleanup.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.55",
+      "publicTag": "agent-v1.0.0.55",
+      "name": "Agent 1.0.0.55 · 숨긴 풍벽지 빈칸 제거",
+      "originalPublishedAt": "2026-10-09T14:05:55Z",
+      "prerelease": false,
+      "publicCommit": "84c455a16862e7de617d7a19daddd2f7402808c8",
+      "documents": [
+        "docs/releases/2026-10-09-agent-10055-hidden-stacks.md",
+        "docs/releases/2026-10-09-agent-10054-ui-cache-tray.md",
+        "docs/releases/2026-10-09-wallpaper-hidden-cards.md",
+        "docs/releases/2026-10-09-exception-ampersand.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "fix-2026.10.09-exception-ampersand",
+      "publicTag": "fix-2026.10.09-exception-ampersand",
+      "name": "룰렛 예외 업보 & 분리 누락 수정",
+      "originalPublishedAt": "2026-10-09T13:54:38Z",
+      "prerelease": false,
+      "publicCommit": "f306beddc7c287981faee2f1b27d6f678e4de9d1",
+      "documents": [
+        "docs/releases/2026-10-09-exception-ampersand.md",
+        "docs/releases/2026-09-23-upbo-review-retry.md",
+        "docs/releases/2026-10-09-agent-10054-ui-cache-tray.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.54",
+      "publicTag": "agent-v1.0.0.54",
+      "name": "Agent 1.0.0.54 · UI 캐시·중복 트레이 수정",
+      "originalPublishedAt": "2026-10-09T13:27:16Z",
+      "prerelease": false,
+      "publicCommit": "40a6c781da00b75a02a77231d1639a0bf75147fa",
+      "documents": [
+        "docs/releases/2026-10-09-agent-10054-ui-cache-tray.md",
+        "docs/releases/2026-10-09-agent-10053-wallpaper-hidden.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.53",
+      "publicTag": "agent-v1.0.0.53",
+      "name": "Agent 1.0.0.53 · 풍벽지 개별 숨김·복원",
+      "originalPublishedAt": "2026-10-09T13:11:15Z",
+      "prerelease": false,
+      "publicCommit": "1c2af99ae7f09a6e29b659e38af5bb2a93329f05",
+      "documents": [
+        "docs/releases/2026-10-09-agent-10053-wallpaper-hidden.md",
+        "docs/releases/2026-10-08-agent-10052-weflab.md",
+        "docs/releases/2026-10-09-wallpaper-hidden-cards.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "candidate-2026.10.09-wallpaper-hidden-cards",
+      "publicTag": "candidate-2026.10.09-wallpaper-hidden-cards",
+      "name": "풍벽지 개별 숨김·복원 후보 · 2026-10-09",
+      "originalPublishedAt": "2026-10-09T12:52:56Z",
+      "prerelease": true,
+      "publicCommit": "e0a2a1802785f456385827cfa469b6f4bb37b5f9",
+      "documents": [
+        "docs/releases/2026-10-09-wallpaper-hidden-cards.md",
+        "docs/releases/2026-10-08-agent-10052-weflab.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.09-weflab-live-comparison",
+      "publicTag": "research-2026.10.09-weflab-live-comparison",
+      "name": "위플랩 실방송 비교 · 2026-10-09",
+      "originalPublishedAt": "2026-10-08T18:10:57Z",
+      "prerelease": true,
+      "publicCommit": "814f19cb93197d7f09ef21ab6755994eaf4737d8",
+      "documents": [
+        "docs/releases/2026-10-09-weflab-live-comparison.md",
+        "docs/releases/2026-10-08-agent-10052-weflab.md",
+        "docs/research/2026-10-09-weflab-live-comparison.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.52",
+      "publicTag": "agent-v1.0.0.52",
+      "name": "Agent 1.0.0.52 · 선택형 위플랩 수집",
+      "originalPublishedAt": "2026-10-07T23:22:43Z",
+      "prerelease": false,
+      "publicCommit": "7dfd1bd81b964689b37b6f47bbccc4d1fc2c5371",
+      "documents": [
+        "docs/releases/2026-10-08-agent-10052-weflab.md",
+        "docs/releases/2026-10-08-weflab-browserless-handoff.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.08-weflab-browserless-handoff",
+      "publicTag": "research-2026.10.08-weflab-browserless-handoff",
+      "name": "위플랩 브라우저 없는 조회·서버/PC 인계 후보 · 2026-10-08",
+      "originalPublishedAt": "2026-10-07T22:45:41Z",
+      "prerelease": true,
+      "publicCommit": "b216b41f7b6fa0be14d8de96c6943f6b12cdd059",
+      "documents": [
+        "docs/releases/2026-10-08-weflab-browserless-handoff.md",
+        "docs/releases/2026-10-08-weflab-displayed-results.md",
+        "docs/research/2026-10-08-weflab-browserless-handoff.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.08-weflab-displayed-results",
+      "publicTag": "research-2026.10.08-weflab-displayed-results",
+      "name": "위플랩 방송 표시 결과 수집 검토 · 2026-10-08",
+      "originalPublishedAt": "2026-10-07T22:03:30Z",
+      "prerelease": true,
+      "publicCommit": "7f34d9730dfb9f6f849fcd41ef8ff2ba9a333d02",
+      "documents": [
+        "docs/releases/2026-10-08-weflab-displayed-results.md",
+        "docs/releases/2026-10-08-weflab-independent-results.md",
+        "docs/research/2026-10-08-weflab-displayed-results.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.08-weflab-result-paths",
+      "publicTag": "research-2026.10.08-weflab-result-paths",
+      "name": "위플랩 독립 결과 수신 경로 조사 · 2026-10-08",
+      "originalPublishedAt": "2026-10-07T21:47:45Z",
+      "prerelease": true,
+      "publicCommit": "b291803325026382d5cfef75f773084e5228f31a",
+      "documents": [
+        "docs/releases/2026-10-08-weflab-independent-results.md",
+        "docs/releases/2026-10-08-weflab-observation.md",
+        "docs/research/2026-10-08-weflab-independent-results.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.08-weflab-observation",
+      "publicTag": "research-2026.10.08-weflab-observation",
+      "name": "위플랩 URL 비교 관측 준비 · 2026-10-08",
+      "originalPublishedAt": "2026-10-07T21:14:57Z",
+      "prerelease": true,
+      "publicCommit": "938d9d7e08ee36f300af5d699b24f508f7912802",
+      "documents": [
+        "docs/releases/2026-10-08-weflab-observation.md",
+        "docs/releases/2026-10-08-direct-production.md",
+        "docs/research/2026-10-08-weflab-observation.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.08-direct-production",
+      "publicTag": "ops-2026.10.08-direct-production",
+      "name": "계정별 직접 WebSocket 운영 전환",
+      "originalPublishedAt": "2026-10-07T19:42:58Z",
+      "prerelease": false,
+      "publicCommit": "fd7877da958bebc8d481732643ac0ea2d27b914c",
+      "documents": [
+        "docs/releases/2026-10-08-direct-production.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.08-direct-review",
+      "publicTag": "research-2026.10.08-direct-review",
+      "name": "직접 WebSocket v6 재검증 · 실제 교체 및 정상 종료",
+      "originalPublishedAt": "2026-10-07T19:15:13Z",
+      "prerelease": true,
+      "publicCommit": "a16978b1f412e3ae5ec9c0205d99919d241f42c2",
+      "documents": [
+        "docs/releases/2026-10-08-direct-observation-review.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.06-ncp-retirement",
+      "publicTag": "ops-2026.10.06-ncp-retirement",
+      "name": "기존 NCP 서버 반납 · iwinv 운영 유지",
+      "originalPublishedAt": "2026-10-06T10:19:10Z",
+      "prerelease": false,
+      "publicCommit": "ad7197963d0d479d8b250dfdd8f7321943d8d5a4",
+      "documents": [
+        "docs/releases/2026-10-06-ncp-retirement.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.05-room-owner-suffix",
+      "publicTag": "ops-2026.10.05-room-owner-suffix",
+      "name": "SOOP 계정 접미사 오류 복구 · 운영 수집 및 관측 v6",
+      "originalPublishedAt": "2026-10-05T10:32:28Z",
+      "prerelease": false,
+      "publicCommit": "dc58ef477d35fa1d219ee9c64502d065037b746c",
+      "documents": [
+        "docs/releases/2026-10-05-room-owner-suffix.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "ops-2026.10.05-iwinv-migration",
+      "publicTag": "ops-2026.10.05-iwinv-migration",
+      "name": "iwinv 운영 이전 · 수집·백업·관측 이관",
+      "originalPublishedAt": "2026-10-04T21:36:08Z",
+      "prerelease": false,
+      "publicCommit": "9d1270d9e78a42a393065be15629f2a374b8e121",
+      "documents": [
+        "docs/releases/2026-10-05-iwinv-migration.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.05-iwinv-candidate",
+      "publicTag": "research-2026.10.05-iwinv-candidate",
+      "name": "iwinv 이전 후보 생성·기본 검증 (운영 전환 전)",
+      "originalPublishedAt": "2026-10-04T21:05:36Z",
+      "prerelease": true,
+      "publicCommit": "6b39aee0bb9a24f39a055c5b9819600e5eeab25b",
+      "documents": [
+        "docs/releases/2026-10-05-iwinv-candidate.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.05-server-cost-review",
+      "publicTag": "research-2026.10.05-server-cost-review",
+      "name": "서버 비용·4GB 후보 검증 (운영 변경 없음)",
+      "originalPublishedAt": "2026-10-04T20:32:57Z",
+      "prerelease": true,
+      "publicCommit": "402bd51027708ad2468d431bd293da2581735964",
+      "documents": [
+        "docs/releases/2026-10-05-server-cost-review.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.05-semantic-comparison",
+      "publicTag": "research-2026.10.05-semantic-comparison",
+      "name": "직접 WebSocket 의미 비교·필드 진단 수정 배포",
+      "originalPublishedAt": "2026-10-04T20:08:42Z",
+      "prerelease": true,
+      "publicCommit": "ce7500e8b2d66767aca813e81fc8660dfdd54269",
+      "documents": [
+        "docs/releases/2026-10-05-semantic-comparison.md",
+        "docs/releases/2026-10-05-direct-mismatch-analysis.md",
+        "docs/releases/2026-10-04-passive-handoff.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "maintenance-2026.10.05-local-tts-cleanup",
+      "publicTag": "maintenance-2026.10.05-local-tts-cleanup",
+      "name": "로컬 정리 · 미사용 TTS와 중복 산출물 9.024GiB 제거",
+      "originalPublishedAt": "2026-10-04T19:32:58Z",
+      "prerelease": true,
+      "publicCommit": "f0065aa2f09cc67230f855d5dba07ac325bf2efb",
+      "documents": [
+        "docs/releases/2026-10-05-local-tts-cleanup.md",
+        "docs/releases/2026-09-28-local-workspace-cleanup.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.05-direct-mismatch",
+      "publicTag": "research-2026.10.05-direct-mismatch",
+      "name": "연구 · 직접 WebSocket 패킷 비교 중단 분석",
+      "originalPublishedAt": "2026-10-04T18:07:10Z",
+      "prerelease": true,
+      "publicCommit": "188e6d7307ccd96c4740e5da0048f9a45d04a199",
+      "documents": [
+        "docs/releases/2026-10-05-direct-mismatch-analysis.md",
+        "docs/releases/2026-10-05-sdk-lifecycle.md",
+        "docs/releases/2026-10-04-passive-handoff.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "gateway-2026.10.05-sdk-lifecycle",
+      "publicTag": "gateway-2026.10.05-sdk-lifecycle",
+      "name": "SDK 수집기 · 재연결 페이지 수명 수정",
+      "originalPublishedAt": "2026-10-04T17:55:32Z",
+      "prerelease": false,
+      "publicCommit": "7859cfe77f904dd2e494f2a7e1796d18f1903202",
+      "documents": [
+        "docs/releases/2026-10-05-sdk-lifecycle.md",
+        "docs/releases/2026-10-04-passive-handoff.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.50",
+      "publicTag": "agent-v1.0.0.50",
+      "name": "Agent 1.0.0.50 · 자동 로그인 재연결 수정",
+      "originalPublishedAt": "2026-10-04T10:49:25Z",
+      "prerelease": false,
+      "publicCommit": "11a3ba8138914c0ee5fdd833ea8ce5d30c29e36c",
+      "documents": [
+        "docs/releases/2026-10-04-agent-10050.md",
+        "docs/releases/2026-10-04-agent-10049.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.49",
+      "publicTag": "agent-v1.0.0.49",
+      "name": "Agent 1.0.0.49 · 후원 연동 뽑기판",
+      "originalPublishedAt": "2026-10-04T03:22:32Z",
+      "prerelease": false,
+      "publicCommit": "01a4eead56b440c2beb1732a5f427bed98c19df0",
+      "documents": [
+        "docs/releases/2026-10-04-agent-10049.md",
+        "docs/releases/2026-10-04-agent-10048.md",
+        "docs/releases/2026-10-04-draw-board-candidate.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-draw-board-20261004-candidate",
+      "publicTag": "agent-draw-board-20261004-candidate",
+      "name": "Agent 뽑기판 후보 · 후원 랜덤/수동 번호·OBS 공개",
+      "originalPublishedAt": "2026-10-04T01:36:33Z",
+      "prerelease": true,
+      "publicCommit": "f03905b60c1282bbc39590c4b166ae5b749088f3",
+      "documents": [
+        "docs/releases/2026-10-04-draw-board-candidate.md",
+        "docs/releases/2026-10-04-agent-10048.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.48",
+      "publicTag": "agent-v1.0.0.48",
+      "name": "Agent 1.0.0.48 · 글자 영역 배경 수정",
+      "originalPublishedAt": "2026-10-03T22:50:22Z",
+      "prerelease": false,
+      "publicCommit": "107d00c38e41f5f4f41762ec133e76c98bacac4a",
+      "documents": [
+        "docs/releases/2026-10-04-agent-10048.md",
+        "docs/releases/2026-10-04-agent-10047.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.47",
+      "publicTag": "agent-v1.0.0.47",
+      "name": "Agent 1.0.0.47 · 풍벽지 커스텀",
+      "originalPublishedAt": "2026-10-03T22:24:23Z",
+      "prerelease": false,
+      "publicCommit": "e7b39c58814cfe51144d36f131fd534ae2c29222",
+      "documents": [
+        "docs/releases/2026-10-04-agent-10047.md",
+        "docs/releases/2026-10-02-agent-10046.md",
+        "docs/releases/2026-10-04-wallpaper-custom.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "candidate-2026.10.04-wallpaper-custom-r2",
+      "publicTag": "candidate-2026.10.04-wallpaper-custom-r2",
+      "name": "Agent 1.0.0.47 후보 · 풍벽지 폰트·색 커스텀",
+      "originalPublishedAt": "2026-10-03T22:06:01Z",
+      "prerelease": true,
+      "publicCommit": "3eaedc6a6385176a752273bf3b8b076059cd8a9f",
+      "documents": [
+        "docs/releases/2026-10-04-wallpaper-custom.md",
+        "docs/releases/2026-10-02-agent-10046.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "candidate-2026.10.04-wallpaper-custom",
+      "publicTag": "candidate-2026.10.04-wallpaper-custom",
+      "name": "Agent 1.0.0.47 후보 · 풍벽지 폰트·색 커스텀",
+      "originalPublishedAt": "2026-10-03T21:56:47Z",
+      "prerelease": true,
+      "publicCommit": "e9c6909e2c7dc5b4d576e8ae8546dc658ad205b4",
+      "documents": [
+        "docs/releases/2026-10-04-wallpaper-custom.md",
+        "docs/releases/2026-10-02-agent-10046.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.04-passive-handoff",
+      "publicTag": "research-2026.10.04-passive-handoff",
+      "name": "직접 WebSocket 교체 조건·진단 수정 · 2026-10-04",
+      "originalPublishedAt": "2026-10-03T18:37:50Z",
+      "prerelease": true,
+      "publicCommit": "eca92124b23f20ed2d49cbeebaed0bd459ba9b49",
+      "documents": [
+        "docs/releases/2026-10-04-passive-handoff.md",
+        "docs/releases/2026-10-04-direct-review.md",
+        "docs/releases/2026-10-02-quiet-handoff.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.04-direct-review",
+      "publicTag": "research-2026.10.04-direct-review",
+      "name": "직접 WebSocket 관측 중단 재검증 · 2026-10-04",
+      "originalPublishedAt": "2026-10-03T18:22:25Z",
+      "prerelease": true,
+      "publicCommit": "7a7cbede49d9c55e53451629cbc76bd92806f4e4",
+      "documents": [
+        "docs/releases/2026-10-04-direct-review.md",
+        "docs/releases/2026-10-02-quiet-handoff.md",
+        "docs/releases/2026-10-02-direct-handoff-review.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "web-2026.10.04-task-fan-save",
+      "publicTag": "web-2026.10.04-task-fan-save",
+      "name": "신규 시청자 업보 저장 수정 · 2026-10-04",
+      "originalPublishedAt": "2026-10-03T17:35:22Z",
+      "prerelease": false,
+      "publicCommit": "c3f561fa8545af810101d4c39c0ed798f01751ee",
+      "documents": [
+        "docs/releases/2026-10-04-task-fan-save.md",
+        "docs/releases/2026-10-02-roulette-timeout.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "web-2026.10.02-roulette-timeout",
+      "publicTag": "web-2026.10.02-roulette-timeout",
+      "name": "룰렛 연결 대기 3분 자동 종료 · 2026-10-02",
+      "originalPublishedAt": "2026-10-02T13:34:42Z",
+      "prerelease": false,
+      "publicCommit": "c0e38cfbc8a8f18f58fc2f381806da029dd5f080",
+      "documents": [
+        "docs/releases/2026-10-02-roulette-timeout.md",
+        "docs/releases/2026-10-02-agent-10046.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.46",
+      "publicTag": "agent-v1.0.0.46",
+      "name": "Agent 1.0.0.46 · 자동로그인 복원 수정",
+      "originalPublishedAt": "2026-10-02T11:00:31Z",
+      "prerelease": false,
+      "publicCommit": "4ba66cd1071dac2ae084698bb9ee329d8f2f08bf",
+      "documents": [
+        "docs/releases/2026-10-02-agent-10046.md",
+        "docs/releases/2026-09-30-agent-10045.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.02-quiet-handoff",
+      "publicTag": "research-2026.10.02-quiet-handoff",
+      "name": "직접 WebSocket 무이벤트 교체 · 2026-10-02",
+      "originalPublishedAt": "2026-10-02T04:39:50Z",
+      "prerelease": true,
+      "publicCommit": "2e42038196789534043dd391b4a7fd4b3487a2ad",
+      "documents": [
+        "docs/releases/2026-10-02-quiet-handoff.md",
+        "docs/releases/2026-10-02-direct-handoff-review.md",
+        "docs/research/2026-09-28-direct-production-readiness.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.10.02-handoff-review",
+      "publicTag": "research-2026.10.02-handoff-review",
+      "name": "직접 WebSocket 실제 토큰 교체 검증 · 2026-10-02",
+      "originalPublishedAt": "2026-10-02T04:25:19Z",
+      "prerelease": true,
+      "publicCommit": "4f13e1ff5a0119c3adb003324c0d1ccf11ecda24",
+      "documents": [
+        "docs/releases/2026-10-02-direct-handoff-review.md",
+        "docs/releases/2026-09-30-direct-rolling-deployment.md",
+        "docs/research/2026-09-28-direct-production-readiness.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.09.30-rolling-handoff",
+      "publicTag": "research-2026.09.30-rolling-handoff",
+      "name": "직접 WebSocket 지속 교체 관측기 배포 · 2026-09-30",
+      "originalPublishedAt": "2026-09-30T14:13:41Z",
+      "prerelease": true,
+      "publicCommit": "e81f0b47ae19bcc5533847d659938a5ea3bcde5d",
+      "documents": [
+        "docs/releases/2026-09-30-direct-rolling-deployment.md",
+        "docs/releases/2026-09-30-direct-observation-review.md",
+        "docs/releases/2026-09-28-direct-handoff-preparation.md",
+        "docs/research/2026-09-28-direct-production-readiness.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.09.30-direct-review",
+      "publicTag": "research-2026.09.30-direct-review",
+      "name": "직접 WebSocket 관측 재검증 · 2026-09-30",
+      "originalPublishedAt": "2026-09-30T13:49:56Z",
+      "prerelease": true,
+      "publicCommit": "72355cf706ee111fadd08be6cb7023a3ebcf23f9",
+      "documents": [
+        "docs/releases/2026-09-30-direct-observation-review.md",
+        "docs/releases/2026-09-28-direct-observation-review.md",
+        "docs/research/2026-09-28-direct-production-readiness.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.45",
+      "publicTag": "agent-v1.0.0.45",
+      "name": "Agent 1.0.0.45 · 풍벽지 묶음 해제",
+      "originalPublishedAt": "2026-09-29T16:19:25Z",
+      "prerelease": false,
+      "publicCommit": "447cd06c8fb2f3e1e7769130168187a229216663",
+      "documents": [
+        "docs/releases/2026-09-30-agent-10045.md",
+        "docs/releases/2026-09-29-agent-10044.md",
+        "docs/releases/2026-09-30-wallpaper-detached.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "candidate-2026.09.30-wallpaper-detached",
+      "publicTag": "candidate-2026.09.30-wallpaper-detached",
+      "name": "풍벽지 금액 범위 묶음 해제 · 구현 후보",
+      "originalPublishedAt": "2026-09-29T16:01:23Z",
+      "prerelease": true,
+      "publicCommit": "1489fc1fb2bf0967956b19cc2d564a306b9764e1",
+      "documents": [
+        "docs/releases/2026-09-30-wallpaper-detached.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.44",
+      "publicTag": "agent-v1.0.0.44",
+      "name": "Agent 1.0.0.44 · 백두산 만들기·관리 UI 개선",
+      "originalPublishedAt": "2026-09-29T02:07:18Z",
+      "prerelease": false,
+      "publicCommit": "c39b132fb210dcb714bde699d8ff77a988f18f8c",
+      "documents": [
+        "docs/releases/2026-09-29-agent-10044.md",
+        "docs/releases/2026-09-29-baekdusan-dialog.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "installer-v1.0.0.43-r2",
+      "publicTag": "installer-v1.0.0.43-r2",
+      "name": "설치기 1.0.0.43-r2 · 설치 완료 경로 인코딩 수정",
+      "originalPublishedAt": "2026-09-29T02:07:17Z",
+      "prerelease": false,
+      "publicCommit": "9f20ba80295fd37d3f830fb1e9c1edbcb0ca33ad",
+      "documents": [
+        "docs/releases/2026-09-29-installer-path-r2.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.43",
+      "publicTag": "agent-v1.0.0.43",
+      "name": "Agent 1.0.0.43 · 백두산 실시간 풍벽지",
+      "originalPublishedAt": "2026-09-29T02:07:16Z",
+      "prerelease": false,
+      "publicCommit": "a0f53d79ce3caa3b2ebd79838ab02a3ee1ef719d",
+      "documents": [
+        "docs/releases/2026-09-29-agent-10043.md",
+        "docs/releases/2026-09-29-wallpaper-baekdusan.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "agent-v1.0.0.42",
+      "publicTag": "agent-v1.0.0.42",
+      "name": "Agent 1.0.0.42 · 풍벽지 편집 크기·오른쪽 끝 배치",
+      "originalPublishedAt": "2026-09-29T02:07:15Z",
+      "prerelease": false,
+      "publicCommit": "64739bd5847286b4aa164cd3e482db7fd1998a6e",
+      "documents": [
+        "docs/releases/2026-09-29-agent-10042.md",
+        "docs/releases/2026-09-29-wallpaper-editor-controls.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "service-2026.09.28",
+      "publicTag": "service-2026.09.28",
+      "name": "2026.09.28 · 설치 바로가기·연결 알림 개선 및 연구 기록",
+      "originalPublishedAt": "2026-09-29T02:07:13Z",
+      "prerelease": false,
+      "publicCommit": "8690cfdf012af9a9ed0a38ff6796690142410382",
+      "documents": [
+        "docs/releases/2026-09-28-direct-handoff-preparation.md",
+        "docs/releases/2026-09-28-direct-observation-review.md",
+        "docs/releases/2026-09-28-gateway-alerts.md",
+        "docs/releases/2026-09-28-handoff-ci-completion.md",
+        "docs/releases/2026-09-28-installer-r2.md",
+        "docs/releases/2026-09-28-local-workspace-cleanup.md",
+        "docs/releases/2026-09-28-shortcut-unicode-ci.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.09.27",
+      "publicTag": "research-2026.09.27",
+      "name": "2026.09.27 · 방종 프레임·관측 소켓 구분 보완 [연구]",
+      "originalPublishedAt": "2026-09-29T02:07:11Z",
+      "prerelease": true,
+      "publicCommit": "3232ee18711f339c7feccc298ec4a686b1435ee7",
+      "documents": [
+        "docs/releases/2026-09-27-broadcast-observation-fix.md",
+        "docs/releases/2026-09-27-direct-review.md",
+        "docs/releases/2026-09-27-installer-shortcut.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "service-2026.09.26",
+      "publicTag": "service-2026.09.26",
+      "name": "2026.09.26 · 별풍선 통계·리포트·반복 요청 절감",
+      "originalPublishedAt": "2026-09-29T02:07:09Z",
+      "prerelease": false,
+      "publicCommit": "015ed9cbce43184ac766c8dbd7fda4c18f03402b",
+      "documents": [
+        "docs/releases/2026-09-26-background-usage.md",
+        "docs/releases/2026-09-26-direct-comparison.md",
+        "docs/releases/2026-09-26-donation-report.md",
+        "docs/releases/2026-09-26-monitor-control-frames.md",
+        "docs/releases/2026-09-26-monthly-stats.md",
+        "docs/releases/2026-09-26-observation-manual-stop.md",
+        "docs/releases/2026-09-26-report-button-visibility.md",
+        "docs/releases/2026-09-26-tokyo-region.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "research-2026.09.25",
+      "publicTag": "research-2026.09.25",
+      "name": "2026.09.25 · 직접 수집 독립 관측·유휴 연결 수정 [연구]",
+      "originalPublishedAt": "2026-09-29T02:07:08Z",
+      "prerelease": true,
+      "publicCommit": "3ce8bfdb1df62be3510d1999bf2ae89c4c0ac7be",
+      "documents": [
+        "docs/releases/2026-09-25-idle-connection-fix.md",
+        "docs/releases/2026-09-25-idle-disconnect-investigation.md",
+        "docs/releases/2026-09-25-independent-observation.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "service-2026.09.24",
+      "publicTag": "service-2026.09.24",
+      "name": "2026.09.24 · 마크 계정 연동·수집 관측 API",
+      "originalPublishedAt": "2026-09-29T02:07:06Z",
+      "prerelease": false,
+      "publicCommit": "fd6e70ab8cf566d946a172a0ae7c41b1e6f5bf1c",
+      "documents": [
+        "docs/releases/2026-09-24-candidate-review-fixes.md",
+        "docs/releases/2026-09-24-minecraft-candidate.md",
+        "docs/releases/2026-09-24-minecraft-production.md",
+        "docs/releases/2026-09-24-observation-api.md",
+        "docs/releases/2026-09-24-release-documentation.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "service-2026.09.23.1",
+      "publicTag": "service-2026.09.23.1",
+      "name": "2026.09.23.1 · 업보 분류 대기와 기술 오류 구분",
+      "originalPublishedAt": "2026-09-23T11:01:56Z",
+      "prerelease": false,
+      "publicCommit": "851d8acffbba684d68400dd5e4c9c8e45676a16c",
+      "documents": [
+        "docs/releases/2026-09-23-upbo-review-retry.md"
+      ],
+      "mapping": "commit-map.txt"
+    },
+    {
+      "originalTag": "service-2026.09.23",
+      "publicTag": "service-2026.09.23",
+      "name": "2026.09.23 · 운영 기준 통합과 방송 대기 안정화",
+      "originalPublishedAt": "2026-09-23T04:54:38Z",
+      "prerelease": false,
+      "publicCommit": "460bafaf8a399788191e1e2e00c75f5bb6b2f585",
+      "documents": [
+        "docs/releases/2026-09-23.md"
+      ],
+      "mapping": "commit-map.txt"
+    }
+  ]
+}

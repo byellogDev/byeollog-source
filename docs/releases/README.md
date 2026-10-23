@@ -1,5 +1,7 @@
 # 릴리스 기록
 
+[GitHub Releases](https://github.com/byellogDev/byeollog-source/releases) · [원본 게시일순 전체 이력](../public-source/RELEASES.md)
+
 [현재 운영·연구 상태](../PROJECT_STATUS.md) · [Agent 버전 대응표](AGENT_VERSIONS.md)
 
 아래 항목은 **해당 날짜의 상태**입니다. 후보가 나중에 운영으로 전환돼도 원래의 실패·보류·검사 한계를 삭제하지 않습니다. 현재 상태는 후속 기록과 함께 확인합니다.

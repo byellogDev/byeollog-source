@@ -1,5 +1,7 @@
 # 변경 이력
 
+- [2026-10-23 공개 릴리스 이력 보완](docs/public-source/RELEASES.md): 원본 86건 대조, 과거 버전 85건 재게시 및 공개 관리 기록 1건 연결. 원본 게시 시각·Pre-release 구분·공개 커밋 대응을 기록. 운영 배포 없음.
+
 - [2026-10-23 Git 관리 정리](docs/releases/2026-10-23-repository-governance.md): 누적 PR의 원래 이력 보존 통합, 현재 기능·연구 상태와 Agent 버전 대응표, PR·CI 절차 정리. 운영 배포 없음.
 
 각 항목의 후보·운영 상태는 당시 기록입니다. 후속 채택 여부는 [현재 상태](docs/PROJECT_STATUS.md)와 [릴리스 목록](docs/releases/README.md)의 후속 링크에서 확인합니다.

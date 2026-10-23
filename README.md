@@ -48,6 +48,8 @@ docs/                  설계, 배포 절차, 버전별 기록
 
 ## 현재 버전과 개발 기록
 
+- **[GitHub 릴리스 내역](https://github.com/byellogDev/byeollog-source/releases)** · [원본 게시일순 전체 이력](docs/public-source/RELEASES.md) · [버전별 상세 변경 기록](docs/releases/README.md)
+- 원본 릴리스 86건을 대조해 과거 버전 85건을 재게시하고, 소스 공개 기록 1건은 기존 안내에 연결했습니다. 각 게시물에 원본 게시 시각과 후보·연구 구분을 표시합니다.
 - Windows Agent: **[1.0.0.60](https://github.com/byellogDev/byeollog-releases/releases/tag/agent-v1.0.0.60)** — 2026-10-22 운영 반영. [변경·검증·남은 확인](docs/releases/2026-10-22-agent-10060.md).
 - [구성요소별 운영·연구 상태](docs/PROJECT_STATUS.md)에서 제품 기능과 미완성 범위를 확인합니다.
 - [설계와 권한 경계](docs/ARCHITECTURE.md), [변경 이력](CHANGELOG.md), [커밋 이력](https://github.com/byellogDev/byeollog-source/commits/main/) · [공개 후 PR 목록](https://github.com/byellogDev/byeollog-source/pulls?q=is%3Apr), [CI 실행](https://github.com/byellogDev/byeollog-source/actions/workflows/verify.yml)에 구현과 검증 근거를 기록합니다.
