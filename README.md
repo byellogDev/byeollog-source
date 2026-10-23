@@ -6,11 +6,11 @@
 
 > `main`은 검증한 변경을 통합하는 개발 기준입니다. 실제 운영 버전은 구성요소별 릴리스 기록과 배포 증거로 확인합니다. Git 병합과 운영 배포는 별도 절차입니다. 저장소는 2026-09-23 운영 안정본에서 출발했으며, 기존 커밋·태그를 보존합니다.
 
-## 현재 버전과 검토 순서
+## 현재 버전과 개발 기록
 
 - Windows Agent: **[1.0.0.60](https://github.com/byellogDev/byeollog/releases/tag/agent-v1.0.0.60)** — 2026-10-22 운영 반영. [변경·검증·남은 확인](docs/releases/2026-10-22-agent-10060.md).
 - [구성요소별 운영·연구 상태](docs/PROJECT_STATUS.md)에서 제품 기능과 미완성 범위를 확인합니다.
-- [설계와 권한 경계](docs/ARCHITECTURE.md) → [변경 이력](CHANGELOG.md) → [PR 목록](https://github.com/byellogDev/byeollog/pulls?q=is%3Apr) → [CI 실행](https://github.com/byellogDev/byeollog/actions/workflows/verify.yml) 순으로 구현과 검증 근거를 확인할 수 있습니다.
+- [설계와 권한 경계](docs/ARCHITECTURE.md), [변경 이력](CHANGELOG.md), [PR 목록](https://github.com/byellogDev/byeollog/pulls?q=is%3Apr), [CI 실행](https://github.com/byellogDev/byeollog/actions/workflows/verify.yml)에 구현과 검증 근거를 기록합니다.
 - [Git 관리 정리 기록](docs/releases/2026-10-23-repository-governance.md)은 장기 PR 누적 문제와 개선 내용, 브랜치 보호의 제한을 설명합니다. 과거 작업을 소규모 PR로 검토한 것처럼 이력을 재작성하지 않았습니다.
 
 ## 서비스가 해결하는 문제
