@@ -79,6 +79,12 @@ internal sealed class VNextSessionVault
         }
     }
 
+    public void ApplyLoginPreference(VNextRememberedSession? remembered, bool autoLogin)
+    {
+        if (autoLogin) Save(remembered ?? throw new ArgumentNullException(nameof(remembered)));
+        else MarkDisconnectedAndDelete();
+    }
+
     public void Save(VNextRememberedSession remembered)
     {
         if (!IsValid(remembered))

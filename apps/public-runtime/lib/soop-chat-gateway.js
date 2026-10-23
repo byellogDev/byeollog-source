@@ -5,6 +5,7 @@ import {SOOP_DONATION_MAX_BALLOONS} from './native-roulette.js';
 
 const SOOP_DONATION_ACTION_LABELS=Object.freeze({
   BALLOON_GIFTED:'별풍선',
+  VIDEOBALLOON_GIFTED:'영상후원',
   ADBALLOON_GIFTED:'애드벌룬',
   BATTLE_MISSION_GIFTED:'대결미션',
   CHALLENGE_MISSION_GIFTED:'도전미션'

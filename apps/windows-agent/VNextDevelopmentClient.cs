@@ -397,13 +397,16 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         }
     }
 
+    public bool HasRememberedSession => _sessionVault.TryRead(out _);
+
     public Task<bool> BeginCollectorPairSessionAdoption(
         JsonElement pairResponse,
-        string fallbackEmail)
+        string fallbackEmail,
+        bool rememberSession = true)
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
         var responseSnapshot = pairResponse.Clone();
-        var adoption = AdoptCollectorPairSessionWithTimeoutAsync(responseSnapshot, fallbackEmail);
+        var adoption = AdoptCollectorPairSessionWithTimeoutAsync(responseSnapshot, fallbackEmail, rememberSession);
         lock (_collectorPairAdoptionGate)
             _pendingCollectorPairAdoption = adoption;
         return adoption;
@@ -527,7 +530,8 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
 
     private async Task<bool> AdoptCollectorPairSessionWithTimeoutAsync(
         JsonElement pairResponse,
-        string fallbackEmail)
+        string fallbackEmail,
+        bool rememberSession)
     {
         using var totalTimeout = CancellationTokenSource.CreateLinkedTokenSource(_shutdown.Token);
         totalTimeout.CancelAfter(TimeSpan.FromSeconds(8));
@@ -536,7 +540,8 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
             return await TryAdoptCollectorPairSessionAsync(
                 pairResponse,
                 fallbackEmail,
-                totalTimeout.Token);
+                totalTimeout.Token,
+                rememberSession);
         }
         catch (OperationCanceledException)
         {
@@ -551,7 +556,8 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
     public async Task<bool> TryAdoptCollectorPairSessionAsync(
         JsonElement pairResponse,
         string fallbackEmail,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        bool rememberSession = true)
     {
         // 호출이 시작되는 즉시 intent를 발급합니다. 아래 로컬 형식 검사나 원격
         // Auth/RLS 검증과 연결 해제가 겹쳐도 DisconnectAsync가 나중 revision을
@@ -615,7 +621,7 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                     return false;
                 PublishSession(
                     candidate,
-                    rememberSession: true,
+                    rememberSession: rememberSession,
                     advanceConnectionEpoch: true,
                     workspaceId: authorizedIdentity.WorkspaceId,
                     authenticatedUserId: authorizedIdentity.UserId);
@@ -2437,12 +2443,12 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
         {
             try
             {
-                _sessionVault.Save(new VNextRememberedSession(
+                _sessionVault.ApplyLoginPreference(new VNextRememberedSession(
                     candidate.RefreshToken,
                     advanceConnectionEpoch ? workspaceId! : _workspaceId,
                     authenticatedUserId,
                     candidate.Email,
-                    DateTimeOffset.UtcNow));
+                    DateTimeOffset.UtcNow), autoLogin: true);
             }
             catch
             {
@@ -2451,6 +2457,12 @@ internal sealed partial class VNextDevelopmentClient : IDisposable
                 // refresh in memory and the next ordinary login may save again.
                 rememberSession = false;
             }
+        }
+        else if (advanceConnectionEpoch)
+        {
+            // A successful non-remembered login must invalidate an older saved
+            // login too, even when deleting its encrypted file is unavailable.
+            _sessionVault.ApplyLoginPreference(null, autoLogin: false);
         }
         CancellationTokenSource? previousBoundary = null;
         if (advanceConnectionEpoch)

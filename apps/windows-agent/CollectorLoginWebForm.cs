@@ -206,6 +206,7 @@ internal sealed class CollectorLoginWebForm : Form
                 await SendLoginStateAsync(new
                 {
                     rememberedId = LoadRememberedId(),
+                    autoLogin = _automationClient.HasRememberedSession,
                     busy = false,
                     message = "",
                     error = false
@@ -262,7 +263,8 @@ internal sealed class CollectorLoginWebForm : Form
                     var id = payload.TryGetProperty("id", out var idElement) ? idElement.GetString() ?? "" : "";
                     var password = payload.TryGetProperty("password", out var passwordElement) ? passwordElement.GetString() ?? "" : "";
                     var remember = payload.TryGetProperty("remember", out var rememberElement) && rememberElement.ValueKind == JsonValueKind.True;
-                    await LoginAsync(id, password, remember);
+                    var autoLogin = payload.TryGetProperty("autoLogin", out var autoLoginElement) && autoLoginElement.ValueKind == JsonValueKind.True;
+                    await LoginAsync(id, password, remember, autoLogin);
                     break;
                 case "forgotPassword":
                     OpenSite("/forgot-password");
@@ -286,7 +288,7 @@ internal sealed class CollectorLoginWebForm : Form
         return string.IsNullOrWhiteSpace(url) ? CollectorStorage.ProductionServerUrl : url.TrimEnd('/');
     }
 
-    private async Task LoginAsync(string id, string password, bool remember)
+    private async Task LoginAsync(string id, string password, bool remember, bool autoLogin)
     {
         id = id.Trim();
 
@@ -358,7 +360,8 @@ internal sealed class CollectorLoginWebForm : Form
             using var document = JsonDocument.Parse(body);
             var adopted = await _automationClient.BeginCollectorPairSessionAdoption(
                 document.RootElement.Clone(),
-                id);
+                id,
+                rememberSession: autoLogin);
             if (!adopted)
                 throw new Exception("풍벽지 서버 세션을 안전하게 연결하지 못했습니다. 다시 시도해주세요.");
 

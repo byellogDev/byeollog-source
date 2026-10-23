@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "keys": [
+    {
+      "role": "primary",
+      "keyId": "rsa3072-cc1fb719f3a63774",
+      "subject": "CN=Byeollog Agent Update Primary 2026",
+      "thumbprint": "2D63A933F083670B01684B10BA6C61C7F5592F0B",
+      "notAfterUtc": "2036-08-23T00:04:55.0000000Z",
+      "modulusBase64": "xh6UD7hSfTLd9lWkerCb3yrGY9hAur3s8maFJYlcdsCZu+YSUsGkKFonG8RPHXDeabmXXrsAAxl9oacxFdtfpxq0zAvyWXbv7VdKB9izi0kooBAPTs1kUe87pcbvTunj/7uPfTolcnT7wC5mlzoxlZQ8H+dyCWha1bKwOJYIgEPPbSqx+1lc8baeO4PTUZ3Cl/jCVX1VlqgKLFvaPjTOLiUtS6e4Wyv1S9r83N7EdHA8xiSKc89e+GEUHJzWjKdgCfmGPtNN4JJHH+6j+/npmSEdQb8SQ9/Bj3N2ETiM+hBL4mJko9mXyNCZG9ZlY5U1kPk9DBnmb2biNuF7xvhJ2UjpdxBeFJ20DJgtWCM30o/x8mNVViGEErvEIlmZKatPShB+ExAhrpx9cJRoccWtpMjvbejLbv6gKehfYhZ+Xc0q6e3/D+/MWGcCiVNYhBidoHB8TCvsSwza0/+ZmB1z6hBrKnJIVksUYTvOZzcNeqPmC7vah0USWrMyua/mQpxh",
+      "exponentBase64": "AQAB",
+      "spkiSha256": "cc1fb719f3a63774c10c4a18dcf0f9ae0f10c045f3a98a4a0c28c8df6b3584d7",
+      "selfTestMessage": "byeollog-agent-update-trust-self-test-v2:rsa3072-cc1fb719f3a63774",
+      "selfTestSignatureBase64": "iMIDGCqZQzPWJ9xyc8xkXhzhEUjAxl7mwar3ghWoEErVoEausWLrHDuaTBWBlO6iAeufXEBeRizw/jzvBzPRsGS6l8P5D5yYi7Y7G3OMtt5mOp5tZZlTKfkSSdqIf3DiiQk+1CYCz1xcxCrADtcpS6iOT9mg+ZZJrMTmCkPgIOge8Qx+JJly4cd+v6h595kWAPO39C12EuobBiIuSChD/biuk9n/HQ0k55nxNnAxUV0w3IkQ0wbI7zsltvzf+IDlLrDIGbcezBSNrZ3CRtXjX3e2zS1E/ytEaxLk4pwGZobRuddMTijA+LOAKb6gnSUvBfQpF8cQQvQCftXgIRsl9SMF5FtM0mu1bMtYKtq57vxtmJG0LG68dWlZVo5KHuz/bZ1gunu9FILA3rWb2/tZnHMh3vs8AZxk80U4bBF+71+IU7W96803hXgMPaTFWNWVpzztn18qPt4phds/rzKdeG+aQ0tgl4ozXamGDsIJlrNZ2WkoUI+HuRRpPvJplE9T"
+    },
+    {
+      "role": "recovery",
+      "keyId": "rsa3072-c40c6be5c45ab4d3",
+      "subject": "CN=Byeollog Agent Update Recovery 2026",
+      "thumbprint": "9A7F92F3E5BBD767DBB7CC872DB4C6021EF6DFA8",
+      "notAfterUtc": "2036-08-23T00:04:55.0000000Z",
+      "modulusBase64": "zdWDoX/6wL5ngcQtbzvv4+IO8CYowEC6i8gY2SIAJ1UJOIRcvLIG61mymPO6Jfas7aJdZJlwMsXAh9//meKbYkWO4EpMIhsH+NT6qHOl2lCyfBhAVuqKEPIS6c9xHTB3T1h25jpGaCE5vXEVh6yz8XZFomdpqQM7xNK4/NbvK0zARQy3sx0GSGsGRkr99vFSz2KF1oNl9KxUZK9t27tmoKgWbGyYAoDdBcYVpDqjuv1VLm9yI06EilPn09/0Rpx6+Cv3OEp2yCyQJNZL+vvWREOvZ0nybc7IM5+UL12yD4V8BIo+cFdWwUX+BSG4Hqn+dhFBNnOwaw25QPP1nmze7+L079vrMxhuuptlnIZIpmD8fscfUK6rYi6rNa3IXUt41JbvBLE2fofNELN/EIN5du4b9hOASITaXQFG3K0V0O8jV1qOj4y2Hkz8aANXqi4yYkS9jnIeQFeS4wgqd8KQDwKMaIiSd8jwunJpLmct83PpnMyFMbngq9GhpO9qaaA5",
+      "exponentBase64": "AQAB",
+      "spkiSha256": "c40c6be5c45ab4d3019816d5cab76826ee8c22ec1871bb5b4cf85c0504b726f3",
+      "selfTestMessage": "byeollog-agent-update-trust-self-test-v2:rsa3072-c40c6be5c45ab4d3",
+      "selfTestSignatureBase64": "JjkFVGrU+pCi3D4pa6j04N7bQ8UM607NVa8CmD1PjbOaWa988wHvR5IOBKlNl1gNvopVm7cen5gnn3Vv/x1ZK2ct0dsg9dn4i7uw4taEVtwC+jOH8ik74MfxDchmmlrEGSP4Ap/iZScAfoyC57kCP7mPAaF7uIwqw8lANO30/JU38Y1xJR13ojkNB9N7CvYQhcVm2HJJyxbamfLKnZMStDBfAyGEZYkHtaG1VJyEgCDMr5LgLmf3kY8lmAP13RMIZfUrcO9c7sV9J1tVIDAow3ZbhFh8VQaLxoxHSQBlW6vgm6rJzbUceF+iPe8OOVM/e+1qlDhUKF28wol+TNECD6NPMwe5lwOM+iBc4yGXAdIxSYhD2uPjmcybENKdZR1dRAlbY03gknPZS/YrsTSaLoof0ZG8QWQRkmXCh/3EOcGqFiBKknLwV2+YCFoR1hR+wCSZhjMeMCis26vPOX3F3JhwZoT7DubFhZ0yNcJ0oShF/89dCMGIuQ615aRmGuoU"
+    }
+  ]
+}

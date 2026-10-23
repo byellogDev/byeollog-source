@@ -697,6 +697,16 @@ internal static partial class Program
         File.WriteAllBytes(vaultPath, [1, 2, 3, 4]);
         False(vault.TryRead(out _), "corrupt DPAPI bytes fail closed");
         False(File.Exists(vaultPath), "corrupt refresh-token vault is removed");
+
+        vault.ApplyLoginPreference(remembered, autoLogin: true);
+        var encryptedPreviousLogin = File.ReadAllBytes(vaultPath);
+        True(new VNextSessionVault(vaultRoot).TryRead(out _), "auto-login survives application restart");
+        vault.ApplyLoginPreference(null, autoLogin: false);
+        False(new VNextSessionVault(vaultRoot).TryRead(out _), "unchecked auto-login does not restore after restart");
+        File.WriteAllBytes(vaultPath, encryptedPreviousLogin);
+        False(new VNextSessionVault(vaultRoot).TryRead(out _), "unchecked auto-login blocks even a stale encrypted vault");
+        vault.ApplyLoginPreference(remembered, autoLogin: true);
+        True(new VNextSessionVault(vaultRoot).TryRead(out _), "explicitly enabling auto-login restores persistence");
     }
 
     private static void ActionSoundAssetTests()

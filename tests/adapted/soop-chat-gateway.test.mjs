@@ -17,6 +17,18 @@ function callback(overrides={}){
   };
 }
 
+test('video gifts preserve amount/image and are accepted only by the SDK donation boundary',()=>{
+  const input=callback({action:'VIDEOBALLOON_GIFTED',message:{bjId:'streamer',userId:'Viewer01',userNickname:'영상후원자',count:100,imageUrl:'https://res.sooplive.com/new_player/items/img_video_balloon.png'}});
+  const result=classifySoopChatSdkCallback(input);
+  assert.equal(result.kind,'event');
+  assert.equal(result.value.relay.event.donationTypeLabel,'영상후원');
+  assert.equal(result.value.relay.event.amount,100);
+  assert.equal(result.value.relay.event.actor.id,'viewer01');
+  assert.equal(result.value.relay.event.ceremonyImageUrl,input.message.imageUrl);
+  assert.throws(()=>normalizeSoopDonationEnvelope(result.value.relay.event));
+  for(const count of [0,-1,1.5,1_000_000_001])assert.equal(classifySoopChatSdkCallback({...input,message:{...input.message,count}}).reason,'invalid_donation_amount');
+});
+
 test('live adballoon preserves donor amount and image through the SDK relay only',()=>{
   const input=callback({action:'ADBALLOON_GIFTED',message:{userId:'Viewer01',userNickname:'광고후원자',count:33,imageUrl:'https://res.sooplive.com/ad.png',fromVod:false,fromStation:false}});
   const result=classifySoopChatSdkCallback(input);

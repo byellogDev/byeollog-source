@@ -5928,10 +5928,11 @@
     },
     {
       "path": "ncp-gateway/lib/soop-sdk-relay.js",
+      "target": "services/soop-gateway/lib/soop-sdk-relay.js",
       "before": "83bd52ba04065589d05b0eae7d4947ccec7bd7f2434559f43eac585877bff4b2",
-      "after": "47e6481cc877f7820412dd6b04c268c179fedb41f6c952844ea02167d499ffb7",
+      "after": "b3982b9759522a0add5ceab6664b1c642d360b638b52d479fd7dc42af1faffa6",
       "status": "changed",
-      "target": "services/soop-gateway/lib/soop-sdk-relay.js"
+      "release": "2026.09.23.2"
     },
     {
       "path": "ncp-gateway/services/soop-chat-gateway/index.mjs",
@@ -5955,6 +5956,182 @@
       "after": "be69c14c88820dd5e8063094b7f13a3d3f5c77431aef849cb14a832a5cbdc5ed",
       "status": "changed",
       "release": "2026.09.23.1"
+    },
+    {
+      "path": "admin-runtime/agent-updates/stable/win-x64.json",
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "4b4c23f1ab1d8d97bbe06c0368570b969c46b1dc1970db46d826b0966bfcc3a6",
+      "after": "feb44d63e7b089db13d72973d4e0424fe7f6b9a3ce520a91b1714962199a0fb9",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "admin-runtime/lib/native-roulette.js",
+      "target": "apps/admin-runtime/lib/native-roulette.js",
+      "before": "7a983cf8530de8175cdc4d60b7fcc649544a38bd00bdb3e6faef1d30183687c0",
+      "after": "3a9dffad19340600d1b05be183176a9a633911f7a47789301b6833bd61e79dc1",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "admin-runtime/lib/soop-chat-gateway.js",
+      "target": "apps/admin-runtime/lib/soop-chat-gateway.js",
+      "before": "86893956db3667a59ac3baedb1d5c021ef2cd9815e1fcf7b14e97b139de87908",
+      "after": "16107a512da7caca9fd1a8f92c520d17f1e188eeb2e206b0f268e60cc05fc348",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "admin-runtime/lib/soop-sdk-relay.js",
+      "target": "apps/admin-runtime/lib/soop-sdk-relay.js",
+      "before": "83bd52ba04065589d05b0eae7d4947ccec7bd7f2434559f43eac585877bff4b2",
+      "after": "d73aa900fbd898ff104ad34cdb2f796e7e0e7a8a4b7d03377fa63824c37eb818",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "collector-runtime/lib/native-roulette.js",
+      "target": "apps/collector-runtime/lib/native-roulette.js",
+      "before": "7a983cf8530de8175cdc4d60b7fcc649544a38bd00bdb3e6faef1d30183687c0",
+      "after": "3a9dffad19340600d1b05be183176a9a633911f7a47789301b6833bd61e79dc1",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "collector-runtime/lib/soop-chat-gateway.js",
+      "target": "apps/collector-runtime/lib/soop-chat-gateway.js",
+      "before": "86893956db3667a59ac3baedb1d5c021ef2cd9815e1fcf7b14e97b139de87908",
+      "after": "16107a512da7caca9fd1a8f92c520d17f1e188eeb2e206b0f268e60cc05fc348",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "collector-runtime/lib/soop-sdk-relay.js",
+      "target": "apps/collector-runtime/lib/soop-sdk-relay.js",
+      "before": "83bd52ba04065589d05b0eae7d4947ccec7bd7f2434559f43eac585877bff4b2",
+      "after": "d73aa900fbd898ff104ad34cdb2f796e7e0e7a8a4b7d03377fa63824c37eb818",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "public-runtime/lib/native-roulette.js",
+      "target": "apps/public-runtime/lib/native-roulette.js",
+      "before": "7a983cf8530de8175cdc4d60b7fcc649544a38bd00bdb3e6faef1d30183687c0",
+      "after": "3a9dffad19340600d1b05be183176a9a633911f7a47789301b6833bd61e79dc1",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "public-runtime/lib/soop-chat-gateway.js",
+      "target": "apps/public-runtime/lib/soop-chat-gateway.js",
+      "before": "86893956db3667a59ac3baedb1d5c021ef2cd9815e1fcf7b14e97b139de87908",
+      "after": "16107a512da7caca9fd1a8f92c520d17f1e188eeb2e206b0f268e60cc05fc348",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "public-runtime/lib/soop-sdk-relay.js",
+      "target": "apps/public-runtime/lib/soop-sdk-relay.js",
+      "before": "83bd52ba04065589d05b0eae7d4947ccec7bd7f2434559f43eac585877bff4b2",
+      "after": "d73aa900fbd898ff104ad34cdb2f796e7e0e7a8a4b7d03377fa63824c37eb818",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "frontend/agent-updates/stable/win-x64.json",
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "4b4c23f1ab1d8d97bbe06c0368570b969c46b1dc1970db46d826b0966bfcc3a6",
+      "after": "feb44d63e7b089db13d72973d4e0424fe7f6b9a3ce520a91b1714962199a0fb9",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "frontend/lib/native-roulette.js",
+      "target": "apps/web/lib/native-roulette.js",
+      "before": "7a983cf8530de8175cdc4d60b7fcc649544a38bd00bdb3e6faef1d30183687c0",
+      "after": "3a9dffad19340600d1b05be183176a9a633911f7a47789301b6833bd61e79dc1",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "frontend/lib/soop-chat-gateway.js",
+      "target": "apps/web/lib/soop-chat-gateway.js",
+      "before": "86893956db3667a59ac3baedb1d5c021ef2cd9815e1fcf7b14e97b139de87908",
+      "after": "16107a512da7caca9fd1a8f92c520d17f1e188eeb2e206b0f268e60cc05fc348",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "frontend/lib/soop-sdk-relay.js",
+      "target": "apps/web/lib/soop-sdk-relay.js",
+      "before": "83bd52ba04065589d05b0eae7d4947ccec7bd7f2434559f43eac585877bff4b2",
+      "after": "d73aa900fbd898ff104ad34cdb2f796e7e0e7a8a4b7d03377fa63824c37eb818",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "frontend/vercel.json",
+      "target": "apps/web/vercel.json",
+      "before": "441393356a2d54e49f90ef0fe15e225c168230527e44c0f8bb100dc9996c467d",
+      "after": "1b32f64717b6bcd164e6786564a180b71971a9b4e6910b8b75072451ab506de9",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "agent-source/CollectorLoginWebForm.cs",
+      "target": "apps/windows-agent/CollectorLoginWebForm.cs",
+      "before": "a503b2664241fb42c168e0225214ac7742ae8b2ccfd98c3c2bc2f847f8a46a4e",
+      "after": "f1b69584b6292fd50f0bc22695c9bca3b6e6b696cdb34e46b30bb1a58212c3a3",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "agent-source/HurogiCollector.csproj",
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "beb25b35be068cd822e2687c7ff2693f464704a35da8947f872e538c0fd27ab9",
+      "after": "8d88ff5e5460b056bb2ff2729c325252b36d7c38be0c9e8e69480c737813ff55",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "agent-source/Ui/byeollog_ui.html",
+      "target": "apps/windows-agent/Ui/byeollog_ui.html",
+      "before": "20c8adad13113c3e105df1def5642b7ec81aacda38c748c3847838ed76a854a7",
+      "after": "d0191a29c25d422da8092281de0bd226a0ed9b003d329ff177e4312a68ffb142",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "agent-source/VNextDevelopmentClient.cs",
+      "target": "apps/windows-agent/VNextDevelopmentClient.cs",
+      "before": "a479be14e9d80386a4d6b78f7ba850cefb2579584e0b459f82b3961a929a6659",
+      "after": "a13b797ba811970656d0a1c914b477d09ad83bdbdf5005055c9e2c112ec7bd52",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "agent-source/VNextSessionVault.cs",
+      "target": "apps/windows-agent/VNextSessionVault.cs",
+      "before": "a2da91d5b7315f023558448737003012745bc2fdf9a4f628b7911ed0fd22958c",
+      "after": "491f4941dac83863c0621b57ccfdd658652b590497a8a11f1c9bb872575819b2",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "ncp-gateway/lib/native-roulette.js",
+      "target": "services/soop-gateway/lib/native-roulette.js",
+      "before": "7a983cf8530de8175cdc4d60b7fcc649544a38bd00bdb3e6faef1d30183687c0",
+      "after": "3a9dffad19340600d1b05be183176a9a633911f7a47789301b6833bd61e79dc1",
+      "status": "changed",
+      "release": "2026.09.23.2"
+    },
+    {
+      "path": "ncp-gateway/lib/soop-chat-gateway.js",
+      "target": "services/soop-gateway/lib/soop-chat-gateway.js",
+      "before": "86893956db3667a59ac3baedb1d5c021ef2cd9815e1fcf7b14e97b139de87908",
+      "after": "16107a512da7caca9fd1a8f92c520d17f1e188eeb2e206b0f268e60cc05fc348",
+      "status": "changed",
+      "release": "2026.09.23.2"
     }
   ]
 }

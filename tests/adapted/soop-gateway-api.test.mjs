@@ -31,6 +31,32 @@ function request(body,headers={},signingSecret=secret){
 }
 function relay(){return {schemaVersion:1,provider:'soop',eventType:'chat',event:{eventId:'chat-1',actor:{id:'viewer',name:'시청자'},message:'딸깍',occurredAt:'2026-08-29T03:00:00.000Z'},receivedAt:'2026-08-29T03:00:00.100Z',connection:{id:`${instanceId}:${workspaceId}:1`,sequence:1,reconnectCount:0},rawPayloadSha256:'a'.repeat(64)}}
 
+test('video gift passes signed, leased, room-owned ingress into core wallpaper donation',async()=>{
+  const normalized=normalizeSoopChatSdkCallback({action:'VIDEOBALLOON_GIFTED',
+    message:{bjId:providerAccountId,userId:'viewer',userNickname:'영상후원자',count:100,imageUrl:'https://res.sooplive.com/new_player/items/img_video_balloon.png'},
+    connection:{id:`${instanceId}:${workspaceId}:1`,sequence:8,reconnectCount:0},receivedAt:'2026-09-23T00:00:00Z'});
+  const calls=[],res=response();
+  await handleSoopGatewayIngress(request({kind:'event',workspaceId,relay:normalized.relay}),res,{
+    env,sbImpl:async(table,path,options)=>{
+      calls.push(table);
+      if(!options?.method)return [{gateway_enabled:true,core_collection_enabled:true}];
+      if(table==='rpc/claim_soop_event_ownership_v1')return 'claimed';
+      if(table==='byeollog_soop_event_observations')return [];
+      if(table==='rpc/ingest_soop_core_donation_v2'){
+        const body=typeof options.body==='string'?JSON.parse(options.body):options.body;
+        assert.equal(body.p_donation_type_label,'영상후원');
+        assert.equal(body.p_amount,100);
+        assert.equal(body.p_workspace_id,workspaceId);
+        return {status:'recorded',wallpaperRecorded:true,sourceUid:null,fixedRuleCount:0};
+      }
+      assert.fail(`unexpected RPC ${table}`);
+    }
+  });
+  assert.equal(res.statusCode,200);
+  assert.ok(calls.includes('rpc/ingest_soop_core_donation_v2'));
+  assert.ok(!calls.includes('rpc/ingest_soop_wallpaper_adballoon_v1'));
+});
+
 test('one ingress deadline reaches each database request and stops stalled processing',async()=>{
   const abort=new AbortController(),res=response();let calls=0;
   const pending=handleSoopGatewayIngress(request({kind:'heartbeat',workspaceId,state:'waiting_for_live'}),res,{
