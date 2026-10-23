@@ -1,0 +1,59 @@
+# 2026-10-23 · Git 버전 관리 정리
+
+## 상태와 범위
+
+- 문서·GitHub 관리 변경. 서비스 배포·DB·업데이트 피드 변경 없음.
+- 사용자 요청: 회사에서 Git 사용 이력을 검토할 수 있도록 실제 저장소부터 정리.
+- 기존 private 공개 범위, 작성자·작성 시각·커밋·태그·설치 자산을 보존.
+- 직전 제품 버전: [Agent 1.0.0.60](2026-10-22-agent-10060.md).
+
+## 변경 전 문제
+
+기본 브랜치 `main`은 `a4d9a94`(9월 23일)에 머물렀고, 검증된 최신 기록 `9299bff`까지 118개 커밋이 작업 브랜치에 누적됐습니다. PR #4는 #3을 기준으로 한 Draft였으며, 117개 커밋·576개 변경 파일에 비해 제목과 첫 설명이 오래됐습니다. 최신 제품 태그는 올바른 소스를 가리켰지만 첫 화면과 기본 브랜치에서 현재 상태를 파악하기 어려웠습니다.
+
+이는 기존 Git 관리의 문제입니다. 과거 작업을 작은 PR로 나누어 리뷰한 것처럼 새 이력을 만들지 않고 실제 커밋을 그대로 통합했습니다.
+
+## 변경 내용
+
+- [PR #3](https://github.com/byellogDev/byeollog/pull/3)을 먼저 merge commit으로 병합한 뒤, [PR #4](https://github.com/byellogDev/byeollog/pull/4)의 base를 main으로 변경하고 누적 범위·검증 한계 중심으로 설명을 다시 작성했습니다.
+- PR #4의 병합 예정 트리가 기존 CI 성공 커밋과 동일함을 확인한 뒤 merge commit으로 병합했습니다. 기존 제품 소스·문서 커밋을 재작성하지 않았습니다.
+- README의 9월 23일 검사 결과를 최신 결과처럼 보이던 표현을 제거했습니다. [현재 상태](../PROJECT_STATUS.md)에 운영 기능과 미구현 Minecraft 전달, 반복 API 장애의 남은 진단 범위를 구분했습니다.
+- [버전 대응표](AGENT_VERSIONS.md)로 소스/설치 자산을 연결했습니다. 57·58 태그 이름은 보존하고, 41은 9월 23일 실제 소스에 기록 보완 릴리스를 연결합니다. 게시일은 10월 23일입니다.
+- [CONTRIBUTING](../../CONTRIBUTING.md), 개발 절차, PR 양식을 정비했습니다. CI 수동 실행 진입점을 추가했으며 기존 전체 검사를 생략하지 않습니다.
+- 릴리스 목록에서 과거 후보의 후속 운영 기록을 연결하고, 이미 반납된 NCP를 즉시 복구 호스트로 안내하던 문구를 수정했습니다.
+- `graphify-out/` 생성물만 Git 제외 대상으로 추가했습니다. 기존 로컬 파일은 삭제하지 않았습니다.
+
+## 이력 보존과 브랜치 정리
+
+| 이전 브랜치 | 원래 SHA | 처리 원칙 |
+| --- | --- | --- |
+| `codex/stable-monorepo-20260923` | `156414f1815e00343b358dab2f5871837c72f7eb` | PR #1로 이미 병합, main 포함 확인 후 작업 브랜치 삭제 |
+| `fix/upbo-review-retry` | `225391b236a2c8647b1213039926a6f1e52f15ac` | PR #2로 이미 병합, main 포함 확인 후 작업 브랜치 삭제 |
+| `codex/agent-login-video` | `36d02ac1b1e3bad5ccdcd3bf098a94f89e9fabac` | PR #3 병합 이력 보존 후 작업 브랜치 삭제 |
+| `codex/integration-observer-records-20260924` | `9299bff84bade16bb60abe8198a8b84aaae279fc` | PR #4 병합 이력 보존 후 작업 브랜치 삭제 |
+| `codex/public-release-v071` | `52e07b6421d56de1415882639a3cb8544c0dd064` | 현행 코드와 다른 과거 이력. main에 섞지 않고 `archive/2026-10-23/public-release-v071` 태그로 동일 SHA를 보존한 뒤 브랜치 정리 |
+
+병합되지 않은 과거 소스는 위 보존 태그에서 계속 조회할 수 있습니다. 현재 기능으로 승격하지 않습니다. 기존 제품 태그는 이동·삭제하지 않습니다.
+
+## 검증과 제한
+
+| 항목 | 방법·범위 |
+| --- | --- |
+| 기존 코드 CI | PR #3의 `36d02ac`, PR #4의 `9299bff`에서 verify 성공 확인 |
+| 병합 트리 | `refs/pull/4/merge`와 `9299bff` 파일 diff 0 확인 |
+| 현재 관리 변경 | 소스 manifest, 정확한 Git 파일 목록 게시 검사, Markdown 상대 링크, staged diff 검사. 새 PR과 main의 전체 CI 결과는 GitHub 실행에 연결 |
+| 릴리스 대응 | 소스 83건·설치 자산 148건 전체 페이지 조회(기록 보완 전). 최신 양쪽 Agent 1.0.0.60 확인 |
+| 운영 분리 | 4개 Vercel 프로젝트 Git 연결 없음, Actions 배포 단계 없음 확인. 운영 배포 ID와 피드는 변경 전후 대조 |
+| 미검증 | 고객 PC·실방송·가입·결제 등 사용자 흐름은 이번 Git 정리에서 재실행하지 않음 |
+
+GitHub API가 비공개 저장소의 브랜치 보호·규칙 기능에 요금제 업그레이드 필요 응답(403)을 반환했습니다. 관리자 권한 부족이나 CI 통과 여부와 다른 제한입니다. 저장소를 공개하거나 요금제를 구매하지 않았습니다. 따라서 CI와 작업 절차는 마련됐지만 **직접 push와 검사 전 병합을 서버에서 강제로 막는 보호는 미적용**입니다. merge commit만 허용하고 병합 브랜치 자동 삭제를 사용해 향후 누적을 줄입니다.
+
+## 사용자 영향과 복구
+
+프로그램 동작과 안정 업데이트 버전은 바뀌지 않습니다. 코드 변경 없이 문서·워크플로만 되돌릴 때는 해당 정리 커밋을 revert합니다. 병합 이력 자체를 숨기려고 main을 강제로 과거로 돌리지 않습니다. 원격 설정과 브랜치의 변경 전 증거는 비공개 로컬 기록에 보관했습니다.
+
+## 관련 기록
+
+- [소스 GitHub Release](https://github.com/byellogDev/byeollog/releases/tag/maintenance-2026.10.23-repository-governance): 제품 Latest를 교체하지 않는 관리 기록.
+- [기존 설치 자산](https://github.com/byellogDev/byeollog-releases/releases/tag/agent-v1.0.0.60): 변경 없음.
+- [검사 실행](https://github.com/byellogDev/byeollog/actions/workflows/verify.yml) · [일일 기록](../work-log/2026-10-23.md).

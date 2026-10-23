@@ -25,3 +25,6 @@ test-results/
 *.tmp
 NuGet.Config
 supabase/.temp/
+
+# Regenerable local source graph; source generators remain tracked.
+/graphify-out/
