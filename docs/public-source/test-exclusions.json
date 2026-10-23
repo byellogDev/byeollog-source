@@ -1,0 +1,8 @@
+[
+  {"name":"binary deployment assets are served through a verified compatibility endpoint","reason":"Checks production artwork byte sizes; public artwork is a neutral placeholder."},
+  {"name":"homepage uses a proportional static OBS render, not reimplemented cards","reason":"Checks the original screenshot hash; the public copy intentionally omits that screenshot."},
+  {"name":"recovered production Edge sources match the read-only capture manifest","reason":"Checks production capture hashes; public SQL and source identifiers have been anonymized."},
+  {"name":"provisional three-second roulette sound is immutable and deployment-dormant","reason":"Checks the original sound hash and waveform; the public copy contains silence."},
+  {"name":"HTTP surface binds to loopback, serves immutable assets, and rejects foreign origins","reason":"This combined legacy fixture test pins original artwork byte sizes."},
+  {"name":"catalog pins exactly the seven final wheel-only WebP identities","reason":"Checks original artwork sizes and hashes; those assets are excluded from public history."}
+]

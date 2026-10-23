@@ -1,4 +1,4 @@
-name: Verify canonical source
+name: Verify public source
 on:
   workflow_dispatch:
   pull_request:
@@ -27,9 +27,9 @@ jobs:
       - run: node tools/scan-publication.mjs --tracked
       - run: npm ci --prefix tools/db-tests --ignore-scripts --no-audit --no-fund
       - run: npm test --prefix tools/db-tests
-      - run: npm test
+      - run: npm run test:public
       - run: npm run build:web
       - run: dotnet build apps/windows-agent/HurogiCollector.csproj -c Release
-      - run: dotnet run --project apps/windows-agent/AgentStoreTests/AgentStoreTests.csproj -c Release
+      # Legacy AgentStoreTests require original media excluded from this public copy.
 
       - run: dotnet run --project tools/agent-ui-tests/AgentUiTests.csproj -c Release

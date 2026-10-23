@@ -1,0 +1,173 @@
+{
+  "description": "New neutral images and silent audio for public-source builds; not production artwork or sound.",
+  "files": [
+    {
+      "path": "apps/web/assets/audio/roulette-spin-v1.wav",
+      "sha256": "0a8f76d89c709043814cb74f331a4578d17ff61256303bd0019a263d053f86e8"
+    },
+    {
+      "path": "apps/web/assets/chat-studio-donation-100.png",
+      "sha256": "6284b2c016513ff52c899ca0a0041eddeb391aa7b246661771bc91496f7c8c0f"
+    },
+    {
+      "path": "apps/web/assets/chat-studio-logo.png",
+      "sha256": "09324dcba7a3bc4ebb44acf78df02f4141236c9235b93bad6fbe1ae616db0899"
+    },
+    {
+      "path": "apps/web/assets/manuals/byeollog-start-guide.pdf",
+      "sha256": "79dfa8b67e484bf4ffac9e3b9ed755b53e9981edf633f0e42db4994d93148aea"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-01-navy-gold.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-01-navy-gold.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-02-royal-purple-rose-gold.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-02-royal-purple-rose-gold.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-03-emerald-champagne.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-03-emerald-champagne.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-04-burgundy-pale-gold.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-04-burgundy-pale-gold.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-05-graphite-cyan.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-05-graphite-cyan.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-06-powder-blue-peach.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-06-powder-blue-peach.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-07-lavender-butter.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "apps/web/assets/roulette-previews/roulette-07-lavender-butter.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "apps/web/assets/wallpaper-showcase/overlay-rendered.png",
+      "sha256": "1cbf70c6de801f1e9dcd0f5f84c235684ab87f581ac05e9037e2ad93b257bcce"
+    },
+    {
+      "path": "apps/web/assets/wallpaper-showcase/signature-033.webp",
+      "sha256": "bf0dc9af74bd07e0a68ea5c371704e6c5241b6b87a7eebe0b51ce5b8d7e3753c"
+    },
+    {
+      "path": "apps/web/assets/wallpaper-showcase/signature-152.webp",
+      "sha256": "bf0dc9af74bd07e0a68ea5c371704e6c5241b6b87a7eebe0b51ce5b8d7e3753c"
+    },
+    {
+      "path": "apps/web/assets/wallpaper-showcase/signature-330.webp",
+      "sha256": "bf0dc9af74bd07e0a68ea5c371704e6c5241b6b87a7eebe0b51ce5b8d7e3753c"
+    },
+    {
+      "path": "apps/windows-agent/Assets/byeollog_app.ico",
+      "sha256": "3d03ff4d0fa838216096596ff6d2f6c8b3586fa0639a769f89251c71a88f78b1"
+    },
+    {
+      "path": "apps/windows-agent/Assets/byeollog_symbol.png",
+      "sha256": "8903ebcedcb470a4c7542e060fbaccc6174688b989503631dc95d8ab57287534"
+    },
+    {
+      "path": "apps/windows-agent/Assets/hurogi_balloon.png",
+      "sha256": "a53df62f2b7adfba1ff54c83bfbe848d832d2d85c7ca5e85571bca81882dfb5b"
+    },
+    {
+      "path": "apps/windows-agent/Ui/byeollog_logo_dark_safe.png",
+      "sha256": "09324dcba7a3bc4ebb44acf78df02f4141236c9235b93bad6fbe1ae616db0899"
+    },
+    {
+      "path": "apps/windows-agent/Ui/byeollog_logo_light_safe.png",
+      "sha256": "09324dcba7a3bc4ebb44acf78df02f4141236c9235b93bad6fbe1ae616db0899"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-01-navy-gold.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-01-navy-gold.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-02-royal-purple-rose-gold.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-02-royal-purple-rose-gold.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-03-emerald-champagne.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-03-emerald-champagne.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-04-burgundy-pale-gold.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-04-burgundy-pale-gold.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-05-graphite-cyan.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-05-graphite-cyan.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-06-powder-blue-peach.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-06-powder-blue-peach.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-07-lavender-butter.png",
+      "sha256": "1a78eb2088b88d85743070f5c4d9b61740388380d61dce9455dba2c9e94a909e"
+    },
+    {
+      "path": "test-support/frontend/assets/roulette-previews/roulette-07-lavender-butter.webp",
+      "sha256": "dc3c7d211af3b52a5836bb56a4890a19f1813c094e81f981f76595a24dcf7120"
+    },
+    {
+      "path": "test-support/frontend/dormant-native-roulette-assets/audio/roulette-spin-v1.wav",
+      "sha256": "0a8f76d89c709043814cb74f331a4578d17ff61256303bd0019a263d053f86e8"
+    }
+  ]
+}

@@ -10,7 +10,8 @@
     "test": "node --test tests/adapted/*.test.mjs tests/*.test.mjs",
     "verify:source": "node tools/verify-source.mjs",
     "build:web": "node apps/web/scripts/build-public-assets.mjs",
-    "scan:publication": "node tools/scan-publication.mjs"
+    "scan:publication": "node tools/scan-publication.mjs",
+    "test:public": "node tools/test-public-source.mjs"
   },
   "dependencies": {
     "@google-cloud/text-to-speech": "7.0.0",

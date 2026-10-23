@@ -1,16 +1,20 @@
 # 별록 · Byeollog
 
-[![Verify canonical source](https://github.com/byellogDev/byeollog/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/byellogDev/byeollog/actions/workflows/verify.yml)
+[![Verify public source](https://github.com/byellogDev/byeollog-source/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/byellogDev/byeollog-source/actions/workflows/verify.yml)
 
 방송 후원을 수집하고, 스트리머의 업무와 방송 화면으로 연결하는 운영 서비스입니다. 웹 대시보드, SOOP 수집기, Windows 풍벽지 Agent, OBS용 화면, 백업을 함께 관리합니다.
 
 > `main`은 검증한 변경을 통합하는 개발 기준입니다. 실제 운영 버전은 구성요소별 릴리스 기록과 배포 증거로 확인합니다. Git 병합과 운영 배포는 별도 절차입니다. 저장소는 2026-09-23 운영 안정본에서 출발했으며, 기존 커밋·태그를 보존합니다.
 
+## 공개 범위
+
+실제 개발 이력을 보존한 공개 소스 사본입니다. 계정 식별정보와 개인 연락처를 익명화하고, 권한이 확인되지 않은 자산은 제외·대체했습니다. [공개 범위·이력 대응·검사 제한](docs/public-source/README.md)을 먼저 확인하세요. 운영 원본의 커밋·태그는 비공개 저장소에서 그대로 보존합니다.
+
 ## 현재 버전과 개발 기록
 
 - Windows Agent: **[1.0.0.60](https://github.com/byellogDev/byeollog/releases/tag/agent-v1.0.0.60)** — 2026-10-22 운영 반영. [변경·검증·남은 확인](docs/releases/2026-10-22-agent-10060.md).
 - [구성요소별 운영·연구 상태](docs/PROJECT_STATUS.md)에서 제품 기능과 미완성 범위를 확인합니다.
-- [설계와 권한 경계](docs/ARCHITECTURE.md), [변경 이력](CHANGELOG.md), [PR 목록](https://github.com/byellogDev/byeollog/pulls?q=is%3Apr), [CI 실행](https://github.com/byellogDev/byeollog/actions/workflows/verify.yml)에 구현과 검증 근거를 기록합니다.
+- [설계와 권한 경계](docs/ARCHITECTURE.md), [변경 이력](CHANGELOG.md), [PR 목록](https://github.com/byellogDev/byeollog/pulls?q=is%3Apr), [CI 실행](https://github.com/byellogDev/byeollog-source/actions/workflows/verify.yml)에 구현과 검증 근거를 기록합니다.
 - [Git 관리 정리 기록](docs/releases/2026-10-23-repository-governance.md)은 장기 PR 누적 문제와 개선 내용, 브랜치 보호의 제한을 설명합니다. 과거 작업을 소규모 PR로 검토한 것처럼 이력을 재작성하지 않았습니다.
 
 ## 서비스가 해결하는 문제
@@ -54,21 +58,21 @@ Node.js 22와 npm이 필요합니다. Windows Agent 검사는 Windows와 .NET 8�
 ```sh
 npm ci --ignore-scripts --no-audit --no-fund
 npm run verify:source
-npm test
+npm run test:public
 npm run build:web
 npm run scan:publication
 ```
 
 ```powershell
 dotnet build apps/windows-agent/HurogiCollector.csproj -c Release
-dotnet run --project apps/windows-agent/AgentStoreTests/AgentStoreTests.csproj -c Release
+dotnet run --project tools/agent-ui-tests/AgentUiTests.csproj -c Release
 ```
 
 각 배포 앱은 자체 `package.json`과 lockfile을 사용합니다. 통합 첫 단계에서는 의존성을 끌어올리거나 공통 라이브러리로 추출하지 않았습니다. 루트 설치는 회귀 검사·웹 빌드용이며, 운영 배포는 해당 앱 폴더에서 수행합니다.
 
 ## 검증 근거 읽기
 
-CI는 소스 manifest·게시 전 검사, Node 회귀, DB 계약, 웹 빌드, Windows Agent 빌드·저장·UI 검사를 실행합니다. 정확한 실행 결과는 위 CI 링크에서 해당 커밋으로 확인합니다. 자동 검사 통과가 고객 PC·실방송 동작 전체를 보증하지는 않습니다.
+공개 CI는 공개 소스 manifest·게시 전 검사, 공개 범위의 Node 회귀, DB 계약, 웹 빌드, Windows Agent 빌드·UI 검사를 실행합니다. 원본 자산을 요구하는 검사 제외 목록은 공개 범위 문서에 명시합니다. 정확한 실행 결과는 위 CI 링크에서 해당 커밋으로 확인합니다. 자동 검사 통과가 고객 PC·실방송 동작 전체를 보증하지는 않습니다.
 
 최신 Agent 1.0.0.60은 저장 경로 오류 재현, 1,332 assertions, UI·패키지·서명된 업데이트 검사와 운영 다운로드 대조를 기록했습니다. 고객 PC에서 같은 문제가 해결됐는지는 별도 확인 대상입니다. 9월 23일의 716건 검사 등 초기 결과는 [당시 기록](docs/releases/2026-09-23.md)에만 적용됩니다.
 
@@ -82,4 +86,4 @@ CI는 소스 manifest·게시 전 검사, Node 회귀, DB 계약, 웹 빌드, Wi
 - [기술 사례: 운영 소스 통합과 반복 장애 개선](docs/CASE_STUDY.md)
 - [보안과 공개 범위](SECURITY.md)
 
-저장소 공개 전환은 별도 검토 대상입니다. 키, 회원 데이터, 운영 로그, 백업 원본, 로컬 복구 사본은 커밋하지 않습니다.
+공개 사본의 갱신에도 전체 이력 검토가 필요합니다. 키, 회원 데이터, 운영 로그, 백업 원본, 로컬 복구 사본은 커밋하지 않습니다.

@@ -114,7 +114,7 @@ test('primary Google PCM16 audio streams at 24 kHz through Vercel OIDC federatio
   assert.deepEqual(requests[1],{input:{text:'윙크 테스트 음성'}});
   const auth=FakeGoogleAuthClient.options[0];
   assert.equal(auth.audience,environment().GOOGLE_TTS_WIF_AUDIENCE);
-  assert.match(auth.service_account_impersonation_url,/byeollog-tts-runtime@byeollog-tts\.iam\.gserviceaccount\.com:generateAccessToken$/);
+  assert.match(auth.service_account_impersonation_url,/public-example@example-project\.iam\.gserviceaccount\.com:generateAccessToken$/);
   assert.equal(await auth.subject_token_supplier.getSubjectToken(),'vercel-oidc-token');
 });
 
