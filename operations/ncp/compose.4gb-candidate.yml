@@ -1,0 +1,8 @@
+# Candidate override only. Merge with the actual deployed compose file after
+# validating its rendered configuration. Never deploy the example as a base.
+# No CPU cap: retain the current 2-vCPU host capacity for production.
+services:
+  soop-gateway:
+    mem_limit: 1536m
+    mem_reservation: 512m
+    memswap_limit: 2g

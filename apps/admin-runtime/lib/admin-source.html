@@ -357,7 +357,7 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
 <header class="dashboardHeader"><a class="dashboardBrand" href="/dashboard" title="대시보드로 돌아가기" aria-label="별록 대시보드"><span class="brandMark"></span><span class="brandWords">별록</span></a><div class="dashboardHeaderActions"><span class="dashboardConnectionDot" aria-hidden="true"></span><span id="connState" class="dashboardConnectionState">서버 연결 확인 중...</span><button type="button" id="dashboardMenuToggle" class="dashboardHeaderButton dashboardMenuToggle" aria-expanded="false" aria-controls="dashboardUtilities">메뉴</button><div id="dashboardUtilities" class="dashboardUtilities"><a id="soopConnectBtn" class="dashboardHeaderButton dashboardSoopConnect hidden" href="/api/auth/soop/start">SOOP 계정 연결하기</a><a class="dashboardHeaderButton" href="/setup">세팅 체크리스트</a><a class="dashboardHeaderButton" id="managementBtn" href="/dashboard?management=1">관리</a><button type="button" class="dashboardHeaderButton" id="myPageBtn">마이페이지</button><button type="button" class="dashboardHeaderButton dashboardThemeButton" id="themeToggleBtn" title="테마 전환" aria-label="테마 전환"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.8 13A9 9 0 0 1 11 3.2 9 9 0 1 0 20.8 13Z"/></svg></button><button type="button" class="dashboardHeaderButton" id="logoutBtn">로그아웃</button></div></div></header>
 <!-- /shared:header -->
 <!-- shared:navigation -->
-<nav class="productNav dashboardNav" aria-label="별록 대시보드"><a href="/dashboard/signatures"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg><span>풍벽지</span></a><a href="/dashboard/roulette-rules"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="18" r="2"/></svg><span>업보 분류 설정</span></a><a class="active" href="/dashboard"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8 12 3 3 5-6"/></svg><span>업보</span></a></nav>
+<nav class="productNav dashboardNav" aria-label="별록 대시보드"><a href="/dashboard/signatures"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg><span>풍벽지</span></a><a href="/dashboard/roulette-rules"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="18" r="2"/></svg><span>업보 수집 설정</span></a><a class="active" href="/dashboard"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8 12 3 3 5-6"/></svg><span>업보</span></a></nav>
 <!-- /shared:navigation -->
 
   <div class="stats">
@@ -370,7 +370,6 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
   <div class="toolbarMain">
     <button class="primary" onclick="openAdd()">+ 업보 추가</button>
     <button id="toggleCollectorBtn" class="toggleBtn" aria-controls="collectorBox" aria-expanded="false" onclick="toggleCollectorBox()">학습 필요한 별풍선 <span id="collectorCountBadge" class="notificationCount" hidden></span></button>
-    <button id="toggleRoulettePendingBtn" class="toggleBtn" aria-controls="roulettePendingPanel" aria-expanded="false">룰렛 연결 대기 확인 <span id="roulettePendingBadge" class="notificationCount" hidden></span></button>
     <button id="toggleRouletteExceptionsBtn" class="toggleBtn" aria-controls="exceptionsPanel" aria-expanded="false">예외 처리된 룰렛 <span id="rouletteExceptionsBadge" class="notificationCount" hidden></span></button>
     <span class="toolbarSpacer"></span>
     <button id="viewerPageBtn" class="toggleBtn managementMainBtn" onclick="openManagementItem('viewerPage')">시청자용 페이지 관리</button>
@@ -387,7 +386,7 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
       <span class="muted">처음 보는 유형만 수동 분류하며, 학습된 유형은 자동 처리됩니다.</span>
     </div>
     <div id="collectorPreview" class="previewTableWrap" style="margin-top:10px"><div class="muted" style="padding:10px">수신함을 불러오세요.</div></div>
-  </div></section><section id="roulettePendingPanel" class="reviewPanel hidden" aria-labelledby="pendingReviewTitle"><header class="reviewHeader"><div class="reviewHeading"><span class="reviewIcon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v5l3 2"/></svg></span><div><h2 id="pendingReviewTitle">룰렛 연결 대기 확인</h2><p>후원에 연결될 룰렛 결과가 남아 있는지 확인하세요.</p></div></div><div class="reviewHeaderActions"><button id="uxRefreshStatus" type="button">새로고침</button><button type="button" data-review-close="pending" aria-label="룰렛 연결 대기 확인 닫기">닫기</button></div></header><article class="reviewBody card uxStatusCard"><p class="reviewNotice muted"><b>수동 룰렛은 후원들의 결과 처리가 모두 끝나고, 연결 대기 후원이 없는 상황에서 사용해주세요.</b><br>수동 결과와 후원 결과의 채팅 문구가 같아 자동으로 구분할 수 없습니다. 대기 후원이 있으면 수동 결과가 그 후원에 연결될 수 있습니다. 0건 확인 후에도 새 후원이 들어올 수 있으니 실행 전후로 확인해주세요.</p><p id="uxStatusMessage" role="status" class="muted">확인 전입니다.</p><details><summary>대기 후원 상세 · 오래된 대기 정리</summary><p class="muted">대기 시간이 10분을 넘긴 후원은 이후 결과 연결을 막을 수 있습니다. 결과 처리가 끝났거나 더 이상 오지 않는 것을 확인한 후에만 대기를 종료해주세요. 후원 금액과 이미 등록된 업보는 유지됩니다.</p><div id="uxPendingList" class="saved"></div></details><details><summary>특수룰렛 배수 대기 · 최근 결과</summary><div id="uxSpecialPending" class="saved"></div><div id="uxSpecialRecent" class="saved"></div><p class="muted">배수 대기는 방송 단위이며, 다음 결과가 비업보이면 효과가 소멸합니다. 아래 배수는 결과 수신 시 확정된 값이며 실제 업보 등록 여부는 후원 내역에서 확인해주세요.</p></details></article></section><section id="exceptionsPanel" role="region" aria-labelledby="exceptionsReviewTitle" class="reviewPanel hidden"><header class="reviewHeader"><div class="reviewHeading"><span class="reviewIcon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v7M12 14v7M3 12h7M14 12h7M6 6l5 5M13 13l5 5M6 18l5-5M13 11l5-5"/></svg></span><div><h2 id="exceptionsReviewTitle">예외 처리된 룰렛</h2><p>후원에 연결되지 않은 결과를 확인하고, 제외하거나 후원자를 지정해주세요.</p></div></div><div class="reviewHeaderActions"><button id="refreshExceptions" type="button">새로고침</button><button type="button" data-review-close="exceptions" aria-label="예외 처리된 룰렛 닫기">닫기</button></div></header><article class="reviewBody card">
+  </div></section><section id="specialHistoryBox" class="hidden"><p class="muted">같은 후원자·방송 회차의 특수룰렛 배수 대기와 결과별 적용 배수를 확인합니다. 미분류 결과도 당시 배수가 보존되며 나중에 업보로 분류하면 적용됩니다.</p><button id="uxRefreshStatus" type="button">새로고침</button><p id="uxStatusMessage" role="status" class="muted">확인 전입니다.</p><div id="uxSpecialPending" class="saved"></div><div id="uxSpecialRecent" class="saved"></div><p class="muted">아래 배수는 결과 수신 시 확정된 값입니다. 실제 업보 등록 여부와 수량은 후원 내역에서 확인하세요. 다음 결과가 비업보이면 해당 결과에서 배수가 소모됩니다.</p></section><section id="exceptionsPanel" role="region" aria-labelledby="exceptionsReviewTitle" class="reviewPanel hidden"><header class="reviewHeader"><div class="reviewHeading"><span class="reviewIcon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v7M12 14v7M3 12h7M14 12h7M6 6l5 5M13 13l5 5M6 18l5-5M13 11l5-5"/></svg></span><div><h2 id="exceptionsReviewTitle">예외 처리된 룰렛</h2><p>후원에 연결되지 않은 결과를 확인하고, 제외하거나 후원자를 지정해주세요.</p></div></div><div class="reviewHeaderActions"><button id="refreshExceptions" type="button">새로고침</button><button type="button" data-review-close="exceptions" aria-label="예외 처리된 룰렛 닫기">닫기</button></div></header><article class="reviewBody card">
 <p class="reviewNotice muted">다른 후원에 자동으로 배정되지 않습니다. 비업보로 분류된 결과는 자동 제외됩니다.</p><details class="reviewHelp"><summary>기록 보관 기간 안내</summary><p class="muted"><strong>정상 등록된 업보·확정 후원 내역은 30일 정리 대상이 아닙니다.</strong> 여기서 후원자를 지정해 등록한 업보도 유지됩니다.<br>30일 정리 대상은 후원·룰렛 연결용 원본 기록과 예외 처리 기록입니다. 보류 중인 예외 결과도 서버 수집일로부터 30일이 지나면 정리되므로, 필요한 예외 기록은 미리 내보내세요.</p></details>
 <div class="exceptionToolbar"><label for="exceptionFilter">표시</label><select id="exceptionFilter"><option value="pending">보류 중</option><option value="processed">처리 완료</option><option value="all">전체</option></select></div>
 <div class="exceptionToolbar reviewFilterGrid"><label>발생 시작일 <input id="exceptionFrom" type="date"></label><label>종료일 <input id="exceptionUntil" type="date"></label><label>사유 <select id="exceptionReason"><option value="">전체 사유</option><option value="fifo_head_stale">대기 시간 초과</option><option value="fifo_head_roulette_mismatch">룰렛 이름 불일치</option><option value="unmatched">대기 후원 없음</option></select></label><label>결과 검색 <input id="exceptionSearchText" maxlength="100" type="search"></label></div>
@@ -420,12 +419,27 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
   <div class="donationStatsBox hidden" id="donationStatsBox">
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
       <div><b>별풍선 통계</b><div class="muted" style="margin-top:4px">별록이 수집한 전체 SOOP 후원 원본을 기준으로 집계합니다. 룰렛 결과나 업보 분류 여부와 관계없이 후원 자체는 유지됩니다.</div></div>
-      <div style="display:flex;gap:6px"><button onclick="loadDonationStats(true)">새로고침</button><button onclick="toggleDonationStatsBox()">닫기</button></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><button id="donationReportOpen" class="primary" type="button" aria-controls="donationReportPanel" aria-expanded="false" onclick="openDonationReport()">별풍선 리포트 받기</button><button onclick="loadDonationStats(true)">새로고침</button><button onclick="toggleDonationStatsBox()">닫기</button></div>
     </div>
+    <section id="donationReportPanel" class="hidden" tabindex="-1" aria-label="별풍선 리포트" style="margin-top:24px;border-top:1px solid var(--line);padding-top:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h3 style="margin:0">별풍선 리포트</h3><button type="button" onclick="closeDonationReport()">리포트 닫기</button></div>
+      <p class="muted">기록된 방송 시작일을 기준으로 분석합니다. 기본 기간은 첫 방송일~가장 최근 방송일입니다.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:end">
+        <label>시작 방송일<input id="donationReportFrom" type="date" onchange="invalidateDonationReport()" style="display:block;margin-top:6px;max-width:100%"></label>
+        <label>마지막 방송일<input id="donationReportTo" type="date" onchange="invalidateDonationReport()" style="display:block;margin-top:6px;max-width:100%"></label>
+        <button id="donationReportBuild" class="primary" type="button" onclick="generateDonationReport()" disabled>리포트 만들기</button>
+        <button id="donationReportSave" type="button" onclick="downloadDonationReport()" disabled>PNG 다운로드</button>
+      </div>
+      <p id="donationReportState" role="status" aria-live="polite" class="muted"></p>
+      <p id="donationReportSummary"></p>
+      <canvas id="donationReportCanvas" class="hidden" role="img" aria-label="별풍선 리포트 미리보기" aria-describedby="donationReportSummary" style="display:block;width:100%;height:auto;border-radius:16px"></canvas>
+      <p class="muted">후원자 이름·아이디는 이미지에 포함하지 않습니다. 최종 수락과 원 후원 시각이 연결되지 않은 미션은 제외하며, 제외 건수와 표본 부족을 리포트에 표시합니다.</p>
+    </section>
     <div id="donationStatsState" class="muted" style="margin-top:8px"></div>
     <div id="donationStatsSummary" class="statSummaryGrid"></div>
-    <div class="statTabs"><button id="donationTabPerson" class="active" onclick="setDonationStatMode('person')">인원별</button><button id="donationTabDate" onclick="setDonationStatMode('date')">날짜별</button><button id="donationTabAmount" onclick="setDonationStatMode('amount')">풍선 갯수별</button></div>
+    <div class="statTabs"><button id="donationTabPerson" class="active" onclick="setDonationStatMode('person')">인원별</button><button id="donationTabDate" onclick="setDonationStatMode('date')">날짜별</button><button id="donationTabMonth" onclick="setDonationStatMode('month')">월별</button><button id="donationTabAmount" onclick="setDonationStatMode('amount')">풍선 갯수별</button></div>
     <div id="donationStatsTable" class="statsTableWrap"><div class="muted" style="padding:10px">통계를 불러오지 않았습니다.</div></div>
+
   </div>
 
 
@@ -537,6 +551,7 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
         <div id="soopAccountMessage" class="status" style="margin-top:8px" aria-live="polite"></div>
       </div>
       <button type="button" class="primary" style="width:100%;padding:12px" onclick="location.href='/change-password'">비밀번호 변경</button>
+      <a class="button" style="text-align:center;padding:12px" href="/credits">크레딧 내역</a>
       <button type="button" class="danger" style="width:100%;padding:12px" onclick="location.href='/withdraw.html'">회원 탈퇴</button>
     </div>
   </div></div>
@@ -569,6 +584,7 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
         <button class="managementCard" onclick="openManagementItem('rules')"><span class="managementIcon"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="18" r="2"/></svg></span><span><b>학습된 분류 관리</b><span>업보·비업보로 학습된 룰렛 결과를 수정하거나 삭제합니다.</span></span></button>
         <!-- 매니저용 Collector 연결 기능: 구현은 유지하되 베타 기본 UI에서는 숨김 -->
         <button class="managementCard" data-hidden-feature="manager-collector-pairing" style="display:none" onclick="openManagementItem('collectorDevices')"><span class="managementIcon"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span><span><b>Collector 연결</b><span>1회용 코드로 Collector를 연결하고 등록된 기기를 관리합니다.</span></span></button>
+        <button type="button" class="managementCard" onclick="openManagementItem('specialHistory')"><span class="managementIcon" aria-hidden="true">×2</span><span><b>특수룰렛 이력</b><span>현재 배수 대기와 최근 결과의 적용 배수를 확인합니다.</span></span></button>
         <button class="managementCard" onclick="openManagementItem('rouletteRecords')"><span class="managementIcon"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v7M12 14v7M3 12h7M14 12h7M6 6l5 5M13 13l5 5M6 18l5-5M13 11l5-5"/></svg></span><span><b>룰렛 기록 관리</b><span>후원별 결과를 확인하고 잘못 등록된 룰렛 묶음을 취소합니다.</span></span></button>
         <button class="managementCard hidden" id="signupApplicationsCard" onclick="openManagementItem('signupApplications')"><span class="managementIcon"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8 12 3 3 5-6"/></svg></span><span><b>가입 기록</b><span>SOOP 인증으로 완료된 가입과 메일 발송 상태를 확인합니다.</span></span></button>
         <button class="managementCard hidden" id="inquiriesCard" onclick="openManagementItem('inquiries')"><span class="managementIcon"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 7 9 6 9-6"/></svg></span><span><b>문의 내용 확인</b><span>메인 페이지 문의하기로 접수된 내용을 확인하고 보관·삭제합니다.</span></span></button>
@@ -987,6 +1003,7 @@ function openManagementHub(){
 function closeManagementHub(){document.getElementById('managementModal')?.classList.remove('open')}
 let managementDetailMount=null;
 const managementDetailMeta={
+  specialHistory:{id:'specialHistoryBox',title:'특수룰렛 이력',sub:'배수 대기와 결과별 적용 이력을 확인합니다.',load:()=>uxRefreshStatus()},
   users:{id:'userBox',title:'유저 관리',sub:'SOOP ID, 별명과 방송국 연결 정보를 한 화면에서 관리합니다.',load:()=>{if(document.getElementById('userBox')?.classList.contains('hidden'))toggleUserBox()}},
   nonupbo:{id:'nonBangselBox',title:'비업보 관리',sub:'비업보로 보관된 원본을 확인하고 필요한 항목을 업보로 변경합니다.',load:()=>{const b=document.getElementById('nonBangselBox');if(b?.classList.contains('hidden'))toggleNonBangselBox();else loadCollectorIgnored(false)}},
   stats:{id:'donationStatsBox',title:'별풍선 통계',sub:'받은 후원의 인원·날짜·개수별 통계를 확인합니다.',load:()=>{const b=document.getElementById('donationStatsBox');if(b?.classList.contains('hidden'))toggleDonationStatsBox();else loadDonationStats(false)}},
@@ -1864,7 +1881,7 @@ function historyDiagnosticSteps(d){
  const process=stage?.process_status;
  return [
  {title:'서버 수집',status:d.original||donation||stage?'서버에 수집됨':'기록 확인 필요',detail:'서버에 저장된 후원 기록을 기준으로 확인합니다.',ok:!!(d.original||donation||stage)},
- {title:'룰렛 결과 연결',status:waiting?'룰렛 결과 기다리는 중':donation?.user_closed_at?'사용자가 대기 종료함':donation?.status==='expired'?'연결 대기 종료됨':donation?.expected_spins!=null&&count>=expected?'결과 연결 완료':'연결 기록 없음',detail:donation?.expected_spins!=null?count+' / '+expected+'회 결과 연결':'일반 후원이거나 연결 기록의 보관 기간이 지난 경우일 수 있습니다.',ok:!waiting&&donation?.expected_spins!=null&&count>=expected,action:waiting?'pending':null},
+ {title:'룰렛 결과 연결',status:waiting?'룰렛 결과 기다리는 중':donation?.user_closed_at?'사용자가 대기 종료함':donation?.status==='expired'?'연결 대기 종료됨':donation?.expected_spins!=null&&count>=expected?'결과 연결 완료':'연결 기록 없음',detail:donation?.expected_spins!=null?count+' / '+expected+'회 결과 연결':'일반 후원이거나 연결 기록의 보관 기간이 지난 경우일 수 있습니다.',ok:!waiting&&donation?.expected_spins!=null&&count>=expected,action:null},
  {title:'업보 처리',status:({processed:'처리 완료',ignored:'비업보로 처리됨',pending:'처리 대기',processing:'처리 중',needs_review:'분류 확인 필요',failed:'처리 확인 필요'})[process]||'업보 처리 기록 없음',detail:process==='needs_review'?'처음 나온 결과의 업보·비업보 분류를 확인하세요.':process==='failed'?'처리를 마치지 못했습니다. 학습 목록에서 내용을 확인해주세요.':!stage?'일반 후원은 업보가 생기지 않을 수 있습니다.':'처리 결과는 이 후원에 연결된 기록을 기준으로 표시합니다.',ok:['processed','ignored'].includes(process),action:['needs_review','pending','failed'].includes(process)?'learning':null},
  {title:'풍벽지 준비',status:d.wallpaperPrepared?'표시할 후원 타일 저장됨':'표시 타일 기록 없음',detail:d.wallpaperPrepared?'방송 PC에 전달할 후원 기록이 있습니다.':'표시 설정이나 풍벽지 기록 보관 기간에 따라 타일이 없을 수 있습니다.',ok:!!d.wallpaperPrepared},
  {title:'방송 화면 표시',status:'방송 PC에서 확인',detail:'서버 기록만으로 실제 화면 표시를 확정할 수 없습니다. 별록 풍벽지와 OBS·프릭샷 화면을 확인해주세요.',ok:false}
@@ -1877,7 +1894,7 @@ async function showHistoryDiagnostic(key){
   try{const r=await fetch('/api/admin?'+new URLSearchParams({operation:'ux-controls',kind:'diagnostic',key}),{cache:'no-store'}),d=await r.json();if(dialog.dataset.revision!==revision)return;if(!r.ok)throw Error(d.message||'상태를 확인하지 못했습니다.');body.replaceChildren();
     const dt=v=>v?new Date(v).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'시각 기록 없음';
     const states=historyDiagnosticSteps(d),steps=document.createElement('ol');steps.className='historyDiagnosticSteps';
-    for(const state of states){const li=document.createElement('li'),head=document.createElement('h3'),badge=document.createElement('span'),detail=document.createElement('p');head.textContent=state.title;badge.textContent=state.status;badge.className='historyDiagnosticBadge';badge.dataset.ok=String(state.ok);detail.textContent=state.detail;li.append(head,badge,detail);if(state.action){const button=document.createElement('button');button.type='button';button.textContent=state.action==='pending'?'연결 대기 확인하기':'학습 필요한 별풍선 확인하기';button.onclick=()=>{dialog.close();closeRecentCollectorHistory();toggleDashboardReviewPanel(state.action,true)};li.append(button)}steps.append(li)}body.append(steps);
+    for(const state of states){const li=document.createElement('li'),head=document.createElement('h3'),badge=document.createElement('span'),detail=document.createElement('p');head.textContent=state.title;badge.textContent=state.status;badge.className='historyDiagnosticBadge';badge.dataset.ok=String(state.ok);detail.textContent=state.detail;li.append(head,badge,detail);if(state.action){const button=document.createElement('button');button.type='button';button.textContent='학습 필요한 별풍선 확인하기';button.onclick=()=>{dialog.close();closeRecentCollectorHistory();toggleDashboardReviewPanel(state.action,true)};li.append(button)}steps.append(li)}body.append(steps);
     const time=document.createElement('p');time.textContent='서버 수집 시각: '+dt(d.original?.imported_at||d.donation?.created_at||d.stage?.uploaded_at)+' (한국 시간)';body.append(time);
     for(const result of d.results||[]){const p=document.createElement('p');p.textContent=dt(result.occurred_at)+' · '+result.result_text;body.append(p)}
   }catch(error){if(dialog.dataset.revision===revision)body.textContent=error.message}
@@ -2114,11 +2131,21 @@ async function registerCollectorRow(encodedUid){
   const rs=collectorResultList(row),unresolved=rs.filter(x=>collectorRuleFor(x.result).action==='review');
   if(unresolved.length)return openCollectorClassify(encodedUid,false);
   try{
-    await saveCollectorDonations([row]);await ensureCollectorFans([row]);const reviewUids=await processCollectorTasks([row]);
-    const rsNow=collectorResultList(row),allExcluded=rsNow.length>0&&rsNow.every(x=>collectorRuleFor(x.result).action==='exclude');
-    const status=reviewUids.has(row.source_uid)?'needs_review':allExcluded?'ignored':'processed';
-    await apiTable('bangsel_collector_staging','?source_uid=eq.'+encodeURIComponent(row.source_uid),{method:'PATCH',write:true,body:JSON.stringify({process_status:status,processed_at:status==='processed'||status==='ignored'?new Date().toISOString():null})});
-    await render();updateStats();collectorRows=collectorRows.filter(r=>String(r.source_uid)!==uid);collectorIgnoredRows=collectorIgnoredRows.filter(r=>String(r.source_uid)!==uid);collectorIgnoredLoaded=false;collectorLoaded=false;await loadCollectorInbox(true);if(!$('nonBangselBox').classList.contains('hidden'))await loadCollectorIgnored(true);
+    // Reopen only the ignored snapshot the user selected. The server owns
+    // multiplier receipts, donation identity and atomic, idempotent task writes.
+    if(row.process_status==='ignored'){
+      const reopened=await apiTable('bangsel_collector_staging','?source_uid=eq.'+encodeURIComponent(uid)+'&process_status=eq.ignored&uploaded_at=eq.'+encodeURIComponent(row.uploaded_at),{
+        method:'PATCH',write:true,headers:{'Content-Type':'application/json','Prefer':'return=representation'},
+        body:JSON.stringify({process_status:'pending',processed_at:null})
+      });
+      if(!Array.isArray(reopened)||reopened.length!==1)throw new Error('수신 내역이 변경되었습니다. 새로 고친 뒤 다시 확인해 주세요.');
+    }
+    const result=await runServerCollectorProcessing({source_uids:[uid],include_failed:true,limit:1});
+    if(result?.counts?.failed)throw new Error('서버 처리에 실패했습니다. 수신함에서 재처리할 수 있습니다.');
+    collectorLoaded=false;collectorIgnoredLoaded=false;donationStatsLoaded=false;
+    await loadServer();
+    if(!$('collectorBox').classList.contains('hidden'))await loadCollectorInbox(true);
+    if(!$('nonBangselBox').classList.contains('hidden'))await loadCollectorIgnored(true);
     if(!$('donationStatsBox').classList.contains('hidden'))await loadDonationStats(true);
   }catch(e){alert('업보 등록 실패: '+e.message)}
 }
@@ -2164,11 +2191,6 @@ async function saveCollectorRuleDrafts(){const drafts=collectCollectorRuleDrafts
 function collectorDateTime(row){let s=String(row.donated_time_text||'').trim();let m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);if(m)return {date:`${m[1]}-${m[2]}-${m[3]}`,time:`${m[4]}:${m[5]}:${m[6]||'00'}`,at:`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]||'00'}+09:00`};const d=new Date(row.uploaded_at||Date.now());const p=n=>String(n).padStart(2,'0');return{date:`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`,time:`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`,at:d.toISOString()}}
 async function saveCollectorDonations(rows){const payload=rows.filter(r=>!collectorSubscriptionInfo(r).isSubscription).map(r=>{const dt=collectorDateTime(r),results=collectorResultList(r);return{source_event_key:'weflab:'+r.source_uid,source:'weflab_collector',donation_type:collectorDonationTypeInfo(r).label,donated_date:dt.date,donated_time:dt.time,donated_at:dt.at,soop_id:r.soop_id||null,nickname:r.nickname||null,balloons:+r.balloons||0,message:(r.raw_payload&&r.raw_payload.msg)||null,had_roulette:results.length>0,roulette_count:results.length,roulette_results:results,event_name:r.event_name||null,raw_payload:r.raw_payload||{}}});for(let i=0;i<payload.length;i+=200)await apiTable('bangsel_donations','',{method:'POST',write:true,headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(payload.slice(i,i+200))});donationStatsLoaded=false}
 async function ensureCollectorFans(rows){const latest=new Map();for(const r of rows){if(!r.soop_id)continue;latest.set(r.soop_id,r)}for(const [id,r] of latest){const old=fanProfiles[id];if(old){if(old.current_nickname!==r.nickname||!old.station_url){const saved=(await apiTable('bangsel_fans','?soop_id=eq.'+encodeURIComponent(id),{method:'PATCH',write:true,body:JSON.stringify({current_nickname:r.nickname||old.current_nickname,station_url:old.station_url||canonicalStationUrl(id)})}))[0];fanProfiles[id]=saved||old}}else{const body={soop_id:id,alias:r.nickname||id,current_nickname:r.nickname||id,station_url:canonicalStationUrl(id)};const saved=(await apiTable('bangsel_fans','',{method:'POST',write:true,headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(body)}))[0];fanProfiles[id]=saved||body}}}
-async function processCollectorTasks(rows){const existingKeys=new Set([...tasks.map(t=>t.source_event_key).filter(Boolean),...taskImportItems.map(x=>x.source_event_key).filter(Boolean)]);const items=[];const reviewUids=new Set();for(const r of rows){if(collectorSubscriptionInfo(r).isSubscription||!r.event_name)continue;const dt=collectorDateTime(r),results=collectorResultList(r);for(let ri=0;ri<results.length;ri++){const rr=results[ri],rule=collectorRuleFor(rr.result);if(rule.action==='review'){reviewUids.add(r.source_uid);continue}if(rule.action==='exclude')continue;const outs=Array.isArray(rule.output_types)&&rule.output_types.length?rule.output_types:[rr.result];outs.forEach((type,oi)=>{const key=`weflab:${r.source_uid}|${ri}|${oi}|${type}`;if(!existingKeys.has(key))items.push({source_event_key:key,nickname:r.nickname,soop_id:r.soop_id,event:r.event_name,type,added_date:dt.date})})}}
-  const groups=groupBatchPreviewRows(items.map(x=>({...x,duplicate:false})));const linked=[];for(const g of groups){const profile=fanProfiles[g.soop_id];let task=null;if(g.target_task_id){const old=tasks.find(t=>t.id===g.target_task_id);if(old){const saved=(await api('?id=eq.'+encodeURIComponent(old.id),{method:'PATCH',write:true,body:JSON.stringify({total_qty:g.total_count})}))[0];if(saved){Object.assign(old,saved);task=old}}}if(!task){const body={fan:profile?.alias||g.nickname,fan_soop_id:g.soop_id||null,event:g.event,type:g.type,total_qty:g.new_count,done_qty:0,memo:'',added_date:g.added_date,source:'weflab_roulette_grouped',source_event_key:g.item_keys[0]||null};task=(await api('',{method:'POST',write:true,body:JSON.stringify(body)}))[0];if(task)tasks.push(task)}if(!task)throw new Error('Collector 업보 생성 실패');const ledger=g.item_keys.map(key=>({source_event_key:key,task_id:task.id,source:'weflab_roulette'}));if(ledger.length){const saved=await apiTable('bangsel_task_import_items','',{method:'POST',write:true,headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(ledger)});linked.push(...(Array.isArray(saved)?saved:ledger))}}
-  if(linked.length){const m=new Map(taskImportItems.map(x=>[x.source_event_key,x]));linked.forEach(x=>m.set(x.source_event_key,x));taskImportItems=[...m.values()]}
-  return reviewUids;
-}
 async function runServerCollectorProcessing({source_uids,include_failed=true,validation_review_approvals,limit=500}={}){
   const res=await fetch('/api/collector-process',{
     method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',
@@ -2178,40 +2200,6 @@ async function runServerCollectorProcessing({source_uids,include_failed=true,val
   if(res.status===401){redirectToLoginExpired();throw sessionExpiredError()}
   if(!res.ok&&res.status!==207)throw new Error((data&&data.message)||('HTTP '+res.status));
   return data||{counts:{}};
-}
-
-async function autoProcessCollectorKnown(){
-  const rows=await apiTable('bangsel_collector_staging','?select=*&process_status=eq.pending&order=uploaded_at.asc&limit=1000');
-  const pending=Array.isArray(rows)?rows:[];
-  if(!pending.length)return 0;
-
-  // 처음 보는 결과(review)와 개수 검증 경고(short/over)는 자동 처리하지 않습니다.
-  // 이미 학습된 include/exclude 규칙, 그리고 룰렛 없는 일반 후원만 자동 처리합니다.
-  const safe=pending.filter(r=>{
-    if(['short','over'].includes(String(r.validation||'')))return false;
-    if(!r.event_name)return true;
-    const rs=collectorResultList(r);
-    return rs.length>0&&rs.every(x=>collectorRuleFor(x.result).action!=='review');
-  });
-  if(!safe.length)return 0;
-
-  await saveCollectorDonations(safe);
-  await ensureCollectorFans(safe);
-  const reviews=await processCollectorTasks(safe);
-  let processed=0;
-  for(const r of safe){
-    if(reviews.has(r.source_uid))continue;
-    const rs=collectorResultList(r),allExcluded=rs.length>0&&rs.every(x=>collectorRuleFor(x.result).action==='exclude');
-    const status=allExcluded?'ignored':'processed';
-    await apiTable('bangsel_collector_staging','?source_uid=eq.'+encodeURIComponent(r.source_uid),{
-      method:'PATCH',write:true,
-      body:JSON.stringify({process_status:status,processed_at:new Date().toISOString()})
-    });
-    if(status==='ignored')collectorIgnoredLoaded=false;
-    processed++;
-  }
-  if(processed)console.log(`Collector 기억 규칙 자동처리 ${processed}건`);
-  return processed;
 }
 
 async function runCollectorAutoProcessingOnce({refreshUi=true}={}){
@@ -2319,14 +2307,145 @@ async function loadDonationStats(force=false){
   try{state.textContent='통계 원본 불러오는 중...';donationStatsRows=await fetchAllTableRows('bangsel_donations','*','donated_at.desc');donationStatsLoaded=true;state.textContent=`후원 원본 ${donationStatsRows.length.toLocaleString()}건 저장됨`;renderDonationStats()}
   catch(e){state.textContent='통계 불러오기 실패';$('donationStatsTable').innerHTML=`<div class="batchDanger" style="padding:10px">${esc(e.message)}</div>`}
 }
-function setDonationStatMode(mode){donationStatMode=mode;['person','date','amount'].forEach(x=>{const id=x==='person'?'donationTabPerson':x==='date'?'donationTabDate':'donationTabAmount';$(id).classList.toggle('active',x===mode)});renderDonationStats()}
+/* shared:donationReportScript */
+// Embedded into the authenticated dashboard by generate-admin-html.mjs.
+let donationReportData=null,donationReportBounds=null,donationReportBusy=false,donationReportRequest=null;
+function donationReportControls(busy){
+  donationReportBusy=busy;
+  for(const id of ['donationReportFrom','donationReportTo'])$(id).disabled=busy||!donationReportBounds?.first;
+  $('donationReportBuild').disabled=busy||!donationReportBounds?.first;
+  $('donationReportSave').disabled=busy||!donationReportData;
+}
+function invalidateDonationReport(){
+  donationReportData=null;$('donationReportSave').disabled=true;$('donationReportCanvas').classList.add('hidden');$('donationReportSummary').textContent='';
+  $('donationReportState').textContent='선택한 기간으로 리포트를 만들어주세요.';
+}
+function closeDonationReport(){
+  donationReportRequest?.abort();$('donationReportPanel').classList.add('hidden');
+  $('donationReportOpen').setAttribute('aria-expanded','false');$('donationReportOpen').focus();
+}
+async function requestDonationReport(params){
+  donationReportRequest=new AbortController();
+  const response=await fetch('/api/data?'+new URLSearchParams({operation:'donation-report',...params}),{credentials:'same-origin',cache:'no-store',signal:donationReportRequest.signal});
+  const data=await response.json();
+  if(!response.ok)throw Error(response.status===401?'로그인이 만료되었습니다. 다시 로그인해주세요.':data.message||'리포트를 불러오지 못했습니다.');
+  return data;
+}
+async function openDonationReport(){
+  const panel=$('donationReportPanel');panel.classList.remove('hidden');
+  $('donationReportOpen').setAttribute('aria-expanded','true');
+  panel.focus({preventScroll:true});panel.scrollIntoView({block:'start',behavior:'instant'});
+  if(donationReportBusy)return;
+  donationReportData=null;donationReportBounds=null;donationReportControls(true);
+  $('donationReportCanvas').classList.add('hidden');$('donationReportSummary').textContent='';$('donationReportState').textContent='기록된 첫 방송일과 최근 방송일을 확인하고 있습니다.';
+  try{
+    const {bounds}=await requestDonationReport({mode:'bounds'});donationReportBounds=bounds;
+    for(const id of ['donationReportFrom','donationReportTo']){$(id).min=bounds.first||'';$(id).max=bounds.last||''}
+    $('donationReportFrom').value=bounds.first||'';$('donationReportTo').value=bounds.last||'';
+    if(!bounds.first){$('donationReportState').textContent='기록된 방송 시작일이 없어 리포트를 만들 수 없습니다. 후원 통계는 기존 탭에서 확인할 수 있습니다.';return}
+  }catch(error){if(error.name!=='AbortError')$('donationReportState').textContent=error.message;return}
+  finally{donationReportControls(false)}
+  await generateDonationReport();
+}
+async function generateDonationReport(){
+  if(donationReportBusy||!donationReportBounds?.first)return;
+  const from=$('donationReportFrom').value,to=$('donationReportTo').value;
+  invalidateDonationReport();
+  if(!from||!to||from>to||from<donationReportBounds.first||to>donationReportBounds.last){$('donationReportState').textContent='기록된 방송일 범위 안에서 시작일과 종료일을 선택해주세요.';return}
+  donationReportControls(true);$('donationReportState').textContent='후원 흐름을 집계하고 있습니다.';
+  try{
+    const {report}=await requestDonationReport({mode:'report',from,to});
+    if(!report?.startCount){$('donationReportState').textContent='선택한 기간에 방송 시작 기록이 없습니다.';return}
+    await document.fonts.ready;drawDonationReport(report);donationReportData=report;
+    $('donationReportCanvas').classList.remove('hidden');
+    const peak=report.peakBin===null?'비교 구간에 저장 후원이 없습니다.':`평균이 가장 높은 구간은 시작 후 ${report.peakBin*30}~${(report.peakBin+1)*30}분입니다.`;
+    $('donationReportSummary').textContent=`${from} ~ ${to} · 시작 기록 ${report.startCount}개 중 ${report.comparableCount}개 비교 · ${report.total.toLocaleString()}개. ${peak} 미션 ${report.excluded.missionCount}건은 수락·시각 연결 미확인으로 제외했습니다.`;
+    $('donationReportState').textContent='리포트가 준비되었습니다. PNG로 저장할 수 있습니다.';
+  }catch(error){if(error.name!=='AbortError')$('donationReportState').textContent=error.message}
+  finally{donationReportControls(false)}
+}
+function drawDonationReport(r){
+  // Lay out in readable CSS-sized units; render at 2x for a sharp PNG.
+  const width=1200,scale=2,detail=r.sessions.slice(-20),rowHeight=38;
+  const chartY=246,chartHeight=Math.max(430,160+r.groups.length*30);
+  const heatY=chartY+chartHeight+24,heatHeight=182+Math.max(1,detail.length)*rowHeight;
+  const guideY=heatY+heatHeight+24,guideHeight=286,footerY=guideY+guideHeight+36,height=footerY+224;
+  const canvas=$('donationReportCanvas');canvas.width=width*scale;canvas.height=height*scale;
+  const c=canvas.getContext('2d');c.scale(scale,scale);
+  const bg='#09192c',panel='#10263f',fg='#f4f7fc',muted='#c3d1e3',gold='#ffc64c',teal='#79e2d6',grid='#37506b';
+  const fmt=n=>Math.round(n).toLocaleString('ko-KR');
+  const axis=n=>n>=1e8?(n/1e8).toLocaleString('ko-KR',{maximumFractionDigits:1})+'억':n>=1e4?(n/1e4).toLocaleString('ko-KR',{maximumFractionDigits:1})+'만':fmt(n);
+  const cellText=rgb=>{const linear=rgb.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4});return .2126*linear[0]+.7152*linear[1]+.0722*linear[2]>.179?'#000000':'#ffffff'};
+  const text=(s,x,y,size=18,color=fg,bold=false,align='left')=>{c.font=`${bold?'700':'500'} ${size}px "Pretendard", "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif`;c.fillStyle=color;c.textAlign=align;c.fillText(String(s),x,y)};
+  const card=(x,y,w,h)=>{c.fillStyle=panel;c.beginPath();c.roundRect(x,y,w,h,16);c.fill()};
+  const line=(x1,y1,x2,y2,color=grid,lineWidth=1)=>{c.strokeStyle=color;c.lineWidth=lineWidth;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()};
+  c.fillStyle=bg;c.fillRect(0,0,width,height);
+  text('별록 · 방송 데이터 리포트',36,44,18,gold,true);
+  const name=String(streamerName||'별록');
+  text(`${name.length>18?name.slice(0,18)+'…':name} · 방송 시작과 후원 흐름`,36,99,34,fg,true);
+  text(`${r.from} — ${r.to}  /  방송 시작일 기준 · 한국 시간`,36,137,19,muted);
+  card(28,164,1144,58);
+  text(`시작 기록 ${fmt(r.startCount)}개`,50,201,23,fg,true);
+  text(`첫 3시간 비교 ${fmt(r.comparableCount)}개`,420,201,23,teal,true);
+  text(`별풍선 ${fmt(r.total)}개`,1120,201,23,gold,true,'right');
+  card(28,chartY,560,chartHeight);card(612,chartY,560,chartHeight);
+  text('방송 시작 후 후원 흐름',52,chartY+42,25,fg,true);
+  text('30분별 저장량 · 평균과 중앙값',52,chartY+74,18,muted);
+  const x0=100,y0=chartY+chartHeight-88,w=446,h=chartHeight-215,max=Math.max(1,...r.means,...r.medians)*1.15;
+  for(let i=0;i<=4;i++){const y=y0-h*i/4;line(x0,y,x0+w,y);text(axis(max*i/4),x0-12,y+6,16,muted,false,'right')}
+  const plot=(values,color)=>{c.strokeStyle=color;c.lineWidth=3;c.beginPath();values.forEach((v,i)=>{const x=x0+i*w/5,y=y0-v/max*h;i?c.lineTo(x,y):c.moveTo(x,y)});c.stroke();values.forEach((v,i)=>{c.beginPath();c.arc(x0+i*w/5,y0-v/max*h,4,0,Math.PI*2);c.fillStyle=color;c.fill()})};
+  plot(r.means,gold);plot(r.medians,teal);
+  r.means.forEach((_,i)=>text(`${i*30}–${(i+1)*30}`,x0+i*w/5,y0+30,16,muted,false,'center'));
+  text('● 평균',354,chartY+109,17,gold,true);text('● 중앙값',452,chartY+109,17,teal,true);
+  text('시작 후 경과 시간(분) · 단위: 개',554,chartY+chartHeight-23,17,muted,false,'right');
+  text('시작 시각별 성과',636,chartY+42,25,fg,true);
+  text('첫 3시간 합계 · 점: 개별 기록',636,chartY+74,18,muted);
+  text('청록선: 중앙값',636,chartY+101,17,teal,true);
+  const gx=740,gw=384,gy=chartY+128,gh=chartHeight-207,gmax=Math.max(1,...r.groups.flatMap(g=>g.values))*1.08;
+  for(let i=0;i<=3;i++){line(gx+gw*i/3,gy-6,gx+gw*i/3,gy+gh);text(axis(gmax*i/3),gx+gw*i/3,gy+gh+27,16,muted,false,'center')}
+  r.groups.forEach((g,i)=>{const y=gy+(i+.5)*gh/Math.max(1,r.groups.length);text(`${g.hour}시 · ${g.count}개`,gx-14,y+6,17,muted,false,'right');g.values.forEach((v,j)=>{c.beginPath();c.arc(gx+v/gmax*gw,y+((j%5)-2)*2,3,0,Math.PI*2);c.fillStyle=g.count<3?'#aabbd0':gold;c.fill()});const x=gx+g.median/gmax*gw;line(x,y-8,x,y+8,teal,3)});
+  if(!r.groups.length)text('비교 가능한 시작 기록이 없습니다.',636,gy+80,18,muted);
+  text('표본이 적은 시간대는 성과를 단정하기 어렵습니다.',636,chartY+chartHeight-23,17,muted);
+  card(28,heatY,1144,heatHeight);
+  text('시작 기록별 후원 분포',52,heatY+42,25,fg,true);
+  text(`전체 ${r.startCount}개 중 최근 ${detail.length}개 표시 · 전체 집계에는 모든 비교 기록 사용`,52,heatY+74,18,muted);
+  const hx=244,cw=148,hy=heatY+126,maxCell=Math.max(1,...detail.flatMap(s=>s.bins));
+  text('방송 시작',hx-20,hy-16,17,muted,true,'right');
+  for(let j=0;j<6;j++)text(`${j*30}–${(j+1)*30}분`,hx+j*cw+cw/2,hy-16,17,muted,true,'center');
+  detail.forEach((s,i)=>{const y=hy+i*rowHeight;text(s.start.slice(5,10)+' '+s.start.slice(11,16)+(s.eligible?'':' *'),hx-20,y+25,17,muted,true,'right');s.bins.forEach((v,j)=>{const partial=(j+1)*30>s.availableMinutes,t=Math.sqrt(v/maxCell),rgb=[Math.round(16+239*t),Math.round(38+160*t),Math.round(63+13*t)];c.fillStyle=partial?'#394b61':`rgb(${rgb.join(',')})`;c.fillRect(hx+j*cw,y,cw-3,rowHeight-3);text(partial?'—':fmt(v),hx+j*cw+cw/2,y+25,18,partial?fg:cellText(rgb),true,'center')})});
+  if(!detail.length)text('선택 기간에 표시할 기록이 없습니다.',52,hy+25,18,muted);
+  text('0: 저장 후원 없음   회색·*: 다음 시작과 겹치는 구간   색 농도: 제곱근 척도',52,heatY+heatHeight-22,17,muted);
+  card(28,guideY,1144,guideHeight);text('리포트 읽는 법',52,guideY+42,25,fg,true);
+  if(r.peakBin!==null){const p=r.peakBin;text('평균이 가장 높은 구간',52,guideY+85,18,muted);text(`시작 후 ${p*30}–${(p+1)*30}분`,52,guideY+124,28,gold,true);text(`평균 ${fmt(r.means[p])}개 / 중앙값 ${fmt(r.medians[p])}개`,52,guideY+158,19,fg)}
+  else text('비교 구간에 저장 후원이 없습니다.',52,guideY+112,19,muted);
+  text('큰 후원은 평균을 끌어올릴 수 있습니다.',52,guideY+204,19);text('중앙값과 개별 기록도 함께 확인하세요.',52,guideY+237,19);
+  text(`다음 시작과 겹친 기록 ${r.overlapCount}개`,636,guideY+85,20,teal,true);text('첫 3시간 성과 비교에서 제외했습니다.',636,guideY+116,18,muted);
+  text(`미션 ${r.excluded.missionCount}건 · ${fmt(r.excluded.missionAmount)}개 제외`,636,guideY+162,20,gold,true);text('최종 수락과 원 후원 시각 연결 미확인',636,guideY+193,18,muted);
+  text('방송시간당 효율·최적 시작 시각을 확정하지 않습니다.',636,guideY+242,17,muted);
+  text(`분석 범위: 일반·별풍선·룰렛·영상후원 / 비교 구간 ${fmt(r.count)}건`,36,footerY,18,muted);
+  text(`제외: 구독 ${r.excluded.subscriptionCount}건·미상 유형 ${r.excluded.unknownCount}건 / 첫 3시간 미연결 ${fmt(r.excluded.unassignedCount)}건 / 날짜·금액 오류 ${fmt(r.excluded.invalidCount)}건`,36,footerY+32,18,muted);
+  text('시작 기록은 독립된 방송 횟수와 다를 수 있습니다. 방송 종료·수집 연속성은 확인되지 않았습니다.',36,footerY+78,18,muted);
+  text('선은 30분 집계값을 연결합니다. 요일·콘텐츠·수집 공백은 보정하지 않았습니다.',36,footerY+110,18,muted);
+  text('작은 표본의 성과를 다음 방송의 예측이나 시작 시간 추천으로 해석하지 마세요.',36,footerY+142,18,muted);
+  text(`생성: ${new Date(r.generatedAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false})} KST · BYEOLLOG`,36,footerY+190,17,muted);
+}
+async function downloadDonationReport(){
+  if(!donationReportData||donationReportBusy)return;
+  const report=donationReportData;donationReportControls(true);
+  try{const blob=await new Promise(resolve=>$('donationReportCanvas').toBlob(resolve,'image/png'));if(!blob)throw Error('이미지를 만들지 못했습니다. 다시 시도해주세요.');const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`별풍선-리포트-${report.from}-${report.to}.png`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)}
+  catch(error){$('donationReportState').textContent=error.message}
+  finally{donationReportControls(false)}
+}
+
+/* /shared:donationReportScript */
+function setDonationStatMode(mode){const tabs={person:'donationTabPerson',date:'donationTabDate',month:'donationTabMonth',amount:'donationTabAmount'};if(!tabs[mode])return;donationStatMode=mode;Object.entries(tabs).forEach(([key,id])=>$(id).classList.toggle('active',key===mode));renderDonationStats()}
 function isSystemDonation(r){return String(r?.donation_type||'')==='도전성공'||String(r?.soop_id||'')==='__challenge_settle__'}
 function isSubscriptionDonation(r){const type=String(r?.donation_type||'').trim().toLowerCase().replace(/\s+/g,'');return type.includes('구독')||type==='subscription'||collectorSubscriptionInfo(r).isSubscription}
 function renderDonationStats(){
   const rows=donationStatsRows.filter(r=>!isSubscriptionDonation(r)),totalBalloons=rows.reduce((n,r)=>n+(+r.balloons||0),0),users=new Set(rows.filter(r=>!isSystemDonation(r)).map(r=>r.soop_id).filter(Boolean)),dates=new Set(rows.map(r=>r.donated_date).filter(Boolean));
   $('donationStatsSummary').innerHTML=`<div class="statSummaryCard"><span>총 별풍선</span><b>${totalBalloons.toLocaleString()}개</b></div><div class="statSummaryCard"><span>후원 건수</span><b>${rows.length.toLocaleString()}건</b></div><div class="statSummaryCard"><span>후원 인원</span><b>${users.size.toLocaleString()}명</b></div><div class="statSummaryCard"><span>기록 날짜</span><b>${dates.size.toLocaleString()}일</b></div>`;
   if(!rows.length){$('donationStatsTable').innerHTML='<div class="muted" style="padding:10px">아직 저장된 후원 통계가 없습니다.</div>';return}
-  if(donationStatMode==='date')renderDonationStatsByDate();else if(donationStatMode==='amount')renderDonationStatsByAmount();else renderDonationStatsByPerson();
+  if(donationStatMode==='date')renderDonationStatsByDate();else if(donationStatMode==='month')renderDonationStatsByMonth();else if(donationStatMode==='amount')renderDonationStatsByAmount();else renderDonationStatsByPerson();
 }
 function renderDonationStatsByPerson(){
   const m=new Map();donationStatsRows.filter(r=>!isSystemDonation(r)&&!isSubscriptionDonation(r)).forEach(r=>{const key=r.soop_id||r.nickname||'';if(!m.has(key))m.set(key,{soop_id:r.soop_id,nickname:r.nickname,count:0,total:0,latest:''});const x=m.get(key);x.count++;x.total+=(+r.balloons||0);if(String(r.donated_at||'')>x.latest){x.latest=String(r.donated_at||'');x.nickname=r.nickname||x.nickname}});
@@ -2336,6 +2455,22 @@ function renderDonationStatsByPerson(){
 function renderDonationStatsByDate(){
   const m=new Map();donationStatsRows.filter(r=>!isSubscriptionDonation(r)).forEach(r=>{const key=r.donated_date||'';if(!m.has(key))m.set(key,{date:key,count:0,total:0,users:new Set()});const x=m.get(key);x.count++;x.total+=(+r.balloons||0);if(r.soop_id&&!isSystemDonation(r))x.users.add(r.soop_id)});const data=[...m.values()].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   $('donationStatsTable').innerHTML=`<table class="statsTable"><thead><tr><th>날짜</th><th class="num">총 별풍선</th><th class="num">후원 건수</th><th class="num">후원 인원</th></tr></thead><tbody>${data.map(x=>`<tr><td><b>${esc(x.date)}</b></td><td class="num"><b>${x.total.toLocaleString()}개</b></td><td class="num">${x.count.toLocaleString()}건</td><td class="num">${x.users.size.toLocaleString()}명</td></tr>`).join('')}</tbody></table>`;
+}
+function donationMonthlyStats(rows){
+  const months=new Map();
+  for(const row of rows){
+    if(isSubscriptionDonation(row))continue;
+    // Use the same saved Korean donation date as the daily statistics.
+    const date=String(row.donated_date||''),month=/^\d{4}-(0[1-9]|1[0-2])-\d{2}$/.test(date)?date.slice(0,7):'';
+    if(!months.has(month))months.set(month,{month,count:0,total:0,users:new Set()});
+    const item=months.get(month);item.count++;item.total+=(+row.balloons||0);
+    if(row.soop_id&&!isSystemDonation(row))item.users.add(row.soop_id);
+  }
+  return [...months.values()].sort((a,b)=>b.month.localeCompare(a.month));
+}
+function renderDonationStatsByMonth(){
+  const data=donationMonthlyStats(donationStatsRows);
+  $('donationStatsTable').innerHTML=`<div class="muted" style="padding:8px 10px">날짜별 통계와 같은 후원일 기준입니다. 후원 인원은 월 안에서 중복을 제외합니다.</div><table class="statsTable"><thead><tr><th>월</th><th class="num">총 별풍선</th><th class="num">후원 건수</th><th class="num">후원 인원</th></tr></thead><tbody>${data.map(x=>`<tr><td><b>${x.month?esc(x.month.slice(0,4)+'년 '+Number(x.month.slice(5))+'월'):'날짜 미상'}</b></td><td class="num"><b>${x.total.toLocaleString()}개</b></td><td class="num">${x.count.toLocaleString()}건</td><td class="num">${x.users.size.toLocaleString()}명</td></tr>`).join('')}</tbody></table>`;
 }
 function renderDonationStatsByAmount(){
   const m=new Map();donationStatsRows.filter(r=>!isSubscriptionDonation(r)).forEach(r=>{const n=+r.balloons||0;if(!m.has(n))m.set(n,{balloons:n,count:0,total:0,users:new Set()});const x=m.get(n);x.count++;x.total+=n;if(r.soop_id&&!isSystemDonation(r))x.users.add(r.soop_id)});const data=[...m.values()].sort((a,b)=>b.total-a.total||b.balloons-a.balloons);
@@ -3567,15 +3702,9 @@ async function saveItem(){
       const refreshed=await api('?id=eq.'+encodeURIComponent(saved.id));
       if(refreshed?.[0])editTaskSnapshot={...refreshed[0]};
     }else if(!existing){
-      const created=(await apiTable('bangsel_fans','',{
-        method:'POST',write:true,
-        body:JSON.stringify({
-          soop_id:soopId,
-          alias:body.fan,
-          current_nickname:body.fan,
-          station_url:canonicalStationUrl(soopId)
-        })
-      }))[0];
+      // The task write creates a missing fan in the same DB transaction.
+      const created=(await apiTable('bangsel_fans','?soop_id=eq.'+encodeURIComponent(soopId)))[0];
+      if(!created)throw new Error('저장된 시청자 정보를 다시 불러오지 못했습니다.');
       fanProfiles[soopId]=created;
     }
   }
@@ -3869,7 +3998,7 @@ if(ENABLE_MANAGER_COLLECTOR_PAIRING_UI){
 (function bindCspSafeAdminActions(){
   const allowed=new Set(`
     openMyPage openCompletionHistory closeCompletionHistory loadCompletionHistory disconnectSoopAccount toggleAdminTheme logoutAdmin openAdd toggleBatchBox toggleCollectorBox openManagementHub
-    setViewMode setSort render loadDonationStats toggleDonationStatsBox setDonationStatMode openCollectorRuleManager
+    setViewMode setSort render loadDonationStats toggleDonationStatsBox setDonationStatMode openCollectorRuleManager openDonationReport closeDonationReport invalidateDonationReport generateDonationReport downloadDonationReport
     loadCollectorInbox processCollectorInbox loadCollectorIgnored toggleNonBangselBox
     closeCollectorClassify saveCollectorClassify backFromCollectorRuleManager closeCollectorRuleManager
     saveCollectorRuleManager renderRouletteRecords loadRouletteRecords issueCollectorPairingCode loadSignupApplications
@@ -3959,27 +4088,20 @@ dashboardMenu?.addEventListener('click',()=>{const expanded=dashboardMenu.getAtt
 let uxStatus=null,uxStatusLoading=false;
 const uxDate=value=>value?new Date(value).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false}):'기록 없음';
 function uxText(tag,text){const el=document.createElement(tag);el.textContent=text;return el}
-function uxMappingCounts(){for(const row of $('rouletteSaved')?.querySelectorAll('.mappingRule')||[]){const amount=Number(row.querySelector('b')?.textContent.replace(/[^0-9]/g,''));let label=row.querySelector('.uxPendingCount');if(!label){label=uxText('span','');label.className='chips uxPendingCount';row.append(label)}label.textContent=uxStatus?'연결 대기 '+Number(uxStatus.byAmount?.find(x=>Number(x.amount)===amount)?.count||0)+'건':'연결 대기 확인 전'}}
 async function uxRefreshStatus(){
-  if(uxStatusLoading)return;uxStatusLoading=true;$('uxRefreshStatus').disabled=true;$('uxStatusMessage').textContent='현재 대기를 확인하는 중입니다.';
+  if(uxStatusLoading)return;uxStatusLoading=true;$('uxRefreshStatus').disabled=true;$('uxStatusMessage').textContent='특수룰렛 이력을 확인하는 중입니다.';
   try{
-    const response=await fetch('/api/admin?operation=ux-controls&kind=status',{cache:'no-store'}),data=await response.json();if(!response.ok)throw Error(data.message||'대기를 확인하지 못했습니다.');uxStatus=data;
-    setDashboardCount?.('roulettePendingBadge',data.pendingCount,'연결 대기');
-    $('uxStatusMessage').textContent='연결 대기 '+data.pendingCount+'건 · '+uxDate(data.checkedAt)+' (한국 시간) 확인. '+(data.pendingCount?'수동 룰렛 사용을 미뤄주세요.':'새 후원이 들어오면 대기가 다시 생길 수 있습니다.');
-    const host=$('uxPendingList');host.replaceChildren();if(!data.pending?.length)host.append(uxText('p','현재 표시할 대기 후원이 없습니다.'));
-    for(const item of data.pending||[]){const row=uxText('div','');row.className='exceptionRow';row.append(uxText('b',(item.actor_name||'이름 없음')+' · '+Number(item.amount).toLocaleString()+'개 · '+(item.roulette_name||'룰렛')));row.append(uxText('p',uxDate(item.occurred_at)+' · '+item.result_count+'/'+item.expected_spins+'회 결과 수집'));
-      if(Date.parse(data.checkedAt)-Date.parse(item.occurred_at)>600000){const close=uxText('button','이 후원의 대기 종료');close.type='button';close.onclick=async()=>{if(!confirm('이 후원에 더 이상 결과를 연결하지 않고 대기를 종료할까요? 후원 금액과 기존 업보는 유지되며, 이후 도착하는 결과는 다른 대기 후원에 연결되거나 예외로 남을 수 있습니다.'))return;close.disabled=true;try{const r=await fetch('/api/admin?operation=ux-controls&kind=close-pending',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id,updatedAt:item.updated_at})});const d=await r.json();if(!r.ok)throw Error(d.message||'대기 종료 실패');await uxRefreshStatus()}catch(error){$('uxStatusMessage').textContent=error.message;close.disabled=false}};row.append(close)}host.append(row)}
-    if(data.pendingCount>50)host.append(uxText('p','가장 오래된 50건을 표시했습니다.'));
+    const response=await fetch('/api/admin?operation=ux-controls&kind=special-history',{cache:'no-store'}),data=await response.json();if(!response.ok)throw Error(data.message||'이력을 확인하지 못했습니다.');uxStatus=data;
+    $('uxStatusMessage').textContent=uxDate(data.checkedAt)+' (한국 시간) 확인';
     const pending=$('uxSpecialPending');pending.replaceChildren(uxText('h3','현재 방송의 배수 대기'));
     if(!data.specialPending?.length)pending.append(uxText('p','적용을 기다리는 배수가 없습니다.'));
     for(const s of data.specialPending||[])pending.append(uxText('p',s.fan+' · '+s.multiplier+'배 · '+uxDate(s.expires_at)+' 만료'));
-    const recent=$('uxSpecialRecent');recent.replaceChildren(uxText('h3','최근 결과 최대 50건'));
-    for(const s of data.specialRecent||[]){const receipt=s.special_roulette||{};recent.append(uxText('p',uxDate(s.occurred_at)+' · '+(s.actor_name||'후원자 기록 없음')+' · '+s.result_text+' · '+(receipt.controlEvent?'다음 '+receipt.pendingMultiplier+'배 대기':'이번 결과 '+(receipt.appliedMultiplier||1)+'배')))}
-  }catch(error){uxStatus=null;$('uxPendingList').replaceChildren();$('uxSpecialPending').replaceChildren();$('uxSpecialRecent').replaceChildren();$('uxStatusMessage').textContent=error.message+' 현재 대기가 없는 것으로 판단하지 마세요.'}
-  finally{uxStatusLoading=false;$('uxRefreshStatus').disabled=false;uxMappingCounts()}
+    const recent=$('uxSpecialRecent');recent.replaceChildren(uxText('h3','최근 결과 최대 50건'));if(!data.specialRecent?.length)recent.append(uxText('p','아직 기록된 특수룰렛 결과가 없습니다.'));
+    for(const s of data.specialRecent||[]){const receipt=s.special_roulette||{};recent.append(uxText('p',uxDate(s.occurred_at)+' · '+(s.source==='overlay'?'오버레이':'기존 채팅')+' · '+(s.actor_name||'후원자 기록 없음')+' · '+s.result_text+' · '+(receipt.controlEvent?'다음 '+receipt.pendingMultiplier+'배 대기':'이번 결과 '+(receipt.appliedMultiplier||1)+'배')))}
+  }catch(error){uxStatus=null;$('uxSpecialPending').replaceChildren();$('uxSpecialRecent').replaceChildren();$('uxStatusMessage').textContent=error.message+' 잠시 후 다시 확인해주세요.'}
+  finally{uxStatusLoading=false;$('uxRefreshStatus').disabled=false}
 }
 $('uxRefreshStatus').onclick=uxRefreshStatus;
-if($('rouletteSaved'))new MutationObserver(()=>{if(!$('rouletteSaved').querySelector('.mappingRule:not(:has(.uxPendingCount))'))return;uxMappingCounts()}).observe($('rouletteSaved'),{childList:true});
 
 (()=>{
 const $=id=>document.getElementById(id);
@@ -4122,13 +4244,11 @@ async function refreshDashboardCounts(){
     if(!response.ok)throw Error('count unavailable');
     const data=await response.json();
     setDashboardCount('collectorCountBadge',data.reviewCount,'학습 필요한 별풍선');
-    setDashboardCount('roulettePendingBadge',data.pendingCount,'룰렛 연결 대기');
     setDashboardCount('rouletteExceptionsBadge',data.exceptionCount,'예외 처리된 룰렛 보류');
     dashboardCountFailures=0;
   }catch{
     dashboardCountFailures++;
     setDashboardCount('collectorCountBadge',null,'학습 필요한 별풍선');
-    setDashboardCount('roulettePendingBadge',null,'룰렛 연결 대기');
     setDashboardCount('rouletteExceptionsBadge',null,'예외 처리된 룰렛 보류');
   }finally{
     dashboardCountsBusy=false;
@@ -4136,7 +4256,7 @@ async function refreshDashboardCounts(){
   }
 }
 function toggleDashboardReviewPanel(kind,forceOpen=false){
-  const panels={learning:['collectorBox','toggleCollectorBtn'],pending:['roulettePendingPanel','toggleRoulettePendingBtn'],exceptions:['exceptionsPanel','toggleRouletteExceptionsBtn']};
+  const panels={learning:['collectorBox','toggleCollectorBtn'],exceptions:['exceptionsPanel','toggleRouletteExceptionsBtn']};
   const target=panels[kind];if(!target)return;
   const open=forceOpen||document.getElementById(target[0]).classList.contains('hidden');
   if(!window.dashboardExceptionPanel.close())return;
@@ -4146,18 +4266,18 @@ function toggleDashboardReviewPanel(kind,forceOpen=false){
     document.getElementById(panelId).classList.toggle('hidden',!active);
     button.classList.toggle('active',active);button.setAttribute('aria-expanded',String(active));button.setAttribute('aria-pressed',String(active));
   }
-  if(open){if(kind==='learning')void loadCollectorInbox(false);else if(kind==='pending')void uxRefreshStatus();else void window.dashboardExceptionPanel.load()}
+  if(open){if(kind==='learning')void loadCollectorInbox(false);else void window.dashboardExceptionPanel.load()}
 }
 document.querySelectorAll('[data-review-close]').forEach(button=>button.addEventListener('click',()=>{
  const kind=button.dataset.reviewClose;toggleDashboardReviewPanel(kind);
- const target={learning:'toggleCollectorBtn',pending:'toggleRoulettePendingBtn',exceptions:'toggleRouletteExceptionsBtn'}[kind];
+ const target={learning:'toggleCollectorBtn',exceptions:'toggleRouletteExceptionsBtn'}[kind];
  if(document.getElementById(target)?.getAttribute('aria-expanded')==='false')document.getElementById(target).focus();
 }));
-document.getElementById('toggleRoulettePendingBtn').onclick=()=>toggleDashboardReviewPanel('pending');
+
 document.getElementById('toggleRouletteExceptionsBtn').onclick=()=>toggleDashboardReviewPanel('exceptions');
 window.addEventListener('byeollog:exceptions-updated',()=>{void refreshDashboardCounts()});
 window.addEventListener('byeollog:exception-resolved',()=>{void loadServer()});
-function openSetupDestination(){const kind=location.hash.slice(1);if(['exceptions','pending','learning'].includes(kind))toggleDashboardReviewPanel(kind,true);else if(kind==='account')openMyPage();else if(kind==='history')openRecentCollectorHistory()}
+function openSetupDestination(){const kind=location.hash.slice(1);if(['exceptions','learning'].includes(kind))toggleDashboardReviewPanel(kind,true);else if(kind==='special-history')openManagementItem('specialHistory');else if(kind==='account')openMyPage();else if(kind==='history')openRecentCollectorHistory()}
 window.addEventListener('hashchange',openSetupDestination);
 queueMicrotask(openSetupDestination);
 document.addEventListener('visibilitychange',()=>{clearTimeout(dashboardCountTimer);if(!document.hidden)void refreshDashboardCounts()});

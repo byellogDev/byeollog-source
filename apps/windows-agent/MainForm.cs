@@ -17,6 +17,8 @@ public sealed class MainForm : Form
     // The legacy Collector wire contract has always sent a four-part numeric
     // version. Keep build labels out of /api/collector* for v0.5.1.8 servers.
     private static readonly string CollectorVersion = BuildInfo.Version;
+    private readonly AgentAnnouncementClient _announcements = new();
+    private readonly System.Windows.Forms.Timer _announcementTimer = new() { Interval = 30000 };
     private readonly AgentUpdateNoticeCache _updateNotice = new(AgentUpdateNotice.ReadCurrent);
     private readonly WebView2 _ui = new();
     private readonly CollectorStorage _storage;
@@ -1267,6 +1269,12 @@ public sealed class MainForm : Form
             try
             {
                 _uiReady = true;
+                if (!_announcementTimer.Enabled)
+                {
+                    _announcementTimer.Tick += async (_, _) => await RefreshAnnouncementAsync();
+                    _announcementTimer.Start();
+                    _ = RefreshAnnouncementAsync();
+                }
                 await PushMainStateAsync();
                 navigationReady.TrySetResult(null);
             }
@@ -1380,6 +1388,10 @@ public sealed class MainForm : Form
                             await automationForm.ApplyHostThemeAsync(_darkMode ? "dark" : "light");
                     }
                     break;
+                case "openAnnouncement":
+                    var announcement = _announcements.Active;
+                    if (announcement is not null) Process.Start(new ProcessStartInfo(announcement.Url.AbsoluteUri) { UseShellExecute = true });
+                    break;
                 case "dashboard":
                     await OpenDashboardAsync();
                     break;
@@ -1389,7 +1401,7 @@ public sealed class MainForm : Form
                         : "rules";
                     QueueVNextAutomationSettingsOpen(automationView);
                     return;
-            }
+           }
         }
         catch (Exception ex)
         {
@@ -1832,20 +1844,26 @@ public sealed class MainForm : Form
         }
     }
 
+    private async Task RefreshAnnouncementAsync()
+    {
+        await _announcements.RefreshIfDueAsync();
+        if (!IsDisposed && !Disposing) await PushMainStateAsync();
+    }
+
     private async Task PushMainStateAsync()
     {
         if (!_uiReady || _ui.CoreWebView2 is null) return;
         var localAgentStatus = _vNextLocalAgent?.Status;
-        var serverConnected = localAgentStatus?.Connected == true;
-        var serverRecoveryState = serverConnected
-            ? "ready"
-            : _vNextDevClient.IsSignedIn || localAgentStatus?.Running == true
-                ? "recovering" : _vNextDevClient.SessionRecoveryState;
+        var serverConnected = _vNextDevClient.IsSignedIn && localAgentStatus?.Connected == true;
+        var serverRecoveryState = AgentConnectionPresentation.RecoveryState(
+            _vNextDevClient.IsSignedIn, serverConnected, localAgentStatus?.Running == true,
+            _vNextDevClient.SessionRecoveryState, !string.IsNullOrEmpty(_vNextAgentStartupError));
         await ExecuteUiAsync("setMainState", new
         {
             streamerName = _storage.StreamerName,
             releaseLabel = BuildInfo.DisplayVersion,
             updateWarning = _updateNotice.Get(),
+            announcement = _announcements.Active is { } notice ? new { label = notice.Label, expiresAt = notice.ExpiresAt.ToUnixTimeMilliseconds() } : null,
             betaSupportEnabled = _vNextDevClient.IsSignedIn && _vNextDevClient.BetaSupportEnabled,
             supportSessionEpoch = _vNextDevClient.CaptureSessionEpoch(),
             developmentConnected = _vNextDevClient.IsSignedIn,
@@ -2880,6 +2898,8 @@ public sealed class MainForm : Form
     {
         if (disposing)
         {
+            _announcementTimer.Dispose();
+            _announcements.Dispose();
             _automationSettingsForm?.RequestHostShutdown();
             try { _wallpaperEditorForm?.Close(); } catch { }
             _vNextDevClient.SessionChanged -= VNextDevClient_SessionChanged;

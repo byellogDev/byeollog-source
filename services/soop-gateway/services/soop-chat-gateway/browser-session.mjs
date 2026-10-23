@@ -5,6 +5,7 @@ import {access,mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {cdpClient} from './cdp-client.mjs';
+import {normalizeSoopRoomOwner} from '../../lib/soop-room-identity.js';
 
 const SDK_URL='https://static.sooplive.com/asset/app/chat-sdk/sooplive-chat-sdk.js';
 // SOOP.ChatSDK keeps room state in page-global internals and may also touch
@@ -390,7 +391,11 @@ export async function runSoopBrowserSession({clientId,clientSecret,accessToken,e
   const host=await browserHost();
   if(signal?.aborted)return {reason:'aborted',ready:false,errorCode:null,errorMessage:null};
   const expectedRoomOwner=String(expectedBroadcasterId||'').trim().toLowerCase();
-  let settled=false,ready=false,lastErrorCode=null,lastErrorMessage=null,shard=null,sessionId=null,connectTimer=null,retireShard=false;
+  // The official SDK destroys its page-global emitter on socket close. A new
+  // ChatSDK object cannot restore it. Retire every session's context, including
+  // failed initialization and offline attempts, before another account/session
+  // can acquire it. The shared Chromium process remains alive.
+  let settled=false,ready=false,lastErrorCode=null,lastErrorMessage=null,shard=null,sessionId=null,connectTimer=null,retireShard=true;
   let finish;const finished=new Promise(resolve=>{finish=reason=>{if(settled)return;settled=true;resolve(reason)}});
   const abort=()=>finish('aborted');signal?.addEventListener('abort',abort,{once:true});
   try{
@@ -398,17 +403,17 @@ export async function runSoopBrowserSession({clientId,clientSecret,accessToken,e
       if(settled)return;
       try{
         if(event.kind==='ready'){
-          const room={chatNumber:Number(event.room?.chatNumber||0),bjId:String(event.room?.bjId||'').trim()};
+          const room={chatNumber:Number(event.room?.chatNumber||0),bjId:normalizeSoopRoomOwner(event.room?.bjId)};
           if(!room.bjId||!Number.isSafeInteger(room.chatNumber)||room.chatNumber<=0||!expectedRoomOwner||room.bjId.toLowerCase()!==expectedRoomOwner){
             lastErrorCode=room.bjId?'sdk_room_owner_mismatch':'sdk_room_identity_missing';
             lastErrorMessage='SOOP SDK room identity does not match the leased broadcaster';
-            onState({state:'error',at:event.at,code:lastErrorCode,message:lastErrorMessage});finish('room_identity_rejected');return;
+            onState({state:'error',at:event.at,code:lastErrorCode,message:lastErrorMessage,identityCheck:{ownerMatches:room.bjId===expectedRoomOwner,ownerValid:!!room.bjId,chatNumberValid:Number.isSafeInteger(room.chatNumber)&&room.chatNumber>0}});finish('room_identity_rejected');return;
           }
-          ready=true;if(connectTimer){clearTimeout(connectTimer);connectTimer=null}onState({state:'connected',at:event.at,message:event.message,room})
+          ready=true;if(connectTimer){clearTimeout(connectTimer);connectTimer=null}onState({state:'connected',at:event.at,message:event.message,room,ownerSuffixNormalized:/\([0-9]+\)$/.test(event.room.bjId)})
         }
         else if(event.kind==='connect_started')onState({state:'connecting',at:event.at,room:event.room});
         else if(event.kind==='event'){
-          const room={chatNumber:Number(event.room?.chatNumber||0),bjId:String(event.room?.bjId||'').trim()};
+          const room={chatNumber:Number(event.room?.chatNumber||0),bjId:normalizeSoopRoomOwner(event.room?.bjId)};
           if(!room.bjId||!Number.isSafeInteger(room.chatNumber)||room.chatNumber<=0){
             lastErrorCode='sdk_room_identity_missing';
             onState({state:'error',at:event.at,code:lastErrorCode,message:'SOOP SDK event has no verifiable room identity'});

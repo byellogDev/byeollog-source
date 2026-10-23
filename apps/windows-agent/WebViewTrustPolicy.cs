@@ -24,6 +24,7 @@ internal static class WebViewTrustPolicy
         "startTimeChanged",
         "toggleCollection",
         "dashboard",
+        "openAnnouncement",
         "openAutomationSettings",
         "screen",
         "refreshCollection",

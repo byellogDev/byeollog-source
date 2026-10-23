@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "approvedTcpPorts": [53, 80, 443, 8041, 9001],
+  "chatTlsPortsObserved": [8041, 9001],
+  "providerCompleteRangeConfirmed": false,
+  "autoChangeFirewall": false
+}

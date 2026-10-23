@@ -134,7 +134,11 @@ internal sealed class VNextSessionVault
 
     private static bool IsValid(VNextRememberedSession? remembered) =>
         remembered is not null
-        && remembered.RefreshToken.Length is >= 20 and <= 16_384
+        // Refresh tokens are opaque, not JWTs. Supabase can issue 12-character
+        // tokens; authentication/identity validation belongs to the server.
+        && !string.IsNullOrWhiteSpace(remembered.RefreshToken)
+        && remembered.RefreshToken.Length <= 16_384
+        && !remembered.RefreshToken.Any(c => char.IsWhiteSpace(c) || char.IsControl(c))
         && Guid.TryParseExact(remembered.WorkspaceId, "D", out _)
         && remembered.UserId != Guid.Empty
         && remembered.Email.Length <= 320

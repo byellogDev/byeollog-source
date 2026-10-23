@@ -4,6 +4,7 @@ import {isJsonRequest,isTrustedMutationOrigin} from './request-origin.js';
 import {sb} from './supabase-rest.js';
 import {getGameLinkHandler} from './game-link-runtime.mjs';
 import {hasGameLinkSessionCookie} from './game-link-service.mjs';
+import {clearOtherSoopFlowCookie} from './soop-flow-cookies.mjs';
 
 const SOOP_OPENAPI_ORIGIN='https://openapi.sooplive.com';
 const SOOP_AUTHORIZATION_PATH='/auth/code';
@@ -322,6 +323,18 @@ async function saveSoopConnection({workspaceId,userId,tokens,previousRefreshToke
   return Array.isArray(rows)?rows[0]||null:null;
 }
 
+// Observation never refreshes, saves errors, or contacts the provider. A short
+// token is a wait condition; only the operating collector owns refresh.
+export async function readSoopConnectionForObservation(workspaceId,{env=process.env,sbImpl=sb,now=new Date()}={}){
+  const rows=await sbImpl('byeollog_soop_connections',`?select=access_token_ciphertext,access_token_expires_at&workspace_id=eq.${encodeURIComponent(workspaceId)}&status=eq.connected&limit=1`);
+  const row=Array.isArray(rows)?rows[0]:null;
+  const expiresAt=Date.parse(row?.access_token_expires_at||'');
+  if(!row||!Number.isFinite(expiresAt)||expiresAt-now.getTime()<=120_000){
+    throw new SoopOAuthError('관측용 토큰 준비를 기다립니다.','soop_observation_token_wait',409);
+  }
+  return {accessToken:decryptSoopToken(row.access_token_ciphertext,{env}),expiresAt:new Date(expiresAt).toISOString(),refreshed:false};
+}
+
 export async function refreshSoopConnection(workspaceId,{env=process.env,fetchImpl=fetch,sbImpl=sb,now=new Date(),force=false,signal}={}){
   const rows=await sbImpl('byeollog_soop_connections',`?select=*&workspace_id=eq.${encodeURIComponent(workspaceId)}&status=eq.connected&limit=1`);
   const row=Array.isArray(rows)?rows[0]:null;
@@ -419,6 +432,7 @@ export async function handleSoopOAuthStart(req,res,{env=process.env,resolveSessi
   if(!session)return;
   const attempt=createSoopOAuthAttempt(session,{env});
   setAttemptCookie(res,attempt.token,attempt.expiresIn);
+  clearOtherSoopFlowCookie(res,'normal');
   const url=new URL(config.authorizationUrl);
   url.searchParams.set('client_id',config.clientId);
   url.searchParams.set('response_type','code');
@@ -447,6 +461,7 @@ export async function handleSoopSignupOAuthStart(req,res,{env=process.env}={}){
   if(switchStep)return res.status(403).json({message:'SOOP 계정 전환은 허용되지 않습니다.',code:'soop_account_switch_disabled'});
   const attempt=createSoopSignupOAuthAttempt({env});
   setAttemptCookie(res,attempt.token,attempt.expiresIn);
+  clearOtherSoopFlowCookie(res,'normal');
   const authorizationState=attempt.state;
   const url=new URL(config.authorizationUrl);
   url.searchParams.set('client_id',config.clientId);
@@ -512,7 +527,20 @@ export async function handleSoopOAuthCallback(req,res,{
     res.setHeader('Allow','GET, HEAD');
     return res.status(405).send('Method not allowed');
   }
-  if(req.method==='GET'&&hasGameLinkSessionCookie(req)){
+  let attempt;
+  try{attempt=verifySoopOAuthAttempt(cookiesOf(req)[ATTEMPT_COOKIE],{env})}catch{attempt=null}
+  const returnedState=String(req.query?.state||'').trim();
+  const gameCookie=hasGameLinkSessionCookie(req);
+  // A leftover game cookie must not capture a signed normal OAuth callback.
+  // With two attempts and no returned state, the destination is ambiguous.
+  if(req.method==='GET'&&gameCookie&&attempt&&!returnedState){
+    // Old pre-fix cookies or concurrent tabs: reject this ambiguous response,
+    // retire both attempts, and let an explicit fresh start select the flow.
+    clearOtherSoopFlowCookie(res,'normal');
+    clearAttemptCookie(res);
+    return res.status(400).send(callbackPage('invalid'));
+  }
+  if(req.method==='GET'&&gameCookie&&(!attempt||!safeEqual(returnedState,attempt.nonce))){
     req.query={...(req.query||{}),operation:'soop-callback'};
     return (gameLinkHandler||getGameLinkHandler(env))(req,res);
   }
@@ -535,8 +563,6 @@ export async function handleSoopOAuthCallback(req,res,{
   if(denied){clearAttemptCookie(res);return res.status(400).send(callbackPage('denied'))}
   if(!authCode)return res.status(200).send(callbackPage('ready'));
 
-  let attempt;
-  try{attempt=verifySoopOAuthAttempt(cookiesOf(req)[ATTEMPT_COOKIE],{env})}catch{attempt=null}
   console.info('[soop-oauth] callback received',{
     attempt_id:oauthAttemptId(attempt),
     attempt_valid:Boolean(attempt),
@@ -545,7 +571,6 @@ export async function handleSoopOAuthCallback(req,res,{
     denied
   });
   if(!attempt){clearAttemptCookie(res);return res.status(400).send(callbackPage('invalid'))}
-  const returnedState=String(req.query?.state||'').trim();
   if(returnedState&&!safeEqual(returnedState,attempt.nonce)){
     clearAttemptCookie(res);
     return res.status(400).send(callbackPage('invalid'));

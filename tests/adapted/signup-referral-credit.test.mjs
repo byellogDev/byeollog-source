@@ -19,7 +19,7 @@ function request(body){
       'content-type':'application/json'
     },
     socket:{remoteAddress:'127.0.0.1'},
-    body:{consents:{termsVersion:"2026-09-14",privacyVersion:"2026-09-14",termsAgreed:true,collectionAgreed:true,age14Confirmed:true},...body}
+    body:{consents:{termsVersion:"2026-10-11",privacyVersion:"2026-10-11",termsAgreed:true,collectionAgreed:true,age14Confirmed:true},...body}
   };
 }
 
@@ -183,7 +183,7 @@ test('signup refuses unverified manual SOOP input before creating an Auth user',
 });
 
 test('signup rejects missing, outdated and false consents before creating any Auth account',async()=>{
- for(const consents of [null,{}, {termsVersion:'2026-09-06',privacyVersion:'2026-09-09',termsAgreed:true,collectionAgreed:true,age14Confirmed:true}, {termsVersion:'2026-09-14',privacyVersion:'2026-09-14',termsAgreed:true,collectionAgreed:true,age14Confirmed:false}]){
+ for(const consents of [null,{}, {termsVersion:'2026-09-06',privacyVersion:'2026-09-09',termsAgreed:true,collectionAgreed:true,age14Confirmed:true}, {termsVersion:'2026-10-11',privacyVersion:'2026-10-11',termsAgreed:true,collectionAgreed:true,age14Confirmed:false}]){
   let created=false;const res=response();await handleSignup(request({email:'consent@example.com',streamer_name:'합성',consents}),res,signupDeps({createAuthUser:async()=>{created=true;throw Error('must not create')}}));assert.equal(res.statusCode,400);assert.equal(created,false);assert.equal(res.body.code,'signup_consent_required');
  }
 });

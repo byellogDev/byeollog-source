@@ -9,4 +9,21 @@ This is the canonical development tree derived from the accepted 2026-09-23 oper
 - Only approved test-workspace data may be mutated during verification.
 - Never commit credentials, private user data, database dumps, local evidence, or platform access files. Run the publication scanner on the exact Git file list before pushing.
 - Remote version cleanup must preserve current feeds, update compatibility, and rollback assets.
+- Release completion requires an actual published GitHub Release in `byellogDev/byeollog`, not only Markdown, a tag, or assets in `byeollog-releases`. Link the source commit, detailed notes, verification limits and asset release. Mark research-only checkpoints as prereleases. Read back the published body, draft/prerelease flags, tag commit and latest release before reporting completion. A branch push does not update the default branch; do not merge unrelated candidates merely to publish release notes.
 - No agents or scripts should deploy from a historical or temporary folder.
+
+## GitHub publication cadence (user decision, 2026-09-24)
+
+- At the end of each major task, record its purpose, changes, validation, remaining limitations and deployment state, then commit and push the reviewed changes to the existing GitHub repository. Do not leave completed work only on the local machine.
+- A release document is mandatory for each major task or version: create or update `docs/releases/YYYY-MM-DD-topic.md` using the release template, link it from `docs/releases/README.md` and `CHANGELOG.md`, and reference it in the daily work log. The work log does not replace release notes. Label candidates, research checkpoints and deployed releases accurately; daily checks must also catch missing release documents.
+- Check for missing records at least daily; the daily thread automation runs at 23:00 Asia/Seoul. Keep a concise dated entry under `docs/work-log/`. No empty commits or repeated notifications when nothing changed.
+- Use explicit file selection, inspect the actual staged diff, run the publication scanner on the Git file list, and verify the remote commit. Never include `.local`, credentials, personal data, raw logs, deployment connection files or private evidence.
+- Preserve ongoing changes by other tasks. Use a `codex/` branch and PR; do not force-push, discard work, automatically merge, or deploy as part of the daily publication task.
+- Clearly distinguish deployed fixes, unfinished work and research candidates. Publishing a research checkpoint does not certify it as production-ready.
+
+## Minecraft integration ownership (user decision, 2026-09-24)
+
+- Develop the Byeollog ↔ Minecraft integration components directly in this canonical repository: account linking, server authentication/authorization, donation-to-game mapping, delivery queues, retry/deduplication, and delivery acknowledgements. This project owns implementation, tests, builds, candidate deployment, and release verification for those components.
+- The Minecraft project owns Minecraft server internals and gameplay (Paper/Velocity/DiaCore, seasons, world and game actions). Coordinate the API/event contract and test results at that boundary.
+- The earlier workflow of implementing Byeollog integration in the Minecraft workspace and copying it back for deployment is superseded for future integration work. Historical handoffs remain evidence, not deployment sources.
+- This ownership decision does not move files, activate an unfinished bridge, or authorize bypassing existing candidate verification and data-isolation rules.

@@ -9,6 +9,7 @@ import {isJsonRequest,isTrustedMutationOrigin} from '../lib/request-origin.js';
 import {allowPublicRequest,coalescePublicRead} from '../lib/public-request-guard.js';
 import {rejectMaintenanceWrite} from '../lib/maintenance.js';
 import {loadTaskCompletionHistory} from '../lib/task-completion-history.js';
+import {loadDonationReport} from '../lib/donation-report.js';
 import {
   NATIVE_ROULETTE_MAX_RESULT_CODE_POINTS,
   NATIVE_ROULETTE_MAX_RESULT_GRAPHEMES,
@@ -214,6 +215,12 @@ export default async function handler(req,res){
   if(req.query?.operation==='public-roulette')return servePublicRoulette(req,res);
   if(PUBLIC_RPC_OPERATIONS[req.query?.operation])return servePublicRpc(req,res,req.query.operation);
   res.setHeader('Cache-Control','no-store, private');
+  if(req.query?.operation==='donation-report'){
+    if(req.method!=='GET')return res.status(405).json({message:'Method not allowed'});
+    const session=await requireCapabilityLive(req,res,'data:read');if(!session)return;
+    try{return res.status(200).json(await loadDonationReport(await workspaceForSession(session),req.query))}
+    catch(error){const status=[400,403,422].includes(error.status)?error.status:503;return res.status(status).json({message:status===400||status===422?error.message:'리포트를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.'})}
+  }
   if(req.query?.operation==='task-completion-history'){
     if(req.method!=='GET')return res.status(405).json({message:'Method not allowed'});
     const session=await requireCapabilityLive(req,res,'data:read');if(!session)return;

@@ -1,0 +1,118 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {WebSocket,WebSocketServer} from '../../node_modules/ws/wrapper.mjs';
+import {observeRolling} from './rolling-observer.mjs';import {configFor,infoFor,fixtures} from './fixtures.mjs';import {decodePackets,encodePacket} from './protocol.mjs';
+// These tests verify comparison decisions, not a sub-second CI scheduling SLA.
+const timing={settleMs:20,overlapMs:80,attemptMs:1500,pollMs:5,maxFrames:100};
+async function setup(t,mode='normal'){
+ const server=new WebSocketServer({host:'127.0.0.1',port:0});await new Promise(r=>server.once('listening',r));
+ let replace,activeToken='synthetic-token-lab0',maxSockets=0,selected=0,produced=0,phase=0,comparisonPaused=false;const reports=[],sockets=new Map(),abort=new AbortController(),timers=[];
+ const cfg={...configFor(),salt:'synthetic-salt'.repeat(4),durationMs:6000,providerTokenExpiresAt:new Date(Date.now()+80).toISOString()};
+ let loop;
+ t.after(async()=>{abort.abort();for(const h of timers)clearTimeout(h);clearInterval(loop);for(const s of server.clients)s.terminate();await new Promise(r=>server.close(r))});
+ server.on('connection',s=>{
+  maxSockets=Math.max(maxSockets,server.clients.size);
+  s.on('message',b=>{const p=decodePackets(b)[0];if(p.code===16){s.token=p.fields[0];sockets.set(s.token,s);s.send(encodePacket(1))}
+   if(p.code===2){if(mode==='reject'&&s.token!==cfg.accessToken){s.send(encodePacket(2,[],1));return}s.send(encodePacket(2,['1000','lab0']));s.joined=true;
+    if(mode==='evict'&&s.token!==cfg.accessToken)sockets.get(cfg.accessToken)?.close();
+   }
+  });
+ });
+ class Transport extends WebSocket{constructor(url,p,o){super('ws://127.0.0.1:'+server.address().port+new URL(url).pathname,p,o)}}
+ const next=n=>({...cfg,accessToken:'synthetic-replacement-'+n,providerTokenExpiresAt:new Date(Date.now()+600000*n).toISOString()});
+ const send=()=>{if(comparisonPaused||!sockets.get(activeToken)?.joined||sockets.get(activeToken)?.readyState!==1)return;
+  const f=fixtures().find(f=>f.code===18);
+  for(let i=0;i<2;i++){produced++;for(const s of sockets.values())if(s.readyState===1&&s.joined){const fields=[...f.fields];if(mode==='mismatch'&&s.token!==cfg.accessToken)fields[3]='999';if(mode==='wire-only'&&s.token!==cfg.accessToken)fields[4]='999';s.send(encodePacket(18,fields))}}
+ };
+ const task=observeRolling(cfg,{WebSocketImpl:Transport,fetchImpl:async()=>new Response(JSON.stringify(infoFor())),signal:abort.signal,timing,subscribeReplacement:fn=>{replace=fn;return()=>{replace=null}},onReport:r=>{
+  reports.push(r);if(r.kind==='frame'){selected++;if(phase===2&&selected===produced)queueMicrotask(()=>abort.abort())}
+  if(r.kind==='ready'){
+   loop=setInterval(send,25);
+   // The initial OAuth expiry passes while its joined socket remains healthy.
+   timers.push(setTimeout(()=>replace(mode==='owner'?{...next(1),broadcasterId:'lab1'}:next(1)),150));
+  }
+  // Do not let a fixture pair straddle the time-based common-window boundary:
+  // one socket could be dispatched just before it and the other just after it.
+  if(r.kind==='handoff_preparing')comparisonPaused=true;
+  if(r.kind==='handoff_overlap_started'){
+   if(mode==='quiet')clearInterval(loop);
+   else timers.push(setTimeout(()=>{comparisonPaused=false},timing.settleMs+30));
+  }
+  if(r.kind==='handoff_committed'){
+   phase++;activeToken='synthetic-replacement-'+phase;
+   if(phase===1)timers.push(setTimeout(()=>replace(next(2)),70));
+   else {clearInterval(loop);send()}
+  }
+  if(r.kind==='handoff_blocked'){
+   comparisonPaused=false;
+   if(mode==='quiet')loop=setInterval(send,25);
+   timers.push(setTimeout(()=>{clearInterval(loop);abort.abort()},80));
+  }
+ }});
+ const result=await task;clearInterval(loop);return {result,reports,maxSockets,selected,produced,phase};
+}
+test('rolling observation holds expired-token socket, switches twice, preserves identical repeated gifts and reclaims old sockets',async t=>{
+ const r=await setup(t);assert.equal(r.phase,2);assert.equal(r.maxSockets,2);assert.equal(r.selected,r.produced);assert.equal(r.result.counts.BALLOON_GIFTED,r.produced);assert.equal(r.result.cleanupComplete,true);assert.equal(r.reports.filter(x=>x.kind==='ready').length,1);assert.equal(r.result.reason,'supervisor_stopped');assert(!JSON.stringify(r.reports).includes('synthetic-replacement'));
+ assert(r.reports.filter(x=>x.kind==='handoff_committed').every(x=>x.basis==='content_matched'&&x.contentVerified));
+});
+for(const mode of ['reject','mismatch','quiet'])test(mode+' replacement retains active socket without claiming a handoff',async t=>{
+ const r=await setup(t,mode);assert.equal(r.phase,0);assert.equal(r.result.cleanupComplete,true);assert(r.reports.some(x=>x.kind==='handoff_blocked'&&x.oldPreserved));assert(r.selected>0);
+});
+test('cross-account replacement is rejected before opening a second socket',async t=>{const r=await setup(t,'owner');assert.equal(r.maxSockets,1);assert.equal(r.result.reason,'replacement_owner_or_application_mismatch');assert.equal(r.result.cleanupComplete,true)});
+test('wire-only overlap difference permits handoff and emits field diagnostics',async t=>{
+ const r=await setup(t,'wire-only');assert.equal(r.phase,2,JSON.stringify(r.reports.filter(x=>x.kind==='handoff_blocked')));assert.equal(r.selected,r.produced);
+ const d=r.reports.find(x=>x.diagnosticKind==='handoff_wire_only_difference');assert(d);assert.deepEqual(d.wireFields,[4]);assert.deepEqual(d.businessFields,[]);
+});
+test('content overlap difference preserves named diagnostics before discarding replacement',async t=>{
+ const r=await setup(t,'mismatch');const d=r.reports.find(x=>x.diagnosticKind==='handoff_content_mismatch');
+ assert(d);assert(d.businessFields.includes('event.message.count'));assert.equal(r.phase,0);
+ assert(r.reports.some(x=>x.diagnosticKind==='handoff_unmatched'));assert(!JSON.stringify(d).includes('synthetic-user'));
+});
+test('provider eviction of active socket is a failure, not a successful switch',async t=>{const r=await setup(t,'evict');assert.equal(r.phase,0);assert.equal(r.result.reason,'socket_closed');assert.equal(r.result.stage,'receiving');assert.equal(r.result.transport.closeCode,1005);assert(r.reports.some(x=>x.kind==='connection_ended'&&x.role==='active'&&!x.expected));assert.equal(r.result.cleanupComplete,true)});
+
+async function quietSetup(t,mode='healthy'){
+ const server=new WebSocketServer({host:'127.0.0.1',port:0,autoPong:false});await new Promise(r=>server.once('listening',r));
+ const abort=new AbortController(),reports=[],timers=[],sockets=[];let replace,maxSockets=0,frames=0,nativePings=0;
+ const cfg={...configFor(),salt:'synthetic-salt'.repeat(4),durationMs:2500,providerTokenExpiresAt:new Date(Date.now()+60000).toISOString()};
+ const gift=fixtures().find(f=>f.code===18),send=s=>{if(s.readyState===1)s.send(encodePacket(18,gift.fields))};
+ t.after(async()=>{abort.abort();for(const h of timers)clearTimeout(h);for(const s of server.clients)s.terminate();await new Promise(r=>server.close(r))});
+ server.on('connection',s=>{
+  sockets.push(s);maxSockets=Math.max(maxSockets,server.clients.size);s.pongs=0;
+  s.on('ping',()=>{nativePings++;s.close(1008,'private-server-reason')});
+  s.on('message',b=>{const p=decodePackets(b)[0];
+   if(p.code===16){s.token=p.fields[0];s.send(encodePacket(1))}
+   if(p.code===2){s.send(encodePacket(2,[mode==='other-broadcast'&&s.token!==cfg.accessToken?'1001':'1000','lab0']));
+    if(mode==='warmup-content'&&s.token!==cfg.accessToken)send(sockets[0]);
+    const control=()=>{if(s.readyState===1&&mode!=='silent')s.send(encodePacket(mode==='unknown-control'?9999:127,['synthetic-control'],mode==='rejected-control'?1:0));};
+    control();if(mode!=='stale-control')timers.push(setInterval(control,20));
+   }
+  });
+ });
+ class Transport extends WebSocket{constructor(url,p,o){super('ws://127.0.0.1:'+server.address().port+new URL(url).pathname,p,o)}}
+ const result=await observeRolling(cfg,{WebSocketImpl:Transport,signal:abort.signal,
+  timing:{settleMs:50,overlapMs:120,attemptMs:700,pollMs:5,maxFrames:100,healthFreshMs:80},
+  fetchImpl:async(_u,o)=>{const info=infoFor();if(mode==='other-broadcast'&&new URLSearchParams(o.body).get('access_token')!==cfg.accessToken)info.data[0].chat_no=1001;return new Response(JSON.stringify(info))},
+  subscribeReplacement:fn=>{replace=fn;return()=>{replace=null}},onReport:r=>{
+   reports.push(r);
+   if(r.kind==='ready')timers.push(setTimeout(()=>replace({...cfg,accessToken:'synthetic-new-token',providerTokenExpiresAt:new Date(Date.now()+600000).toISOString()}),30));
+   if(r.kind==='handoff_overlap_started'&&mode==='one-sided')timers.push(setTimeout(()=>send(sockets[0]),80));
+   if(r.kind==='handoff_committed'){
+    // First post-switch donation is delivered by both live transports at the
+    // boundary, but only the new authoritative leg may emit it.
+    for(const s of sockets)send(s);
+   }
+   if(r.kind==='frame'){frames++;if(reports.some(x=>x.kind==='handoff_committed'))timers.push(setTimeout(()=>abort.abort(),30));}
+   if(r.kind==='handoff_blocked')timers.push(setTimeout(()=>{send(sockets[0]);timers.push(setTimeout(()=>abort.abort(),30))},20));
+  }});
+ return {result,reports,frames,maxSockets,nativePings};
+}
+test('quiet handoff works without pong using fresh post-warmup provider control and emits the first later gift once',async t=>{
+ const r=await quietSetup(t);const h=r.reports.find(x=>x.kind==='handoff_committed');
+ assert(h);assert.equal(h.basis,'quiet_provider_traffic');assert.equal(h.contentVerified,false);assert.equal(h.matched,0);
+ assert.equal(r.nativePings,0);assert.equal(h.providerControlCode,127);assert(h.providerControlAgeMs<=80);
+ assert.equal(r.frames,1);assert.equal(r.result.counts.BALLOON_GIFTED,1);assert.equal(r.maxSockets,2);assert.equal(r.result.cleanupComplete,true);
+ assert(!JSON.stringify(r.reports).includes('synthetic-new-token'));
+});
+for(const mode of ['silent','unknown-control','rejected-control','stale-control','one-sided','warmup-content','other-broadcast'])test('quiet switch is blocked for '+mode+' while active connection survives',async t=>{
+ const r=await quietSetup(t,mode);assert(!r.reports.some(x=>x.kind==='handoff_committed'));
+ assert(r.reports.some(x=>x.kind==='handoff_blocked'&&x.oldPreserved));assert(r.frames>0);assert.equal(r.result.cleanupComplete,true);
+});

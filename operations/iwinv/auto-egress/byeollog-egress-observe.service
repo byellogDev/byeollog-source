@@ -1,0 +1,9 @@
+[Unit]
+Description=Read-only active collector destination observation
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -B /usr/local/lib/byeollog-egress/observe.py
+TimeoutStartSec=25
+UMask=0022

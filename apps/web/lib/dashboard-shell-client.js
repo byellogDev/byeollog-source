@@ -1,6 +1,6 @@
 // The shell owns navigation. Each visited view retains its isolated DOM and input state.
 export function dashboardShellClient(){
- const paths=['/dashboard','/dashboard/signatures','/dashboard/roulette-rules'],names=['업보','풍벽지','업보 분류 설정'];
+ const paths=['/dashboard','/dashboard/signatures','/dashboard/roulette-rules'],names=['업보','풍벽지','업보 수집 설정'];
  const views=new Map(),warm=new Map(),host=document.getElementById('dashboardShellViews'),loading=document.getElementById('dashboardShellLoading'),label=document.getElementById('dashboardShellLoadingText'),fallback=document.getElementById('dashboardShellFallback');
  const connection=document.getElementById('connState'),nativeFetch=window.fetch.bind(window);let active=null,identity=null,serverUnverified=false;
  const basic=new Set(['roulette-classification-rules','fixed-upbo-rules','special-roulette-rules']);

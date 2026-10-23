@@ -1,9 +1,10 @@
+import {refreshAutomaticRouletteRules} from './weflab-collection-config.js';
 import {safeEqual} from './auth.js';
 import {isJsonRequest} from './request-origin.js';
 import {normalizeSoopSdkRelayEnvelope} from './soop-sdk-relay.js';
 import {verifySoopGatewayRequestSignature} from './soop-chat-gateway.js';
 import {parseExternalRouletteResultMessage,isTrustedExternalRouletteAuthor} from './soop-external-roulette.js';
-import {getSoopOAuthConfig,refreshSoopConnection} from './soop-oauth.js';
+import {getSoopOAuthConfig,refreshSoopConnection,readSoopConnectionForObservation} from './soop-oauth.js';
 import {sb} from './supabase-rest.js';
 import {processPendingCollectorRows} from './collector-processor.js';
 import {SOOP_DONATION_MAX_BALLOONS} from './native-roulette.js';
@@ -51,7 +52,7 @@ export function getSoopGatewayIngressReadiness(env=process.env){
 }
 
 async function controlFor(workspaceId,sbImpl){
-  const rows=await sbImpl('byeollog_soop_runtime_controls',`?select=gateway_enabled,core_collection_enabled,native_roulette_enabled,live_diagnostics_enabled&workspace_id=eq.${encodeURIComponent(workspaceId)}&limit=1`);
+  const rows=await sbImpl('byeollog_soop_runtime_controls',`?select=gateway_enabled,core_collection_enabled,native_roulette_enabled,live_diagnostics_enabled,upbo_settings_protocol&workspace_id=eq.${encodeURIComponent(workspaceId)}&limit=1`);
   return Array.isArray(rows)?rows[0]||null:null;
 }
 
@@ -61,7 +62,7 @@ async function reconcile(sbImpl){
   return {ok:true,kind:'reconcile',workspaceIds};
 }
 
-async function lease(workspaceId,instanceId,control,{env,sbImpl,signal,oauthConfig=getSoopOAuthConfig,refreshConnection=refreshSoopConnection}){
+async function lease(workspaceId,instanceId,control,{env,sbImpl,signal,observation=false,oauthConfig=getSoopOAuthConfig,refreshConnection=refreshSoopConnection}){
   if(!control?.core_collection_enabled)throw Object.assign(new Error('gateway lease disabled'),{status:409,code:'soop_gateway_lease_disabled'});
   const safeInstance=text(instanceId,160);
   if(!safeInstance)throw Object.assign(new Error('gateway instance is required'),{status:400,code:'invalid_gateway_instance'});
@@ -71,7 +72,12 @@ async function lease(workspaceId,instanceId,control,{env,sbImpl,signal,oauthConf
   if(workspace?.status!=='active'||!providerAccountId){
     throw Object.assign(new Error('workspace SOOP identity is unavailable'),{status:409,code:'soop_workspace_identity_missing'});
   }
-  const config=oauthConfig(env),token=await refreshConnection(workspaceId,{env,sbImpl,signal});
+  const config=oauthConfig(env),token=await (observation?readSoopConnectionForObservation:refreshConnection)(workspaceId,{env,sbImpl,signal});
+  if(observation)return {
+    ok:true,kind:'observe',workspaceId,providerAccountId,
+    clientId:config.clientId,clientSecret:config.clientSecret,accessToken:token.accessToken,
+    providerTokenExpiresAt:token.expiresAt,refreshed:false
+  };
   const providerTokenExpiry=Date.parse(token.expiresAt||'');
   const leaseExpiresAt=Math.min(Number.isFinite(providerTokenExpiry)?providerTokenExpiry:Date.now()+10*60_000,Date.now()+10*60_000);
   if(leaseExpiresAt<=Date.now()+15_000)throw Object.assign(new Error('provider token expires too soon'),{status:409,code:'soop_gateway_lease_expired'});
@@ -205,6 +211,10 @@ async function event(body,control,sbImpl,env,processCollector){
   };
   let result,resultRow;
   if(relay.eventType==='donation'){
+    if(control.upbo_settings_protocol===1){
+      try{await refreshAutomaticRouletteRules(workspaceId,{sb:sbImpl})}
+      catch{console.error('[soop-gateway] configuration refresh failed',{code:'upbo_auto_rules_refresh_failed'});}
+    }
     await claimOwnership();
     const event=relay.event;
     const donationRpc=event.donationTypeLabel==='애드벌룬'
@@ -308,13 +318,13 @@ export async function handleSoopGatewayIngress(req,res,{env=process.env,sbImpl=s
     catch(error){return res.status(503).json({message:'SOOP 게이트웨이 작업 목록을 불러오지 못했습니다.',code:error?.code||'soop_gateway_reconcile_failed'})}
   }
   try{
-    const isLease=body.kind==='lease';
+    const isLease=body.kind==='lease'||body.kind==='observe';
     const ownership=isLease?null:authorizedGatewayRequest(body,env,{requireRoom:body.kind==='event'||body?.state==='connected'});
     const workspaceId=isLease?text(body.workspaceId,36).toLowerCase():ownership.workspaceId;
     if(!UUID.test(workspaceId))return res.status(400).json({message:'workspaceId is invalid'});
     const control=await controlFor(workspaceId,sbImpl);
     if(!control?.gateway_enabled)return res.status(409).json({message:'SOOP 게이트웨이가 아직 활성화되지 않았습니다.',code:'soop_gateway_disabled'});
-    const result=body.kind==='lease'?await lease(workspaceId,body.instanceId,control,{env,sbImpl,signal,oauthConfig,refreshConnection}):body.kind==='heartbeat'?await heartbeat(body,control,sbImpl,env,ownership):body.kind==='event'?await event(body,control,sbImpl,env,processCollector):null;
+    const result=isLease?await lease(workspaceId,body.instanceId,control,{env,sbImpl,signal,observation:body.kind==='observe',oauthConfig,refreshConnection}):body.kind==='heartbeat'?await heartbeat(body,control,sbImpl,env,ownership):body.kind==='event'?await event(body,control,sbImpl,env,processCollector):null;
     if(!result)return res.status(400).json({message:'Gateway request kind is invalid'});
     return res.status(200).json(result);
   }catch(error){

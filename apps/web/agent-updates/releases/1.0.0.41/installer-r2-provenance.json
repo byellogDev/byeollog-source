@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "agentVersion": "1.0.0.41",
+  "installerRevision": "r2",
+  "fileName": "Byeollog-Wallpaper-Setup-v1.0.0.41-r2-online.exe",
+  "byteSize": 2572507,
+  "sha256": "feff89c7ad26d5cf2c2b7a43f80b4499cd6ee3370a9779f16a10e02a54fe412a",
+  "compiler": "Inno Setup 6.7.3",
+  "packageSha256": "c920cfc8c525e6290519968a13913aae34b92d624a1db2aa80b58f7261de300f",
+  "sources": {
+    "apps/web/installer/ByeollogAgentSetup.iss": "001370f992d55838a5cb13ff1a700312e3e6a66ac4f0f5e6f87edb484fd3c3bd",
+    "apps/web/installer/Invoke-AgentInstall.ps1": "c9e499174b0ecaf3bb16561055f9bb1f0c6f209f58a32a67d6fd2070648ebd12"
+  }
+}

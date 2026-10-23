@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { compareDonations } from './protocol.mjs';
+const [configPath, evidenceDir, baselinePath, outputPath] = process.argv.slice(2);
+const config = JSON.parse(fs.readFileSync(configPath));
+const baseline = JSON.parse(fs.readFileSync(baselinePath));
+const rows = fs.readdirSync(evidenceDir).filter(f => /^evidence-.*\.jsonl$/.test(f)).sort().flatMap(f => fs.readFileSync(path.join(evidenceDir,f),'utf8').trim().split('\n').filter(Boolean).map(JSON.parse));
+const events = rows.filter(x => x.kind === 'normalized' && x.event.kind === 'donation').map(x => x.event).filter(x => x.receivedAt >= baseline.from && x.receivedAt < baseline.to);
+const report = { at: new Date().toISOString(), from: baseline.from, to: baseline.to, ...compareDonations(events, baseline, config), gaps: rows.filter(x => ['disconnected','failure'].includes(x.kind)), resultComparison: 'pending_separate_confirmed_result_review', resultApiCalls: 0 };
+fs.writeFileSync(outputPath, JSON.stringify(report,null,2), { mode: 0o600 });
+console.log(JSON.stringify({ matched: report.matched.length, pending: report.pending.length, ambiguous: report.ambiguous.length, duplicateTransportEvents: report.duplicates.length, conflicts: report.conflicts.length, baselineUnpaired: report.baselineUnpaired.length, gaps: report.gaps.length, resultApiCalls: 0 }));

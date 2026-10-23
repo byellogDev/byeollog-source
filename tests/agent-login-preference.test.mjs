@@ -20,3 +20,18 @@ test('login UI sends ID storage and automatic login independently and preserves 
     assert.equal(sent.at(-1).payload.remember,remember);assert.equal(sent.at(-1).payload.autoLogin,autoLogin);
   }
 });
+
+test('main UI distinguishes lost login and initialization failure from a temporary reconnect',()=>{
+  const html=fs.readFileSync(new URL('../apps/windows-agent/Ui/byeollog_ui.html',import.meta.url),'utf8');
+  const nodes=new Map();
+  const node=s=>{if(!nodes.has(s))nodes.set(s,{style:{},classList:{add(){},remove(){},toggle(){}},addEventListener(){},focus(){}});return nodes.get(s)};
+  const window={};
+  vm.runInContext(html.match(/<script>([\s\S]*?)<\/script>/)[1],vm.createContext({window,document:{querySelector:node,addEventListener(){}},location:{search:''},URLSearchParams,innerWidth:420,innerHeight:560,addEventListener(){},setTimeout,clearTimeout}));
+  for(const [state,title] of [['attention','다시 로그인해주세요'],['failed','프로그램 시작 확인 필요'],['recovering','서버 재연결 중']]){
+    window.byeollog.setMainState({serverConnected:false,developmentRecoveryState:state});
+    assert.equal(node('#statusTitle').textContent,title);
+    if(state==='attention')assert.match(node('#statusMessage').textContent,/다시 실행하여 로그인/);
+  }
+  window.byeollog.setMainState({serverConnected:true,developmentRecoveryState:'ready'});
+  assert.equal(node('#statusTitle').textContent,'서버 연결됨');
+});

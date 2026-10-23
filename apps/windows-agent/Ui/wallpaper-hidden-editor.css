@@ -1,0 +1,30 @@
+/* Existing Byeollog navy/gold palette; editor controls never ship to OBS. */
+#wallpaperPreview [data-tile-id] > .wallpaper-card-hide {
+  position:absolute; right:1px; bottom:1px; z-index:1001;
+  display:flex!important; align-items:center; justify-content:center;
+  width:min(calc(25px * var(--wallpaper-ui-inverse,1)),38%); height:var(--wallpaper-hide-height,32px);
+  padding:0!important; border:1px solid #dae4ef; border-radius:5px;
+  background:#102746!important; color:#fff!important; font:700 24px/1 system-ui!important;
+  box-shadow:0 1px 4px #0004; cursor:pointer; pointer-events:auto;
+}
+#wallpaperPreview [data-tile-id] > .wallpaper-card-hide:hover {background:#a82d27!important}
+#wallpaperPreview [data-tile-id] > .wallpaper-card-hide:focus-visible {outline:3px solid #ffc44d;outline-offset:2px}
+#wallpaperPreview .baekdusan-region [data-tile-id] {position:relative}
+.wallpaper-hidden-dialog {width:min(690px,calc(100vw - 36px));max-height:85vh;padding:24px;border:1px solid var(--line);border-radius:18px;background:var(--ui-bg,#fff);color:var(--ui-text,#14233b);box-shadow:0 24px 90px #06162955}
+.wallpaper-hidden-dialog::backdrop {background:#07172e99}
+.wallpaper-hidden-dialog header,.wallpaper-hidden-dialog footer {display:flex;align-items:center;justify-content:space-between;gap:16px}
+.wallpaper-hidden-dialog h2 {font-size:24px;margin:0 0 5px}
+.wallpaper-hidden-dialog header p,.wallpaper-hidden-count {font-size:13px;color:var(--muted);margin:0}
+.wallpaper-hidden-note {font-size:14px;line-height:1.65;margin:20px 0 14px}
+.wallpaper-hidden-dialog input {width:100%;height:44px;padding:0 12px;font:inherit;color:inherit;background:var(--soft);border:1px solid var(--line);border-radius:9px}
+.wallpaper-hidden-count {margin:14px 0 8px}
+.wallpaper-hidden-list {list-style:none;margin:0;padding:0;max-height:40vh;overflow:auto}
+.wallpaper-hidden-row {display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 2px;border-bottom:1px solid var(--line)}
+.wallpaper-hidden-row>div {min-width:0}.wallpaper-hidden-row strong {display:block;font-size:16px;overflow-wrap:anywhere}
+.wallpaper-hidden-row small {display:block;font-size:13px;color:var(--muted);margin-top:5px}
+.wallpaper-hidden-row button {flex-shrink:0;background:#e7f8f2;color:#087d5f;border-color:#abdccb}
+.wallpaper-hidden-empty {padding:30px 10px;text-align:center;line-height:1.6;color:var(--muted)}
+.wallpaper-hidden-dialog footer {padding-top:18px}.wallpaper-hidden-dialog footer>div {flex:1;font-size:13px;line-height:1.5}
+.wallpaper-hidden-dialog footer .error {color:#c0342b}.wallpaper-hidden-dialog footer .ok {color:#087d5f}
+[data-theme="dark"] .wallpaper-hidden-dialog {background:#102746;color:#e5edf7;--soft:#19324f;--line:#35516c;--muted:#a6b8cf}
+@media(max-width:540px){.wallpaper-hidden-dialog{padding:18px}.wallpaper-hidden-dialog footer{flex-wrap:wrap}.wallpaper-hidden-dialog footer>div{flex-basis:100%}}

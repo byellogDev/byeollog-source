@@ -90,6 +90,7 @@ internal sealed class VNextLocalAgent : IDisposable
     private static readonly TimeSpan WallpaperRecoveryInterval = TimeSpan.FromMinutes(10);
     private static readonly TimeSpan DeviceSecretRotationInterval = TimeSpan.FromDays(90);
     private readonly VNextDevelopmentClient _client;
+    private readonly WeflabTrialAgent _weflabTrial;
     private readonly VNextRealtimeWakeListener _wakeListener;
     private readonly CollectorStorage _collectorStorage;
     private readonly VNextAgentStore _store;
@@ -138,6 +139,7 @@ internal sealed class VNextLocalAgent : IDisposable
 
     public VNextLocalAgent(VNextDevelopmentClient client, CollectorStorage collectorStorage)
     {
+        _weflabTrial = new WeflabTrialAgent(client, collectorStorage);
         _client = client;
         _collectorStorage = collectorStorage;
         _wakeListener = new VNextRealtimeWakeListener(
@@ -457,6 +459,7 @@ internal sealed class VNextLocalAgent : IDisposable
         if (_loop is not null) return;
         _wallpaperRequests.Request();
         _wakeListener.Start();
+        _weflabTrial.Start();
         _loop = Task.Run(() => RunAsync(_stop.Token));
         Publish(false, "연결 중", "");
     }
@@ -1770,6 +1773,7 @@ internal sealed class VNextLocalAgent : IDisposable
         _overlay.DisplayObserved -= QueueDisplayObservation;
         _stop.Cancel();
         _wakeListener.Dispose();
+        _weflabTrial.Dispose();
         Wake();
 
         var loop = _loop;

@@ -4,7 +4,7 @@ export const RUNTIME_HEADER='x-byeollog-runtime-token';
 export const PUBLIC_DATA_OPERATIONS=new Set([
   'deployment-asset','public-workspace','public-bangsel','public-upbo-page','public-viewer','public-roulette'
 ]);
-export const ADMIN_SOOP_KINDS=new Set(['reconcile','lease']);
+export const ADMIN_SOOP_KINDS=new Set(['reconcile','lease','observe']);
 export const COLLECTOR_SOOP_KINDS=new Set(['heartbeat','event']);
 
 const SENSITIVE_FRONTEND_ENV=[

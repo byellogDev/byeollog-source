@@ -8,8 +8,8 @@
     <Nullable>enable</Nullable>
     <AssemblyName>byeollog</AssemblyName>
     <RootNamespace>HurogiCollector</RootNamespace>
-    <Version>1.0.0.41</Version>
-    <InformationalVersion>1.0.0.41</InformationalVersion>
+    <Version>1.0.0.60</Version>
+    <InformationalVersion>1.0.0.60</InformationalVersion>
     <Product>별록 풍벽지</Product>
     <AssemblyTitle>별록 풍벽지</AssemblyTitle>
     <Description>OBS에 별록 풍벽지 화면을 연결하는 전용 프로그램</Description>
@@ -53,6 +53,16 @@
     <EmbeddedResource Include="Assets\byeollog_symbol.png" LogicalName="HurogiCollector.Assets.byeollog_symbol.png" />
     <EmbeddedResource Include="Ui\byeollog_ui.html" LogicalName="HurogiCollector.Ui.byeollog_ui.html" />
     <EmbeddedResource Include="Ui\agent_automation.html" LogicalName="HurogiCollector.Ui.agent_automation.html" />
+    <EmbeddedResource Include="Ui\wallpaper-baekdusan.js" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan.js" />
+    <EmbeddedResource Include="Ui\wallpaper-appearance.js" LogicalName="HurogiCollector.Ui.wallpaper-appearance.js" />
+    <EmbeddedResource Include="Ui\wallpaper-detached.js" LogicalName="HurogiCollector.Ui.wallpaper-detached.js" />
+    <EmbeddedResource Include="Ui\wallpaper-hidden.js" LogicalName="HurogiCollector.Ui.wallpaper-hidden.js" />
+    <EmbeddedResource Include="Ui\wallpaper-hidden-editor.js" LogicalName="HurogiCollector.Ui.wallpaper-hidden-editor.js" />
+    <EmbeddedResource Include="Ui\wallpaper-hidden-editor.css" LogicalName="HurogiCollector.Ui.wallpaper-hidden-editor.css" />
+    <EmbeddedResource Include="Ui\wallpaper-baekdusan-editor.js" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan-editor.js" />
+    <EmbeddedResource Include="Ui\wallpaper-baekdusan-editor.css" LogicalName="HurogiCollector.Ui.wallpaper-baekdusan-editor.css" />
+    <EmbeddedResource Include="Ui\wallpaper-custom-editor.js" LogicalName="HurogiCollector.Ui.wallpaper-custom-editor.js" />
+    <EmbeddedResource Include="Ui\wallpaper-custom-editor.css" LogicalName="HurogiCollector.Ui.wallpaper-custom-editor.css" />
     <EmbeddedResource Include="Ui\wallpaper_editor.html" LogicalName="HurogiCollector.Ui.wallpaper_editor.html" />
     <EmbeddedResource Include="Ui\byeollog-theme.css" LogicalName="HurogiCollector.Ui.byeollog_theme.css" />
     <EmbeddedResource Include="Ui\startup_loading.html" LogicalName="HurogiCollector.Ui.startup_loading.html" />
@@ -61,5 +71,11 @@
     <None Update="Assets\hurogi_balloon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Ui/draw-board-editor.js" LogicalName="HurogiCollector.Ui.draw-board-editor.js" />
+    <EmbeddedResource Include="Ui/draw-board.css" LogicalName="HurogiCollector.Ui.draw-board.css" />
+    <EmbeddedResource Include="Ui/draw-board-overlay.html" LogicalName="HurogiCollector.Ui.draw-board-overlay.html" />
   </ItemGroup>
 </Project>

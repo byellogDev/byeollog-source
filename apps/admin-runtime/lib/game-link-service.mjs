@@ -8,6 +8,7 @@ import {
   sha256,
 } from "./game-link-security.mjs";
 import { GameLinkConflictError } from "./game-link-store.mjs";
+import { clearOtherSoopFlowCookie } from "./soop-flow-cookies.mjs";
 
 const COOKIE_NAME = "byeollog_game_link";
 const SESSION_TTL_SECONDS = 15 * 60;
@@ -136,6 +137,9 @@ export function createGameLinkHandler({
 
       if (operation === "soop-start") {
         if (req.method !== "GET") return res.status(405).json({ code: "method_not_allowed" });
+        if (String(req.headers?.['sec-fetch-site'] || '').toLowerCase() === 'cross-site') {
+          return res.status(403).json({ code: 'request_origin_invalid' });
+        }
         const token = randomToken();
         const state = randomToken();
         const startedAt = now();
@@ -146,6 +150,7 @@ export function createGameLinkHandler({
           now: startedAt,
         });
         setSessionCookie(res, token, secureCookie);
+        clearOtherSoopFlowCookie(res, 'game', {secure: secureCookie});
         res.setHeader("location", oauth.buildSoopAuthorizationUrl({ state }));
         return res.status(302).end();
       }
@@ -155,7 +160,7 @@ export function createGameLinkHandler({
         const token = sessionToken(req);
         const tokenHash = sha256(token);
         const session = token ? await store.getSession(tokenHash) : null;
-        if (!session || session.status !== "soop_pending") {
+        if (!session || session.status !== "soop_pending" || Date.parse(session.expires_at) <= now().getTime()) {
           clearSessionCookie(res, secureCookie);
           return sendHtml(
             res,
@@ -182,6 +187,9 @@ export function createGameLinkHandler({
             400,
             resultPage({ title: "SOOP 로그인 검증에 실패했습니다", message: "보안을 위해 연동을 중단했습니다." }),
           );
+        }
+        if (query.authCode && query.code && !safeEqual(String(query.authCode), String(query.code))) {
+          return sendHtml(res, 400, resultPage({ title: "SOOP 로그인 검증에 실패했습니다", message: "처음부터 다시 시도해주세요." }));
         }
         const code = String(query.authCode || query.code || "");
         if (!code) {
@@ -240,6 +248,7 @@ export function createGameLinkHandler({
         if (
           !session ||
           session.status !== "microsoft_pending" ||
+          Date.parse(session.expires_at) <= now().getTime() ||
           !query.state ||
           !safeEqual(returnedStateHash, session.microsoft_oauth_state_hash)
         ) {
@@ -308,7 +317,7 @@ export function createGameLinkHandler({
         return sendHtml(
           res,
           error.status,
-          resultPage({ title: "이미 다른 계정과 연결되어 있습니다", message: error.message }),
+          resultPage({ title: error.code === 'game_link_suspended' ? "정지된 계정 연동입니다" : "이미 다른 계정과 연결되어 있습니다", message: error.message }),
         );
       }
       const status = Number(error?.status || 500);

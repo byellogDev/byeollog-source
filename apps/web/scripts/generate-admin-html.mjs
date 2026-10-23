@@ -11,7 +11,8 @@ import {dashboardNotificationsScript} from '../lib/dashboard-notifications.js';
 const root=dirname(dirname(fileURLToPath(import.meta.url)));
 const original=await readFile(join(root,'lib','admin-source.html'),'utf8');
 let html=original;
-const slots={header:dashboardHeaderHtml(),navigation:dashboardNavigationHtml('upbo'),pending:'<div id="dashboardReviewPanels" class="dashboardReviewPanels">'+dashboardLearningHtml()+'<section id="roulettePendingPanel" class="reviewPanel hidden" aria-labelledby="pendingReviewTitle">'+uxRouletteHtml()+'</section>'+dashboardExceptionsHtml()+'</div>',reviewStyle:dashboardReviewCss(),pendingScript:dashboardHeaderScript()+uxRouletteScript()+dashboardExceptionsScript()+dashboardNotificationsScript()};
+const slots={header:dashboardHeaderHtml(),navigation:dashboardNavigationHtml('upbo'),pending:'<div id="dashboardReviewPanels" class="dashboardReviewPanels">'+dashboardLearningHtml()+uxRouletteHtml()+dashboardExceptionsHtml()+'</div>',reviewStyle:dashboardReviewCss(),pendingScript:dashboardHeaderScript()+uxRouletteScript()+dashboardExceptionsScript()+dashboardNotificationsScript()};
+slots.donationReportScript=await readFile(join(root,'lib','donation-report-client.js'),'utf8');
 for(const [name,value] of Object.entries(slots)){
   const begin='<!-- shared:'+name+' -->',end='<!-- /shared:'+name+' -->';
   // Script slots use JS comments to remain valid inside <script>.

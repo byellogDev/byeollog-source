@@ -1,0 +1,11 @@
+[Unit]
+Description=Observe collector connections for safe rule expiry
+
+[Timer]
+OnBootSec=10
+OnUnitActiveSec=30
+AccuracySec=1
+RandomizedDelaySec=0
+
+[Install]
+WantedBy=timers.target

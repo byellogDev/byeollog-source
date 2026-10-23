@@ -1,3 +1,4 @@
+import {readBaekdusanLog} from './wallpaper-baekdusan.js';
 import crypto from 'node:crypto';
 import {sb} from './supabase-rest.js';
 import {loadWallpaperState} from './wallpaper-service.js';
@@ -38,6 +39,7 @@ function invalid(message,code='invalid_wallpaper_request',status=400){
 
 export async function runAgentWallpaperControl({workspaceId,userId,body=null,signal=null,onStage=()=>{},sbImpl=sb,loadStateImpl=loadWallpaperState}){
   signal?.throwIfAborted();
+  if(body?.action==='baekdusan-log')return readBaekdusanLog(workspaceId,body,sbImpl,signal);
   if(body?.action==='verify-cache-ownership')return verifyWallpaperCacheOwnership(workspaceId,body.tileIds,sbImpl,signal);
   if(body){
     const payload={userId,body};

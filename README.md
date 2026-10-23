@@ -27,6 +27,7 @@ apps/
 services/soop-gateway/  지속 실행되는 SOOP 연결 수집기
 supabase/              확인한 운영 마이그레이션·Edge Function 원본
 operations/ncp/        운영 구성·보관 정책
+operations/iwinv/      현행 수집 호스트 이전·복구와 연구 부팅 보호
 tests/                 통합 기준에서 실행하는 회귀 검사
 test-support/          검사 전용 과거 기능 자료
 tools/                 소스 일치·게시 전 검사
@@ -34,6 +35,10 @@ docs/                  설계, 배포 절차, 버전별 기록
 ```
 
 ## 시작하기
+
+### 별록↔마인크래프트 연결 모듈
+
+2026-09-24부터 계정 연동·서버 인증·후원 전달 등 연결 모듈은 이 저장소에서 직접 개발·검증·배포합니다. 마인크래프트 프로젝트는 게임 서버 내부 기능을 담당합니다. [담당 범위와 검증 상태](docs/integrations/minecraft-candidate-review.md)를 참고하세요.
 
 Node.js 22와 npm이 필요합니다. Windows Agent 검사는 Windows와 .NET 8을 사용합니다.
 
@@ -67,7 +72,7 @@ dotnet run --project apps/windows-agent/AgentStoreTests/AgentStoreTests.csproj -
 - [설계와 권한 경계](docs/ARCHITECTURE.md)
 - [개발·변경 전달 절차](docs/DEVELOPMENT.md)
 - [후보 검증·배포·복구](docs/DEPLOYMENT.md)
-- [버전 이력](CHANGELOG.md) · [새 릴리스 작성 양식](docs/templates/release.md)
+- [릴리스 문서 목록](docs/releases/README.md) · [버전 이력](CHANGELOG.md) · [새 릴리스 작성 양식](docs/templates/release.md)
 - [기술 사례: 운영 소스 통합과 반복 장애 개선](docs/CASE_STUDY.md)
 - [보안과 공개 범위](SECURITY.md)
 

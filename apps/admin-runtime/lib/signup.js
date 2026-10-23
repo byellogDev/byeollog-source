@@ -59,7 +59,7 @@ export async function handleSignup(req,res,{
   if(referrerWorkspaceSlug&&!WORKSPACE_SLUG.test(referrerWorkspaceSlug))return res.status(400).json({message:'추천한 스트리머를 다시 선택해주세요.'});
 
   const consents=b.consents;
-  if(!consents||consents.termsVersion!=='2026-09-14'||consents.privacyVersion!=='2026-09-14'||consents.termsAgreed!==true||consents.collectionAgreed!==true||consents.age14Confirmed!==true)
+  if(!consents||consents.termsVersion!=='2026-10-11'||consents.privacyVersion!=='2026-10-11'||consents.termsAgreed!==true||consents.collectionAgreed!==true||consents.age14Confirmed!==true)
     return res.status(400).json({code:'signup_consent_required',message:'현재 약관·개인정보 수집 동의와 만 14세 이상 확인이 필요합니다. 가입 화면을 새로고침해 확인해주세요.'});
   let pending;
   try{

@@ -357,7 +357,7 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
 <header class="dashboardHeader"><a class="dashboardBrand" href="/dashboard" title="대시보드로 돌아가기" aria-label="별록 대시보드"><span class="brandMark"></span><span class="brandWords">별록</span></a><div class="dashboardHeaderActions"><span class="dashboardConnectionDot" aria-hidden="true"></span><span id="connState" class="dashboardConnectionState">서버 연결 확인 중...</span><button type="button" id="dashboardMenuToggle" class="dashboardHeaderButton dashboardMenuToggle" aria-expanded="false" aria-controls="dashboardUtilities">메뉴</button><div id="dashboardUtilities" class="dashboardUtilities"><a id="soopConnectBtn" class="dashboardHeaderButton dashboardSoopConnect hidden" href="/api/auth/soop/start">SOOP 계정 연결하기</a><a class="dashboardHeaderButton" href="/setup">세팅 체크리스트</a><a class="dashboardHeaderButton" id="managementBtn" href="/dashboard?management=1">관리</a><button type="button" class="dashboardHeaderButton" id="myPageBtn">마이페이지</button><button type="button" class="dashboardHeaderButton dashboardThemeButton" id="themeToggleBtn" title="테마 전환" aria-label="테마 전환"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.8 13A9 9 0 0 1 11 3.2 9 9 0 1 0 20.8 13Z"/></svg></button><button type="button" class="dashboardHeaderButton" id="logoutBtn">로그아웃</button></div></div></header>
 <!-- /shared:header -->
 <!-- shared:navigation -->
-<nav class="productNav dashboardNav" aria-label="별록 대시보드"><a href="/dashboard/signatures"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg><span>풍벽지</span></a><a href="/dashboard/roulette-rules"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="18" r="2"/></svg><span>업보 분류 설정</span></a><a class="active" href="/dashboard"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8 12 3 3 5-6"/></svg><span>업보</span></a></nav>
+<nav class="productNav dashboardNav" aria-label="별록 대시보드"><a href="/dashboard/signatures"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg><span>풍벽지</span></a><a href="/dashboard/roulette-rules"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="18" r="2"/></svg><span>업보 수집 설정</span></a><a class="active" href="/dashboard"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8 12 3 3 5-6"/></svg><span>업보</span></a></nav>
 <!-- /shared:navigation -->
 
   <div class="stats">
@@ -387,7 +387,7 @@ body .toggleBtn[aria-controls][aria-expanded="true"]:hover{background:#ffd36d;bo
       <span class="muted">처음 보는 유형만 수동 분류하며, 학습된 유형은 자동 처리됩니다.</span>
     </div>
     <div id="collectorPreview" class="previewTableWrap" style="margin-top:10px"><div class="muted" style="padding:10px">수신함을 불러오세요.</div></div>
-  </div></section><section id="roulettePendingPanel" class="reviewPanel hidden" aria-labelledby="pendingReviewTitle"><header class="reviewHeader"><div class="reviewHeading"><span class="reviewIcon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v5l3 2"/></svg></span><div><h2 id="pendingReviewTitle">룰렛 연결 대기 확인</h2><p>후원에 연결될 룰렛 결과가 남아 있는지 확인하세요.</p></div></div><div class="reviewHeaderActions"><button id="uxRefreshStatus" type="button">새로고침</button><button type="button" data-review-close="pending" aria-label="룰렛 연결 대기 확인 닫기">닫기</button></div></header><article class="reviewBody card uxStatusCard"><p class="reviewNotice muted"><b>수동 룰렛은 후원들의 결과 처리가 모두 끝나고, 연결 대기 후원이 없는 상황에서 사용해주세요.</b><br>수동 결과와 후원 결과의 채팅 문구가 같아 자동으로 구분할 수 없습니다. 대기 후원이 있으면 수동 결과가 그 후원에 연결될 수 있습니다. 0건 확인 후에도 새 후원이 들어올 수 있으니 실행 전후로 확인해주세요.</p><p id="uxStatusMessage" role="status" class="muted">확인 전입니다.</p><details><summary>대기 후원 상세 · 오래된 대기 정리</summary><p class="muted">대기 시간이 10분을 넘긴 후원은 이후 결과 연결을 막을 수 있습니다. 결과 처리가 끝났거나 더 이상 오지 않는 것을 확인한 후에만 대기를 종료해주세요. 후원 금액과 이미 등록된 업보는 유지됩니다.</p><div id="uxPendingList" class="saved"></div></details><details><summary>특수룰렛 배수 대기 · 최근 결과</summary><div id="uxSpecialPending" class="saved"></div><div id="uxSpecialRecent" class="saved"></div><p class="muted">배수 대기는 방송 단위이며, 다음 결과가 비업보이면 효과가 소멸합니다. 아래 배수는 결과 수신 시 확정된 값이며 실제 업보 등록 여부는 후원 내역에서 확인해주세요.</p></details></article></section><section id="exceptionsPanel" role="region" aria-labelledby="exceptionsReviewTitle" class="reviewPanel hidden"><header class="reviewHeader"><div class="reviewHeading"><span class="reviewIcon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v7M12 14v7M3 12h7M14 12h7M6 6l5 5M13 13l5 5M6 18l5-5M13 11l5-5"/></svg></span><div><h2 id="exceptionsReviewTitle">예외 처리된 룰렛</h2><p>후원에 연결되지 않은 결과를 확인하고, 제외하거나 후원자를 지정해주세요.</p></div></div><div class="reviewHeaderActions"><button id="refreshExceptions" type="button">새로고침</button><button type="button" data-review-close="exceptions" aria-label="예외 처리된 룰렛 닫기">닫기</button></div></header><article class="reviewBody card">
+  </div></section><section id="roulettePendingPanel" class="reviewPanel hidden" aria-labelledby="pendingReviewTitle"><header class="reviewHeader"><div class="reviewHeading"><span class="reviewIcon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v5l3 2"/></svg></span><div><h2 id="pendingReviewTitle">룰렛 연결 대기 확인</h2><p>후원에 연결될 룰렛 결과가 남아 있는지 확인하세요.</p></div></div><div class="reviewHeaderActions"><button id="uxRefreshStatus" type="button">새로고침</button><button type="button" data-review-close="pending" aria-label="룰렛 연결 대기 확인 닫기">닫기</button></div></header><article class="reviewBody card uxStatusCard"><p class="reviewNotice muted"><b>수동 룰렛은 후원들의 결과 처리가 모두 끝나고, 연결 대기 후원이 없는 상황에서 사용해주세요.</b><br>수동 결과와 후원 결과의 채팅 문구가 같아 자동으로 구분할 수 없습니다. 대기 후원이 있으면 수동 결과가 그 후원에 연결될 수 있습니다. 0건 확인 후에도 새 후원이 들어올 수 있으니 실행 전후로 확인해주세요.</p><p id="uxStatusMessage" role="status" class="muted">확인 전입니다.</p><details><summary>대기 후원 상세 · 자동 종료 내역</summary><p class="muted">후원 후 첫 결과 또는 마지막 결과부터 3분 동안 추가 결과가 없으면 연결 대기가 자동 종료됩니다. 후원 금액과 이미 수집한 결과·업보는 그대로 남습니다.</p><div id="uxPendingList" class="saved"></div><h3>최근 자동 종료 내역</h3><div id="uxExpiredList" class="saved"></div></details><details><summary>특수룰렛 배수 대기 · 최근 결과</summary><div id="uxSpecialPending" class="saved"></div><div id="uxSpecialRecent" class="saved"></div><p class="muted">배수 대기는 방송 단위이며, 다음 결과가 비업보이면 효과가 소멸합니다. 아래 배수는 결과 수신 시 확정된 값이며 실제 업보 등록 여부는 후원 내역에서 확인해주세요.</p></details></article></section><section id="exceptionsPanel" role="region" aria-labelledby="exceptionsReviewTitle" class="reviewPanel hidden"><header class="reviewHeader"><div class="reviewHeading"><span class="reviewIcon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" class="dashboardIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v7M12 14v7M3 12h7M14 12h7M6 6l5 5M13 13l5 5M6 18l5-5M13 11l5-5"/></svg></span><div><h2 id="exceptionsReviewTitle">예외 처리된 룰렛</h2><p>후원에 연결되지 않은 결과를 확인하고, 제외하거나 후원자를 지정해주세요.</p></div></div><div class="reviewHeaderActions"><button id="refreshExceptions" type="button">새로고침</button><button type="button" data-review-close="exceptions" aria-label="예외 처리된 룰렛 닫기">닫기</button></div></header><article class="reviewBody card">
 <p class="reviewNotice muted">다른 후원에 자동으로 배정되지 않습니다. 비업보로 분류된 결과는 자동 제외됩니다.</p><details class="reviewHelp"><summary>기록 보관 기간 안내</summary><p class="muted"><strong>정상 등록된 업보·확정 후원 내역은 30일 정리 대상이 아닙니다.</strong> 여기서 후원자를 지정해 등록한 업보도 유지됩니다.<br>30일 정리 대상은 후원·룰렛 연결용 원본 기록과 예외 처리 기록입니다. 보류 중인 예외 결과도 서버 수집일로부터 30일이 지나면 정리되므로, 필요한 예외 기록은 미리 내보내세요.</p></details>
 <div class="exceptionToolbar"><label for="exceptionFilter">표시</label><select id="exceptionFilter"><option value="pending">보류 중</option><option value="processed">처리 완료</option><option value="all">전체</option></select></div>
 <div class="exceptionToolbar reviewFilterGrid"><label>발생 시작일 <input id="exceptionFrom" type="date"></label><label>종료일 <input id="exceptionUntil" type="date"></label><label>사유 <select id="exceptionReason"><option value="">전체 사유</option><option value="fifo_head_stale">대기 시간 초과</option><option value="fifo_head_roulette_mismatch">룰렛 이름 불일치</option><option value="unmatched">대기 후원 없음</option></select></label><label>결과 검색 <input id="exceptionSearchText" maxlength="100" type="search"></label></div>
@@ -2114,11 +2114,21 @@ async function registerCollectorRow(encodedUid){
   const rs=collectorResultList(row),unresolved=rs.filter(x=>collectorRuleFor(x.result).action==='review');
   if(unresolved.length)return openCollectorClassify(encodedUid,false);
   try{
-    await saveCollectorDonations([row]);await ensureCollectorFans([row]);const reviewUids=await processCollectorTasks([row]);
-    const rsNow=collectorResultList(row),allExcluded=rsNow.length>0&&rsNow.every(x=>collectorRuleFor(x.result).action==='exclude');
-    const status=reviewUids.has(row.source_uid)?'needs_review':allExcluded?'ignored':'processed';
-    await apiTable('bangsel_collector_staging','?source_uid=eq.'+encodeURIComponent(row.source_uid),{method:'PATCH',write:true,body:JSON.stringify({process_status:status,processed_at:status==='processed'||status==='ignored'?new Date().toISOString():null})});
-    await render();updateStats();collectorRows=collectorRows.filter(r=>String(r.source_uid)!==uid);collectorIgnoredRows=collectorIgnoredRows.filter(r=>String(r.source_uid)!==uid);collectorIgnoredLoaded=false;collectorLoaded=false;await loadCollectorInbox(true);if(!$('nonBangselBox').classList.contains('hidden'))await loadCollectorIgnored(true);
+    // Reopen only the ignored snapshot the user selected. The server owns
+    // multiplier receipts, donation identity and atomic, idempotent task writes.
+    if(row.process_status==='ignored'){
+      const reopened=await apiTable('bangsel_collector_staging','?source_uid=eq.'+encodeURIComponent(uid)+'&process_status=eq.ignored&uploaded_at=eq.'+encodeURIComponent(row.uploaded_at),{
+        method:'PATCH',write:true,headers:{'Content-Type':'application/json','Prefer':'return=representation'},
+        body:JSON.stringify({process_status:'pending',processed_at:null})
+      });
+      if(!Array.isArray(reopened)||reopened.length!==1)throw new Error('수신 내역이 변경되었습니다. 새로 고친 뒤 다시 확인해 주세요.');
+    }
+    const result=await runServerCollectorProcessing({source_uids:[uid],include_failed:true,limit:1});
+    if(result?.counts?.failed)throw new Error('서버 처리에 실패했습니다. 수신함에서 재처리할 수 있습니다.');
+    collectorLoaded=false;collectorIgnoredLoaded=false;donationStatsLoaded=false;
+    await loadServer();
+    if(!$('collectorBox').classList.contains('hidden'))await loadCollectorInbox(true);
+    if(!$('nonBangselBox').classList.contains('hidden'))await loadCollectorIgnored(true);
     if(!$('donationStatsBox').classList.contains('hidden'))await loadDonationStats(true);
   }catch(e){alert('업보 등록 실패: '+e.message)}
 }
@@ -2164,11 +2174,6 @@ async function saveCollectorRuleDrafts(){const drafts=collectCollectorRuleDrafts
 function collectorDateTime(row){let s=String(row.donated_time_text||'').trim();let m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);if(m)return {date:`${m[1]}-${m[2]}-${m[3]}`,time:`${m[4]}:${m[5]}:${m[6]||'00'}`,at:`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]||'00'}+09:00`};const d=new Date(row.uploaded_at||Date.now());const p=n=>String(n).padStart(2,'0');return{date:`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`,time:`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`,at:d.toISOString()}}
 async function saveCollectorDonations(rows){const payload=rows.filter(r=>!collectorSubscriptionInfo(r).isSubscription).map(r=>{const dt=collectorDateTime(r),results=collectorResultList(r);return{source_event_key:'weflab:'+r.source_uid,source:'weflab_collector',donation_type:collectorDonationTypeInfo(r).label,donated_date:dt.date,donated_time:dt.time,donated_at:dt.at,soop_id:r.soop_id||null,nickname:r.nickname||null,balloons:+r.balloons||0,message:(r.raw_payload&&r.raw_payload.msg)||null,had_roulette:results.length>0,roulette_count:results.length,roulette_results:results,event_name:r.event_name||null,raw_payload:r.raw_payload||{}}});for(let i=0;i<payload.length;i+=200)await apiTable('bangsel_donations','',{method:'POST',write:true,headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(payload.slice(i,i+200))});donationStatsLoaded=false}
 async function ensureCollectorFans(rows){const latest=new Map();for(const r of rows){if(!r.soop_id)continue;latest.set(r.soop_id,r)}for(const [id,r] of latest){const old=fanProfiles[id];if(old){if(old.current_nickname!==r.nickname||!old.station_url){const saved=(await apiTable('bangsel_fans','?soop_id=eq.'+encodeURIComponent(id),{method:'PATCH',write:true,body:JSON.stringify({current_nickname:r.nickname||old.current_nickname,station_url:old.station_url||canonicalStationUrl(id)})}))[0];fanProfiles[id]=saved||old}}else{const body={soop_id:id,alias:r.nickname||id,current_nickname:r.nickname||id,station_url:canonicalStationUrl(id)};const saved=(await apiTable('bangsel_fans','',{method:'POST',write:true,headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(body)}))[0];fanProfiles[id]=saved||body}}}
-async function processCollectorTasks(rows){const existingKeys=new Set([...tasks.map(t=>t.source_event_key).filter(Boolean),...taskImportItems.map(x=>x.source_event_key).filter(Boolean)]);const items=[];const reviewUids=new Set();for(const r of rows){if(collectorSubscriptionInfo(r).isSubscription||!r.event_name)continue;const dt=collectorDateTime(r),results=collectorResultList(r);for(let ri=0;ri<results.length;ri++){const rr=results[ri],rule=collectorRuleFor(rr.result);if(rule.action==='review'){reviewUids.add(r.source_uid);continue}if(rule.action==='exclude')continue;const outs=Array.isArray(rule.output_types)&&rule.output_types.length?rule.output_types:[rr.result];outs.forEach((type,oi)=>{const key=`weflab:${r.source_uid}|${ri}|${oi}|${type}`;if(!existingKeys.has(key))items.push({source_event_key:key,nickname:r.nickname,soop_id:r.soop_id,event:r.event_name,type,added_date:dt.date})})}}
-  const groups=groupBatchPreviewRows(items.map(x=>({...x,duplicate:false})));const linked=[];for(const g of groups){const profile=fanProfiles[g.soop_id];let task=null;if(g.target_task_id){const old=tasks.find(t=>t.id===g.target_task_id);if(old){const saved=(await api('?id=eq.'+encodeURIComponent(old.id),{method:'PATCH',write:true,body:JSON.stringify({total_qty:g.total_count})}))[0];if(saved){Object.assign(old,saved);task=old}}}if(!task){const body={fan:profile?.alias||g.nickname,fan_soop_id:g.soop_id||null,event:g.event,type:g.type,total_qty:g.new_count,done_qty:0,memo:'',added_date:g.added_date,source:'weflab_roulette_grouped',source_event_key:g.item_keys[0]||null};task=(await api('',{method:'POST',write:true,body:JSON.stringify(body)}))[0];if(task)tasks.push(task)}if(!task)throw new Error('Collector 업보 생성 실패');const ledger=g.item_keys.map(key=>({source_event_key:key,task_id:task.id,source:'weflab_roulette'}));if(ledger.length){const saved=await apiTable('bangsel_task_import_items','',{method:'POST',write:true,headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(ledger)});linked.push(...(Array.isArray(saved)?saved:ledger))}}
-  if(linked.length){const m=new Map(taskImportItems.map(x=>[x.source_event_key,x]));linked.forEach(x=>m.set(x.source_event_key,x));taskImportItems=[...m.values()]}
-  return reviewUids;
-}
 async function runServerCollectorProcessing({source_uids,include_failed=true,validation_review_approvals,limit=500}={}){
   const res=await fetch('/api/collector-process',{
     method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',
@@ -2178,40 +2183,6 @@ async function runServerCollectorProcessing({source_uids,include_failed=true,val
   if(res.status===401){redirectToLoginExpired();throw sessionExpiredError()}
   if(!res.ok&&res.status!==207)throw new Error((data&&data.message)||('HTTP '+res.status));
   return data||{counts:{}};
-}
-
-async function autoProcessCollectorKnown(){
-  const rows=await apiTable('bangsel_collector_staging','?select=*&process_status=eq.pending&order=uploaded_at.asc&limit=1000');
-  const pending=Array.isArray(rows)?rows:[];
-  if(!pending.length)return 0;
-
-  // 처음 보는 결과(review)와 개수 검증 경고(short/over)는 자동 처리하지 않습니다.
-  // 이미 학습된 include/exclude 규칙, 그리고 룰렛 없는 일반 후원만 자동 처리합니다.
-  const safe=pending.filter(r=>{
-    if(['short','over'].includes(String(r.validation||'')))return false;
-    if(!r.event_name)return true;
-    const rs=collectorResultList(r);
-    return rs.length>0&&rs.every(x=>collectorRuleFor(x.result).action!=='review');
-  });
-  if(!safe.length)return 0;
-
-  await saveCollectorDonations(safe);
-  await ensureCollectorFans(safe);
-  const reviews=await processCollectorTasks(safe);
-  let processed=0;
-  for(const r of safe){
-    if(reviews.has(r.source_uid))continue;
-    const rs=collectorResultList(r),allExcluded=rs.length>0&&rs.every(x=>collectorRuleFor(x.result).action==='exclude');
-    const status=allExcluded?'ignored':'processed';
-    await apiTable('bangsel_collector_staging','?source_uid=eq.'+encodeURIComponent(r.source_uid),{
-      method:'PATCH',write:true,
-      body:JSON.stringify({process_status:status,processed_at:new Date().toISOString()})
-    });
-    if(status==='ignored')collectorIgnoredLoaded=false;
-    processed++;
-  }
-  if(processed)console.log(`Collector 기억 규칙 자동처리 ${processed}건`);
-  return processed;
 }
 
 async function runCollectorAutoProcessingOnce({refreshUi=true}={}){
@@ -3567,15 +3538,9 @@ async function saveItem(){
       const refreshed=await api('?id=eq.'+encodeURIComponent(saved.id));
       if(refreshed?.[0])editTaskSnapshot={...refreshed[0]};
     }else if(!existing){
-      const created=(await apiTable('bangsel_fans','',{
-        method:'POST',write:true,
-        body:JSON.stringify({
-          soop_id:soopId,
-          alias:body.fan,
-          current_nickname:body.fan,
-          station_url:canonicalStationUrl(soopId)
-        })
-      }))[0];
+      // The task write creates a missing fan in the same DB transaction.
+      const created=(await apiTable('bangsel_fans','?soop_id=eq.'+encodeURIComponent(soopId)))[0];
+      if(!created)throw new Error('저장된 시청자 정보를 다시 불러오지 못했습니다.');
       fanProfiles[soopId]=created;
     }
   }
@@ -3968,18 +3933,22 @@ async function uxRefreshStatus(){
     $('uxStatusMessage').textContent='연결 대기 '+data.pendingCount+'건 · '+uxDate(data.checkedAt)+' (한국 시간) 확인. '+(data.pendingCount?'수동 룰렛 사용을 미뤄주세요.':'새 후원이 들어오면 대기가 다시 생길 수 있습니다.');
     const host=$('uxPendingList');host.replaceChildren();if(!data.pending?.length)host.append(uxText('p','현재 표시할 대기 후원이 없습니다.'));
     for(const item of data.pending||[]){const row=uxText('div','');row.className='exceptionRow';row.append(uxText('b',(item.actor_name||'이름 없음')+' · '+Number(item.amount).toLocaleString()+'개 · '+(item.roulette_name||'룰렛')));row.append(uxText('p',uxDate(item.occurred_at)+' · '+item.result_count+'/'+item.expected_spins+'회 결과 수집'));
-      if(Date.parse(data.checkedAt)-Date.parse(item.occurred_at)>600000){const close=uxText('button','이 후원의 대기 종료');close.type='button';close.onclick=async()=>{if(!confirm('이 후원에 더 이상 결과를 연결하지 않고 대기를 종료할까요? 후원 금액과 기존 업보는 유지되며, 이후 도착하는 결과는 다른 대기 후원에 연결되거나 예외로 남을 수 있습니다.'))return;close.disabled=true;try{const r=await fetch('/api/admin?operation=ux-controls&kind=close-pending',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id,updatedAt:item.updated_at})});const d=await r.json();if(!r.ok)throw Error(d.message||'대기 종료 실패');await uxRefreshStatus()}catch(error){$('uxStatusMessage').textContent=error.message;close.disabled=false}};row.append(close)}host.append(row)}
+      row.append(uxText('p','대기 종료 예정: '+uxDate(item.wait_expires_at)));host.append(row)}
+    const expired=$('uxExpiredList');expired.replaceChildren();if(!data.expiredRecent?.length)expired.append(uxText('p','자동 종료된 내역이 없습니다.'));
+    for(const item of data.expiredRecent||[]){const row=uxText('div','');row.className='exceptionRow';row.append(uxText('b',(item.actor_name||'이름 없음')+' · '+Number(item.amount).toLocaleString()+'개'));row.append(uxText('p',uxDate(item.wait_expired_at)+' · 3분 동안 추가 결과 없음 · '+item.result_count+'/'+item.expected_spins+'회 결과 보존'));expired.append(row)}
     if(data.pendingCount>50)host.append(uxText('p','가장 오래된 50건을 표시했습니다.'));
     const pending=$('uxSpecialPending');pending.replaceChildren(uxText('h3','현재 방송의 배수 대기'));
     if(!data.specialPending?.length)pending.append(uxText('p','적용을 기다리는 배수가 없습니다.'));
     for(const s of data.specialPending||[])pending.append(uxText('p',s.fan+' · '+s.multiplier+'배 · '+uxDate(s.expires_at)+' 만료'));
     const recent=$('uxSpecialRecent');recent.replaceChildren(uxText('h3','최근 결과 최대 50건'));
     for(const s of data.specialRecent||[]){const receipt=s.special_roulette||{};recent.append(uxText('p',uxDate(s.occurred_at)+' · '+(s.actor_name||'후원자 기록 없음')+' · '+s.result_text+' · '+(receipt.controlEvent?'다음 '+receipt.pendingMultiplier+'배 대기':'이번 결과 '+(receipt.appliedMultiplier||1)+'배')))}
-  }catch(error){uxStatus=null;$('uxPendingList').replaceChildren();$('uxSpecialPending').replaceChildren();$('uxSpecialRecent').replaceChildren();$('uxStatusMessage').textContent=error.message+' 현재 대기가 없는 것으로 판단하지 마세요.'}
+  }catch(error){uxStatus=null;$('uxPendingList').replaceChildren();$('uxExpiredList').replaceChildren();$('uxSpecialPending').replaceChildren();$('uxSpecialRecent').replaceChildren();$('uxStatusMessage').textContent=error.message+' 현재 대기가 없는 것으로 판단하지 마세요.'}
   finally{uxStatusLoading=false;$('uxRefreshStatus').disabled=false;uxMappingCounts()}
 }
 $('uxRefreshStatus').onclick=uxRefreshStatus;
 if($('rouletteSaved'))new MutationObserver(()=>{if(!$('rouletteSaved').querySelector('.mappingRule:not(:has(.uxPendingCount))'))return;uxMappingCounts()}).observe($('rouletteSaved'),{childList:true});
+
+
 
 (()=>{
 const $=id=>document.getElementById(id);

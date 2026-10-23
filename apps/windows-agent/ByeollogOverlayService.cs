@@ -184,6 +184,7 @@ internal sealed class ByeollogOverlayService : IDisposable
   <div id="flashbang-stage"><img id="flashbang-asset" alt="" draggable="false"></div>
   <div id="effect-stage" data-document-revision="categorized-actions-v13"><div id="water-refraction"></div><img id="effect-asset" alt="" draggable="false"><video id="water-vfx-video" muted playsinline preload="auto"></video><video id="fireworks-vfx-video" muted playsinline preload="auto"></video><img id="water-runoff-asset" alt="" draggable="false"><canvas id="water-flow-canvas"></canvas></div>
   <script>
+/*BAEKDUSAN_RENDERER*/
     const wallpaperCanvas = document.getElementById('wallpaper-canvas');
     const asset = document.getElementById('asset');
     const raffleStage = document.getElementById('raffle-stage');
@@ -674,7 +675,7 @@ internal sealed class ByeollogOverlayService : IDisposable
         && layout.x >= 0 && layout.y >= 0 && layout.width >= WALLPAPER_MIN_WIDTH && layout.height >= WALLPAPER_MIN_HEIGHT
         && layout.x + layout.width <= canvasWidth && layout.y + layout.height <= canvasHeight;
     }
-    function wallpaperGroups(tiles, canvasWidth, canvasHeight, sizeRanges = []) {
+    function wallpaperGroups(tiles, canvasWidth, canvasHeight, sizeRanges = [], hiddenCards = null) {
       const map = new Map();
       for (const tile of tiles) {
         const layoutPriority = Number.isSafeInteger(Number(tile.layoutPriority)) && Number(tile.layoutPriority) >= 0
@@ -691,7 +692,7 @@ internal sealed class ByeollogOverlayService : IDisposable
           group.nextSide = tile.layout.nextSide === 'left' ? 'left' : 'right';
         }
       }
-      const groups = [...map.values()].sort((a,b) => (Number.isInteger(a.layer) ? a.layer : Number.MAX_SAFE_INTEGER) - (Number.isInteger(b.layer) ? b.layer : Number.MAX_SAFE_INTEGER));
+      const groups = ByeollogHiddenCards.visibleGroups([...map.values()], hiddenCards).sort((a,b) => (Number.isInteger(a.layer) ? a.layer : Number.MAX_SAFE_INTEGER) - (Number.isInteger(b.layer) ? b.layer : Number.MAX_SAFE_INTEGER));
       const rules = (Array.isArray(sizeRanges) ? sizeRanges : []).slice(0, 20).filter(rule => rule && Number.isInteger(rule.min) && Number.isInteger(rule.max) && rule.min >= 1 && rule.max >= rule.min && rule.max <= 1000000 && Number.isInteger(rule.width) && rule.width >= 80 && rule.width <= 480);
       for (const group of groups) group.sizeRule = group.displayKind === 'donation' ? rules.find(rule => group.tiles.every(tile => tile.amount >= rule.min && tile.amount <= rule.max)) : null;
       for (const group of groups) if (group.mergeRange) group.tiles.sort((a,b) => a.amount-b.amount || Date.parse(a.receivedAt||0)-Date.parse(b.receivedAt||0));
@@ -707,7 +708,10 @@ internal sealed class ByeollogOverlayService : IDisposable
       const width = Number.isInteger(state.canvasWidth) ? state.canvasWidth : 1920;
       const height = Number.isInteger(state.canvasHeight) ? state.canvasHeight : 1080;
       wallpaperResize(width, height);
-      const groups = wallpaperGroups(Array.isArray(state.tiles) ? state.tiles : [], width, height, state.sizeRanges);
+      const owned = ByeollogBaekdusan.owned(state.baekdusan);
+      const groups = wallpaperGroups((Array.isArray(state.tiles) ? state.tiles : []).filter(t => !owned.has(t.id) && !ByeollogDetached.matches(t,state.detached)), width, height, state.sizeRanges, state.hiddenCards);
+      ByeollogBaekdusan.render(wallpaperCanvas, state.baekdusan);
+      ByeollogDetached.render(wallpaperCanvas,state.tiles,state.detached,state.sizeRanges||[],owned);
       const incomingGroups = new Set(groups.map(group => group.id));
       for (const [id, entry] of wallpaperGroupNodes) {
         if (!incomingGroups.has(id)) { entry.node.remove(); wallpaperGroupNodes.delete(id); }
@@ -728,6 +732,7 @@ internal sealed class ByeollogOverlayService : IDisposable
           let node = entry.cards.get(card.id);
           if (!node) {
             node = document.createElement('article'); node.className = 'wallpaper-tile';
+            node.dataset.tileId = card.id;
             const image = document.createElement('img'); image.alt = ''; image.decoding = 'async';
             image.onerror = () => {
               image.dataset.retryAt = String(Date.now() + 5000);
@@ -771,6 +776,8 @@ internal sealed class ByeollogOverlayService : IDisposable
           name.textContent = copy.name; info.textContent = copy.info; compact.textContent = copy.compact;
         }
       }
+      ByeollogWallpaperAppearance.apply(wallpaperCanvas,state.appearance);
+      ByeollogHiddenCards.apply(wallpaperCanvas,state.hiddenCards);
       wallpaperRevision = Number(state.revision) || 0;
       wallpaperDisplayRevision = String(state.displayRevision ?? state.revision);
       scheduleWallpaperObservation(wallpaperRevision);
@@ -925,7 +932,7 @@ internal sealed class ByeollogOverlayService : IDisposable
   </script>
 </body>
 </html>
-""");
+""".Replace("/*BAEKDUSAN_RENDERER*/", WallpaperBaekdusanRenderer.Script));
 
     private static readonly Lazy<byte[]> WaterRunoffBytes = new(
         static () =>
@@ -2359,6 +2366,18 @@ internal sealed class ByeollogOverlayService : IDisposable
                     await WriteResponseAsync(stream, 200, "text/html; charset=utf-8", OverlayHtml, headOnly, timeout.Token);
                     return;
                 }
+                if (path == "/overlay/draw-board")
+                {
+                    await WriteResponseAsync(stream, 200, "text/html; charset=utf-8", DrawBoardRenderer.Html, headOnly, timeout.Token);
+                    return;
+                }
+                if (path == "/overlay/draw-board-state")
+                {
+                    var state = CurrentWallpaper.DrawBoardView?.Invoke();
+                    var bytes = state is null ? Encoding.UTF8.GetBytes("{\"board\":null}") : JsonSerializer.SerializeToUtf8Bytes(state.Value);
+                    await WriteResponseAsync(stream, 200, "application/json; charset=utf-8", bytes, headOnly, timeout.Token);
+                    return;
+                }
                 if (path == "/overlay/wallpaper")
                 {
                     await WriteResponseAsync(stream, 200, "text/html; charset=utf-8", OverlayHtml, headOnly, timeout.Token);
@@ -2438,7 +2457,7 @@ internal sealed class ByeollogOverlayService : IDisposable
                         stream,
                         200,
                         "application/json; charset=utf-8",
-                        CurrentWallpaper.SnapshotBytes(),
+                        CurrentWallpaper.DisplaySnapshotBytes(),
                         headOnly,
                         timeout.Token);
                     return;
@@ -2621,7 +2640,7 @@ internal sealed class ByeollogOverlayService : IDisposable
             $"Content-Type: {contentType}\r\n" +
             $"Content-Length: {body.Length}\r\n" +
             "Cache-Control: no-store, max-age=0\r\n" +
-            "Content-Security-Policy: default-src 'none'; img-src 'self'; media-src 'self'; connect-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'\r\n" +
+            "Content-Security-Policy: default-src 'none'; img-src 'self'; media-src 'self'; font-src https:; connect-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'\r\n" +
             $"Cross-Origin-Resource-Policy: {crossOriginResourcePolicy}\r\n" +
             corsHeader +
             "Referrer-Policy: no-referrer\r\n" +

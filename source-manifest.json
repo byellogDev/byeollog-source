@@ -5937,9 +5937,10 @@
     {
       "path": "ncp-gateway/services/soop-chat-gateway/index.mjs",
       "before": "e94383bd106e9fa09c16f92f8900a861f2a999ac5b9abe223732a111bc1e2b47",
-      "after": "2509605bc37ae0ae5237f24ecd3ae0e32d4c71a6f4b341e15395806171c86ba3",
+      "after": "9bb2ebf119dc1cf74aab96352058d5e9ecbc12dfeeb1f79f5cef536dfc411c46",
       "status": "changed",
-      "target": "services/soop-gateway/services/soop-chat-gateway/index.mjs"
+      "target": "services/soop-gateway/services/soop-chat-gateway/index.mjs",
+      "release": "2026.10.08-direct-production"
     },
     {
       "path": "collector-runtime/lib/upbo-retry.js",
@@ -5958,12 +5959,12 @@
       "release": "2026.09.23.1"
     },
     {
-      "path": "admin-runtime/agent-updates/stable/win-x64.json",
+      "path": "components/admin-runtime/agent-updates/stable/win-x64.json",
       "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
       "before": "4b4c23f1ab1d8d97bbe06c0368570b969c46b1dc1970db46d826b0966bfcc3a6",
-      "after": "feb44d63e7b089db13d72973d4e0424fe7f6b9a3ce520a91b1714962199a0fb9",
+      "after": "301df30e09ce39324ab7684fc766c63cd4e3edaad988ad3f9c2f680defa05b2e",
       "status": "changed",
-      "release": "2026.09.23.2"
+      "release": "2026.10.02-agent-1.0.0.46"
     },
     {
       "path": "admin-runtime/lib/native-roulette.js",
@@ -6038,12 +6039,12 @@
       "release": "2026.09.23.2"
     },
     {
-      "path": "frontend/agent-updates/stable/win-x64.json",
+      "path": "components/frontend/agent-updates/stable/win-x64.json",
       "target": "apps/web/agent-updates/stable/win-x64.json",
       "before": "4b4c23f1ab1d8d97bbe06c0368570b969c46b1dc1970db46d826b0966bfcc3a6",
-      "after": "feb44d63e7b089db13d72973d4e0424fe7f6b9a3ce520a91b1714962199a0fb9",
+      "after": "301df30e09ce39324ab7684fc766c63cd4e3edaad988ad3f9c2f680defa05b2e",
       "status": "changed",
-      "release": "2026.09.23.2"
+      "release": "2026.10.02-agent-1.0.0.46"
     },
     {
       "path": "frontend/lib/native-roulette.js",
@@ -6070,12 +6071,12 @@
       "release": "2026.09.23.2"
     },
     {
-      "path": "frontend/vercel.json",
+      "path": "components/frontend/vercel.json",
       "target": "apps/web/vercel.json",
       "before": "441393356a2d54e49f90ef0fe15e225c168230527e44c0f8bb100dc9996c467d",
-      "after": "1b32f64717b6bcd164e6786564a180b71971a9b4e6910b8b75072451ab506de9",
+      "after": "68e0d63e6b99b0e4a87a585789961a66340c794bddc5a9fb1c8236545d7748df",
       "status": "changed",
-      "release": "2026.09.23.2"
+      "release": "2026.10.02-agent-1.0.0.46"
     },
     {
       "path": "agent-source/CollectorLoginWebForm.cs",
@@ -6089,9 +6090,9 @@
       "path": "agent-source/HurogiCollector.csproj",
       "target": "apps/windows-agent/HurogiCollector.csproj",
       "before": "beb25b35be068cd822e2687c7ff2693f464704a35da8947f872e538c0fd27ab9",
-      "after": "8d88ff5e5460b056bb2ff2729c325252b36d7c38be0c9e8e69480c737813ff55",
+      "after": "d742dc2da3b7a4fe383be0f1e1d709040c366c6175263d2d67d3d58a1b8ed63c",
       "status": "changed",
-      "release": "2026.09.23.2"
+      "release": "2026.10.02-agent-1.0.0.46"
     },
     {
       "path": "agent-source/Ui/byeollog_ui.html",
@@ -6113,9 +6114,9 @@
       "path": "agent-source/VNextSessionVault.cs",
       "target": "apps/windows-agent/VNextSessionVault.cs",
       "before": "a2da91d5b7315f023558448737003012745bc2fdf9a4f628b7911ed0fd22958c",
-      "after": "491f4941dac83863c0621b57ccfdd658652b590497a8a11f1c9bb872575819b2",
+      "after": "9a94894a0e95d0a511cf1d9c1a3e0e7aac47ac4f7d58fe41a66ad592811e7dbd",
       "status": "changed",
-      "release": "2026.09.23.2"
+      "release": "2026.10.02-agent-1.0.0.46"
     },
     {
       "path": "ncp-gateway/lib/native-roulette.js",
@@ -6132,6 +6133,1771 @@
       "after": "16107a512da7caca9fd1a8f92c520d17f1e188eeb2e206b0f268e60cc05fc348",
       "status": "changed",
       "release": "2026.09.23.2"
+    },
+    {
+      "path": "components/frontend/lib/runtime-proxy.js",
+      "target": "apps/web/lib/runtime-proxy.js",
+      "before": "d8871726297912025867c5ac0ae0d18f0df9b1beeec7c1679bd9d3abdcb1aee0",
+      "status": "changed",
+      "after": "a29b288d0071a6c37c08224736d1bd10d0c5e64ab51814ac608554d14fc444ea",
+      "release": "2026.09.24-minecraft-candidate"
+    },
+    {
+      "path": "components/admin-runtime/lib/minecraft-server-service.mjs",
+      "target": "apps/admin-runtime/lib/minecraft-server-service.mjs",
+      "before": "5de5409bf5b9eb335ae8aecec418f04bb1840a73c6358d038c4c237ff9cdb735",
+      "status": "changed",
+      "after": "07c20ebd2093c8d42d28899b7dda0fa56019fb4cc198d4d85e2e34b5b0d3703f",
+      "release": "2026.09.24-minecraft-candidate"
+    },
+    {
+      "path": "components/admin-runtime/lib/soop-oauth.js",
+      "target": "apps/admin-runtime/lib/soop-oauth.js",
+      "before": "8d4dfbf6cc6364fd55761185501eda62de40e8c57cc28dbc4ee30e4353700ad9",
+      "status": "changed",
+      "after": "edacfef7b17114066f376c0c25a85b64116f9a2517cd2299594465723d1850dd",
+      "release": "2026.09.24-candidate-review-fixes"
+    },
+    {
+      "path": "components/admin-runtime/lib/game-link-service.mjs",
+      "target": "apps/admin-runtime/lib/game-link-service.mjs",
+      "before": "e5035a34476c6f22ced29d9265ad3f76d23995eb321019a77a180ba7a1258de2",
+      "status": "changed",
+      "after": "48a88410b8c0220a7b0f48c87bc00f52ae4b856d658375a1f2d5d4ff3a43e5e2",
+      "release": "2026.09.24-candidate-review-fixes"
+    },
+    {
+      "path": "components/admin-runtime/lib/game-link-store.mjs",
+      "target": "apps/admin-runtime/lib/game-link-store.mjs",
+      "before": "803a1fa37ec0c8917005e03dcff05b463f7141456f0f2c1610396b0a6d56fa3e",
+      "status": "changed",
+      "after": "f57a845227aa27c2af3fc1ee4e20d1ec04cc6c627eff5c0878ea54279a957850",
+      "release": "2026.09.24-candidate-review-fixes"
+    },
+    {
+      "path": "components/admin-runtime/lib/soop-gateway-api.js",
+      "target": "apps/admin-runtime/lib/soop-gateway-api.js",
+      "before": "c6f2d561468e0dc29b3d87d56390afd60518c41cdcadf55688cb6374feaee9ad",
+      "status": "changed",
+      "after": "822266e9e6fd1a7e9fc70c21ea61c10c9fda0b18a0ceba9cb4d04cab32784ed6",
+      "release": "2026.09.24-candidate-review-fixes"
+    },
+    {
+      "path": "components/admin-runtime/lib/runtime-isolation.js",
+      "target": "apps/admin-runtime/lib/runtime-isolation.js",
+      "before": "3c91754405cfe8a3010b8e0a3b31a4a59979166c904987887d138d71b78c1cdc",
+      "status": "changed",
+      "after": "3d9cbf05b1a4b8a3e1c6d6dbfc85c04b17647f9c98c5183264c1ea00cf6474e3",
+      "release": "2026.09.24-candidate-review-fixes"
+    },
+    {
+      "path": "components/frontend/lib/admin-source.html",
+      "target": "apps/web/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "status": "changed",
+      "after": "f239bf5360f019d8fb7dcc545df8392d9cf6d903e2166bf5ce1c56ba212f406d",
+      "release": "2026.09.26-monthly-stats"
+    },
+    {
+      "path": "components/frontend/lib/admin-html.js",
+      "target": "apps/web/lib/admin-html.js",
+      "before": "f65e74ed086b6cf7c3ce9acf23cabea1a9e5ceb27fd4fbbe842180c9b9483388",
+      "status": "changed",
+      "after": "1035880c2f239407208ebace6602e6e04e7611408755c106b84eab62cb150137",
+      "release": "2026.09.26-monthly-stats"
+    },
+    {
+      "path": "components/admin-runtime/lib/admin-source.html",
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "status": "changed",
+      "after": "f239bf5360f019d8fb7dcc545df8392d9cf6d903e2166bf5ce1c56ba212f406d",
+      "release": "2026.09.26-monthly-stats"
+    },
+    {
+      "path": "components/admin-runtime/lib/admin-html.js",
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "019bc81af4b1eecca7fa437f2a3b7051ab09b2eac35419aec4fab344ad2e2ecd",
+      "status": "changed",
+      "after": "1035880c2f239407208ebace6602e6e04e7611408755c106b84eab62cb150137",
+      "release": "2026.09.26-monthly-stats"
+    },
+    {
+      "path": "components/admin-runtime/handlers/data.js",
+      "target": "apps/admin-runtime/handlers/data.js",
+      "before": "c098e5f22e7b1a60b00cf8a0e0b3b1c8b5dde3a16c6b793e30e5825f4f6b37e8",
+      "status": "changed",
+      "after": "4ca3501be2be35312d9b561f19f3d0cf6e0c2fcea367a1f5ef3a1380ea9795bc",
+      "release": "2026.09.26-donation-report"
+    },
+    {
+      "path": "components/admin-runtime/lib/admin-html.js",
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "019bc81af4b1eecca7fa437f2a3b7051ab09b2eac35419aec4fab344ad2e2ecd",
+      "status": "changed",
+      "after": "2744b11aa2f56d55548d4c5e7f3dc87fc2812f4f66717b1e376aa7110c309968",
+      "release": "2026.09.26-donation-report"
+    },
+    {
+      "path": "components/admin-runtime/lib/admin-source.html",
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "status": "changed",
+      "after": "ed645a1823d410c9b6aab35f25d7021aaeb36c38f9e83f3aaa7bfb73f4eafb4b",
+      "release": "2026.09.26-donation-report"
+    },
+    {
+      "path": "components/frontend/lib/admin-html.js",
+      "target": "apps/web/lib/admin-html.js",
+      "before": "f65e74ed086b6cf7c3ce9acf23cabea1a9e5ceb27fd4fbbe842180c9b9483388",
+      "status": "changed",
+      "after": "2744b11aa2f56d55548d4c5e7f3dc87fc2812f4f66717b1e376aa7110c309968",
+      "release": "2026.09.26-donation-report"
+    },
+    {
+      "path": "components/frontend/lib/admin-source.html",
+      "target": "apps/web/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "status": "changed",
+      "after": "ed645a1823d410c9b6aab35f25d7021aaeb36c38f9e83f3aaa7bfb73f4eafb4b",
+      "release": "2026.09.26-donation-report"
+    },
+    {
+      "path": "components/frontend/scripts/generate-admin-html.mjs",
+      "target": "apps/web/scripts/generate-admin-html.mjs",
+      "before": "402275b52fcad8551a2d45e653644639bb589a0277458c40ca7f5d2c33de341a",
+      "status": "changed",
+      "after": "7e4bd2343cf5c80763615e42bbb1eca829911fb638363c6a32ceba141f879805",
+      "release": "2026.09.26-donation-report"
+    },
+    {
+      "path": "components/frontend/lib/admin-source.html",
+      "target": "apps/web/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "status": "changed",
+      "after": "0942254ddd6121f2eee64bab97e12f8a2a5265e3465136ddbc643ed79c3bd9be",
+      "release": "2026.09.26-report-button-visibility"
+    },
+    {
+      "path": "components/frontend/lib/admin-html.js",
+      "target": "apps/web/lib/admin-html.js",
+      "before": "f65e74ed086b6cf7c3ce9acf23cabea1a9e5ceb27fd4fbbe842180c9b9483388",
+      "status": "changed",
+      "after": "790c0f756816b05b5636d871e3b1dca2cc2474f1a874247b8764f4947eacab0a",
+      "release": "2026.09.26-report-button-visibility"
+    },
+    {
+      "path": "components/admin-runtime/lib/admin-source.html",
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "status": "changed",
+      "after": "0942254ddd6121f2eee64bab97e12f8a2a5265e3465136ddbc643ed79c3bd9be",
+      "release": "2026.09.26-report-button-visibility"
+    },
+    {
+      "path": "components/admin-runtime/lib/admin-html.js",
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "019bc81af4b1eecca7fa437f2a3b7051ab09b2eac35419aec4fab344ad2e2ecd",
+      "status": "changed",
+      "after": "790c0f756816b05b5636d871e3b1dca2cc2474f1a874247b8764f4947eacab0a",
+      "release": "2026.09.26-report-button-visibility"
+    },
+    {
+      "path": "components/backup-worker/lib/backup-retention.js",
+      "target": "apps/backup-worker/lib/backup-retention.js",
+      "before": "402ea5ae43b4a84cf5242b3d8be5348382191f4d15a010486a300d37fa035c6a",
+      "status": "changed",
+      "after": "87c3e2da440441658baa84340294f1bbc1c36bd2f72a8f555080b344423e9bcb",
+      "release": "2026.09.26-background-usage"
+    },
+    {
+      "path": "agent-source/Ui/wallpaper_editor.html",
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "f63326b184d93fb0d7f1e84cd432d5bcf6bc4e2974eec5681984da73d861e487",
+      "status": "changed",
+      "after": "903894117e4e7927f2c5c8eb000da9acb429f0b58f03f33b36185ad56bb1fa6d",
+      "release": "2026.09.30-wallpaper-detached"
+    },
+    {
+      "path": "components/admin-runtime/lib/agent-wallpaper-control.js",
+      "target": "apps/admin-runtime/lib/agent-wallpaper-control.js",
+      "before": "187a9a0398d152e8057bce08e493d0a93c19be74eec976bd0e86be22aa6f828a",
+      "status": "changed",
+      "after": "e75fcc353edd18bcd96c6cdc53d1d7dc0388b01cd432582e9c332216ce70ab50",
+      "release": "2026.09.29-wallpaper-baekdusan"
+    },
+    {
+      "path": "agent-source/ByeollogOverlayService.cs",
+      "target": "apps/windows-agent/ByeollogOverlayService.cs",
+      "before": "7469c2f4ef2038995cf369d433c430e0ba302459f0b91cb3246a8e2c3cb11b99",
+      "status": "changed",
+      "after": "f29f62c9752d5f4cadbb17535295971fabe32ec68d3acfe52f427013362684a4",
+      "release": "2026.09.30-wallpaper-detached"
+    },
+    {
+      "path": "agent-source/UiAssetStore.cs",
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "2f6b88da1658f7b78bef35a80a3ec1df4258cb04e1126ef00e44c286dc409c73",
+      "status": "changed",
+      "after": "1aae970b14c2430170d85df12d832a3c3f888f2dd7e12b16247abf61e76fd0a9",
+      "release": "2026.09.30-agent-1.0.0.45"
+    },
+    {
+      "path": "agent-source/WallpaperEditorCoordinator.cs",
+      "target": "apps/windows-agent/WallpaperEditorCoordinator.cs",
+      "before": "aa3c6e7fc10f781355581811a39a397c3a4aec6d8504c57b24f2d2b432468e08",
+      "status": "changed",
+      "after": "60d5e2f87b5542dbc8e91a45aa5ae783c9935025d2f23469f89d6ede96265364",
+      "release": "2026.09.30-wallpaper-detached"
+    },
+    {
+      "path": "agent-source/WallpaperOverlayState.cs",
+      "target": "apps/windows-agent/WallpaperOverlayState.cs",
+      "before": "e354645efdc3bf153291c220e984e61972ef51668f49eacecdc93c48fbca7fba",
+      "status": "changed",
+      "after": "2d226d7696f3e5a90c9d3ed9105179464b9ae3d8810f4c796937f1f951fb89d8",
+      "release": "2026.09.30-wallpaper-detached"
+    },
+    {
+      "path": "agent-source/WallpaperWorkspaceContext.cs",
+      "target": "apps/windows-agent/WallpaperWorkspaceContext.cs",
+      "before": "9f9c4ef0c86e120089223d80d67c468003cc720ef251ba3876df42da18a7562d",
+      "status": "changed",
+      "after": "07369eb9cd0335890c6c4c1e9e3313f93970f894fc532f65b4956baa29ffb358",
+      "release": "2026.09.29-wallpaper-baekdusan"
+    },
+    {
+      "target": "apps/web/lib/admin-source.html",
+      "before": "0942254ddd6121f2eee64bab97e12f8a2a5265e3465136ddbc643ed79c3bd9be",
+      "after": "5f34f91999b1d7cc10f42bc1d8488a0f93f0046eea08600338ea7ae5dde6febb",
+      "status": "changed",
+      "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/web/lib/admin-html.js",
+      "before": "790c0f756816b05b5636d871e3b1dca2cc2474f1a874247b8764f4947eacab0a",
+      "after": "4463c1ef9890eb7662d0f55d0fd19562cf44c572bea6bfb971c176cad4744e26",
+      "status": "changed",
+      "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/web/lib/ux-roulette-html.js",
+      "before": "9f402be5ba11d2b2b3dc20daa8417ef05cf227f87e27fde9f9992119608ad255",
+      "after": "71056f7a299ec1354691db5bd3039518a6331fec4baa14f404c565b751b701b5",
+      "status": "changed",
+      "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "0942254ddd6121f2eee64bab97e12f8a2a5265e3465136ddbc643ed79c3bd9be",
+      "after": "5f34f91999b1d7cc10f42bc1d8488a0f93f0046eea08600338ea7ae5dde6febb",
+      "status": "changed",
+      "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "790c0f756816b05b5636d871e3b1dca2cc2474f1a874247b8764f4947eacab0a",
+      "after": "4463c1ef9890eb7662d0f55d0fd19562cf44c572bea6bfb971c176cad4744e26",
+      "status": "changed",
+      "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/admin-runtime/lib/ux-roulette-html.js",
+      "before": "9f402be5ba11d2b2b3dc20daa8417ef05cf227f87e27fde9f9992119608ad255",
+      "after": "71056f7a299ec1354691db5bd3039518a6331fec4baa14f404c565b751b701b5",
+      "status": "changed",
+      "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "after": "2df5ace4fde029f8552958c8047016db6f5dd013b30a6f2f047320678a11de87",
+      "status": "changed",
+      "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-html.js",
+      "before": "f65e74ed086b6cf7c3ce9acf23cabea1a9e5ceb27fd4fbbe842180c9b9483388",
+      "after": "73e10270df91f18796d102267d1d558becd14d2d6b7a7ea2c23bc563e8691ee5",
+      "status": "changed",
+      "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/collector-runtime/lib/ux-roulette-html.js",
+      "before": "9f402be5ba11d2b2b3dc20daa8417ef05cf227f87e27fde9f9992119608ad255",
+      "after": "71056f7a299ec1354691db5bd3039518a6331fec4baa14f404c565b751b701b5",
+      "status": "changed",
+      "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-source.html",
+      "before": "4cea5f7b55ab0f67537a7aff0f9d092b1c70c2c3ce89172e3a4278bdde91eebb",
+      "after": "2df5ace4fde029f8552958c8047016db6f5dd013b30a6f2f047320678a11de87",
+      "status": "changed",
+      "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-html.js",
+      "before": "f65e74ed086b6cf7c3ce9acf23cabea1a9e5ceb27fd4fbbe842180c9b9483388",
+      "after": "73e10270df91f18796d102267d1d558becd14d2d6b7a7ea2c23bc563e8691ee5",
+      "status": "changed",
+      "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/public-runtime/lib/ux-roulette-html.js",
+      "before": "9f402be5ba11d2b2b3dc20daa8417ef05cf227f87e27fde9f9992119608ad255",
+      "after": "71056f7a299ec1354691db5bd3039518a6331fec4baa14f404c565b751b701b5",
+      "status": "changed",
+      "release": "2026.10.02-roulette-wait-timeout"
+    },
+    {
+      "target": "apps/web/lib/admin-source.html",
+      "before": "5f34f91999b1d7cc10f42bc1d8488a0f93f0046eea08600338ea7ae5dde6febb",
+      "after": "3a075ddcacc62a91b954c25668d5fed146fd722f263e18bd67d74f7e5c5970de",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/web/lib/admin-html.js",
+      "before": "4463c1ef9890eb7662d0f55d0fd19562cf44c572bea6bfb971c176cad4744e26",
+      "after": "f25af1bc4c68e329551f63a5ae3e989f02050e2beae9f5fe24473f1976e9e16b",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "5f34f91999b1d7cc10f42bc1d8488a0f93f0046eea08600338ea7ae5dde6febb",
+      "after": "3a075ddcacc62a91b954c25668d5fed146fd722f263e18bd67d74f7e5c5970de",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "4463c1ef9890eb7662d0f55d0fd19562cf44c572bea6bfb971c176cad4744e26",
+      "after": "f25af1bc4c68e329551f63a5ae3e989f02050e2beae9f5fe24473f1976e9e16b",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-source.html",
+      "before": "2df5ace4fde029f8552958c8047016db6f5dd013b30a6f2f047320678a11de87",
+      "after": "7d24559d2693c1857057be294c341aa63043ef7d832b616f5f032a26137c2ba7",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-html.js",
+      "before": "73e10270df91f18796d102267d1d558becd14d2d6b7a7ea2c23bc563e8691ee5",
+      "after": "5f15835b3ec11aadddf2a74f2a9f9999c42b653b481b70d9e9929710aa02a15d",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-source.html",
+      "before": "2df5ace4fde029f8552958c8047016db6f5dd013b30a6f2f047320678a11de87",
+      "after": "7d24559d2693c1857057be294c341aa63043ef7d832b616f5f032a26137c2ba7",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-html.js",
+      "before": "73e10270df91f18796d102267d1d558becd14d2d6b7a7ea2c23bc563e8691ee5",
+      "after": "5f15835b3ec11aadddf2a74f2a9f9999c42b653b481b70d9e9929710aa02a15d",
+      "status": "changed",
+      "release": "2026.10.04-task-fan-atomic-registration"
+    },
+    {
+      "target": "apps/windows-agent/ByeollogOverlayService.cs",
+      "before": "f29f62c9752d5f4cadbb17535295971fabe32ec68d3acfe52f427013362684a4",
+      "after": "6e110f203deb97b9889c23f09f41603fd5ff9a67e0469d4ebbf9cd1285a83ffc",
+      "status": "changed",
+      "release": "2026.10.04-wallpaper-custom-candidate"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "d742dc2da3b7a4fe383be0f1e1d709040c366c6175263d2d67d3d58a1b8ed63c",
+      "after": "c4ea87522667b6ad37ae537e86a0ea623b92ed6b58a9cc65e0a9bcf34c3cdc2c",
+      "status": "changed",
+      "release": "2026.10.04-wallpaper-custom-candidate"
+    },
+    {
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "903894117e4e7927f2c5c8eb000da9acb429f0b58f03f33b36185ad56bb1fa6d",
+      "after": "b33ab7041d06e9f8af1c4554f0b2783327ddf76db0465a4f81a93d40723aafdb",
+      "status": "changed",
+      "release": "2026.10.04-wallpaper-custom-candidate"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "1aae970b14c2430170d85df12d832a3c3f888f2dd7e12b16247abf61e76fd0a9",
+      "after": "8530579cf1369d90ab8eb335e958141f26d5315c10f3266f5d15f1c55b446c83",
+      "status": "changed",
+      "release": "2026.10.04-wallpaper-custom-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperEditorCoordinator.cs",
+      "before": "60d5e2f87b5542dbc8e91a45aa5ae783c9935025d2f23469f89d6ede96265364",
+      "after": "f58fabc7f963450370b971ee9725bb4391f992d13033666356f38b3ea5853bd6",
+      "status": "changed",
+      "release": "2026.10.04-wallpaper-custom-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperOverlayState.cs",
+      "before": "2d226d7696f3e5a90c9d3ed9105179464b9ae3d8810f4c796937f1f951fb89d8",
+      "after": "8916d659e7850fa262e130b4d663da7af26ef97df20320564002198b18af1bb6",
+      "status": "changed",
+      "release": "2026.10.04-wallpaper-custom-candidate"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "301df30e09ce39324ab7684fc766c63cd4e3edaad988ad3f9c2f680defa05b2e",
+      "after": "c46f9cdd63480f4cf09add90242a95da51cfc08a36da3ab0bb9b5b61e047e454",
+      "status": "changed",
+      "release": "2026.10.04-agent-10047"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "301df30e09ce39324ab7684fc766c63cd4e3edaad988ad3f9c2f680defa05b2e",
+      "after": "c46f9cdd63480f4cf09add90242a95da51cfc08a36da3ab0bb9b5b61e047e454",
+      "status": "changed",
+      "release": "2026.10.04-agent-10047"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "68e0d63e6b99b0e4a87a585789961a66340c794bddc5a9fb1c8236545d7748df",
+      "after": "c1f18f53e1752796fe378424bbc5dda169532219b3b6db889861ce38cedf9aa7",
+      "status": "changed",
+      "release": "2026.10.04-agent-10047"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "c46f9cdd63480f4cf09add90242a95da51cfc08a36da3ab0bb9b5b61e047e454",
+      "after": "9d583eba69521829851e01200d663bfa064721aefe85c0c530ac16be202047d1",
+      "status": "changed",
+      "release": "2026.10.04-agent-10048"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "c46f9cdd63480f4cf09add90242a95da51cfc08a36da3ab0bb9b5b61e047e454",
+      "after": "9d583eba69521829851e01200d663bfa064721aefe85c0c530ac16be202047d1",
+      "status": "changed",
+      "release": "2026.10.04-agent-10048"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "c1f18f53e1752796fe378424bbc5dda169532219b3b6db889861ce38cedf9aa7",
+      "after": "9a4be4946c0e62bc8d230a369848c1b1fab0f4c5e1165bd647e697ffc34a78e0",
+      "status": "changed",
+      "release": "2026.10.04-agent-10048"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "c4ea87522667b6ad37ae537e86a0ea623b92ed6b58a9cc65e0a9bcf34c3cdc2c",
+      "after": "4377709afce756fa3bb6e08e85dcc53dd8fc5e664b658e9b2a74ddda3a32e2ae",
+      "status": "changed",
+      "release": "2026.10.04-agent-10048"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "8530579cf1369d90ab8eb335e958141f26d5315c10f3266f5d15f1c55b446c83",
+      "after": "f5d85c1078135c167c0e8844955a785ee83a3455b438a37f1eadb41cc129eec6",
+      "status": "changed",
+      "release": "2026.10.04-agent-10048"
+    },
+    {
+      "target": "apps/windows-agent/ByeollogOverlayService.cs",
+      "before": "6e110f203deb97b9889c23f09f41603fd5ff9a67e0469d4ebbf9cd1285a83ffc",
+      "after": "64625723a4e908f618cf0069770f1ccf239ff68d8be8d04a3f4a1b153afa709d",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "4377709afce756fa3bb6e08e85dcc53dd8fc5e664b658e9b2a74ddda3a32e2ae",
+      "after": "c75e81af04d5b06a549a8ef1ee51df97ddb683b0dfa080e0b924986056078177",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "b33ab7041d06e9f8af1c4554f0b2783327ddf76db0465a4f81a93d40723aafdb",
+      "after": "e746a7c452d1a8c04b965a44f234eb5676ff42981d2af166dc346199acb11c31",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "f5d85c1078135c167c0e8844955a785ee83a3455b438a37f1eadb41cc129eec6",
+      "after": "965ca6db0dff73cf5de72489a8943ca10c1b299ec9ddc367121c0314b5d87d04",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperEditorCoordinator.cs",
+      "before": "f58fabc7f963450370b971ee9725bb4391f992d13033666356f38b3ea5853bd6",
+      "after": "e5f665899e61e513d861312e0a8452df533edaeea731d49306646cc98a20b915",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperOverlayState.cs",
+      "before": "8916d659e7850fa262e130b4d663da7af26ef97df20320564002198b18af1bb6",
+      "after": "337844ba52b7a21ec80ab8bff343b427eb99b16d95ec0f2698722a469a335681",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperWorkspaceContext.cs",
+      "before": "07369eb9cd0335890c6c4c1e9e3313f93970f894fc532f65b4956baa29ffb358",
+      "after": "4a7f5ea8e3e3c4fe329c919046d57cd743150ff02dd3ab660a9b7e86c933b26e",
+      "status": "changed",
+      "release": "2026.10.04-draw-board-candidate"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "9d583eba69521829851e01200d663bfa064721aefe85c0c530ac16be202047d1",
+      "after": "6b9fdfaa7f8ced40dccf4aae465a77bbbde3d0f740f2523e71653311cd4d0eb2",
+      "status": "changed",
+      "release": "2026.10.04-agent-10049"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "9d583eba69521829851e01200d663bfa064721aefe85c0c530ac16be202047d1",
+      "after": "6b9fdfaa7f8ced40dccf4aae465a77bbbde3d0f740f2523e71653311cd4d0eb2",
+      "status": "changed",
+      "release": "2026.10.04-agent-10049"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "9a4be4946c0e62bc8d230a369848c1b1fab0f4c5e1165bd647e697ffc34a78e0",
+      "after": "5216bab233bbf3b92b37169a013222464563c46ad687d8ee969e18d23c662b18",
+      "status": "changed",
+      "release": "2026.10.04-agent-10049"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "c75e81af04d5b06a549a8ef1ee51df97ddb683b0dfa080e0b924986056078177",
+      "after": "ff7de8ab4c17d03231ff442b18703e46ab996d36894f6fb83da74e3b2b93cfcd",
+      "status": "changed",
+      "release": "2026.10.04-agent-10049"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "965ca6db0dff73cf5de72489a8943ca10c1b299ec9ddc367121c0314b5d87d04",
+      "after": "fd1f677d8e806cd769929d97fb5cb661bb472f8ca0814a9340d3da44cbec2359",
+      "status": "changed",
+      "release": "2026.10.04-agent-10049"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "6b9fdfaa7f8ced40dccf4aae465a77bbbde3d0f740f2523e71653311cd4d0eb2",
+      "after": "7f7e81189146f0a53bb311ce23d0145bd7086c94315247bbc262a22fd68ac73e",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "6b9fdfaa7f8ced40dccf4aae465a77bbbde3d0f740f2523e71653311cd4d0eb2",
+      "after": "7f7e81189146f0a53bb311ce23d0145bd7086c94315247bbc262a22fd68ac73e",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "5216bab233bbf3b92b37169a013222464563c46ad687d8ee969e18d23c662b18",
+      "after": "31c145b5fa127af588da31a6ab0a5872a39ff1638da87c13e0ddb7e0b164a8fc",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "ff7de8ab4c17d03231ff442b18703e46ab996d36894f6fb83da74e3b2b93cfcd",
+      "after": "ae47a60072794f92065e19ad6a6272c2ae2adc6bd6240a618503ad74b0cf11d1",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "apps/windows-agent/MainForm.cs",
+      "before": "517f07f67d6870e4fae0171e9b83ff8b97cff72f409cef1c28f153203fb68c5a",
+      "after": "ed9a027bae0891ddbb1875f4991bec1dec1a0ff786c10ab79f6780182c6e60cd",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "apps/windows-agent/Ui/byeollog_ui.html",
+      "before": "d0191a29c25d422da8092281de0bd226a0ed9b003d329ff177e4312a68ffb142",
+      "after": "541c837239d59e44d5b2e93f247e8085aeecceaa641f3bbbb623d7aeacfca5f1",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "fd1f677d8e806cd769929d97fb5cb661bb472f8ca0814a9340d3da44cbec2359",
+      "after": "7b0db92f87e6f6a4ca51b8d368b81a15518f779fe686dad34d7903b1254b5917",
+      "status": "changed",
+      "release": "2026.10.04-agent-10050"
+    },
+    {
+      "target": "services/soop-gateway/services/soop-chat-gateway/browser-session.mjs",
+      "before": "109acc89b449c0fbe80d23490379aeac6d6b26842acb4220a758b5e38ce4bcfe",
+      "after": "a6695713086eadedb977043c1d0a59971a8e87cd8b9da2515eff5936b4dea355",
+      "status": "changed",
+      "release": "2026.10.05-owner-suffix"
+    },
+    {
+      "target": "services/soop-gateway/services/soop-chat-gateway/Dockerfile",
+      "before": "636f5efae3785ad9a3112b2256a313f4fd6b1b2a1128356ccfbb8ffeed32cbbe",
+      "status": "changed",
+      "after": "c1b92d56bbd2028bc0558bce9461287aa920c0cef95cc8236720c85abe8a744c",
+      "release": "2026.10.08-direct-production"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "7f7e81189146f0a53bb311ce23d0145bd7086c94315247bbc262a22fd68ac73e",
+      "after": "bade8473e58ba71dcb35f7c47ece33091bfad9884bec06b519ac3c3d4ae25dbb",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "7f7e81189146f0a53bb311ce23d0145bd7086c94315247bbc262a22fd68ac73e",
+      "after": "bade8473e58ba71dcb35f7c47ece33091bfad9884bec06b519ac3c3d4ae25dbb",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "31c145b5fa127af588da31a6ab0a5872a39ff1638da87c13e0ddb7e0b164a8fc",
+      "after": "8027971b0820e71b969122472ebed3f78801375966f1b5b095f8965bc1a565c7",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "ae47a60072794f92065e19ad6a6272c2ae2adc6bd6240a618503ad74b0cf11d1",
+      "after": "fa88a6f9a81894fb21a4221852313fa566442f5d63eb1bcef3220cdb06cadb07",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/windows-agent/MainForm.cs",
+      "before": "ed9a027bae0891ddbb1875f4991bec1dec1a0ff786c10ab79f6780182c6e60cd",
+      "after": "0816fb8162ab6d78111de7864380773ee7af4c50a39f5d113fbf4ab33ae9b8b3",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/windows-agent/Ui/byeollog_ui.html",
+      "before": "541c837239d59e44d5b2e93f247e8085aeecceaa641f3bbbb623d7aeacfca5f1",
+      "after": "f993a3de745343e417914a540fe18e7edfc76372893a25f338112365781d7795",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/windows-agent/VNextLocalAgent.cs",
+      "before": "91ae6a223345a59d5b18ddc060acd71f5fcdeb5298249779499851718b406f29",
+      "after": "0fe56dc93bc9139be36e035f4bd5a86272f706136d7373b61d2c8e0de6596174",
+      "status": "changed",
+      "release": "2026.10.08-agent-10052"
+    },
+    {
+      "target": "apps/windows-agent/ByeollogOverlayService.cs",
+      "before": "64625723a4e908f618cf0069770f1ccf239ff68d8be8d04a3f4a1b153afa709d",
+      "after": "af9bd1434cc003dc2eff7e4ae1cbceccad5ab8321e40e0e133a217e27cd311d5",
+      "status": "changed",
+      "release": "2026.10.09-wallpaper-hidden-cards-candidate"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "fa88a6f9a81894fb21a4221852313fa566442f5d63eb1bcef3220cdb06cadb07",
+      "after": "87415f1bbe0b61d39c3accd2a1152bd50a2cc666c33bede38f394a56f9d47683",
+      "status": "changed",
+      "release": "2026.10.09-wallpaper-hidden-cards-candidate"
+    },
+    {
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "e746a7c452d1a8c04b965a44f234eb5676ff42981d2af166dc346199acb11c31",
+      "after": "b24959a375197cede5dd62233f0227fd99a16468e8582adbc964c739dfe153c7",
+      "status": "changed",
+      "release": "2026.10.09-wallpaper-hidden-cards-candidate"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "7b0db92f87e6f6a4ca51b8d368b81a15518f779fe686dad34d7903b1254b5917",
+      "after": "4920319c84a42949e07c2209dce34da262ed7502d8f5f38a4e716c33b2f11168",
+      "status": "changed",
+      "release": "2026.10.09-wallpaper-hidden-cards-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperEditorCoordinator.cs",
+      "before": "e5f665899e61e513d861312e0a8452df533edaeea731d49306646cc98a20b915",
+      "after": "038810b9b3ce09fecade4c7d3477fddad0c123357e8dddee6751ca2d71974738",
+      "status": "changed",
+      "release": "2026.10.09-wallpaper-hidden-cards-candidate"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperOverlayState.cs",
+      "before": "337844ba52b7a21ec80ab8bff343b427eb99b16d95ec0f2698722a469a335681",
+      "after": "5beb2ea57726e5c8ea64931a018dbd8a0bd2ff62f12508c8e984c2787beb3cf1",
+      "status": "changed",
+      "release": "2026.10.09-wallpaper-hidden-cards-candidate"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "bade8473e58ba71dcb35f7c47ece33091bfad9884bec06b519ac3c3d4ae25dbb",
+      "after": "8939701c886b0c11170976c91cbac9ce18411a89caf8f5570b0a92cc727ee1ec",
+      "status": "changed",
+      "release": "2026.10.09-agent-10053"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "bade8473e58ba71dcb35f7c47ece33091bfad9884bec06b519ac3c3d4ae25dbb",
+      "after": "8939701c886b0c11170976c91cbac9ce18411a89caf8f5570b0a92cc727ee1ec",
+      "status": "changed",
+      "release": "2026.10.09-agent-10053"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "8027971b0820e71b969122472ebed3f78801375966f1b5b095f8965bc1a565c7",
+      "after": "cbacef52f761069468eac7f4d9b552cd4d1f814eec3b27111a1156a672203669",
+      "status": "changed",
+      "release": "2026.10.09-agent-10053"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "87415f1bbe0b61d39c3accd2a1152bd50a2cc666c33bede38f394a56f9d47683",
+      "after": "71de50fed6d8dd9e38d1e0664f339facbb0c318ee95e2b8d74f152ab31e82f57",
+      "status": "changed",
+      "release": "2026.10.09-agent-10053"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "8939701c886b0c11170976c91cbac9ce18411a89caf8f5570b0a92cc727ee1ec",
+      "after": "4eebdaf2d2586c09169be18ef7cec72e51f6d4fdd23726c128d3ca183f722ec3",
+      "status": "changed",
+      "release": "2026.10.09-agent-10054"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "8939701c886b0c11170976c91cbac9ce18411a89caf8f5570b0a92cc727ee1ec",
+      "after": "4eebdaf2d2586c09169be18ef7cec72e51f6d4fdd23726c128d3ca183f722ec3",
+      "status": "changed",
+      "release": "2026.10.09-agent-10054"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "cbacef52f761069468eac7f4d9b552cd4d1f814eec3b27111a1156a672203669",
+      "after": "44eded74e04aa9d4dc14f89d4a1f30a0a2d26ab0b8393549c481c8fb9539ad94",
+      "status": "changed",
+      "release": "2026.10.09-agent-10054"
+    },
+    {
+      "target": "apps/windows-agent/CollectorLoginWebForm.cs",
+      "before": "f1b69584b6292fd50f0bc22695c9bca3b6e6b696cdb34e46b30bb1a58212c3a3",
+      "after": "21508bf3c77b58baac609c1523976e42b48cec8de89fc0f7c9f263cc5ce7ca78",
+      "status": "changed",
+      "release": "2026.10.09-agent-10054"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "71de50fed6d8dd9e38d1e0664f339facbb0c318ee95e2b8d74f152ab31e82f57",
+      "after": "47e71c67b6dad62c49422c5fcd81cbd22b0672ba43a1b1bc59d508aa962fcfd4",
+      "status": "changed",
+      "release": "2026.10.09-agent-10054"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "4920319c84a42949e07c2209dce34da262ed7502d8f5f38a4e716c33b2f11168",
+      "after": "a093572692b1cf2f83682213b812278f90f4714f921aea915a0b31382bb2eafc",
+      "status": "changed",
+      "release": "2026.10.09-agent-10054"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "4eebdaf2d2586c09169be18ef7cec72e51f6d4fdd23726c128d3ca183f722ec3",
+      "after": "33f4a0c6ea6d845b6a4e2577b220e6a38d3910dd8cb2a39733fc2c965fbb5a22",
+      "status": "changed",
+      "release": "2026.10.09-agent-10055"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "4eebdaf2d2586c09169be18ef7cec72e51f6d4fdd23726c128d3ca183f722ec3",
+      "after": "33f4a0c6ea6d845b6a4e2577b220e6a38d3910dd8cb2a39733fc2c965fbb5a22",
+      "status": "changed",
+      "release": "2026.10.09-agent-10055"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "44eded74e04aa9d4dc14f89d4a1f30a0a2d26ab0b8393549c481c8fb9539ad94",
+      "after": "a93e7dbaf532ca9aef332b3bc531e8c700deb6fba5445af402ae529ae59f3e18",
+      "status": "changed",
+      "release": "2026.10.09-agent-10055"
+    },
+    {
+      "target": "apps/windows-agent/ByeollogOverlayService.cs",
+      "before": "af9bd1434cc003dc2eff7e4ae1cbceccad5ab8321e40e0e133a217e27cd311d5",
+      "after": "e565e18d2a93427d8bde180e604ae87cc595f8db1b60aa8862afc6332ffc7ec3",
+      "status": "changed",
+      "release": "2026.10.09-agent-10055"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "47e71c67b6dad62c49422c5fcd81cbd22b0672ba43a1b1bc59d508aa962fcfd4",
+      "after": "055a8e89580deae5c943354ebe798ba014dbdffee6763d3519a02968ab2c9039",
+      "status": "changed",
+      "release": "2026.10.09-agent-10055"
+    },
+    {
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "b24959a375197cede5dd62233f0227fd99a16468e8582adbc964c739dfe153c7",
+      "after": "0dafab67d627e5729a9b821a99e922ef8bc5e8f8ef48ae1e2d4b8ecef5c8bc87",
+      "status": "changed",
+      "release": "2026.10.09-agent-10055"
+    },
+    {
+      "target": "apps/admin-runtime/handlers/admin.js",
+      "before": "a2b37da878292e8cc38a23e71bab9aa15b3bd7bd634c88b6f9e742c5dde8780e",
+      "after": "20bcbd95df6911528a040d7b0de4edb1f5606d6e403b46cfbc39770d418bebfb",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "f25af1bc4c68e329551f63a5ae3e989f02050e2beae9f5fe24473f1976e9e16b",
+      "after": "677102dcaa0df3ab0ddd31e98bb5bcd7a43f541da169500a8b02de57180d4aff",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "3a075ddcacc62a91b954c25668d5fed146fd722f263e18bd67d74f7e5c5970de",
+      "after": "366ece6b425083885d54c437034e583bf422787303b3770a4f513cb91deb8b73",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/lib/dashboard-navigation.js",
+      "before": "178934c525bb712b376b2d039446d6913c73d9c65270765f87e8988858842177",
+      "after": "2d4c1168e871892078f474bd1d800aba3f53bbfb85e76f4dc8f75106f826634f",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/lib/dashboard-shell-client.js",
+      "before": "d5f56faf157c869f3cf18f3911c96676c10a93c0aa9ee8769398397041131085",
+      "after": "abffffb3bc336a7e4849bcf9a1188144ae073fa0fc7df4ca735e78b25698b197",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/lib/roulette-classification-html.js",
+      "before": "1059c417ca0fcfdd5f48e843d9fbb17cad4958fe965a63bd024ab7841c060f79",
+      "after": "f1c5b3ba7aced2602923b9cdee49f5a664cca1bf443e2b3e11d538d2e9b96a3d",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/lib/soop-gateway-api.js",
+      "before": "822266e9e6fd1a7e9fc70c21ea61c10c9fda0b18a0ceba9cb4d04cab32784ed6",
+      "after": "6d685e296ce600062a45accb729e6e464066d3533762fa292823abf7c5d26336",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-html.js",
+      "before": "5f15835b3ec11aadddf2a74f2a9f9999c42b653b481b70d9e9929710aa02a15d",
+      "after": "b75aef17c9bb92ef92dde8d1d1cdc30d873593248636b83d7c06ed2c87119b0c",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-source.html",
+      "before": "7d24559d2693c1857057be294c341aa63043ef7d832b616f5f032a26137c2ba7",
+      "after": "6cded0653a77c97f0e8fa3c317d2c5590ab5251430d10d59af74a371bc8cee82",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/collector-runtime/lib/dashboard-navigation.js",
+      "before": "178934c525bb712b376b2d039446d6913c73d9c65270765f87e8988858842177",
+      "after": "2d4c1168e871892078f474bd1d800aba3f53bbfb85e76f4dc8f75106f826634f",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/collector-runtime/lib/dashboard-shell-client.js",
+      "before": "d5f56faf157c869f3cf18f3911c96676c10a93c0aa9ee8769398397041131085",
+      "after": "abffffb3bc336a7e4849bcf9a1188144ae073fa0fc7df4ca735e78b25698b197",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/collector-runtime/lib/roulette-classification-html.js",
+      "before": "1059c417ca0fcfdd5f48e843d9fbb17cad4958fe965a63bd024ab7841c060f79",
+      "after": "f1c5b3ba7aced2602923b9cdee49f5a664cca1bf443e2b3e11d538d2e9b96a3d",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/collector-runtime/lib/soop-gateway-api.js",
+      "before": "c6f2d561468e0dc29b3d87d56390afd60518c41cdcadf55688cb6374feaee9ad",
+      "after": "b35b0f569ab6dee2921a616f53c956c928e293ba21fafb13a75af371051220f9",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-html.js",
+      "before": "5f15835b3ec11aadddf2a74f2a9f9999c42b653b481b70d9e9929710aa02a15d",
+      "after": "b75aef17c9bb92ef92dde8d1d1cdc30d873593248636b83d7c06ed2c87119b0c",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-source.html",
+      "before": "7d24559d2693c1857057be294c341aa63043ef7d832b616f5f032a26137c2ba7",
+      "after": "6cded0653a77c97f0e8fa3c317d2c5590ab5251430d10d59af74a371bc8cee82",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/public-runtime/lib/dashboard-navigation.js",
+      "before": "178934c525bb712b376b2d039446d6913c73d9c65270765f87e8988858842177",
+      "after": "2d4c1168e871892078f474bd1d800aba3f53bbfb85e76f4dc8f75106f826634f",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/public-runtime/lib/dashboard-shell-client.js",
+      "before": "d5f56faf157c869f3cf18f3911c96676c10a93c0aa9ee8769398397041131085",
+      "after": "abffffb3bc336a7e4849bcf9a1188144ae073fa0fc7df4ca735e78b25698b197",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/public-runtime/lib/roulette-classification-html.js",
+      "before": "1059c417ca0fcfdd5f48e843d9fbb17cad4958fe965a63bd024ab7841c060f79",
+      "after": "f1c5b3ba7aced2602923b9cdee49f5a664cca1bf443e2b3e11d538d2e9b96a3d",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/lib/admin-html.js",
+      "before": "f25af1bc4c68e329551f63a5ae3e989f02050e2beae9f5fe24473f1976e9e16b",
+      "after": "677102dcaa0df3ab0ddd31e98bb5bcd7a43f541da169500a8b02de57180d4aff",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/lib/admin-source.html",
+      "before": "3a075ddcacc62a91b954c25668d5fed146fd722f263e18bd67d74f7e5c5970de",
+      "after": "366ece6b425083885d54c437034e583bf422787303b3770a4f513cb91deb8b73",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/lib/dashboard-navigation.js",
+      "before": "178934c525bb712b376b2d039446d6913c73d9c65270765f87e8988858842177",
+      "after": "2d4c1168e871892078f474bd1d800aba3f53bbfb85e76f4dc8f75106f826634f",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/lib/dashboard-shell-client.js",
+      "before": "d5f56faf157c869f3cf18f3911c96676c10a93c0aa9ee8769398397041131085",
+      "after": "abffffb3bc336a7e4849bcf9a1188144ae073fa0fc7df4ca735e78b25698b197",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/lib/roulette-classification-html.js",
+      "before": "1059c417ca0fcfdd5f48e843d9fbb17cad4958fe965a63bd024ab7841c060f79",
+      "after": "f1c5b3ba7aced2602923b9cdee49f5a664cca1bf443e2b3e11d538d2e9b96a3d",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/setup.html",
+      "before": "16d8802a32515cebdc2a795f299f2e33d2dfeb35cd8ae28c9cc85ada9e9cb59b",
+      "after": "1a56a1b3988375427c3409c5fd7480df104fa202c542b78fa7dbd4825c4a784e",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/web/test/roulette-classification.test.mjs",
+      "before": "5931f6a846588ae3fe09ae548e18f61f87e3aabb62b4088159e4ab844e3bcb9d",
+      "after": "88153b8fb6413ca3554125c7ffba233dd46dcdc2cfcba0d35dd90536e6076fdd",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/windows-agent/Ui/byeollog_ui.html",
+      "before": "f993a3de745343e417914a540fe18e7edfc76372893a25f338112365781d7795",
+      "after": "02346fb2e588f58dec9a68aa901689825bc8127dbb05e02b63a5850b230b8afd",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "0dafab67d627e5729a9b821a99e922ef8bc5e8f8ef48ae1e2d4b8ecef5c8bc87",
+      "after": "7c5a32ed2beb9051b4ab268178d3eb3b1361bb357775200ee325058be9506fe3",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-collection"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "33f4a0c6ea6d845b6a4e2577b220e6a38d3910dd8cb2a39733fc2c965fbb5a22",
+      "after": "36ee8081b244efa45c8c9e95a54460aa0e6f927403cb8e6aa036bf09cb2da961",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-deployment"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "33f4a0c6ea6d845b6a4e2577b220e6a38d3910dd8cb2a39733fc2c965fbb5a22",
+      "after": "36ee8081b244efa45c8c9e95a54460aa0e6f927403cb8e6aa036bf09cb2da961",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-deployment"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "a93e7dbaf532ca9aef332b3bc531e8c700deb6fba5445af402ae529ae59f3e18",
+      "after": "74b6a555016b26bcb7884bb84018ae8833d9925317e26679dcf6b497671f6c9d",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-deployment"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "055a8e89580deae5c943354ebe798ba014dbdffee6763d3519a02968ab2c9039",
+      "after": "f2864458cd6999e15a3f0eeed79fe17178e5b69e56c864cffba19b12741aa3ab",
+      "status": "changed",
+      "release": "candidate-2026.10.11-upbo-deployment"
+    },
+    {
+      "target": "apps/admin-runtime/lib/collector-processor.js",
+      "before": "8665873b6fee2e7fb537fced793846b845c7bdc99a7b2a5d450c1996611b3326",
+      "after": "01ac39c1ea425eca8ca908e8a34f2cb1fd39f9145ae591a1c474042f54b61d1b",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/admin-runtime/lib/upbo-collection-html.js",
+      "before": "f8c3edb0b0c546181b475d3da4744f0525c25295e808f85c003a821f7ce1b503",
+      "after": "17f3fc6e68eb25d7b607865f4b53e2f9d89faa760090ea476cd6a371f91d08ab",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/admin-runtime/lib/upbo-collection.js",
+      "before": "18dbacf1d3cb335aa881ffb1e3c70b49f5c65428a3cd92830ab50acb27e0097d",
+      "after": "eef1e464b1b5fd4839721842ae286c7b3d8fbd7cdf94323eb2f419876367cea8",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/admin-runtime/lib/weflab-collection-config.js",
+      "before": "e1b74c9ed7788b8bc2d346460c940831ef101723d42b7423873692c4860c05f8",
+      "after": "0f14490f4b10f305f48c0cfb45229b4d54be2ebf659f995101a09b5b76790d4d",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/collector-runtime/lib/collector-processor.js",
+      "before": "8665873b6fee2e7fb537fced793846b845c7bdc99a7b2a5d450c1996611b3326",
+      "after": "01ac39c1ea425eca8ca908e8a34f2cb1fd39f9145ae591a1c474042f54b61d1b",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/collector-runtime/lib/upbo-collection-html.js",
+      "before": "f8c3edb0b0c546181b475d3da4744f0525c25295e808f85c003a821f7ce1b503",
+      "after": "17f3fc6e68eb25d7b607865f4b53e2f9d89faa760090ea476cd6a371f91d08ab",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/collector-runtime/lib/weflab-collection-config.js",
+      "before": "e1b74c9ed7788b8bc2d346460c940831ef101723d42b7423873692c4860c05f8",
+      "after": "0f14490f4b10f305f48c0cfb45229b4d54be2ebf659f995101a09b5b76790d4d",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/public-runtime/lib/collector-processor.js",
+      "before": "8665873b6fee2e7fb537fced793846b845c7bdc99a7b2a5d450c1996611b3326",
+      "after": "01ac39c1ea425eca8ca908e8a34f2cb1fd39f9145ae591a1c474042f54b61d1b",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/public-runtime/lib/upbo-collection-html.js",
+      "before": "f8c3edb0b0c546181b475d3da4744f0525c25295e808f85c003a821f7ce1b503",
+      "after": "17f3fc6e68eb25d7b607865f4b53e2f9d89faa760090ea476cd6a371f91d08ab",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/web/lib/collector-processor.js",
+      "before": "8665873b6fee2e7fb537fced793846b845c7bdc99a7b2a5d450c1996611b3326",
+      "after": "01ac39c1ea425eca8ca908e8a34f2cb1fd39f9145ae591a1c474042f54b61d1b",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/web/lib/upbo-collection-html.js",
+      "before": "f8c3edb0b0c546181b475d3da4744f0525c25295e808f85c003a821f7ce1b503",
+      "after": "17f3fc6e68eb25d7b607865f4b53e2f9d89faa760090ea476cd6a371f91d08ab",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "tools/weflab-lab/browserless-core.mjs",
+      "before": "a0fb492869fdb6bd06e40012b4362a0e479b018effd97a167a89e4b002b5de81",
+      "after": "3451ba7a24b66d3ddc8fa2c68d4a8f4d2750efb7f4a1b2ba71fb7bfc814ff8fb",
+      "status": "changed",
+      "release": "ops-2026.10.11-overlay-authority"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "677102dcaa0df3ab0ddd31e98bb5bcd7a43f541da169500a8b02de57180d4aff",
+      "after": "f50f0652d93884dc43f7c7a14d5f708e27d6ded112df3dfd161d8ded39642ae7",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "366ece6b425083885d54c437034e583bf422787303b3770a4f513cb91deb8b73",
+      "after": "2d89070a36de03750452d53bb6300bf859bd01cf92c8543eb391426dd4ae236a",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-html.js",
+      "before": "b75aef17c9bb92ef92dde8d1d1cdc30d873593248636b83d7c06ed2c87119b0c",
+      "after": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-source.html",
+      "before": "6cded0653a77c97f0e8fa3c317d2c5590ab5251430d10d59af74a371bc8cee82",
+      "after": "35ea8f1b94289608211a45a21cd290dbf068c3ee7553967317b2d768560c2e80",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-html.js",
+      "before": "b75aef17c9bb92ef92dde8d1d1cdc30d873593248636b83d7c06ed2c87119b0c",
+      "after": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-source.html",
+      "before": "6cded0653a77c97f0e8fa3c317d2c5590ab5251430d10d59af74a371bc8cee82",
+      "after": "35ea8f1b94289608211a45a21cd290dbf068c3ee7553967317b2d768560c2e80",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/web/lib/admin-html.js",
+      "before": "677102dcaa0df3ab0ddd31e98bb5bcd7a43f541da169500a8b02de57180d4aff",
+      "after": "f50f0652d93884dc43f7c7a14d5f708e27d6ded112df3dfd161d8ded39642ae7",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/web/lib/admin-source.html",
+      "before": "366ece6b425083885d54c437034e583bf422787303b3770a4f513cb91deb8b73",
+      "after": "2d89070a36de03750452d53bb6300bf859bd01cf92c8543eb391426dd4ae236a",
+      "status": "changed",
+      "release": "ops-2026.10.11-late-classification-multiplier"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "f50f0652d93884dc43f7c7a14d5f708e27d6ded112df3dfd161d8ded39642ae7",
+      "after": "3b7040f82237bd1425fba2b822ae156023f55d40faec8851922520d57a57a703",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "2d89070a36de03750452d53bb6300bf859bd01cf92c8543eb391426dd4ae236a",
+      "after": "064dcbb35159787d4f4f6e8755759eaf04fef6e8b0dd34e549804353ec1a05e1",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-html.js",
+      "before": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
+      "after": "c75e8dc5fa6ef1ea968f1668990d1e718770b97fc61548dfd4de337644cac561",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-source.html",
+      "before": "35ea8f1b94289608211a45a21cd290dbf068c3ee7553967317b2d768560c2e80",
+      "after": "938d479cf992c8afc4e7d91beb77c2f359d5f4fb628664b9c4b1ed8059a2f728",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-html.js",
+      "before": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
+      "after": "c75e8dc5fa6ef1ea968f1668990d1e718770b97fc61548dfd4de337644cac561",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-source.html",
+      "before": "35ea8f1b94289608211a45a21cd290dbf068c3ee7553967317b2d768560c2e80",
+      "after": "938d479cf992c8afc4e7d91beb77c2f359d5f4fb628664b9c4b1ed8059a2f728",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/web/lib/admin-html.js",
+      "before": "f50f0652d93884dc43f7c7a14d5f708e27d6ded112df3dfd161d8ded39642ae7",
+      "after": "3b7040f82237bd1425fba2b822ae156023f55d40faec8851922520d57a57a703",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/web/lib/admin-source.html",
+      "before": "2d89070a36de03750452d53bb6300bf859bd01cf92c8543eb391426dd4ae236a",
+      "after": "064dcbb35159787d4f4f6e8755759eaf04fef6e8b0dd34e549804353ec1a05e1",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/web/lib/donation-report-client.js",
+      "before": "cb1577f1013615f05b44783b8c69f524a850cdbef09212b59a64cf8634949bce",
+      "after": "1c0f5dee000b46978368b9c0635d8416b80c4aaaad18507e0b13f11be81f5a62",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-source.html",
+      "before": "938d479cf992c8afc4e7d91beb77c2f359d5f4fb628664b9c4b1ed8059a2f728",
+      "after": "35ea8f1b94289608211a45a21cd290dbf068c3ee7553967317b2d768560c2e80",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/collector-runtime/lib/admin-html.js",
+      "before": "c75e8dc5fa6ef1ea968f1668990d1e718770b97fc61548dfd4de337644cac561",
+      "after": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-source.html",
+      "before": "938d479cf992c8afc4e7d91beb77c2f359d5f4fb628664b9c4b1ed8059a2f728",
+      "after": "35ea8f1b94289608211a45a21cd290dbf068c3ee7553967317b2d768560c2e80",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/public-runtime/lib/admin-html.js",
+      "before": "c75e8dc5fa6ef1ea968f1668990d1e718770b97fc61548dfd4de337644cac561",
+      "after": "88fcfdd942d0084282e33d7ab6275a7c52f90e183fcbbebc4387158811455e39",
+      "status": "changed",
+      "release": "ops-2026.10.11-report-legibility"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-html.js",
+      "before": "3b7040f82237bd1425fba2b822ae156023f55d40faec8851922520d57a57a703",
+      "after": "9cf92b7bfa63fb725c85fe30bed87072ce7a15c12f93e14625d07a88737c9cff",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/lib/admin-source.html",
+      "before": "064dcbb35159787d4f4f6e8755759eaf04fef6e8b0dd34e549804353ec1a05e1",
+      "after": "eed4d618f71aa12c2ef611e301d934518fafc1c4daf050e7b9466513a4228863",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/lib/broadcast-readiness.js",
+      "before": "8cadc1ab93c73933bd0e5a1f723c9a0b0e5d8249f875a3217dda5f5fbcd3fbe1",
+      "after": "8c48c740058cf5829ce5a401fec3cf77298a4e39b359cde8d44b569cf3c0650b",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/lib/dashboard-notifications.js",
+      "before": "ecd32af989cbb4f139bcaf3494eabae1a54f96ce9eb7da4df2580d48733ec2d7",
+      "after": "e43254c2dab0bcf52ad6832d817262facfcd69a970595896bcc20a0a65312cec",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/lib/signup.js",
+      "before": "ee59a5d96079212cd30ae0a0c9aea022f11c983670f823e72e87274ae3100101",
+      "after": "b73c7255f2e6a0550c7f79c4c4a96857bed46e8b74d0288b319e65be2eeb9413",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/lib/ux-controls.js",
+      "before": "f228cb86fab54bc53609410754ae302891817e8b65f59924478de5473d2c4fe2",
+      "after": "e02b86f4150d0d3f08339b72e336e97cde7de5358fdc79397585c64e274faebd",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/lib/ux-roulette-html.js",
+      "before": "71056f7a299ec1354691db5bd3039518a6331fec4baa14f404c565b751b701b5",
+      "after": "bc0912f7aa3c286013396cc93e755ec3981e4effe433af6eae02f5c5aee69234",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/assets/credits-page.js",
+      "before": "1b76838c5856fb4b88b48461afdb618e205278a8c1d6edc640d8872e87e66396",
+      "after": "68f7755ce8f35297b914b0ce0ba57f51b7df72ef4bf5639bdbfbf1f073196e4a",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/assets/manuals/byeollog-start-guide.pdf",
+      "before": "9f48dbf6e6657391928e2393f349c944d068acbf20328691b7a480610d3b089c",
+      "after": "334f2322788c62a5ef7602a25d1f89e34c17541b3c0f00b90c35b7806b0d75c4",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/assets/setup-page.js",
+      "before": "2fec1744e9213ae6c30708d3a56738ae00a001c321b0524cf984d3ad8231a0a6",
+      "after": "6317e5b99402d2da7181a475e0cb76c360ac307d25e41eadf9de4c31ff1709c4",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/assets/signup-page.js",
+      "before": "2d89c6296a94bd3ef04656a9e6b4905a99be265b818977c8101a6fac9a86fa16",
+      "after": "9ca0f1ed469dd3c3deeb59791de173ea7cd7b9f3b529a67fa815f4bef1d36060",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/credits.html",
+      "before": "0259d086a9f13ea5af6c15e5c5f3497acbcdbd4e4c2c0e37c6a875a47914523c",
+      "after": "dec1d052ac8bcebfdd380074355344e700c48f5308ddb62a19b629a3a9f89b6e",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/docs/manual/build_start_guide.py",
+      "before": "087f560cd273eee5ae047a2a177a6ff235089627e040b1ef826c38da79fe80f5",
+      "after": "83e55e2ecc7cee6febe0b5e18913235514d3b9bb5413f3ec94707c665516177c",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/admin-html.js",
+      "before": "3b7040f82237bd1425fba2b822ae156023f55d40faec8851922520d57a57a703",
+      "after": "9cf92b7bfa63fb725c85fe30bed87072ce7a15c12f93e14625d07a88737c9cff",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/admin-source.html",
+      "before": "064dcbb35159787d4f4f6e8755759eaf04fef6e8b0dd34e549804353ec1a05e1",
+      "after": "eed4d618f71aa12c2ef611e301d934518fafc1c4daf050e7b9466513a4228863",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/broadcast-readiness.js",
+      "before": "8cadc1ab93c73933bd0e5a1f723c9a0b0e5d8249f875a3217dda5f5fbcd3fbe1",
+      "after": "8c48c740058cf5829ce5a401fec3cf77298a4e39b359cde8d44b569cf3c0650b",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/dashboard-notifications.js",
+      "before": "ecd32af989cbb4f139bcaf3494eabae1a54f96ce9eb7da4df2580d48733ec2d7",
+      "after": "e43254c2dab0bcf52ad6832d817262facfcd69a970595896bcc20a0a65312cec",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/signup.js",
+      "before": "ee59a5d96079212cd30ae0a0c9aea022f11c983670f823e72e87274ae3100101",
+      "after": "b73c7255f2e6a0550c7f79c4c4a96857bed46e8b74d0288b319e65be2eeb9413",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/ux-controls.js",
+      "before": "f228cb86fab54bc53609410754ae302891817e8b65f59924478de5473d2c4fe2",
+      "after": "e02b86f4150d0d3f08339b72e336e97cde7de5358fdc79397585c64e274faebd",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/lib/ux-roulette-html.js",
+      "before": "71056f7a299ec1354691db5bd3039518a6331fec4baa14f404c565b751b701b5",
+      "after": "bc0912f7aa3c286013396cc93e755ec3981e4effe433af6eae02f5c5aee69234",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/privacy.html",
+      "before": "d49fce5a5c04b7b52a1982ab1c802a5a01df51237d5be5657df61f348cc8a27e",
+      "after": "e75624f1169ef824ec7ef91ad985c9643cc2ca9f4bf1b241f9be28241704add5",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/scripts/build-public-assets.mjs",
+      "before": "1bf7d07a8f436dcb1f2137f611751b7bd1ac62ae2294b22642f6f6ef0d610dd3",
+      "after": "ced78ea0bff911e8a30c4b67d73efb85a5740943a6b608d36fb0d95c226dab1c",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/scripts/generate-admin-html.mjs",
+      "before": "7e4bd2343cf5c80763615e42bbb1eca829911fb638363c6a32ceba141f879805",
+      "after": "f7ab0045caa31cdf2a6ff0f906d8d71079b8660e2791565baa620273c62e543a",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/setup.html",
+      "before": "1a56a1b3988375427c3409c5fd7480df104fa202c542b78fa7dbd4825c4a784e",
+      "after": "796987291374f78b69a88696cded52e050cb0e894ac029493a827d2fab629da0",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/signup.html",
+      "before": "d8b1ae9d93094f446ddd0995aa6993d70f37211ff3f6b49d2966c4b76ec6d744",
+      "after": "0be4bec1a4ce868adadeb7d81f08ac1248a8606afd68d2437d675a63b0230571",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/terms.html",
+      "before": "df5d75649ceb5f0241b4be25b3da04467bd701918d8906a8410ef6df50f5b059",
+      "after": "c0a4f88fc37ae489e4571bd71c83fb817efd2f38a99cc9b23b419737f239060d",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/test/privacy-policy.test.mjs",
+      "before": "e6a738585726cbf6bc89ac9da28fd7d02db29ba17c7a79f406474330bccf9e70",
+      "after": "4d2a1b6ec8a083855668d712e00c755138ff8026c5099ac490f4b639f25db9ed",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/test/signup-referral-credit.test.mjs",
+      "before": "b3c2d306b51ce975b46e1a07db76c3d6f44868a722425315f4452d776878fa39",
+      "after": "18a925ee69beb3df010b564445780d486ebb255941453c51a6e58ac433a598ab",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "74b6a555016b26bcb7884bb84018ae8833d9925317e26679dcf6b497671f6c9d",
+      "after": "47ef9e31dc1e556ae8f21f78d40e604cc4a447a3db31ef6f81fcbf45a720f05b",
+      "status": "changed",
+      "release": "ops-2026.10.11-guide-credit-history"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "36ee8081b244efa45c8c9e95a54460aa0e6f927403cb8e6aa036bf09cb2da961",
+      "after": "11fd1c5e2ff03b89d63c2d09e38c426929bc36c17b2a5d4d2e2ef2677ea0bc04",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "36ee8081b244efa45c8c9e95a54460aa0e6f927403cb8e6aa036bf09cb2da961",
+      "after": "11fd1c5e2ff03b89d63c2d09e38c426929bc36c17b2a5d4d2e2ef2677ea0bc04",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/web/installer/ByeollogAgentSetup.iss",
+      "before": "0e1baa5dca8a60eeed6353d96b604460f8d0dc7c4845796176285af74359e34b",
+      "after": "c4ab2a0ae6e728ada125e07417cf8d23fe6ab84613ed0901a103b7468933c1e4",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/web/scripts/build-public-assets.mjs",
+      "before": "ced78ea0bff911e8a30c4b67d73efb85a5740943a6b608d36fb0d95c226dab1c",
+      "after": "bc16e1c643f1748074a0ded3887fd73c26ea8e70a8b200b635981e81c67766b9",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "47ef9e31dc1e556ae8f21f78d40e604cc4a447a3db31ef6f81fcbf45a720f05b",
+      "after": "3fe599a57673052e0926418817b27f77c589a5cf14a82918244ac65bc4d9772c",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/AgentStoreTests/AgentStoreTests.csproj",
+      "before": "3b05a50595254d5032837a39dffc0c1ce5c98322a5aaf103bb51f0eac8e67c3d",
+      "after": "b219387db4d7899abb67524cc4cc55482a2cca5ceb56a94e3610cd2055f201ac",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/AgentStoreTests/Program.cs",
+      "before": "36a6213add1e5ca35dece4b7911ff2e9e17896211843249489d1b2a5087796a8",
+      "after": "756ce03cb1b3276b5bb72583fdab267e95331ee3ea51169c36d26ae58842de07",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/CoreProductScope.cs",
+      "before": "aa7229b77e6fd3979c3c4b47c78984e1e2913267ee16c98d1033cf4a9d4d0534",
+      "after": "18c83c0a9ecf54d97ec8fb9cfe46a1f8d762fca338c05c930ca2cb666f420124",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "f2864458cd6999e15a3f0eeed79fe17178e5b69e56c864cffba19b12741aa3ab",
+      "after": "2c2359128d7e3e135ae98b168a69796cbc2195dadc3e32e1de2d051d02cc5e2f",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/MainForm.cs",
+      "before": "0816fb8162ab6d78111de7864380773ee7af4c50a39f5d113fbf4ab33ae9b8b3",
+      "after": "3b6dca948c0e8833275862bcc0c59c434e9ce16f8fa781956b70cab83086f61f",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/Ui/byeollog_ui.html",
+      "before": "02346fb2e588f58dec9a68aa901689825bc8127dbb05e02b63a5850b230b8afd",
+      "after": "baa3334ccf935b0a11231902eabec4255ab3434d8ec32b36000b70e690b84ea3",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/windows-agent/WebViewTrustPolicy.cs",
+      "before": "30eb663908a578cfa25de3bdfd7cfa93a52863d21e49a10ef19f56f8e54ae7fc",
+      "after": "0d65e25118e8ee915bc04bd45035e505427458b33e52828ba76a243164af9bc6",
+      "status": "changed",
+      "release": "agent-1.0.0.57"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "11fd1c5e2ff03b89d63c2d09e38c426929bc36c17b2a5d4d2e2ef2677ea0bc04",
+      "after": "0e45fe27237359682f670cfbebdd278856a247b9b5844d0a769bb27ad9f4ee48",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "11fd1c5e2ff03b89d63c2d09e38c426929bc36c17b2a5d4d2e2ef2677ea0bc04",
+      "after": "0e45fe27237359682f670cfbebdd278856a247b9b5844d0a769bb27ad9f4ee48",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/web/installer/ByeollogAgentSetup.iss",
+      "before": "c4ab2a0ae6e728ada125e07417cf8d23fe6ab84613ed0901a103b7468933c1e4",
+      "after": "d60771d81f3f1bfc7bc9227c03b1f2b9626ad92376bb5733e151f23710c6cb83",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "3fe599a57673052e0926418817b27f77c589a5cf14a82918244ac65bc4d9772c",
+      "after": "904a3f8ab50761b7a4ef4496b8a8607a288e10d3f1812f09fb08e28d745af4cf",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/windows-agent/AgentStoreTests/UiAssetCacheTests.cs",
+      "before": "5a225460876b02d2f233676bd43e90edd7a2ea83d757a50183a7d1c360129504",
+      "after": "2f7de4436c52d0441053848fd92ce2d8a3288470cda8caa198dd8dea16d1b619",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "2c2359128d7e3e135ae98b168a69796cbc2195dadc3e32e1de2d051d02cc5e2f",
+      "after": "bd75875f3742ab36aac174ced375f7f5688b004c2102d46b902309d47e054b5c",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/windows-agent/MainForm.cs",
+      "before": "3b6dca948c0e8833275862bcc0c59c434e9ce16f8fa781956b70cab83086f61f",
+      "after": "832e2ef3f527923105e89e271ffdee9a1d7bb14991332f2aa8852e8654a73168",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/windows-agent/Ui/byeollog_ui.html",
+      "before": "baa3334ccf935b0a11231902eabec4255ab3434d8ec32b36000b70e690b84ea3",
+      "after": "c482b9a988bbee0797399b4b341df23a540ac302a08f7a921ce4e31295a9d746",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/windows-agent/UiAssetStore.cs",
+      "before": "a093572692b1cf2f83682213b812278f90f4714f921aea915a0b31382bb2eafc",
+      "after": "a9e6e75f2ade81014c49fb248e98b5c818db9e0b41866b66f44b692678067d1f",
+      "status": "changed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/windows-agent/WeflabSettingsForm.cs",
+      "before": "6bad6027169d429d23b9b9a861f3284fe1a9f274abdf2ff1850bd597ee47c98f",
+      "after": null,
+      "status": "removed",
+      "release": "agent-1.0.0.58"
+    },
+    {
+      "target": "apps/web/index.html",
+      "before": "00eb97edc8722b4e30a17a22b08e74b08b352ab5551304ebc17048973cb191f7",
+      "after": "fc40ed53a22be4745314882209d40ac6f483bfd7a4462b6eaa6bd41e3d2c23e2",
+      "status": "changed",
+      "release": "ops-2026.10.11-homepage-features"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "904a3f8ab50761b7a4ef4496b8a8607a288e10d3f1812f09fb08e28d745af4cf",
+      "after": "36e4e4d3b47f0d0c8aa709946c5320d63540ed4f9068beddfb902b7c86f42055",
+      "status": "changed",
+      "release": "ops-2026.10.11-homepage-features"
+    },
+    {
+      "target": "apps/web/index.html",
+      "before": "fc40ed53a22be4745314882209d40ac6f483bfd7a4462b6eaa6bd41e3d2c23e2",
+      "after": "c8708f47e6da252a0158d515e6216e3931e9ce7fa0e6ede3e36f6ee7c652a634",
+      "status": "changed",
+      "release": "ops-2026.10.11-homepage-intro"
+    },
+    {
+      "target": "apps/web/lib/upbo-collection-html.js",
+      "before": "17f3fc6e68eb25d7b607865f4b53e2f9d89faa760090ea476cd6a371f91d08ab",
+      "after": "949766ed928262a3ee2b990bda062bc69452d4f586c463fe00035a8e1238c518",
+      "status": "changed",
+      "release": "ops-2026.10.13-overlay-url-masking"
+    },
+    {
+      "target": "apps/admin-runtime/lib/upbo-collection-html.js",
+      "before": "17f3fc6e68eb25d7b607865f4b53e2f9d89faa760090ea476cd6a371f91d08ab",
+      "after": "949766ed928262a3ee2b990bda062bc69452d4f586c463fe00035a8e1238c518",
+      "status": "changed",
+      "release": "ops-2026.10.13-overlay-url-masking"
+    },
+    {
+      "target": "services/soop-gateway/services/soop-chat-gateway/.env.gateway.example",
+      "before": "cd694a4e53b8ad2b974e130bd40b7c2b22339f000e05ac12a2210b6078ec4599",
+      "after": "b6128adb5932fa2b793d7b1e5d3150dc7fae703481eda129c9e74a306108b896",
+      "status": "changed",
+      "release": "candidate-2026.10.14-auto-egress"
+    },
+    {
+      "target": "apps/windows-agent/Ui/wallpaper_editor.html",
+      "before": "7c5a32ed2beb9051b4ab268178d3eb3b1361bb357775200ee325058be9506fe3",
+      "after": "88fbe333f9992d69909eeea1e7586f592dd5807aa96a200f06bb7b8755e99896",
+      "status": "changed",
+      "release": "candidate-2026.10.22-wallpaper-resize-bounds"
+    },
+    {
+      "target": "apps/web/lib/product-dashboard-html.js",
+      "before": "faeb7b2f39bdf0089c565b4219b15ca8578bbccea4e183ca47aecd490a191b2d",
+      "after": "4df84c9d601d3d2a250e86219a8b909bc177807ce74a99e878d004a2ab101b0d",
+      "status": "changed",
+      "release": "candidate-2026.10.22-wallpaper-resize-bounds"
+    },
+    {
+      "target": "apps/admin-runtime/lib/product-dashboard-html.js",
+      "before": "faeb7b2f39bdf0089c565b4219b15ca8578bbccea4e183ca47aecd490a191b2d",
+      "after": "4df84c9d601d3d2a250e86219a8b909bc177807ce74a99e878d004a2ab101b0d",
+      "status": "changed",
+      "release": "candidate-2026.10.22-wallpaper-resize-bounds"
+    },
+    {
+      "target": "apps/collector-runtime/lib/product-dashboard-html.js",
+      "before": "faeb7b2f39bdf0089c565b4219b15ca8578bbccea4e183ca47aecd490a191b2d",
+      "after": "4df84c9d601d3d2a250e86219a8b909bc177807ce74a99e878d004a2ab101b0d",
+      "status": "changed",
+      "release": "candidate-2026.10.22-wallpaper-resize-bounds"
+    },
+    {
+      "target": "apps/public-runtime/lib/product-dashboard-html.js",
+      "before": "faeb7b2f39bdf0089c565b4219b15ca8578bbccea4e183ca47aecd490a191b2d",
+      "after": "4df84c9d601d3d2a250e86219a8b909bc177807ce74a99e878d004a2ab101b0d",
+      "status": "changed",
+      "release": "candidate-2026.10.22-wallpaper-resize-bounds"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "0e45fe27237359682f670cfbebdd278856a247b9b5844d0a769bb27ad9f4ee48",
+      "after": "f6db97a507f996471d0e656a673b766cc08df4be690553279cba236f4290f8b2",
+      "status": "changed",
+      "release": "agent-v1.0.0.59"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "0e45fe27237359682f670cfbebdd278856a247b9b5844d0a769bb27ad9f4ee48",
+      "after": "f6db97a507f996471d0e656a673b766cc08df4be690553279cba236f4290f8b2",
+      "status": "changed",
+      "release": "agent-v1.0.0.59"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "36e4e4d3b47f0d0c8aa709946c5320d63540ed4f9068beddfb902b7c86f42055",
+      "after": "e284e440ba244059351450b099cf0bc1bc352784a69d4fa7d8f3c8c597dd6187",
+      "status": "changed",
+      "release": "agent-v1.0.0.59"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "bd75875f3742ab36aac174ced375f7f5688b004c2102d46b902309d47e054b5c",
+      "after": "d592e13e6658dd2bb1040e6313cfc18d5492ae19441beb62874689bad1d77f32",
+      "status": "changed",
+      "release": "agent-v1.0.0.59"
+    },
+    {
+      "target": "apps/admin-runtime/agent-updates/stable/win-x64.json",
+      "before": "f6db97a507f996471d0e656a673b766cc08df4be690553279cba236f4290f8b2",
+      "after": "83953a5979a0070db4a88116765957b40bbc95d57cb6db34b8e01d26f0159034",
+      "status": "changed",
+      "release": "agent-v1.0.0.60"
+    },
+    {
+      "target": "apps/web/agent-updates/stable/win-x64.json",
+      "before": "f6db97a507f996471d0e656a673b766cc08df4be690553279cba236f4290f8b2",
+      "after": "83953a5979a0070db4a88116765957b40bbc95d57cb6db34b8e01d26f0159034",
+      "status": "changed",
+      "release": "agent-v1.0.0.60"
+    },
+    {
+      "target": "apps/web/vercel.json",
+      "before": "e284e440ba244059351450b099cf0bc1bc352784a69d4fa7d8f3c8c597dd6187",
+      "after": "f09598adae77fb8ae22fe7762b06af1aa9cc22a14ad10c2ba9c388600d6da27c",
+      "status": "changed",
+      "release": "agent-v1.0.0.60"
+    },
+    {
+      "target": "apps/windows-agent/HurogiCollector.csproj",
+      "before": "d592e13e6658dd2bb1040e6313cfc18d5492ae19441beb62874689bad1d77f32",
+      "after": "02c167abba383ef252f6c3805d32f3d980f322361bcaa61f5148efc984341a6f",
+      "status": "changed",
+      "release": "agent-v1.0.0.60"
+    },
+    {
+      "target": "apps/windows-agent/WallpaperOverlayState.cs",
+      "before": "5beb2ea57726e5c8ea64931a018dbd8a0bd2ff62f12508c8e984c2787beb3cf1",
+      "after": "eb10a222a4f6d7fec24f2a29b62a1546c3d5c3188f523b3b258ed445a916764a",
+      "status": "changed",
+      "release": "agent-v1.0.0.60"
     }
   ]
 }

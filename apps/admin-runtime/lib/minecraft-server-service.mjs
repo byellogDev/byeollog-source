@@ -20,21 +20,26 @@ function bearerToken(req) {
 }
 
 async function bodyOf(req) {
-  if (req.body && typeof req.body === "object" && !Buffer.isBuffer(req.body)) {
-    return req.body;
-  }
-  if (typeof req.body === "string") {
-    if (Buffer.byteLength(req.body, "utf8") > MAX_BODY_BYTES) throw new Error("request_invalid");
-    return JSON.parse(req.body);
-  }
-  let size = 0;
-  const chunks = [];
-  for await (const chunk of req) {
-    size += chunk.length;
-    if (size > MAX_BODY_BYTES) throw new Error("request_invalid");
-    chunks.push(chunk);
-  }
-  return JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
+  try {
+    let raw;
+    if (Buffer.isBuffer(req.body)) raw = req.body;
+    else if (typeof req.body === "string") raw = Buffer.from(req.body);
+    else if (req.body !== undefined) raw = Buffer.from(JSON.stringify(req.body));
+    else {
+      let size = 0; const chunks = [];
+      for await (const chunk of req) {
+        const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        size += bytes.length;
+        if (size > MAX_BODY_BYTES) throw new Error("request_invalid");
+        chunks.push(bytes);
+      }
+      raw = Buffer.concat(chunks);
+    }
+    if (raw.length > MAX_BODY_BYTES) throw new Error("request_invalid");
+    const body = JSON.parse(raw.toString("utf8"));
+    if (!body || Array.isArray(body) || typeof body !== "object") throw new Error("request_invalid");
+    return body;
+  } catch { throw new Error("request_invalid"); }
 }
 
 function operationOf(req) {
@@ -115,7 +120,7 @@ export function createMinecraftServerHandler({ store } = {}) {
           return res.status(400).json({ code: "request_expired" });
         }
       }
-      if (code === "request_invalid" || code.startsWith("Invalid Minecraft")) {
+      if (code === "request_invalid" || code === "minecraft_server_request_invalid" || code.startsWith("Invalid Minecraft")) {
         return res.status(400).json({ code: "request_invalid" });
       }
       console.error("[minecraft-server] request failed", { code: code.slice(0, 100) });
@@ -123,4 +128,3 @@ export function createMinecraftServerHandler({ store } = {}) {
     }
   };
 }
-

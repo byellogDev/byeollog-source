@@ -15,6 +15,7 @@ bin/
 obj/
 output/
 .local/
+.server-credentials/
 test-results/
 *.zip
 *.exe

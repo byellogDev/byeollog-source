@@ -28,9 +28,24 @@ internal static partial class Program
 
     private static async Task Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--session-vault-restart-check")
+        {
+            var saved = new VNextSessionVault(args[1]);
+            True(saved.TryRead(out var session), "new process can decrypt the remembered session");
+            Equal("testRt012345", session.RefreshToken, "new process restores the exact short token");
+            return;
+        }
+        if (args.Contains("--ui-cache-only") || args.Contains("--ui-cache-webview"))
+        {
+            var cacheRoot = Path.Combine(Path.GetTempPath(), "byeollog-ui-cache-tests", Guid.NewGuid().ToString("N"));
+            var preparedUi = UiAssetCacheTests(cacheRoot);
+            Console.WriteLine($"PASS: {_assertions} UI cache assertions");
+            if (args.Contains("--ui-cache-webview")) await WallpaperWebViewPreflight.RunAsync(preparedUi, true);
+            return;
+        }
         if (args.Length >= 2 && args[0] == "--webview-preflight")
         {
-            await WallpaperWebViewPreflight.RunAsync(Path.GetFullPath(args[1]));
+            await WallpaperWebViewPreflight.RunAsync(Path.GetFullPath(args[1]), args.Contains("--hidden-only"));
             return;
         }
         if (args.Length >= 2 && string.Equals(args[0], "--wallpaper-harness", StringComparison.Ordinal))
@@ -53,6 +68,19 @@ internal static partial class Program
 
         try
         {
+            await AnnouncementTestsAsync();
+            UiAssetCacheTests(Path.Combine(root, "ui-cache"));
+            WeflabTrialProtocolTests();
+            if (args.Contains("--weflab-trial-only")) { Console.WriteLine($"PASS: {_assertions} Weflab trial assertions"); return; }
+            await DrawBoardTestsAsync(root);
+            if (args.Contains("--draw-board-only")) { Console.WriteLine($"PASS: {_assertions} draw board assertions"); return; }
+            await WallpaperAppearanceTestsAsync(root);
+            await WallpaperHiddenCardsTestsAsync(root);
+            if (args.Contains("--appearance-only")) { Console.WriteLine($"PASS: {_assertions} appearance assertions"); return; }
+            await WallpaperDetachedTestsAsync(root);
+            if (args.Contains("--detached-only")) { Console.WriteLine($"PASS: {_assertions} detached assertions"); return; }
+            await WallpaperBaekdusanTestsAsync(root);
+            if (args.Contains("--baekdusan-only")) { Console.WriteLine($"PASS: {_assertions} baekdusan assertions"); return; }
             if (args.Contains("--settings-transactions-only", StringComparer.Ordinal))
             {
                 await WallpaperSettingsTransactionTestsAsync(root);
@@ -120,6 +148,12 @@ internal static partial class Program
             ActionSoundAssetTests();
 
             SessionVaultTests(root);
+            Equal("attention", AgentConnectionPresentation.RecoveryState(false, false, true, "ready", false), "invalidated saved login must not promise automatic recovery");
+            Equal("attention", AgentConnectionPresentation.RecoveryState(false, true, true, "ready", false), "stale connected status cannot hide a lost login");
+            Equal("recovering", AgentConnectionPresentation.RecoveryState(true, false, true, "retrying", false), "temporary network failure keeps recovery display");
+            Equal("ready", AgentConnectionPresentation.RecoveryState(true, true, true, "ready", false), "authenticated connection is ready");
+            Equal("failed", AgentConnectionPresentation.RecoveryState(true, false, false, "ready", true), "initialization failure is not a network retry");
+            Equal("attention", AgentConnectionPresentation.RecoveryState(false, false, false, "attention", false), "session explicitly requiring login remains actionable");
             ActionFreshnessTests();
             WallpaperSyncRequestTrackerTests();
             AgentWallpaperSnapshotMapperTests();
@@ -707,6 +741,36 @@ internal static partial class Program
         False(new VNextSessionVault(vaultRoot).TryRead(out _), "unchecked auto-login blocks even a stale encrypted vault");
         vault.ApplyLoginPreference(remembered, autoLogin: true);
         True(new VNextSessionVault(vaultRoot).TryRead(out _), "explicitly enabling auto-login restores persistence");
+
+        // Supabase also issues 12-character opaque refresh tokens; a JWT-sized
+        // fixture alone misses rejected persistence after an otherwise valid login.
+        var shortSession = remembered with { RefreshToken = "testRt012345" };
+        vault.ApplyLoginPreference(shortSession, autoLogin: true);
+        True(new VNextSessionVault(vaultRoot).TryRead(out var shortRestored),
+            "12-character refresh token survives vault reinitialization");
+        Equal(shortSession.RefreshToken, shortRestored.RefreshToken, "short opaque token is preserved exactly");
+        Equal(workspaceId, shortRestored.WorkspaceId, "short token keeps the bound workspace");
+        Equal(userId, shortRestored.UserId, "short token keeps the bound principal");
+        False(Encoding.UTF8.GetString(File.ReadAllBytes(vaultPath)).Contains(shortSession.RefreshToken, StringComparison.Ordinal),
+            "short token remains DPAPI encrypted");
+        var restart = new ProcessStartInfo("dotnet") { UseShellExecute = false, CreateNoWindow = true };
+        restart.ArgumentList.Add(typeof(Program).Assembly.Location);
+        restart.ArgumentList.Add("--session-vault-restart-check");
+        restart.ArgumentList.Add(vaultRoot);
+        using (var child = Process.Start(restart)!)
+        {
+            if (!child.WaitForExit(30_000)) { child.Kill(entireProcessTree: true); throw new Exception("Vault restart check timed out"); }
+            Equal(0, child.ExitCode, "separate process restores a short encrypted refresh token");
+        }
+        foreach (var invalidToken in new[] { "", " ", "test Rt01234", "testRt01234\n", "testRt01234\0", new string('x', 16_385) })
+        {
+            Throws<InvalidOperationException>(() => vault.Save(shortSession with { RefreshToken = invalidToken }),
+                "empty, whitespace, control or oversized token is rejected");
+            True(vault.TryRead(out var preserved), "rejected save preserves previous session");
+            Equal(shortSession.RefreshToken, preserved.RefreshToken, "rejected save never replaces valid token");
+        }
+        vault.ApplyLoginPreference(null, autoLogin: false);
+        False(new VNextSessionVault(vaultRoot).TryRead(out _), "disabling auto-login also removes short tokens");
     }
 
     private static void ActionSoundAssetTests()

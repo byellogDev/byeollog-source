@@ -10,6 +10,9 @@ export const PUBLIC_OUTPUT_DIRECTORY='public-dist';
 // project directory.
 export const PUBLIC_FILES=Object.freeze([
   '.well-known/security.txt',
+  'announcements/feed.json',
+  'announcements/announcement.css',
+  'announcements/2026-10-11-upbo-collection.html',
   'agent-updates/stable/win-x64.json',
   'assets/byeollog-theme.css',
   'assets/byeollog-ui.js',
@@ -39,6 +42,8 @@ export const PUBLIC_FILES=Object.freeze([
   'privacy.html',
   'legal/previous/privacy-20260909.html',
   'legal/previous/terms-20260909.html',
+  'legal/previous/privacy-20260914.html',
+  'legal/previous/terms-20260914.html',
   'reset-password.html',
   'signup-status.html',
   'signup.html',
